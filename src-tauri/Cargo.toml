@@ -18,7 +18,7 @@ tauri-build = { workspace = true }
 [dependencies]
 smoothscroll_core = { workspace = true }
 smoothscroll_platform = { workspace = true }
-tauri = { workspace = true, features = ["tray-icon"] }
+tauri = { workspace = true, features = ["tray-icon", "image-png"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 parking_lot = { workspace = true }

@@ -2,11 +2,52 @@
 
 use crate::state::AppState;
 use smoothscroll_core::engine::SmoothScrollEngine;
-use smoothscroll_core::settings::{self, AppSettings};
+use smoothscroll_core::settings::{self, is_valid_accelerator, AppSettings};
 use smoothscroll_platform::traits::ProcessInfo;
+use smoothscroll_platform::types::Accelerator;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use tauri::State;
+use tauri::{AppHandle, Emitter, State};
+
+/// Emit the canonical `enabled-changed` event so any open windows pick up
+/// the change. Safe to call when no windows exist.
+pub(crate) fn emit_enabled_changed<R: tauri::Runtime>(app: &AppHandle<R>, enabled: bool) {
+    let _ = app.emit("enabled-changed", enabled);
+}
+
+/// Re-register the global hotkey using the current settings. Returns the
+/// platform error string on failure. Safe to call repeatedly: any previous
+/// handle is dropped first so the OS slot is freed before re-registering.
+pub(crate) fn register_hotkey_internal(
+    state: &Arc<AppState>,
+    accel: &str,
+) -> Result<(), String> {
+    if !is_valid_accelerator(accel) {
+        return Err(format!("invalid accelerator '{accel}'"));
+    }
+    // Drop any existing handle first to release the OS slot.
+    *state.hotkey_handle.lock() = None;
+
+    let toggle_state = state.clone();
+    let on_pressed: Box<dyn Fn() + Send + Sync> = Box::new(move || {
+        let new_enabled = !toggle_state.enabled.load(Ordering::Relaxed);
+        toggle_state.enabled.store(new_enabled, Ordering::Relaxed);
+        toggle_state.engine_signal.signal();
+        tracing::info!(enabled = new_enabled, "hotkey toggled");
+    });
+    state
+        .hotkey
+        .register(
+            Accelerator {
+                raw: accel.to_string(),
+            },
+            on_pressed,
+        )
+        .map(|h| {
+            *state.hotkey_handle.lock() = Some(h);
+        })
+        .map_err(|e| e.to_string())
+}
 
 #[tauri::command]
 pub fn ping() -> &'static str {
@@ -19,7 +60,11 @@ pub fn get_enabled(state: State<'_, Arc<AppState>>) -> bool {
 }
 
 #[tauri::command]
-pub fn set_enabled(state: State<'_, Arc<AppState>>, enabled: bool) {
+pub fn set_enabled<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, Arc<AppState>>,
+    enabled: bool,
+) {
     state.enabled.store(enabled, Ordering::Relaxed);
     if enabled {
         state.engine_signal.signal();
@@ -28,6 +73,7 @@ pub fn set_enabled(state: State<'_, Arc<AppState>>, enabled: bool) {
         let s = e.settings().clone();
         *e = SmoothScrollEngine::new(s);
     }
+    emit_enabled_changed(&app, enabled);
     tracing::info!(enabled, "set_enabled");
 }
 
@@ -37,7 +83,11 @@ pub fn get_settings(state: State<'_, Arc<AppState>>) -> AppSettings {
 }
 
 #[tauri::command]
-pub fn save_settings(state: State<'_, Arc<AppState>>, settings: AppSettings) -> Result<(), String> {
+pub fn save_settings<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, Arc<AppState>>,
+    settings: AppSettings,
+) -> Result<(), String> {
     let mut clamped = settings;
     clamped.clamp();
 
@@ -51,7 +101,55 @@ pub fn save_settings(state: State<'_, Arc<AppState>>, settings: AppSettings) -> 
     state.enabled.store(clamped.enabled, Ordering::Relaxed);
     state.engine_signal.signal();
 
+    emit_enabled_changed(&app, clamped.enabled);
     tracing::debug!("settings saved");
+    Ok(())
+}
+
+/// Toggle the global hotkey on/off without restarting. Persists to settings.
+#[tauri::command]
+pub fn set_hotkey_enabled(
+    state: State<'_, Arc<AppState>>,
+    enabled: bool,
+) -> Result<(), String> {
+    {
+        let mut s = state.settings.write();
+        s.enable_global_hotkey = enabled;
+    }
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    if enabled {
+        let accel = snapshot.hotkey_accelerator.clone();
+        let state_arc: Arc<AppState> = (*state).clone();
+        register_hotkey_internal(&state_arc, &accel)?;
+    } else {
+        *state.hotkey_handle.lock() = None;
+    }
+    Ok(())
+}
+
+/// Replace the current global hotkey with a new accelerator. Validates,
+/// re-registers, then persists.
+#[tauri::command]
+pub fn set_hotkey_accelerator(
+    state: State<'_, Arc<AppState>>,
+    accelerator: String,
+) -> Result<(), String> {
+    if !is_valid_accelerator(&accelerator) {
+        return Err(format!("invalid accelerator '{accelerator}'"));
+    }
+    {
+        let mut s = state.settings.write();
+        s.hotkey_accelerator = accelerator.clone();
+    }
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    if snapshot.enable_global_hotkey {
+        let state_arc: Arc<AppState> = (*state).clone();
+        register_hotkey_internal(&state_arc, &accelerator)?;
+    }
     Ok(())
 }
 
@@ -110,7 +208,11 @@ pub fn set_autostart(state: State<'_, Arc<AppState>>, enabled: bool) -> Result<(
 }
 
 #[tauri::command]
-pub fn change_language(state: State<'_, Arc<AppState>>, lang: String) -> Result<(), String> {
+pub fn change_language<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, Arc<AppState>>,
+    lang: String,
+) -> Result<(), String> {
     {
         let mut s = state.settings.write();
         s.language = lang;
@@ -118,6 +220,7 @@ pub fn change_language(state: State<'_, Arc<AppState>>, lang: String) -> Result<
     }
     let snapshot = state.settings.read().clone();
     smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    let _ = app.emit("language-changed", snapshot.language.clone());
     Ok(())
 }
 
@@ -168,5 +271,6 @@ fn open_path(path: &std::path::Path) -> std::io::Result<()> {
     {
         std::process::Command::new("open").arg(path).spawn()?;
     }
+    let _ = path;
     Ok(())
 }

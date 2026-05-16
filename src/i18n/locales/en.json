@@ -11,7 +11,13 @@
     "behavior": "Behavior",
     "excluded_apps": "Excluded apps",
     "language": "Language",
+    "theme": "Appearance",
+    "test_scroll": "Test scrolling",
     "about": "About"
+  },
+  "test_scroll": {
+    "description": "Scroll inside the box to feel current settings.",
+    "line": "Line {{n}} — try the wheel here"
   },
   "settings": {
     "step_size": {
@@ -41,6 +47,7 @@
     "easing_curve": {
       "title": "Easing curve",
       "desc": "Shape of the deceleration curve",
+      "preview": "Preview",
       "ExponentialOut": "Exponential Out (default)",
       "CubicOut": "Cubic Out",
       "QuinticOut": "Quintic Out",
@@ -60,15 +67,29 @@
     },
     "global_hotkey": {
       "title": "Global hotkey",
-      "desc": "Press Ctrl+Alt+S anywhere to toggle smooth scrolling"
+      "desc": "Press the chosen combination anywhere to toggle smooth scrolling"
+    },
+    "hotkey_accelerator": {
+      "title": "Hotkey combination",
+      "desc": "Click and press the keys you want to use",
+      "press": "Press a key combination…",
+      "empty": "Click to record",
+      "aria": "Hotkey combination input"
     },
     "start_with_os": {
       "title": "Start with Windows",
-        "desc": "Launch SmoothScroll on login"
+      "desc": "Launch SmoothScroll on login"
     },
     "start_minimized": {
       "title": "Start minimized to tray",
       "desc": "Hide the settings window on launch"
+    },
+    "theme": {
+      "title": "Theme",
+      "desc": "Light, dark, or follow the system",
+      "Light": "Light",
+      "Dark": "Dark",
+      "System": "System"
     }
   },
   "excluded": {

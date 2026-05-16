@@ -25,11 +25,6 @@
     ],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: https://asset.localhost"
-    },
-    "trayIcon": {
-      "id": "main",
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": false
     }
   },
   "bundle": {

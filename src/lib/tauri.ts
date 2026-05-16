@@ -6,6 +6,8 @@ export type EasingMode =
   | "QuinticOut"
   | "Linear";
 
+export type ThemeMode = "Light" | "Dark" | "System";
+
 export interface AppSettings {
   enabled: boolean;
   step_size_px: number;
@@ -21,7 +23,9 @@ export interface AppSettings {
   start_with_os: boolean;
   start_minimized: boolean;
   language: string;
+  theme: ThemeMode;
   enable_global_hotkey: boolean;
+  hotkey_accelerator: string;
   show_tray_icon_state: boolean;
   excluded_apps: string[];
 }
@@ -41,6 +45,11 @@ export const tauri = {
   getSettings: () => invoke<AppSettings>("get_settings"),
   saveSettings: (settings: AppSettings) =>
     invoke<void>("save_settings", { settings }),
+
+  setHotkeyEnabled: (enabled: boolean) =>
+    invoke<void>("set_hotkey_enabled", { enabled }),
+  setHotkeyAccelerator: (accelerator: string) =>
+    invoke<void>("set_hotkey_accelerator", { accelerator }),
 
   listRunningProcesses: () => invoke<ProcessInfo[]>("list_running_processes"),
   addExcludedApp: (name: string) =>

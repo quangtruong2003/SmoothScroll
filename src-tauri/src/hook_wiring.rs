@@ -29,11 +29,23 @@ impl EngineSink {
     }
 
     fn is_excluded(&self) -> bool {
+        // Fast path: skip the cursor-under-process lookup entirely when the
+        // user has no exclusions. This is the common case and saves us from
+        // walking the window list on every wheel notch.
+        if self.state.settings.read().excluded_apps.is_empty() {
+            return false;
+        }
+        let start = std::time::Instant::now();
         let process_name = match self.state.processes.process_name_under_cursor() {
             Some(n) => n,
             None => return false,
         };
-        self.state.settings.read().is_excluded(&process_name)
+        let result = self.state.settings.read().is_excluded(&process_name);
+        let elapsed = start.elapsed();
+        if elapsed > std::time::Duration::from_millis(2) {
+            tracing::debug!(?elapsed, process = %process_name, "is_excluded slow path");
+        }
+        result
     }
 
     fn route_vertical(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
@@ -162,6 +174,7 @@ mod tests {
             processes: Arc::new(StubProcessQuery),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
+            hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
         })
@@ -193,6 +206,7 @@ mod tests {
             }),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
+            hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
         })

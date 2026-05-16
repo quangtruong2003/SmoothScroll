@@ -136,5 +136,13 @@ fn parse_key(s: &str) -> Result<u32> {
             return Ok(c as u32);
         }
     }
+    if let Some(rest) = s.strip_prefix(['f', 'F']) {
+        if let Ok(n) = rest.parse::<u32>() {
+            if (1..=24).contains(&n) {
+                // VK_F1 = 0x70, F1..F24 are sequential
+                return Ok(0x70 + (n - 1));
+            }
+        }
+    }
     Err(PlatformError::Os(format!("unsupported key '{s}'")))
 }

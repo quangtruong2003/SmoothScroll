@@ -3,7 +3,9 @@
 use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::AppSettings;
-use smoothscroll_platform::traits::{Autostart, Hotkey, MouseHook, ProcessQuery, WheelEmitter};
+use smoothscroll_platform::traits::{
+    Autostart, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter,
+};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
@@ -30,13 +32,7 @@ pub struct AppState {
     pub processes: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,
+    pub hotkey_handle: Arc<Mutex<Option<HotkeyHandle>>>,
     pub engine_signal: Arc<EngineSignal>,
     pub enabled: Arc<AtomicBool>,
-}
-
-#[allow(dead_code)]
-impl AppState {
-    pub fn snapshot_settings(&self) -> AppSettings {
-        self.settings.read().clone()
-    }
 }

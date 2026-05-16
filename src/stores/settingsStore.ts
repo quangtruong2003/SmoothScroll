@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { tauri, type AppSettings } from "@/lib/tauri";
 import { debounce } from "@/lib/debounce";
+import { applyTheme } from "@/lib/theme";
 
 interface SettingsStore {
   settings: AppSettings | null;
@@ -10,6 +11,10 @@ interface SettingsStore {
   load: () => Promise<void>;
   patch: (patch: Partial<AppSettings>) => void;
   saveNow: () => Promise<void>;
+  /** Update only the in-memory `enabled` flag without persisting. Used by
+   *  the `enabled-changed` event listener so tray/hotkey toggles propagate
+   *  into the UI store immediately. */
+  setEnabledFromEvent: (enabled: boolean) => void;
 }
 
 const SAVE_DEBOUNCE_MS = 250;
@@ -31,6 +36,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const settings = await tauri.getSettings();
+      applyTheme(settings.theme);
       set({ settings, loading: false });
     } catch (e) {
       set({ loading: false, error: String(e) });
@@ -41,6 +47,9 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const current = get().settings;
     if (!current) return;
     const next = { ...current, ...patch };
+    if (patch.theme && patch.theme !== current.theme) {
+      applyTheme(patch.theme);
+    }
     set({ settings: next });
     debouncedPersist(next);
   },
@@ -49,5 +58,12 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const current = get().settings;
     if (!current) return;
     await tauri.saveSettings(current);
+  },
+
+  setEnabledFromEvent: (enabled) => {
+    const current = get().settings;
+    if (!current) return;
+    if (current.enabled === enabled) return;
+    set({ settings: { ...current, enabled } });
   },
 }));

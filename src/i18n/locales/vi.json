@@ -11,7 +11,13 @@
     "behavior": "Hành vi",
     "excluded_apps": "Ứng dụng loại trừ",
     "language": "Ngôn ngữ",
+    "theme": "Giao diện",
+    "test_scroll": "Thử cuộn",
     "about": "Giới thiệu"
+  },
+  "test_scroll": {
+    "description": "Cuộn trong khung dưới đây để cảm nhận cài đặt hiện tại.",
+    "line": "Dòng {{n}} — thử lăn chuột tại đây"
   },
   "settings": {
     "step_size": {
@@ -41,6 +47,7 @@
     "easing_curve": {
       "title": "Đường cong easing",
       "desc": "Hình dạng của đường cong giảm tốc",
+      "preview": "Xem trước",
       "ExponentialOut": "Exponential Out (mặc định)",
       "CubicOut": "Cubic Out",
       "QuinticOut": "Quintic Out",
@@ -60,7 +67,14 @@
     },
     "global_hotkey": {
       "title": "Phím tắt toàn cục",
-      "desc": "Nhấn Ctrl+Alt+S ở bất kỳ đâu để bật/tắt cuộn mượt"
+      "desc": "Nhấn tổ hợp đã chọn ở bất kỳ đâu để bật/tắt cuộn mượt"
+    },
+    "hotkey_accelerator": {
+      "title": "Tổ hợp phím tắt",
+      "desc": "Nhấn vào ô và bấm tổ hợp phím bạn muốn",
+      "press": "Bấm tổ hợp phím…",
+      "empty": "Bấm để ghi",
+      "aria": "Ô nhập tổ hợp phím tắt"
     },
     "start_with_os": {
       "title": "Khởi động cùng Windows",
@@ -69,6 +83,13 @@
     "start_minimized": {
       "title": "Khởi động ẩn xuống khay",
       "desc": "Ẩn cửa sổ cài đặt khi khởi chạy"
+    },
+    "theme": {
+      "title": "Giao diện",
+      "desc": "Sáng, tối hoặc theo hệ thống",
+      "Light": "Sáng",
+      "Dark": "Tối",
+      "System": "Theo hệ thống"
     }
   },
   "excluded": {

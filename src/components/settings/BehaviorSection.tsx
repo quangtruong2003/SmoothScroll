@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { tauri } from "@/lib/tauri";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { HotkeyRecorderInput } from "@/components/HotkeyRecorderInput";
 import { SettingRow } from "./SettingRow";
 
 export function BehaviorSection() {
@@ -11,6 +12,7 @@ export function BehaviorSection() {
   const settings = useSettingsStore((s) => s.settings);
   const patch = useSettingsStore((s) => s.patch);
   const [autostart, setAutostartState] = useState(false);
+  const [hotkeyError, setHotkeyError] = useState<string | null>(null);
 
   useEffect(() => {
     tauri.getAutostart().then(setAutostartState);
@@ -24,6 +26,29 @@ export function BehaviorSection() {
       setAutostartState(next);
     } catch (e) {
       console.error("setAutostart failed", e);
+    }
+  };
+
+  const onHotkeyEnabledChange = async (next: boolean) => {
+    setHotkeyError(null);
+    patch({ enable_global_hotkey: next });
+    try {
+      await tauri.setHotkeyEnabled(next);
+    } catch (e) {
+      setHotkeyError(String(e));
+      patch({ enable_global_hotkey: !next });
+    }
+  };
+
+  const onHotkeyCommit = async (accel: string) => {
+    setHotkeyError(null);
+    const previous = settings.hotkey_accelerator;
+    patch({ hotkey_accelerator: accel });
+    try {
+      await tauri.setHotkeyAccelerator(accel);
+    } catch (e) {
+      setHotkeyError(String(e));
+      patch({ hotkey_accelerator: previous });
     }
   };
 
@@ -41,8 +66,27 @@ export function BehaviorSection() {
           <Switch
             id="hotkey-toggle"
             checked={settings.enable_global_hotkey}
-            onCheckedChange={(v) => patch({ enable_global_hotkey: v })}
+            onCheckedChange={onHotkeyEnabledChange}
           />
+        </SettingRow>
+
+        <SettingRow
+          htmlFor="hotkey-accel"
+          title={t("settings.hotkey_accelerator.title")}
+          description={t("settings.hotkey_accelerator.desc")}
+        >
+          <div className="flex flex-col items-end gap-1">
+            <HotkeyRecorderInput
+              value={settings.hotkey_accelerator}
+              onCommit={onHotkeyCommit}
+              disabled={!settings.enable_global_hotkey}
+            />
+            {hotkeyError && (
+              <span className="text-xs text-destructive max-w-[12rem] text-right">
+                {hotkeyError}
+              </span>
+            )}
+          </div>
         </SettingRow>
 
         <SettingRow

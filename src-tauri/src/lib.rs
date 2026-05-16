@@ -11,8 +11,7 @@ use hook_wiring::EngineSink;
 use parking_lot::{Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings;
-use smoothscroll_platform::traits::{HookHandle, HotkeyHandle};
-use smoothscroll_platform::types::Accelerator;
+use smoothscroll_platform::traits::HookHandle;
 use state::{AppState, EngineSignal};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -37,6 +36,7 @@ pub fn run() {
         processes: platform.process_query,
         autostart: platform.autostart,
         hotkey: platform.hotkey,
+        hotkey_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
     });
@@ -59,24 +59,14 @@ pub fn run() {
         Err(smoothscroll_platform::types::PlatformError::PermissionDenied)
     };
 
-    // Register global hotkey (Ctrl+Alt+S) if enabled in settings.
-    let hotkey_result = if app_state.settings.read().enable_global_hotkey {
-        let toggle_state = app_state.clone();
-        let on_pressed: Box<dyn Fn() + Send + Sync> = Box::new(move || {
-            let new_enabled = !toggle_state.enabled.load(Ordering::Relaxed);
-            toggle_state.enabled.store(new_enabled, Ordering::Relaxed);
-            toggle_state.engine_signal.signal();
-            tracing::info!(enabled = new_enabled, "hotkey toggled");
-        });
-        app_state.hotkey.register(
-            Accelerator {
-                raw: "Ctrl+Alt+S".to_string(),
-            },
-            on_pressed,
-        )
-    } else {
-        Err(smoothscroll_platform::types::PlatformError::Unsupported)
-    };
+    // Register global hotkey from settings if enabled.
+    if app_state.settings.read().enable_global_hotkey {
+        let accel = app_state.settings.read().hotkey_accelerator.clone();
+        match commands::register_hotkey_internal(&app_state, &accel) {
+            Ok(()) => tracing::info!(accel = %accel, "hotkey registered"),
+            Err(e) => tracing::warn!(error = %e, "hotkey registration failed"),
+        }
+    }
 
     let state_for_setup = app_state.clone();
 
@@ -88,8 +78,6 @@ pub fn run() {
         _engine: EngineThread,
         #[allow(dead_code)]
         _hook: Option<HookHandle>,
-        #[allow(dead_code)]
-        _hotkey: Option<HotkeyHandle>,
         #[cfg(windows)]
         #[allow(dead_code)]
         _timer: smoothscroll_platform::windows::HighResTimerGuard,
@@ -98,7 +86,6 @@ pub fn run() {
     let owned = OwnedHandles {
         _engine: engine_thread,
         _hook: hook_result.ok(),
-        _hotkey: hotkey_result.ok(),
         #[cfg(windows)]
         _timer: smoothscroll_platform::windows::HighResTimerGuard::begin(1),
     };
@@ -135,6 +122,8 @@ pub fn run() {
             commands::set_enabled,
             commands::get_settings,
             commands::save_settings,
+            commands::set_hotkey_enabled,
+            commands::set_hotkey_accelerator,
             commands::list_running_processes,
             commands::add_excluded_app,
             commands::remove_excluded_app,

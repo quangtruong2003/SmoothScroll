@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useSettingsStore } from "@/stores/settingsStore";
 import type { EasingMode } from "@/lib/tauri";
+import { EasingCurvePreview } from "@/components/EasingCurvePreview";
 import { SettingRow } from "./SettingRow";
 
 export function AppearanceSection() {
@@ -66,6 +67,17 @@ export function AppearanceSection() {
             </SelectContent>
           </Select>
         </SettingRow>
+
+        <div className="flex flex-col gap-2 py-3">
+          <span className="text-xs uppercase tracking-wide text-muted-foreground">
+            {t("settings.easing_curve.preview")}
+          </span>
+          <EasingCurvePreview
+            mode={settings.easing_mode}
+            tailToHeadRatio={settings.tail_to_head_ratio}
+            enabled={settings.animation_easing}
+          />
+        </div>
       </CardContent>
     </Card>
   );
