@@ -29,6 +29,15 @@ export function SettingsPage() {
     load();
   }, [load]);
 
+  // Background update check 5s after mount. Result is discarded; user must
+  // visit About → Check now to see status. Keeping launch silent.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      void import("@/lib/updater").then(({ checkForUpdate }) => checkForUpdate());
+    }, 5000);
+    return () => clearTimeout(handle);
+  }, []);
+
   useEffect(() => {
     const unlistenPromise = listen<boolean>("enabled-changed", (event) => {
       setEnabledFromEvent(Boolean(event.payload));

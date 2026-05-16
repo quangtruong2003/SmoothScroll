@@ -23,6 +23,14 @@
     "appearance": "外观",
     "about": "关于"
   },
+  "presets": {
+    "slow": "慢速",
+    "default": "默认",
+    "fast": "快速",
+    "snappy": "极速",
+    "mac_like": "Mac 风格",
+    "linear": "线性"
+  },
   "test_scroll": {
     "description": "在下面的方框内滚动以体验当前设置。",
     "line": "第 {{n}} 行 — 在此处试试滚轮"
@@ -129,7 +137,16 @@
     "version": "版本",
     "open_logs": "打开日志文件夹",
     "homepage": "主页",
-    "homepage_url": "https://github.com/quangtruong2003/smoothscroll"
+    "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
+    "updates": "更新",
+    "check_now": "立即检查",
+    "checking": "正在检查…",
+    "up_to_date": "您正在使用最新版本。",
+    "update_available": "有可用更新: v{{version}}",
+    "install_now": "立即安装",
+    "downloading": "正在下载… {{pct}}%",
+    "ready_to_restart": "已安装更新。重新启动以应用。",
+    "restart_now": "立即重启"
   },
   "tray": {
     "quick_access": "快速访问",

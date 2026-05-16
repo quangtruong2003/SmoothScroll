@@ -15,15 +15,15 @@ export function TestSandboxSection() {
   );
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <CardHeader>
         <CardTitle>{t("section.test_scroll")}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-1 min-h-0 flex-col gap-3">
         <p className="text-sm text-muted-foreground">
           {t("test_scroll.description")}
         </p>
-        <div className="h-72 overflow-y-auto rounded-md border bg-muted/20 p-4">
+        <div className="flex-1 min-h-0 overflow-y-auto rounded-md border bg-muted/20 p-4">
           <ul className="space-y-2 text-sm font-mono">
             {items.map((n) => (
               <li

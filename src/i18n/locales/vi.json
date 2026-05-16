@@ -137,7 +137,16 @@
     "version": "Phiên bản",
     "open_logs": "Mở thư mục log",
     "homepage": "Trang chủ",
-    "homepage_url": "https://github.com/quangtruong2003/smoothscroll"
+    "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
+    "updates": "Cập nhật",
+    "check_now": "Kiểm tra ngay",
+    "checking": "Đang kiểm tra…",
+    "up_to_date": "Bạn đang dùng phiên bản mới nhất.",
+    "update_available": "Có bản mới: v{{version}}",
+    "install_now": "Cài đặt ngay",
+    "downloading": "Đang tải… {{pct}}%",
+    "ready_to_restart": "Đã cài đặt. Khởi động lại để áp dụng.",
+    "restart_now": "Khởi động lại"
   },
   "tray": {
     "quick_access": "Truy cập nhanh",
