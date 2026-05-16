@@ -1,5 +1,5 @@
 //! macOS autostart via LaunchAgent plist at
-//! `~/Library/LaunchAgents/com.softscroll.next.plist`.
+//! `~/Library/LaunchAgents/com.smoothscroll.app.plist`.
 
 #![cfg(target_os = "macos")]
 
@@ -7,7 +7,7 @@ use crate::traits::Autostart;
 use crate::types::{PlatformError, Result};
 use std::path::PathBuf;
 
-const LABEL: &str = "com.softscroll.next";
+const LABEL: &str = "com.smoothscroll.app";
 
 pub struct MacosAutostart;
 

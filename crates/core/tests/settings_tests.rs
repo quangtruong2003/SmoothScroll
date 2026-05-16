@@ -1,7 +1,7 @@
 #![allow(clippy::field_reassign_with_default)]
 
-use softscroll_core::easing::EasingMode;
-use softscroll_core::settings::AppSettings;
+use smoothscroll_core::easing::EasingMode;
+use smoothscroll_core::settings::AppSettings;
 
 #[test]
 fn defaults_are_unchanged_after_clamp() {

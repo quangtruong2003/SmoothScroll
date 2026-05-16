@@ -7,7 +7,7 @@ fn kill_running_instance() {
     #[cfg(windows)]
     {
         let _ = std::process::Command::new("taskkill")
-            .args(["/F", "/IM", "softscroll-app.exe", "/T"])
+            .args(["/F", "/IM", "smoothscroll-app.exe", "/T"])
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
             .status();
@@ -15,7 +15,7 @@ fn kill_running_instance() {
     #[cfg(target_os = "macos")]
     {
         let _ = std::process::Command::new("pkill")
-            .args(["-x", "softscroll-app"])
+            .args(["-x", "smoothscroll-app"])
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
             .status();

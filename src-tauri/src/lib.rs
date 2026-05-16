@@ -9,10 +9,10 @@ mod tray;
 use engine_thread::EngineThread;
 use hook_wiring::EngineSink;
 use parking_lot::{Mutex, RwLock};
-use softscroll_core::engine::SmoothScrollEngine;
-use softscroll_core::settings;
-use softscroll_platform::traits::{HookHandle, HotkeyHandle};
-use softscroll_platform::types::Accelerator;
+use smoothscroll_core::engine::SmoothScrollEngine;
+use smoothscroll_core::settings;
+use smoothscroll_platform::traits::{HookHandle, HotkeyHandle};
+use smoothscroll_platform::types::Accelerator;
 use state::{AppState, EngineSignal};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -22,7 +22,7 @@ use tauri::Manager;
 pub fn run() {
     init_logging();
 
-    let platform = softscroll_platform::current().expect("build platform");
+    let platform = smoothscroll_platform::current().expect("build platform");
 
     let loaded_settings = settings::load();
     let enabled_initial = loaded_settings.enabled;
@@ -46,17 +46,17 @@ pub fn run() {
     let sink = EngineSink::new(app_state.clone());
 
     #[cfg(target_os = "macos")]
-    let trusted = softscroll_platform::macos::is_accessibility_trusted(false);
+    let trusted = smoothscroll_platform::macos::is_accessibility_trusted(false);
     #[cfg(not(target_os = "macos"))]
     let trusted = true;
 
     let hook_result: Result<HookHandle, _> = if trusted {
         app_state
             .mouse_hook
-            .install(sink as Arc<dyn softscroll_platform::traits::HookEventSink>)
+            .install(sink as Arc<dyn smoothscroll_platform::traits::HookEventSink>)
     } else {
         tracing::warn!("Accessibility not granted on macOS; hook not installed");
-        Err(softscroll_platform::types::PlatformError::PermissionDenied)
+        Err(smoothscroll_platform::types::PlatformError::PermissionDenied)
     };
 
     // Register global hotkey (Ctrl+Alt+S) if enabled in settings.
@@ -75,7 +75,7 @@ pub fn run() {
             on_pressed,
         )
     } else {
-        Err(softscroll_platform::types::PlatformError::Unsupported)
+        Err(smoothscroll_platform::types::PlatformError::Unsupported)
     };
 
     let state_for_setup = app_state.clone();
@@ -92,7 +92,7 @@ pub fn run() {
         _hotkey: Option<HotkeyHandle>,
         #[cfg(windows)]
         #[allow(dead_code)]
-        _timer: softscroll_platform::windows::HighResTimerGuard,
+        _timer: smoothscroll_platform::windows::HighResTimerGuard,
     }
 
     let owned = OwnedHandles {
@@ -100,7 +100,7 @@ pub fn run() {
         _hook: hook_result.ok(),
         _hotkey: hotkey_result.ok(),
         #[cfg(windows)]
-        _timer: softscroll_platform::windows::HighResTimerGuard::begin(1),
+        _timer: smoothscroll_platform::windows::HighResTimerGuard::begin(1),
     };
 
     tauri::Builder::default()

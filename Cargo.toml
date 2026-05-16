@@ -16,8 +16,8 @@ repository = "https://github.com/quangtruong2003/smoothscroll"
 
 [workspace.dependencies]
 # Internal
-softscroll_core = { path = "crates/core" }
-softscroll_platform = { path = "crates/platform" }
+smoothscroll_core = { path = "crates/core" }
+smoothscroll_platform = { path = "crates/platform" }
 
 # Shared third-party
 serde = { version = "1", features = ["derive"] }

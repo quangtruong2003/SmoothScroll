@@ -8,7 +8,7 @@ license.workspace = true
 description = "OS abstractions for SmoothScroll (Windows + macOS)"
 
 [dependencies]
-softscroll-core = { workspace = true }
+smoothscroll_core = { workspace = true }
 serde = { workspace = true }
 parking_lot = { workspace = true }
 anyhow = { workspace = true }

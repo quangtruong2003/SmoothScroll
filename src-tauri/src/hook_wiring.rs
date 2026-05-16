@@ -5,8 +5,8 @@
 //! Lifecycle: the sink holds an `Arc<AppState>` to keep settings accessible.
 
 use crate::state::AppState;
-use softscroll_platform::traits::HookEventSink;
-use softscroll_platform::types::{HookDecision, ModifierKeys};
+use smoothscroll_platform::traits::HookEventSink;
+use smoothscroll_platform::types::{HookDecision, ModifierKeys};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Instant;
@@ -99,13 +99,13 @@ mod tests {
     use super::*;
     use crate::state::EngineSignal;
     use parking_lot::{Mutex, RwLock};
-    use softscroll_core::engine::SmoothScrollEngine;
-    use softscroll_core::settings::AppSettings;
-    use softscroll_platform::traits::{
+    use smoothscroll_core::engine::SmoothScrollEngine;
+    use smoothscroll_core::settings::AppSettings;
+    use smoothscroll_platform::traits::{
         Autostart, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessInfo,
         ProcessQuery, WheelEmitter,
     };
-    use softscroll_platform::types::{Accelerator, PlatformError, Result};
+    use smoothscroll_platform::types::{Accelerator, PlatformError, Result};
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
 

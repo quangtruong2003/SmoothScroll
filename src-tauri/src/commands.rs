@@ -1,9 +1,9 @@
 //! Tauri IPC commands callable from JS.
 
 use crate::state::AppState;
-use softscroll_core::engine::SmoothScrollEngine;
-use softscroll_core::settings::{self, AppSettings};
-use softscroll_platform::traits::ProcessInfo;
+use smoothscroll_core::engine::SmoothScrollEngine;
+use smoothscroll_core::settings::{self, AppSettings};
+use smoothscroll_platform::traits::ProcessInfo;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use tauri::State;
@@ -77,7 +77,7 @@ pub fn add_excluded_app(state: State<'_, Arc<AppState>>, name: String) -> Result
         }
     }
     let snapshot = state.settings.read().clone();
-    softscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -88,7 +88,7 @@ pub fn remove_excluded_app(state: State<'_, Arc<AppState>>, name: String) -> Res
         s.excluded_apps.retain(|a| !a.eq_ignore_ascii_case(&name));
     }
     let snapshot = state.settings.read().clone();
-    softscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -105,7 +105,7 @@ pub fn set_autostart(state: State<'_, Arc<AppState>>, enabled: bool) -> Result<(
         s.start_with_os = enabled;
     }
     let snapshot = state.settings.read().clone();
-    softscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -117,7 +117,7 @@ pub fn change_language(state: State<'_, Arc<AppState>>, lang: String) -> Result<
         s.clamp();
     }
     let snapshot = state.settings.read().clone();
-    softscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -125,7 +125,7 @@ pub fn change_language(state: State<'_, Arc<AppState>>, lang: String) -> Result<
 pub fn accessibility_status() -> bool {
     #[cfg(target_os = "macos")]
     {
-        softscroll_platform::macos::is_accessibility_trusted(false)
+        smoothscroll_platform::macos::is_accessibility_trusted(false)
     }
     #[cfg(not(target_os = "macos"))]
     {
@@ -137,7 +137,7 @@ pub fn accessibility_status() -> bool {
 pub fn accessibility_request_prompt() -> bool {
     #[cfg(target_os = "macos")]
     {
-        softscroll_platform::macos::is_accessibility_trusted(true)
+        smoothscroll_platform::macos::is_accessibility_trusted(true)
     }
     #[cfg(not(target_os = "macos"))]
     {

@@ -1,5 +1,5 @@
-use softscroll_core::engine::{EngineOutput, SmoothScrollEngine};
-use softscroll_core::settings::AppSettings;
+use smoothscroll_core::engine::{EngineOutput, SmoothScrollEngine};
+use smoothscroll_core::settings::AppSettings;
 
 fn settings() -> AppSettings {
     AppSettings::default()

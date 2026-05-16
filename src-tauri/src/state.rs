@@ -1,9 +1,9 @@
 //! Shared mutable state for the Tauri app. Mirrors C# `App` fields.
 
 use parking_lot::{Condvar, Mutex, RwLock};
-use softscroll_core::engine::SmoothScrollEngine;
-use softscroll_core::settings::AppSettings;
-use softscroll_platform::traits::{Autostart, Hotkey, MouseHook, ProcessQuery, WheelEmitter};
+use smoothscroll_core::engine::SmoothScrollEngine;
+use smoothscroll_core::settings::AppSettings;
+use smoothscroll_platform::traits::{Autostart, Hotkey, MouseHook, ProcessQuery, WheelEmitter};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 

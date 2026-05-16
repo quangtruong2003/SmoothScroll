@@ -1,5 +1,5 @@
 use approx::assert_relative_eq;
-use softscroll_core::easing::{compute_easing_fraction, EasingMode};
+use smoothscroll_core::easing::{compute_easing_fraction, EasingMode};
 
 #[test]
 fn linear_returns_dt_over_duration_when_easing_disabled() {

@@ -2931,6 +2931,53 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
+name = "smoothscroll-app"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "directories",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "smoothscroll_core",
+ "smoothscroll_platform",
+ "tauri",
+ "tauri-build",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "smoothscroll_core"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "directories",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tracing",
+]
+
+[[package]]
+name = "smoothscroll_platform"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "cocoa",
+ "core-foundation 0.9.4",
+ "core-graphics 0.23.2",
+ "objc2 0.5.2",
+ "parking_lot",
+ "serde",
+ "smoothscroll_core",
+ "thiserror 1.0.69",
+ "tracing",
+ "windows-sys 0.59.0",
+]
+
+[[package]]
 name = "socket2"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2960,53 +3007,6 @@ dependencies = [
  "wasm-bindgen",
  "web-sys",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "softscroll-app"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "directories",
- "parking_lot",
- "serde",
- "serde_json",
- "softscroll-core",
- "softscroll-platform",
- "tauri",
- "tauri-build",
- "tracing",
- "tracing-appender",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "softscroll-core"
-version = "0.1.0"
-dependencies = [
- "approx",
- "directories",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tracing",
-]
-
-[[package]]
-name = "softscroll-platform"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "cocoa",
- "core-foundation 0.9.4",
- "core-graphics 0.23.2",
- "objc2 0.5.2",
- "parking_lot",
- "serde",
- "softscroll-core",
- "thiserror 1.0.69",
- "tracing",
- "windows-sys 0.59.0",
 ]
 
 [[package]]
