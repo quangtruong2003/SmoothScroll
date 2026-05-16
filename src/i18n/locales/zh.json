@@ -1,0 +1,105 @@
+{
+  "app": {
+    "title": "Soft Scroll Next",
+    "tagline_on": "平滑滚动已启用",
+    "tagline_off": "正在使用系统原生滚动"
+  },
+  "section": {
+    "scrolling": "滚动",
+    "animation": "动画",
+    "direction": "方向",
+    "behavior": "行为",
+    "excluded_apps": "排除的应用",
+    "language": "语言",
+    "about": "关于"
+  },
+  "settings": {
+    "step_size": {
+      "title": "步长",
+      "desc": "每次滚轮档位的像素数"
+    },
+    "anim_time": {
+      "title": "动画时长",
+      "desc": "每次滚动持续多久"
+    },
+    "accel_window": {
+      "title": "加速窗口",
+      "desc": "在此窗口内的滚动会累积动量"
+    },
+    "accel_max": {
+      "title": "最大加速倍数",
+      "desc": "加速倍数的上限"
+    },
+    "tail_ratio": {
+      "title": "尾首比例",
+      "desc": "数值越高曲线下降越陡"
+    },
+    "easing_toggle": {
+      "title": "平滑缓动",
+      "desc": "为每次滚动应用缓动曲线"
+    },
+    "easing_curve": {
+      "title": "缓动曲线",
+      "desc": "减速曲线的形状",
+      "ExponentialOut": "指数 Out（默认）",
+      "CubicOut": "三次 Out",
+      "QuinticOut": "五次 Out",
+      "Linear": "线性"
+    },
+    "reverse_wheel": {
+      "title": "反向滚动",
+      "desc": "反转滚动方向（自然滚动）"
+    },
+    "horizontal_smoothness": {
+      "title": "平滑水平滚动",
+      "desc": "为倾斜滚轮和 Shift+滚轮应用平滑效果"
+    },
+    "shift_horizontal": {
+      "title": "Shift 转为水平滚动",
+      "desc": "按住 Shift 滚动时变为水平滚动"
+    },
+    "global_hotkey": {
+      "title": "全局快捷键",
+      "desc": "在任何位置按 Ctrl+Alt+S 切换平滑滚动"
+    },
+    "start_with_os": {
+      "title": "随 Windows 启动",
+      "desc": "登录时自动启动 Soft Scroll Next"
+    },
+    "start_minimized": {
+      "title": "启动时最小化到托盘",
+      "desc": "启动时隐藏设置窗口"
+    }
+  },
+  "excluded": {
+    "empty": "尚未排除任何应用。平滑滚动在所有应用中均启用。",
+    "add": "添加应用",
+    "remove_aria": "移除 {{name}}",
+    "dialog": {
+      "title": "排除一个应用",
+      "desc": "选择正在运行的应用或输入进程名（不含 .exe）。",
+      "filter": "筛选…",
+      "manual": "或输入进程名…",
+      "manual_button": "添加",
+      "cancel": "取消",
+      "scanning": "正在扫描进程…",
+      "no_match": "没有匹配的进程。"
+    }
+  },
+  "language": {
+    "select_label": "显示语言",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "common": {
+    "loading_settings": "正在加载设置…",
+    "load_failed": "加载设置失败: {{error}}"
+  },
+  "about": {
+    "version": "版本",
+    "open_logs": "打开日志文件夹",
+    "homepage": "主页",
+    "homepage_url": "https://github.com/rafaelsg-01/soft-scroll"
+  }
+}

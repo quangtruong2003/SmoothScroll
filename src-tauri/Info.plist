@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>LSUIElement</key>
+    <false/>
+    <key>NSHumanReadableCopyright</key>
+    <string>© 2026 Soft Scroll Next contributors</string>
+    <key>NSAccessibilityUsageDescription</key>
+    <string>Soft Scroll Next needs Accessibility access to capture mouse-wheel events and re-emit them with smooth animation.</string>
+</dict>
+</plist>

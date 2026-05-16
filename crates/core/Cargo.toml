@@ -1,0 +1,18 @@
+[package]
+name = "softscroll-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Pure scroll engine logic for Soft Scroll Next"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+directories = { workspace = true }
+
+[dev-dependencies]
+approx = "0.5"

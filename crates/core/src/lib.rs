@@ -1,0 +1,14 @@
+//! Pure scroll engine logic for Soft Scroll Next.
+//!
+//! This crate is intentionally OS-agnostic: it has no Win32, no macOS,
+//! no Tauri dependencies. All effects (timers, SendInput, file I/O for
+//! settings) live above this layer.
+
+pub mod constants;
+pub mod easing;
+pub mod engine;
+pub mod settings;
+
+pub use easing::{compute_easing_fraction, EasingMode};
+pub use engine::{EngineOutput, SmoothScrollEngine};
+pub use settings::AppSettings;

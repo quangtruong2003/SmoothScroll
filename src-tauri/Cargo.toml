@@ -1,0 +1,32 @@
+[package]
+name = "softscroll-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Soft Scroll Next — cross-platform smooth scrolling"
+default-run = "softscroll-app"
+
+[lib]
+name = "softscroll_app"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { workspace = true }
+
+[dependencies]
+softscroll-core = { workspace = true }
+softscroll-platform = { workspace = true }
+tauri = { workspace = true, features = ["tray-icon"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+parking_lot = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+directories = { workspace = true }
+
+[features]
+default = []

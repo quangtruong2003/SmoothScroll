@@ -1,0 +1,105 @@
+{
+  "app": {
+    "title": "Soft Scroll Next",
+    "tagline_on": "Cuộn mượt đang bật",
+    "tagline_off": "Đang dùng cuộn gốc của hệ thống"
+  },
+  "section": {
+    "scrolling": "Cuộn",
+    "animation": "Hoạt ảnh",
+    "direction": "Hướng",
+    "behavior": "Hành vi",
+    "excluded_apps": "Ứng dụng loại trừ",
+    "language": "Ngôn ngữ",
+    "about": "Giới thiệu"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Bước cuộn",
+      "desc": "Số pixel mỗi nấc lăn chuột"
+    },
+    "anim_time": {
+      "title": "Thời gian hoạt ảnh",
+      "desc": "Mỗi lần cuộn kéo dài bao lâu"
+    },
+    "accel_window": {
+      "title": "Cửa sổ tăng tốc",
+      "desc": "Các nấc trong cửa sổ này sẽ cộng dồn lực đẩy"
+    },
+    "accel_max": {
+      "title": "Tăng tốc tối đa",
+      "desc": "Giới hạn hệ số tăng tốc"
+    },
+    "tail_ratio": {
+      "title": "Tỉ lệ đuôi/đầu",
+      "desc": "Số càng lớn, đường cong giảm tốc càng dốc"
+    },
+    "easing_toggle": {
+      "title": "Easing mượt",
+      "desc": "Áp dụng đường cong easing cho mỗi lần cuộn"
+    },
+    "easing_curve": {
+      "title": "Đường cong easing",
+      "desc": "Hình dạng của đường cong giảm tốc",
+      "ExponentialOut": "Exponential Out (mặc định)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Tuyến tính"
+    },
+    "reverse_wheel": {
+      "title": "Đảo hướng",
+      "desc": "Đảo hướng cuộn (kiểu tự nhiên)"
+    },
+    "horizontal_smoothness": {
+      "title": "Cuộn ngang mượt",
+      "desc": "Áp dụng smoothing cho cuộn nghiêng và Shift+cuộn"
+    },
+    "shift_horizontal": {
+      "title": "Shift chuyển thành cuộn ngang",
+      "desc": "Giữ Shift khi cuộn sẽ thành cuộn ngang"
+    },
+    "global_hotkey": {
+      "title": "Phím tắt toàn cục",
+      "desc": "Nhấn Ctrl+Alt+S ở bất kỳ đâu để bật/tắt cuộn mượt"
+    },
+    "start_with_os": {
+      "title": "Khởi động cùng Windows",
+      "desc": "Tự chạy Soft Scroll Next khi đăng nhập"
+    },
+    "start_minimized": {
+      "title": "Khởi động ẩn xuống khay",
+      "desc": "Ẩn cửa sổ cài đặt khi khởi chạy"
+    }
+  },
+  "excluded": {
+    "empty": "Chưa có ứng dụng nào bị loại trừ. Cuộn mượt được áp dụng ở mọi nơi.",
+    "add": "Thêm ứng dụng",
+    "remove_aria": "Xoá {{name}}",
+    "dialog": {
+      "title": "Loại trừ một ứng dụng",
+      "desc": "Chọn ứng dụng đang chạy hoặc nhập tên process (không kèm .exe).",
+      "filter": "Lọc…",
+      "manual": "Hoặc nhập tên process…",
+      "manual_button": "Thêm",
+      "cancel": "Hủy",
+      "scanning": "Đang quét process…",
+      "no_match": "Không có process phù hợp."
+    }
+  },
+  "language": {
+    "select_label": "Ngôn ngữ hiển thị",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "common": {
+    "loading_settings": "Đang tải cài đặt…",
+    "load_failed": "Không tải được cài đặt: {{error}}"
+  },
+  "about": {
+    "version": "Phiên bản",
+    "open_logs": "Mở thư mục log",
+    "homepage": "Trang chủ",
+    "homepage_url": "https://github.com/rafaelsg-01/soft-scroll"
+  }
+}

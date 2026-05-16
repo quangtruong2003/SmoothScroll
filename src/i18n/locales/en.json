@@ -1,0 +1,105 @@
+{
+  "app": {
+    "title": "Soft Scroll Next",
+    "tagline_on": "Smooth scrolling is active",
+    "tagline_off": "Native scrolling is active"
+  },
+  "section": {
+    "scrolling": "Scrolling",
+    "animation": "Animation",
+    "direction": "Direction",
+    "behavior": "Behavior",
+    "excluded_apps": "Excluded apps",
+    "language": "Language",
+    "about": "About"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Step size",
+      "desc": "Pixels scrolled per wheel notch"
+    },
+    "anim_time": {
+      "title": "Animation time",
+      "desc": "How long each scroll movement lasts"
+    },
+    "accel_window": {
+      "title": "Acceleration window",
+      "desc": "Notches within this window stack momentum"
+    },
+    "accel_max": {
+      "title": "Max acceleration",
+      "desc": "Cap on the acceleration multiplier"
+    },
+    "tail_ratio": {
+      "title": "Tail to head ratio",
+      "desc": "Higher values give a sharper ease-out curve"
+    },
+    "easing_toggle": {
+      "title": "Smooth easing",
+      "desc": "Apply easing curve to each scroll movement"
+    },
+    "easing_curve": {
+      "title": "Easing curve",
+      "desc": "Shape of the deceleration curve",
+      "ExponentialOut": "Exponential Out (default)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Linear"
+    },
+    "reverse_wheel": {
+      "title": "Reverse direction",
+      "desc": "Invert the scroll direction (natural-style)"
+    },
+    "horizontal_smoothness": {
+      "title": "Smooth horizontal scrolling",
+      "desc": "Apply smoothing to tilt-wheel and Shift+wheel scrolls"
+    },
+    "shift_horizontal": {
+      "title": "Shift converts to horizontal",
+      "desc": "Holding Shift while scrolling becomes horizontal scroll"
+    },
+    "global_hotkey": {
+      "title": "Global hotkey",
+      "desc": "Press Ctrl+Alt+S anywhere to toggle smooth scrolling"
+    },
+    "start_with_os": {
+      "title": "Start with Windows",
+      "desc": "Launch Soft Scroll Next on login"
+    },
+    "start_minimized": {
+      "title": "Start minimized to tray",
+      "desc": "Hide the settings window on launch"
+    }
+  },
+  "excluded": {
+    "empty": "No apps excluded. Smooth scrolling is active everywhere.",
+    "add": "Add app",
+    "remove_aria": "Remove {{name}}",
+    "dialog": {
+      "title": "Exclude an app",
+      "desc": "Pick a running app or type its process name (without .exe).",
+      "filter": "Filter…",
+      "manual": "Or type process name…",
+      "manual_button": "Add",
+      "cancel": "Cancel",
+      "scanning": "Scanning processes…",
+      "no_match": "No matching processes."
+    }
+  },
+  "language": {
+    "select_label": "Display language",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "common": {
+    "loading_settings": "Loading settings…",
+    "load_failed": "Failed to load settings: {{error}}"
+  },
+  "about": {
+    "version": "Version",
+    "open_logs": "Open log folder",
+    "homepage": "Homepage",
+    "homepage_url": "https://github.com/rafaelsg-01/soft-scroll"
+  }
+}

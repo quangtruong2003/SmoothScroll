@@ -1,0 +1,21 @@
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Tauri
+src-tauri/gen/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.iml

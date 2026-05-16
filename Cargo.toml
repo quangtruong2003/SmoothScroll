@@ -1,0 +1,41 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "crates/platform",
+    "src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+authors = ["Soft Scroll Next contributors"]
+license = "MIT"
+repository = "https://github.com/rafaelsg-01/soft-scroll"
+
+[workspace.dependencies]
+# Internal
+softscroll-core = { path = "crates/core" }
+softscroll-platform = { path = "crates/platform" }
+
+# Shared third-party
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+parking_lot = "0.12"
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+tracing-appender = "0.2"
+directories = "5"
+
+# Tauri
+tauri = { version = "2", features = [] }
+tauri-build = { version = "2", features = [] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
