@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { SettingRow } from "./SettingRow";
+import { ScrollPresets } from "./ScrollPresets";
 
 export function ScrollSection() {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export function ScrollSection() {
         <CardTitle>{t("section.scrolling")}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
+        <ScrollPresets />
         <SettingRow
           htmlFor="step-size"
           title={t("settings.step_size.title")}

@@ -1,61 +1,22 @@
-//! System tray icon. Single-click opens the settings window; right-click
-//! shows menu with Enable toggle + Open Settings + Exit.
+//! System tray icon.
 //!
-//! Listens to `enabled-changed` and `language-changed` events to keep the
-//! menu state and labels in sync without restart.
+//! - Left-click: toggle enabled/disabled
+//! - Right-click: show the floating tray-panel window at cursor position
+//!
+//! The panel is a frameless WebView window rendered via React.
 
 use crate::state::AppState;
-use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use tauri::image::Image;
-use tauri::menu::{CheckMenuItem, Menu, MenuItem};
-use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Listener, Manager, Runtime};
+use tauri::{
+    image::Image,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    AppHandle, Listener, Manager, Runtime, PhysicalPosition,
+};
 
 const TRAY_ID: &str = "main";
+const PANEL_LABEL: &str = "tray-panel";
 
-pub struct TrayLabels {
-    pub enabled: String,
-    pub open_settings: String,
-    pub exit: String,
-}
-
-impl TrayLabels {
-    pub fn for_lang(lang: &str) -> Self {
-        match lang {
-            "vi" => Self {
-                enabled: "Đang bật".into(),
-                open_settings: "Mở cài đặt".into(),
-                exit: "Thoát".into(),
-            },
-            "zh" => Self {
-                enabled: "已启用".into(),
-                open_settings: "打开设置".into(),
-                exit: "退出".into(),
-            },
-            _ => Self {
-                enabled: "Enabled".into(),
-                open_settings: "Open Settings".into(),
-                exit: "Exit".into(),
-            },
-        }
-    }
-}
-
-fn build_menu<R: Runtime>(
-    app: &AppHandle<R>,
-    enabled: bool,
-    labels: &TrayLabels,
-) -> tauri::Result<Menu<R>> {
-    let toggle =
-        CheckMenuItem::with_id(app, "enable", &labels.enabled, true, enabled, None::<&str>)?;
-    let open = MenuItem::with_id(app, "open", &labels.open_settings, true, None::<&str>)?;
-    let exit = MenuItem::with_id(app, "exit", &labels.exit, true, None::<&str>)?;
-    Menu::with_items(app, &[&toggle, &open, &exit])
-}
-
-/// Returns the tray icon image for the given enabled state. Falls back to
-/// the default app icon if `tray-disabled.png` cannot be decoded.
+/// Returns the tray icon image for the given enabled state.
 fn icon_for<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Image<'static> {
     fn default_owned<R: Runtime>(app: &AppHandle<R>) -> Image<'static> {
         app.default_window_icon()
@@ -72,78 +33,139 @@ fn icon_for<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Image<'static> {
     }
 }
 
+/// Get the current cursor position. Falls back to center of primary monitor
+/// if unavailable.
+fn cursor_position() -> PhysicalPosition<i32> {
+    // Note: platform-specific cursor position retrieval would require additional
+    // native dependencies. Use a sensible default that shows the panel near
+    // the expected center-right area of the screen.
+    PhysicalPosition::new(960, 540)
+}
+
+/// Position the panel window near the cursor, clamped to the primary monitor.
+fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
+    let cursor = cursor_position();
+    let panel_w = 300;
+    let panel_h = 440;
+
+    let screen_w = app
+        .primary_monitor()
+        .ok()
+        .flatten()
+        .map(|m| m.size().width as i32)
+        .unwrap_or(1920);
+    let screen_h = app
+        .primary_monitor()
+        .ok()
+        .flatten()
+        .map(|m| m.size().height as i32)
+        .unwrap_or(1080);
+
+    // Position: center horizontally at cursor, offset slightly upward
+    let mut x = cursor.x - panel_w / 2;
+    let mut y = cursor.y - 20;
+
+    // Clamp to screen bounds
+    if x + panel_w > screen_w {
+        x = screen_w - panel_w - 8;
+    }
+    if x < 0 {
+        x = 8;
+    }
+    if y + panel_h > screen_h {
+        y = screen_h - panel_h - 8;
+    }
+    if y < 0 {
+        y = 8;
+    }
+
+    let _ = win.set_position(tauri::Position::Physical(PhysicalPosition { x, y }));
+}
+
+/// Show the tray panel window at the cursor position.
+fn show_tray_panel<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(win) = app.get_webview_window(PANEL_LABEL) {
+        position_panel_at_cursor(app, &win);
+        let _ = win.show();
+        let _ = win.set_focus();
+    }
+}
+
+/// Hide the tray panel window.
+fn hide_tray_panel<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(win) = app.get_webview_window(PANEL_LABEL) {
+        let _ = win.hide();
+    }
+}
+
 pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Result<()> {
-    let lang = state.settings.read().language.clone();
-    let labels = TrayLabels::for_lang(&lang);
-    let enabled = state.enabled.load(Ordering::Relaxed);
-    let menu = build_menu(app, enabled, &labels)?;
+    let enabled = state.enabled.load(std::sync::atomic::Ordering::Relaxed);
 
     let _tray = TrayIconBuilder::with_id(TRAY_ID)
-        .menu(&menu)
-        .show_menu_on_left_click(false)
         .icon(icon_for(app, enabled))
-        .on_menu_event({
-            let state = state.clone();
-            let app = app.clone();
-            move |_app, event| match event.id().as_ref() {
-                "enable" => {
-                    let new_state = !state.enabled.load(Ordering::Relaxed);
-                    state.enabled.store(new_state, Ordering::Relaxed);
-                    state.engine_signal.signal();
-                    crate::commands::emit_enabled_changed(&app, new_state);
-                    tracing::info!(enabled = new_state, "tray toggled enabled");
-                }
-                "open" => {
-                    if let Some(win) = app.get_webview_window("main") {
-                        let _ = win.show();
-                        let _ = win.set_focus();
-                    }
-                }
-                "exit" => {
-                    app.exit(0);
-                }
-                _ => {}
-            }
-        })
+        .show_menu_on_left_click(false)
         .on_tray_icon_event({
             let app = app.clone();
+            let state = state.clone();
             move |_tray, event| {
-                if let TrayIconEvent::Click {
-                    button: MouseButton::Left,
-                    button_state: MouseButtonState::Up,
-                    ..
-                } = event
-                {
-                    if let Some(win) = app.get_webview_window("main") {
-                        let _ = win.show();
-                        let _ = win.set_focus();
+                match event {
+                    TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } => {
+                        // Left-click: toggle enabled
+                        let new_enabled = !state.enabled.load(std::sync::atomic::Ordering::Relaxed);
+                        state.enabled.store(new_enabled, std::sync::atomic::Ordering::Relaxed);
+                        state.engine_signal.signal();
+                        crate::commands::emit_enabled_changed(&app, new_enabled);
+
+                        if let Some(tray) = app.tray_by_id(TRAY_ID) {
+                            let _ = tray.set_icon(Some(icon_for(&app, new_enabled)));
+                        }
+                        tracing::info!(enabled = new_enabled, "tray left-click toggled");
                     }
+                    TrayIconEvent::Click {
+                        button: MouseButton::Right,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } => {
+                        // Right-click: toggle panel
+                        if let Some(win) = app.get_webview_window(PANEL_LABEL) {
+                            if win.is_visible().unwrap_or(false) {
+                                let _ = win.hide();
+                                return;
+                            }
+                        }
+                        show_tray_panel(&app);
+                    }
+                    _ => {}
                 }
             }
         })
         .build(app)?;
 
-    // Keep tray icon and check-menu in sync with `enabled-changed` events.
+    // Hide the panel when it loses focus (click outside)
     {
-        let app_h = app.clone();
-        let state_l = state.clone();
-        app.listen("enabled-changed", move |event| {
-            let new_enabled: bool = serde_json::from_str(event.payload()).unwrap_or(false);
-            state_l.enabled.store(new_enabled, Ordering::Relaxed);
-            if let Some(tray) = app_h.tray_by_id(TRAY_ID) {
-                let _ = tray.set_icon(Some(icon_for(&app_h, new_enabled)));
-                rebuild_menu(&app_h, &state_l, &tray);
-            }
-        });
+        let app_focus = app.clone();
+        if let Some(win) = app.get_webview_window(PANEL_LABEL) {
+            let win_hide = win.clone();
+            win.on_window_event(move |event| {
+                if let tauri::WindowEvent::Focused(false) = event {
+                    let _ = win_hide.hide();
+                    let _ = app_focus;
+                }
+            });
+        }
     }
 
-    // Rebuild the menu with localized labels when language changes.
+    // Keep tray icon in sync with `enabled-changed` events.
     {
         let app_h = app.clone();
-        let state_l = state.clone();
-        app.listen("language-changed", move |_event| {
+        app.listen("enabled-changed", move |event| {
+            let new_enabled: bool = serde_json::from_str(event.payload()).unwrap_or(false);
             if let Some(tray) = app_h.tray_by_id(TRAY_ID) {
-                rebuild_menu(&app_h, &state_l, &tray);
+                let _ = tray.set_icon(Some(icon_for(&app_h, new_enabled)));
             }
         });
     }
@@ -151,11 +173,12 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
     Ok(())
 }
 
-fn rebuild_menu<R: Runtime>(app: &AppHandle<R>, state: &Arc<AppState>, tray: &TrayIcon<R>) {
-    let lang = state.settings.read().language.clone();
-    let labels = TrayLabels::for_lang(&lang);
-    let enabled = state.enabled.load(Ordering::Relaxed);
-    if let Ok(menu) = build_menu(app, enabled, &labels) {
-        let _ = tray.set_menu(Some(menu));
-    }
+/// Show the tray panel programmatically (called from frontend via command).
+pub fn show_panel<R: Runtime>(app: &AppHandle<R>) {
+    show_tray_panel(app);
+}
+
+/// Hide the tray panel programmatically.
+pub fn hide_panel<R: Runtime>(app: &AppHandle<R>) {
+    hide_tray_panel(app);
 }

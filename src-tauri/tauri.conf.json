@@ -20,7 +20,21 @@
         "minHeight": 520,
         "resizable": true,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "visible": false
+      },
+      {
+        "label": "tray-panel",
+        "title": "",
+        "width": 300,
+        "height": 440,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "alwaysOnTop": true,
+        "visible": false,
+        "url": "index.html"
       }
     ],
     "security": {

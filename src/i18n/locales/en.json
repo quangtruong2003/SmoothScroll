@@ -23,6 +23,14 @@
     "appearance": "Appearance",
     "about": "About"
   },
+  "presets": {
+    "slow": "Slow",
+    "default": "Default",
+    "fast": "Fast",
+    "snappy": "Snappy",
+    "mac_like": "Mac-like",
+    "linear": "Linear"
+  },
   "test_scroll": {
     "description": "Scroll inside the box to feel current settings.",
     "line": "Line {{n}} — try the wheel here"

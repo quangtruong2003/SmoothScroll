@@ -105,9 +105,8 @@ pub fn run() {
                     }
                 });
 
-                if state_for_setup.settings.read().start_minimized {
-                    let _ = win.hide();
-                }
+                // Always hide main window — silent boot
+                let _ = win.hide();
             }
 
             tracing::info!(
@@ -134,6 +133,11 @@ pub fn run() {
             commands::accessibility_request_prompt,
             commands::app_version,
             commands::open_log_dir,
+            commands::open_tray_panel,
+            commands::close_tray_panel,
+            commands::show_main_window,
+            commands::navigate_to,
+            commands::quit_app,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");

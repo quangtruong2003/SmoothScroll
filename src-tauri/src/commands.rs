@@ -7,7 +7,7 @@ use smoothscroll_platform::traits::ProcessInfo;
 use smoothscroll_platform::types::Accelerator;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 /// Emit the canonical `enabled-changed` event so any open windows pick up
 /// the change. Safe to call when no windows exist.
@@ -258,6 +258,34 @@ pub fn open_log_dir(_state: State<'_, Arc<AppState>>) -> Result<(), String> {
     let dir = crate::log_dir();
     let _ = std::fs::create_dir_all(&dir);
     open_path(&dir).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn open_tray_panel<R: tauri::Runtime>(app: AppHandle<R>) {
+    crate::tray::show_panel(&app);
+}
+
+#[tauri::command]
+pub fn close_tray_panel<R: tauri::Runtime>(app: AppHandle<R>) {
+    crate::tray::hide_panel(&app);
+}
+
+#[tauri::command]
+pub fn show_main_window<R: tauri::Runtime>(app: AppHandle<R>) {
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.show();
+        let _ = win.set_focus();
+    }
+}
+
+#[tauri::command]
+pub fn navigate_to<R: tauri::Runtime>(app: AppHandle<R>, section: String) {
+    let _ = app.emit("navigate-to", section);
+}
+
+#[tauri::command]
+pub fn quit_app<R: tauri::Runtime>(app: AppHandle<R>) {
+    app.exit(0);
 }
 
 fn open_path(path: &std::path::Path) -> std::io::Result<()> {
