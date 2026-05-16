@@ -69,4 +69,9 @@ export const tauri = {
 
   appVersion: () => invoke<string>("app_version"),
   openLogDir: () => invoke<void>("open_log_dir"),
+
+  openTrayPanel: () => invoke<void>("open_tray_panel"),
+  closeTrayPanel: () => invoke<void>("close_tray_panel"),
+  showMainWindow: () => invoke<void>("show_main_window"),
+  navigateTo: (section: string) => invoke<void>("navigate_to", { section }),
 };
