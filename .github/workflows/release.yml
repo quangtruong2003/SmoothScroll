@@ -51,7 +51,7 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
-        run: cargo tauri build --target ${{ matrix.target }}
+        run: npx tauri build --target ${{ matrix.target }}
         working-directory: src-tauri
 
       - name: Find .dmg file
@@ -97,7 +97,7 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
-        run: cargo tauri build
+        run: npx tauri build
         working-directory: src-tauri
 
       - name: Find installer files
