@@ -29,9 +29,3 @@ windows-sys = { version = "0.59", features = [
 ] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-core-foundation = "0.9"
-core-graphics = "0.23"
-cocoa = "0.25"
-objc2 = "0.5"
-objc2-foundation = { version = "0.2", features = ["NSGeometry"] }
-objc2-app-kit = { version = "0.2", features = ["NSEvent", "NSScreen", "NSWorkspace", "NSRunningApplication"] }
