@@ -4,6 +4,15 @@ use crate::easing::EasingMode;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+/// User-selectable theme mode for the settings UI.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum ThemeMode {
+    Light,
+    Dark,
+    #[default]
+    System,
+}
+
 /// Persisted user settings.
 ///
 /// Field defaults are produced via `Default::default()` and apply when
@@ -31,9 +40,11 @@ pub struct AppSettings {
     pub start_with_os: bool,
     pub start_minimized: bool,
     pub language: String,
+    pub theme: ThemeMode,
 
     // Quick toggle
     pub enable_global_hotkey: bool,
+    pub hotkey_accelerator: String,
     pub show_tray_icon_state: bool,
 
     // App management
@@ -57,7 +68,9 @@ impl Default for AppSettings {
             start_with_os: false,
             start_minimized: true,
             language: "en".to_string(),
+            theme: ThemeMode::System,
             enable_global_hotkey: true,
+            hotkey_accelerator: "Ctrl+Alt+S".to_string(),
             show_tray_icon_state: true,
             excluded_apps: Vec::new(),
         }
@@ -76,6 +89,10 @@ impl AppSettings {
         if !KNOWN_LANGS.contains(&self.language.as_str()) {
             self.language = "en".to_string();
         }
+
+        if !is_valid_accelerator(&self.hotkey_accelerator) {
+            self.hotkey_accelerator = "Ctrl+Alt+S".to_string();
+        }
     }
 
     /// Case-insensitive exact-match check against the excluded list.
@@ -87,6 +104,51 @@ impl AppSettings {
             .iter()
             .any(|app| app.eq_ignore_ascii_case(process_name))
     }
+}
+
+/// Validates an accelerator string of the form `Mod[+Mod...]+Key`.
+///
+/// Rules:
+/// - At least one modifier (Ctrl, Alt, Shift, Win) is required.
+/// - Exactly one non-modifier key is required.
+/// - Whitespace is trimmed; comparison is case-insensitive.
+/// - Recognised non-modifier keys: A-Z, 0-9, F1-F24.
+pub fn is_valid_accelerator(s: &str) -> bool {
+    let mut has_modifier = false;
+    let mut key_count = 0;
+    for raw in s.split('+') {
+        let part = raw.trim();
+        if part.is_empty() {
+            return false;
+        }
+        match part.to_ascii_lowercase().as_str() {
+            "ctrl" | "control" | "alt" | "option" | "shift" | "win" | "cmd" | "command"
+            | "super" | "meta" | "commandorcontrol" => {
+                has_modifier = true;
+            }
+            other => {
+                if !is_valid_key_token(other) {
+                    return false;
+                }
+                key_count += 1;
+            }
+        }
+    }
+    has_modifier && key_count == 1
+}
+
+fn is_valid_key_token(token: &str) -> bool {
+    if token.len() == 1 {
+        let c = token.chars().next().unwrap();
+        return c.is_ascii_alphanumeric();
+    }
+    // F1..F24
+    if let Some(rest) = token.strip_prefix('f') {
+        if let Ok(n) = rest.parse::<u32>() {
+            return (1..=24).contains(&n);
+        }
+    }
+    false
 }
 
 /// Errors loading/saving settings to disk.

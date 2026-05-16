@@ -11,4 +11,4 @@ pub mod settings;
 
 pub use easing::{compute_easing_fraction, EasingMode};
 pub use engine::{EngineOutput, SmoothScrollEngine};
-pub use settings::AppSettings;
+pub use settings::{is_valid_accelerator, AppSettings, ThemeMode};
