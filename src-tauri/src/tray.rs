@@ -36,10 +36,22 @@ fn icon_for<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Image<'static> {
 /// Get the current cursor position. Falls back to center of primary monitor
 /// if unavailable.
 fn cursor_position() -> PhysicalPosition<i32> {
-    // Note: platform-specific cursor position retrieval would require additional
-    // native dependencies. Use a sensible default that shows the panel near
-    // the expected center-right area of the screen.
-    PhysicalPosition::new(960, 540)
+    #[cfg(windows)]
+    {
+        use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
+        use windows::Win32::Foundation::POINT;
+        let mut point = POINT::default();
+        unsafe {
+            if GetCursorPos(&mut point).is_ok() {
+                return PhysicalPosition::new(point.x, point.y);
+            }
+        }
+        PhysicalPosition::new(960, 540)
+    }
+    #[cfg(not(windows))]
+    {
+        PhysicalPosition::new(960, 540)
+    }
 }
 
 /// Position the panel window near the cursor, clamped to the primary monitor.
