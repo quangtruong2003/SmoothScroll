@@ -15,6 +15,14 @@
     "test_scroll": "试用滚动",
     "about": "关于"
   },
+  "tabs": {
+    "general": "总览",
+    "scroll": "滚动",
+    "apps": "应用",
+    "hotkey": "快捷键",
+    "appearance": "外观",
+    "about": "关于"
+  },
   "test_scroll": {
     "description": "在下面的方框内滚动以体验当前设置。",
     "line": "第 {{n}} 行 — 在此处试试滚轮"

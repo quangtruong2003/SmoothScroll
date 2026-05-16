@@ -15,6 +15,14 @@
     "test_scroll": "Thử cuộn",
     "about": "Giới thiệu"
   },
+  "tabs": {
+    "general": "Tổng quan",
+    "scroll": "Cuộn",
+    "apps": "Ứng dụng",
+    "hotkey": "Phím tắt",
+    "appearance": "Giao diện",
+    "about": "Giới thiệu"
+  },
   "test_scroll": {
     "description": "Cuộn trong khung dưới đây để cảm nhận cài đặt hiện tại.",
     "line": "Dòng {{n}} — thử lăn chuột tại đây"

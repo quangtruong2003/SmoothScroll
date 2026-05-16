@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { applyTheme, watchSystemTheme } from "@/lib/theme";
+import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { EnableHeader } from "@/components/settings/EnableHeader";
 import { TestSandboxSection } from "@/components/settings/TestSandboxSection";
 import { ScrollSection } from "@/components/settings/ScrollSection";
@@ -22,11 +23,12 @@ export function SettingsPage() {
   const loading = useSettingsStore((s) => s.loading);
   const error = useSettingsStore((s) => s.error);
 
+  const [tab, setTab] = useState<TabKey>("general");
+
   useEffect(() => {
     load();
   }, [load]);
 
-  // Subscribe to enabled-changed events from tray/hotkey/backend.
   useEffect(() => {
     const unlistenPromise = listen<boolean>("enabled-changed", (event) => {
       setEnabledFromEvent(Boolean(event.payload));
@@ -36,7 +38,6 @@ export function SettingsPage() {
     };
   }, [setEnabledFromEvent]);
 
-  // Re-apply theme when OS theme changes (only matters for theme=System).
   useEffect(() => {
     if (!settings) return;
     const stop = watchSystemTheme(() => {
@@ -61,17 +62,34 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="container max-w-2xl py-6 space-y-4">
-      <EnableHeader />
-      <TestSandboxSection />
-      <ScrollSection />
-      <AppearanceSection />
-      <DirectionSection />
-      <ExcludedAppsSection />
-      <BehaviorSection />
-      <ThemeSection />
-      <LanguageSection />
-      <AboutSection />
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar active={tab} onChange={setTab} t={t} />
+      <main className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="mx-auto max-w-2xl space-y-3">
+          {tab === "general" && (
+            <>
+              <EnableHeader />
+              <TestSandboxSection />
+            </>
+          )}
+          {tab === "scroll" && (
+            <>
+              <ScrollSection />
+              <AppearanceSection />
+              <DirectionSection />
+            </>
+          )}
+          {tab === "apps" && <ExcludedAppsSection />}
+          {tab === "hotkey" && <BehaviorSection />}
+          {tab === "appearance" && (
+            <>
+              <ThemeSection />
+              <LanguageSection />
+            </>
+          )}
+          {tab === "about" && <AboutSection />}
+        </div>
+      </main>
     </div>
   );
 }

@@ -15,6 +15,14 @@
     "test_scroll": "Test scrolling",
     "about": "About"
   },
+  "tabs": {
+    "general": "General",
+    "scroll": "Scroll",
+    "apps": "Apps",
+    "hotkey": "Hotkey",
+    "appearance": "Appearance",
+    "about": "About"
+  },
   "test_scroll": {
     "description": "Scroll inside the box to feel current settings.",
     "line": "Line {{n}} — try the wheel here"
