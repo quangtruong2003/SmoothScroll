@@ -39,6 +39,16 @@ export function SettingsPage() {
   }, [setEnabledFromEvent]);
 
   useEffect(() => {
+    const unlistenPromise = listen<string>("navigate-to", (event) => {
+      const section = event.payload;
+      if (section === "excluded-apps") setTab("apps");
+    });
+    return () => {
+      unlistenPromise.then((u) => u()).catch(() => {});
+    };
+  }, []);
+
+  useEffect(() => {
     if (!settings) return;
     const stop = watchSystemTheme(() => {
       if (settings.theme === "System") applyTheme("System");
@@ -64,8 +74,8 @@ export function SettingsPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar active={tab} onChange={setTab} t={t} />
-      <main className="flex-1 overflow-y-auto px-6 py-5">
-        <div className="mx-auto max-w-2xl space-y-3">
+      <main className="flex-1 overflow-hidden px-6 py-5">
+        <div className="mx-auto flex h-full max-w-2xl flex-col gap-3">
           {tab === "general" && (
             <>
               <EnableHeader />
@@ -73,19 +83,21 @@ export function SettingsPage() {
             </>
           )}
           {tab === "scroll" && (
-            <>
-              <ScrollSection />
-              <AppearanceSection />
-              <DirectionSection />
-            </>
+            <div className="overflow-y-auto pr-1">
+              <div className="space-y-3">
+                <ScrollSection />
+                <AppearanceSection />
+                <DirectionSection />
+              </div>
+            </div>
           )}
           {tab === "apps" && <ExcludedAppsSection />}
           {tab === "hotkey" && <BehaviorSection />}
           {tab === "appearance" && (
-            <>
+            <div className="space-y-3">
               <ThemeSection />
               <LanguageSection />
-            </>
+            </div>
           )}
           {tab === "about" && <AboutSection />}
         </div>
