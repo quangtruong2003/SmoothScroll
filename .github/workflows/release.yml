@@ -9,26 +9,28 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+
+  build-macos:
+    needs: create-release
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: macos-latest
-            args: --target aarch64-apple-darwin
-            target: aarch64-apple-darwin
-            artifact-name: SmoothScroll_${{ github.ref_name }}_aarch64
-          - platform: macos-latest
-            args: --target x86_64-apple-darwin
-            target: x86_64-apple-darwin
-            artifact-name: SmoothScroll_${{ github.ref_name }}_x64
-          - platform: windows-latest
-            args: ''
-            target: ''
-            artifact-name: SmoothScroll_${{ github.ref_name }}_x64
-
-    runs-on: ${{ matrix.platform }}
-
+          - target: aarch64-apple-darwin
+            arch: arm64
+          - target: x86_64-apple-darwin
+            arch: x64
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +39,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-          toolchain: stable
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -46,33 +47,86 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Install Rust target
-        if: matrix.target != ''
-        run: rustup target add ${{ matrix.target }}
+      - name: Install frontend dependencies
+        run: npm ci
 
-      - name: Install dependencies (macOS)
-        if: matrix.platform == 'macos-latest'
+      - name: Build Tauri app
+        run: cargo tauri build --target ${{ matrix.target }}
+        working-directory: src-tauri
+
+      - name: Find .dmg file
+        id: dmg
+        shell: bash
         run: |
-          brew install create-dmg
+          echo "path=$(find src-tauri/target/${{ matrix.target }}/release/bundle/dmg -name '*.dmg' | head -1)" >> $GITHUB_OUTPUT
+          echo "name=SmoothScroll_${{ github.ref_name }}_${{ matrix.arch }}.dmg" >> $GITHUB_OUTPUT
+
+      - name: Rename .dmg
+        shell: bash
+        run: |
+          cp "${{ steps.dmg.outputs.path }}" "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/${{ steps.dmg.outputs.name }}"
+
+      - name: Upload to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/${{ steps.dmg.outputs.name }}
+          asset_name: SmoothScroll_${{ github.ref_name }}_${{ matrix.arch }}.dmg
+          asset_content_type: application/x-apple-diskimage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - name: Install frontend dependencies
         run: npm ci
 
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
+        run: cargo tauri build
+        working-directory: src-tauri
+
+      - name: Find installer files
+        id: files
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | Select-Object -First 1
+          $msi = Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "*.msi" | Select-Object -First 1
+          Write-Output "exe_path=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8
+          Write-Output "exe_name=$($exe.Name)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Output "msi_path=$($msi.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Output "msi_name=$($msi.Name)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Upload .exe to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.files.outputs.exe_path }}
+          asset_name: ${{ steps.files.outputs.exe_name }}
+          asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: ${{ matrix.args }}
 
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload .msi to Release
+        uses: actions/upload-release-asset@v1
         with:
-          files: |
-            src-tauri/target/${{ matrix.target != '' && format('{0}/release/', matrix.target) || 'release/' }}bundle/**/*.exe
-            src-tauri/target/${{ matrix.target != '' && format('{0}/release/', matrix.target) || 'release/' }}bundle/**/*.msi
-            src-tauri/target/${{ matrix.target != '' && format('{0}/release/', matrix.target) || 'release/' }}bundle/**/*.app
-            src-tauri/target/${{ matrix.target != '' && format('{0}/release/', matrix.target) || 'release/' }}bundle/**/*.dmg
-          generate_release_notes: true
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.files.outputs.msi_path }}
+          asset_name: ${{ steps.files.outputs.msi_name }}
+          asset_content_type: application/x-msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
