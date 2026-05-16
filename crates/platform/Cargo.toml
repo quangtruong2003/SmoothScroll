@@ -1,11 +1,11 @@
 [package]
-name = "softscroll-platform"
+name = "smoothscroll_platform"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "OS abstractions for Soft Scroll Next (Windows + macOS)"
+description = "OS abstractions for SmoothScroll (Windows + macOS)"
 
 [dependencies]
 softscroll-core = { workspace = true }

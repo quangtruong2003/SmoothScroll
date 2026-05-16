@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Soft Scroll Next",
+    "title": "SmoothScroll",
     "tagline_on": "Smooth scrolling is active",
     "tagline_off": "Native scrolling is active"
   },
@@ -64,7 +64,7 @@
     },
     "start_with_os": {
       "title": "Start with Windows",
-      "desc": "Launch Soft Scroll Next on login"
+        "desc": "Launch SmoothScroll on login"
     },
     "start_minimized": {
       "title": "Start minimized to tray",
@@ -100,6 +100,6 @@
     "version": "Version",
     "open_logs": "Open log folder",
     "homepage": "Homepage",
-    "homepage_url": "https://github.com/rafaelsg-01/soft-scroll"
+    "homepage_url": "https://github.com/rafaelsg-01/smoothscroll"
   }
 }

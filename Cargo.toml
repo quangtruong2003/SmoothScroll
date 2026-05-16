@@ -10,14 +10,14 @@ members = [
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.95"
-authors = ["Soft Scroll Next contributors"]
+authors = ["SmoothScroll contributors"]
 license = "MIT"
-repository = "https://github.com/rafaelsg-01/soft-scroll"
+repository = "https://github.com/rafaelsg-01/smoothscroll"
 
 [workspace.dependencies]
 # Internal
-softscroll-core = { path = "crates/core" }
-softscroll-platform = { path = "crates/platform" }
+softscroll_core = { path = "crates/core" }
+softscroll_platform = { path = "crates/platform" }
 
 # Shared third-party
 serde = { version = "1", features = ["derive"] }

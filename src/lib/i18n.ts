@@ -5,7 +5,7 @@ const resources = {
   en: {
     translation: {
       app: {
-        title: "Soft Scroll Next",
+        title: "SmoothScroll",
         enabled: "Enabled",
         disabled: "Disabled",
       },

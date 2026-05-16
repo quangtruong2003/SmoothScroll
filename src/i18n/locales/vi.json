@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Soft Scroll Next",
+    "title": "SmoothScroll",
     "tagline_on": "Cuộn mượt đang bật",
     "tagline_off": "Đang dùng cuộn gốc của hệ thống"
   },
@@ -64,7 +64,7 @@
     },
     "start_with_os": {
       "title": "Khởi động cùng Windows",
-      "desc": "Tự chạy Soft Scroll Next khi đăng nhập"
+      "desc": "Tự chạy SmoothScroll khi đăng nhập"
     },
     "start_minimized": {
       "title": "Khởi động ẩn xuống khay",
@@ -100,6 +100,6 @@
     "version": "Phiên bản",
     "open_logs": "Mở thư mục log",
     "homepage": "Trang chủ",
-    "homepage_url": "https://github.com/rafaelsg-01/soft-scroll"
+    "homepage_url": "https://github.com/rafaelsg-01/smoothscroll"
   }
 }

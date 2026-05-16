@@ -124,7 +124,7 @@ pub fn run() {
             }
 
             tracing::info!(
-                "Soft Scroll Next ready (enabled={})",
+                "SmoothScroll ready (enabled={})",
                 state_for_setup.enabled.load(Ordering::Relaxed)
             );
             Ok(())
@@ -186,17 +186,17 @@ fn init_logging() {
 /// Returns the platform-appropriate log directory. Exposed as `pub(crate)` so
 /// commands can open the log folder without duplicating the path logic.
 pub(crate) fn log_dir() -> PathBuf {
-    if let Some(dirs) = directories::ProjectDirs::from("com", "SoftScroll", "SoftScrollNext") {
+    if let Some(dirs) = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll") {
         #[cfg(target_os = "macos")]
         {
-            // Use ~/Library/Logs/SoftScrollNext — the macOS-native log location.
+            // Use ~/Library/Logs/SmoothScroll — the macOS-native log location.
             if let Some(home) = std::env::var_os("HOME") {
-                return PathBuf::from(home).join("Library/Logs/SoftScrollNext");
+                return PathBuf::from(home).join("Library/Logs/SmoothScroll");
             }
         }
         return dirs.config_dir().join("logs");
     }
-    std::env::temp_dir().join("SoftScrollNext-logs")
+    std::env::temp_dir().join("SmoothScroll-logs")
 }
 
 fn prune_old_logs() {

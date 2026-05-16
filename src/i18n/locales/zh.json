@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Soft Scroll Next",
+    "title": "SmoothScroll",
     "tagline_on": "平滑滚动已启用",
     "tagline_off": "正在使用系统原生滚动"
   },
@@ -64,7 +64,7 @@
     },
     "start_with_os": {
       "title": "随 Windows 启动",
-      "desc": "登录时自动启动 Soft Scroll Next"
+      "desc": "登录时自动启动 SmoothScroll"
     },
     "start_minimized": {
       "title": "启动时最小化到托盘",
@@ -100,6 +100,6 @@
     "version": "版本",
     "open_logs": "打开日志文件夹",
     "homepage": "主页",
-    "homepage_url": "https://github.com/rafaelsg-01/soft-scroll"
+    "homepage_url": "https://github.com/rafaelsg-01/smoothscroll"
   }
 }

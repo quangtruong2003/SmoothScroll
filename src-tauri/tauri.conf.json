@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Soft Scroll Next",
+  "productName": "SmoothScroll",
   "version": "0.1.0",
-  "identifier": "com.softscroll.next",
+  "identifier": "com.smoothscroll.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Soft Scroll Next",
+        "title": "SmoothScroll",
         "width": 900,
         "height": 640,
         "minWidth": 720,
@@ -45,7 +45,7 @@
     "category": "Utility",
     "shortDescription": "Cross-platform smooth scrolling",
     "longDescription": "Brings macOS-style smooth scrolling to Windows and macOS.",
-    "copyright": "Copyright 2026 Soft Scroll Next contributors",
+    "copyright": "Copyright 2026 SmoothScroll contributors",
     "windows": {
       "wix": {
         "language": ["en-US", "vi-VN", "zh-CN"]

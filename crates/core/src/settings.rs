@@ -102,7 +102,7 @@ pub enum SettingsError {
 
 /// Resolve the v1 settings file path.
 pub fn settings_path() -> Result<PathBuf, SettingsError> {
-    let dirs = directories::ProjectDirs::from("com", "SoftScroll", "SoftScrollNext")
+    let dirs = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
         .ok_or(SettingsError::NoConfigDir)?;
     let dir = dirs.config_dir();
     std::fs::create_dir_all(dir)?;

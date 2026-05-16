@@ -32,7 +32,7 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
       <p className="text-sm text-muted-foreground">
         {t(
           "permission.body",
-          "Soft Scroll Next needs Accessibility permission to capture mouse-wheel events and re-emit them with smooth animation. Open System Settings → Privacy & Security → Accessibility and toggle Soft Scroll Next on.",
+          "SmoothScroll needs Accessibility permission to capture mouse-wheel events and re-emit them with smooth animation. Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on.",
         )}
       </p>
       <div className="flex gap-2">

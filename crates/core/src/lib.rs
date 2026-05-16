@@ -1,4 +1,4 @@
-//! Pure scroll engine logic for Soft Scroll Next.
+//! Pure scroll engine logic for SmoothScroll.
 //!
 //! This crate is intentionally OS-agnostic: it has no Win32, no macOS,
 //! no Tauri dependencies. All effects (timers, SendInput, file I/O for

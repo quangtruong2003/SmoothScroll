@@ -5,8 +5,8 @@
     <key>LSUIElement</key>
     <false/>
     <key>NSHumanReadableCopyright</key>
-    <string>© 2026 Soft Scroll Next contributors</string>
+    <string>© 2026 SmoothScroll contributors</string>
     <key>NSAccessibilityUsageDescription</key>
-    <string>Soft Scroll Next needs Accessibility access to capture mouse-wheel events and re-emit them with smooth animation.</string>
+    <string>SmoothScroll needs Accessibility access to capture mouse-wheel events and re-emit them with smooth animation.</string>
 </dict>
 </plist>

@@ -1,4 +1,4 @@
-# Soft Scroll Next
+# SmoothScroll
 
 Cross-platform smooth scrolling utility for Windows + macOS. Rust + Tauri 2 + React rewrite of the Windows-only C# WPF original (which still lives at the parent directory until the rewrite is fully retired).
 
@@ -6,15 +6,15 @@ Cross-platform smooth scrolling utility for Windows + macOS. Rust + Tauri 2 + Re
 
 ### Windows
 
-Download `Soft Scroll Next_<version>_x64-setup.exe` (NSIS) or the `.msi` from the Releases page and run it. Per-user install — no admin needed.
+Download `SmoothScroll_<version>_x64-setup.exe` (NSIS) or the `.msi` from the Releases page and run it. Per-user install — no admin needed.
 
 ### macOS
 
-Download `Soft Scroll Next_<version>_aarch64.dmg`, mount it, drag the app into `/Applications`. The first launch is blocked by Gatekeeper because the app isn't signed yet:
+Download `SmoothScroll_<version>_aarch64.dmg`, mount it, drag the app into `/Applications`. The first launch is blocked by Gatekeeper because the app isn't signed yet:
 
-1. Right-click `Soft Scroll Next.app` → **Open**
+1. Right-click `SmoothScroll.app` → **Open**
 2. Confirm in the dialog
-3. The app will then prompt for **Accessibility** access. Open System Settings → Privacy & Security → Accessibility and toggle Soft Scroll Next on.
+3. The app will then prompt for **Accessibility** access. Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on.
 4. The app polls and resumes automatically once granted.
 
 ## Usage
@@ -23,8 +23,8 @@ Download `Soft Scroll Next_<version>_aarch64.dmg`, mount it, drag the app into `
 - Tray icon: left-click opens settings, right-click shows menu (Enable, Open Settings, Exit).
 - Default hotkey **Ctrl+Alt+S** toggles smooth scrolling on/off.
 - Per-app exclusion list lets you opt specific apps out of smoothing.
-- Settings persist at `%APPDATA%/SoftScrollNext/settings.json` (Windows) or `~/Library/Application Support/SoftScrollNext/settings.json` (macOS).
-- Logs at `%APPDATA%/SoftScrollNext/logs/` (Windows) or `~/Library/Logs/SoftScrollNext/` (macOS), rotated daily, kept 7 days.
+- Settings persist at `%APPDATA%/SmoothScroll/settings.json` (Windows) or `~/Library/Application Support/SmoothScroll/settings.json` (macOS).
+- Logs at `%APPDATA%/SmoothScroll/logs/` (Windows) or `~/Library/Logs/SmoothScroll/` (macOS), rotated daily, kept 7 days.
 
 ## Build from source
 

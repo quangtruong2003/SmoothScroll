@@ -1,11 +1,11 @@
 [package]
-name = "softscroll-core"
+name = "smoothscroll_core"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Pure scroll engine logic for Soft Scroll Next"
+description = "Pure scroll engine logic for SmoothScroll"
 
 [dependencies]
 serde = { workspace = true }

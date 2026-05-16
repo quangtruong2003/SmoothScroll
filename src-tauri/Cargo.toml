@@ -1,15 +1,15 @@
 [package]
-name = "softscroll-app"
+name = "smoothscroll-app"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Soft Scroll Next — cross-platform smooth scrolling"
+description = "SmoothScroll — cross-platform smooth scrolling"
 default-run = "softscroll-app"
 
 [lib]
-name = "softscroll_app"
+name = "smoothscroll_app"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

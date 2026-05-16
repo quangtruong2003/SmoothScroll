@@ -1,4 +1,4 @@
-//! OS-abstraction layer for Soft Scroll Next.
+//! OS-abstraction layer for SmoothScroll.
 
 pub mod traits;
 pub mod types;

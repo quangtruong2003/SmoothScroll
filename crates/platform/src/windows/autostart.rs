@@ -1,6 +1,6 @@
 //! HKCU\Software\Microsoft\Windows\CurrentVersion\Run autostart.
 //!
-//! Stores the absolute path of the current executable under "SoftScrollNext",
+//! Stores the absolute path of the current executable under "SmoothScroll",
 //! quoted so paths containing spaces work.
 
 #![cfg(windows)]
@@ -15,7 +15,7 @@ use windows_sys::Win32::System::Registry::{
     HKEY, HKEY_CURRENT_USER, KEY_READ, REG_SZ,
 };
 
-const APP_NAME: &str = "SoftScrollNext";
+const APP_NAME: &str = "SmoothScroll";
 const RUN_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Run";
 
 pub struct WindowsAutostart;
