@@ -138,5 +138,19 @@
     "open_logs": "Open log folder",
     "homepage": "Homepage",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll"
+  },
+  "tray": {
+    "quick_access": "Quick Access",
+    "smooth_scrolling": "Smooth Scrolling",
+    "start_with_windows": "Start with Windows",
+    "start_minimized": "Start minimized",
+    "actions": "Actions",
+    "open_settings": "Open Settings",
+    "excluded_apps": "Excluded Apps",
+    "open_log": "Open Log File",
+    "about": "About",
+    "quit": "Quit SmoothScroll",
+    "status_on": "ON",
+    "status_off": "OFF"
   }
 }

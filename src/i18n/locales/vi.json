@@ -23,6 +23,14 @@
     "appearance": "Giao diện",
     "about": "Giới thiệu"
   },
+  "presets": {
+    "slow": "Chậm",
+    "default": "Mặc định",
+    "fast": "Nhanh",
+    "snappy": "Nhanh tức thì",
+    "mac_like": "Kiểu Mac",
+    "linear": "Tuyến tính"
+  },
   "test_scroll": {
     "description": "Cuộn trong khung dưới đây để cảm nhận cài đặt hiện tại.",
     "line": "Dòng {{n}} — thử lăn chuột tại đây"
@@ -130,5 +138,19 @@
     "open_logs": "Mở thư mục log",
     "homepage": "Trang chủ",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll"
+  },
+  "tray": {
+    "quick_access": "Truy cập nhanh",
+    "smooth_scrolling": "Cuộn mượt",
+    "start_with_windows": "Khởi động cùng Windows",
+    "start_minimized": "Khởi động ẩn",
+    "actions": "Thao tác",
+    "open_settings": "Mở cài đặt",
+    "excluded_apps": "Ứng dụng loại trừ",
+    "open_log": "Mở file log",
+    "about": "Giới thiệu",
+    "quit": "Thoát SmoothScroll",
+    "status_on": "BẬT",
+    "status_off": "TẮT"
   }
 }

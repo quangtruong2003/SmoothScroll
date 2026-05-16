@@ -130,5 +130,19 @@
     "open_logs": "打开日志文件夹",
     "homepage": "主页",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll"
+  },
+  "tray": {
+    "quick_access": "快速访问",
+    "smooth_scrolling": "平滑滚动",
+    "start_with_windows": "开机启动",
+    "start_minimized": "启动时最小化",
+    "actions": "操作",
+    "open_settings": "打开设置",
+    "excluded_apps": "排除的应用",
+    "open_log": "打开日志文件",
+    "about": "关于",
+    "quit": "退出 SmoothScroll",
+    "status_on": "开",
+    "status_off": "关"
   }
 }
