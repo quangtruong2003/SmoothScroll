@@ -148,6 +148,9 @@ impl EngineSink {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
+        if self.state.game_mode_active.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
         if self.resolve_active().is_none() {
             return HookDecision::Pass;
         }
@@ -175,6 +178,9 @@ impl EngineSink {
 
     fn route_horizontal(&self, delta: i32) -> HookDecision {
         if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+        if self.state.game_mode_active.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
         if self.resolve_active().is_none() {
@@ -454,5 +460,16 @@ mod tests {
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+    }
+
+    #[test]
+    fn game_mode_active_passes_through() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        state.game_mode_active.store(true, Ordering::Relaxed);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 }
