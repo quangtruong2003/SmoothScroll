@@ -21,11 +21,31 @@
     "about": "About"
   },
   "tabs": {
-    "general": "General",
-    "scroll": "Scroll",
-    "apps": "Apps",
-    "preferences": "Preferences",
-    "about": "About"
+    "general": {
+      "label": "General",
+      "title": "General",
+      "description": "Quick toggles and live test."
+    },
+    "scroll": {
+      "label": "Scroll",
+      "title": "Scroll",
+      "description": "Tune step size, easing, direction, and input sources."
+    },
+    "apps": {
+      "label": "Apps",
+      "title": "Per-app",
+      "description": "Profiles and exclusions tailored to specific applications."
+    },
+    "preferences": {
+      "label": "Preferences",
+      "title": "Preferences",
+      "description": "Behavior, hotkeys, and game mode."
+    },
+    "about": {
+      "label": "About",
+      "title": "About",
+      "description": "Version, updates, and logs."
+    }
   },
   "presets": {
     "slow": "Slow",

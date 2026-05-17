@@ -21,11 +21,11 @@
     "about": "关于"
   },
   "tabs": {
-    "general": "总览",
-    "scroll": "滚动",
-    "apps": "应用",
-    "preferences": "偏好",
-    "about": "关于"
+    "general": { "label": "通用", "title": "通用", "description": "快速切换与实时测试。" },
+    "scroll": { "label": "滚动", "title": "滚动", "description": "调整步长、缓动、方向和输入源。" },
+    "apps": { "label": "应用", "title": "按应用", "description": "针对特定应用的配置和排除项。" },
+    "preferences": { "label": "偏好", "title": "偏好", "description": "行为、热键和游戏模式。" },
+    "about": { "label": "关于", "title": "关于", "description": "版本、更新和日志。" }
   },
   "presets": {
     "slow": "慢速",

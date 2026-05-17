@@ -21,11 +21,11 @@
     "about": "Giới thiệu"
   },
   "tabs": {
-    "general": "Tổng quan",
-    "scroll": "Cuộn",
-    "apps": "Ứng dụng",
-    "preferences": "Tuỳ chọn",
-    "about": "Giới thiệu"
+    "general": { "label": "Chung", "title": "Chung", "description": "Bật/tắt nhanh và khu vực thử nghiệm." },
+    "scroll": { "label": "Cuộn", "title": "Cuộn", "description": "Tinh chỉnh bước cuộn, easing, hướng và nguồn input." },
+    "apps": { "label": "Ứng dụng", "title": "Theo ứng dụng", "description": "Profile và loại trừ riêng cho từng ứng dụng." },
+    "preferences": { "label": "Tuỳ chọn", "title": "Tuỳ chọn", "description": "Hành vi, phím tắt và chế độ game." },
+    "about": { "label": "Thông tin", "title": "Thông tin", "description": "Phiên bản, cập nhật và log." }
   },
   "presets": {
     "slow": "Chậm",
