@@ -128,3 +128,23 @@ fn is_excluded_is_case_insensitive() {
     assert!(!s.is_excluded("vscode"));
     assert!(!s.is_excluded(""));
 }
+
+#[test]
+fn edge_scroll_defaults_to_off() {
+    let s = AppSettings::default();
+    assert!(!s.edge_scroll_enabled);
+    assert_eq!(s.edge_scroll_zone_px, 40);
+    assert_eq!(s.edge_scroll_max_notches_per_sec, 5.0);
+    assert!(!s.edge_scroll_modifier_required);
+}
+
+#[test]
+fn edge_scroll_clamp_bounds_zone() {
+    let mut s = AppSettings::default();
+    s.edge_scroll_zone_px = 5;
+    s.clamp();
+    assert!(s.edge_scroll_zone_px >= 10);
+    s.edge_scroll_zone_px = 9999;
+    s.clamp();
+    assert!(s.edge_scroll_zone_px <= 200);
+}

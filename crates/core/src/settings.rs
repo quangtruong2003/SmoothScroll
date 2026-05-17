@@ -99,6 +99,13 @@ pub struct AppSettings {
     // Per-app profiles
     pub profiles: Vec<ScrollProfile>,
     pub app_profiles: HashMap<String, String>,  // process_name -> profile_id
+
+    // Edge auto-scroll
+    pub edge_scroll_enabled: bool,
+    pub edge_scroll_zone_px: i32,
+    pub edge_scroll_max_notches_per_sec: f64,
+    pub edge_scroll_modifier_required: bool,
+    pub edge_scroll_modifier: String,
 }
 
 impl Default for AppSettings {
@@ -125,6 +132,11 @@ impl Default for AppSettings {
             excluded_apps: Vec::new(),
             profiles: Vec::new(),
             app_profiles: HashMap::new(),
+            edge_scroll_enabled: false,
+            edge_scroll_zone_px: 40,
+            edge_scroll_max_notches_per_sec: 5.0,
+            edge_scroll_modifier_required: false,
+            edge_scroll_modifier: "Alt".to_string(),
         }
     }
 }
@@ -149,6 +161,12 @@ impl AppSettings {
 
         if !is_valid_accelerator(&self.hotkey_accelerator) {
             self.hotkey_accelerator = "Ctrl+Alt+S".to_string();
+        }
+
+        self.edge_scroll_zone_px = self.edge_scroll_zone_px.clamp(10, 200);
+        self.edge_scroll_max_notches_per_sec = self.edge_scroll_max_notches_per_sec.clamp(0.5, 20.0);
+        if !["Alt", "Shift", "Ctrl"].contains(&self.edge_scroll_modifier.as_str()) {
+            self.edge_scroll_modifier = "Alt".to_string();
         }
     }
 
