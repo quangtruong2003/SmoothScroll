@@ -466,3 +466,12 @@ pub fn unassign_app_profile(
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn get_input_source(state: State<'_, Arc<AppState>>) -> &'static str {
+    match state.last_input_source.load(Ordering::Relaxed) {
+        1 => "HighResWheel",
+        2 => "Touchpad",
+        _ => "Wheel",
+    }
+}

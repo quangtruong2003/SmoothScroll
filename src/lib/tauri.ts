@@ -8,6 +8,8 @@ export type EasingMode =
 
 export type ThemeMode = "Light" | "Dark" | "System";
 
+export type InputSourceLabel = "Wheel" | "HighResWheel" | "Touchpad";
+
 export interface ScrollProfile {
   id: string;
   name: string;
@@ -44,6 +46,9 @@ export interface AppSettings {
   excluded_apps: string[];
   profiles: ScrollProfile[];
   app_profiles: Record<string, string>;
+  touchpad_smoothing_enabled: boolean;
+  touchpad_pixel_multiplier: number;
+  touchpad_acceleration_factor: number;
 }
 
 export interface ProcessInfo {
@@ -100,4 +105,8 @@ export const tauri = {
     invoke<void>("assign_app_profile", { processName, profileId }),
   unassignAppProfile: (processName: string) =>
     invoke<void>("unassign_app_profile", { processName }),
+
+  async getInputSource(): Promise<InputSourceLabel> {
+    return invoke<InputSourceLabel>("get_input_source");
+  },
 };
