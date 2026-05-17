@@ -9,6 +9,7 @@ import { TestSandboxSection } from "@/components/settings/TestSandboxSection";
 import { ScrollSection } from "@/components/settings/ScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
+import { KeyboardScrollSection } from "@/components/settings/KeyboardScrollSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
@@ -98,6 +99,7 @@ export function SettingsPage() {
                 <ScrollSection />
                 <AppearanceSection />
                 <DirectionSection />
+                <KeyboardScrollSection />
               </div>
             </div>
           )}

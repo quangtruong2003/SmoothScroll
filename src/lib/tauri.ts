@@ -44,6 +44,11 @@ export interface AppSettings {
   excluded_apps: string[];
   profiles: ScrollProfile[];
   app_profiles: Record<string, string>;
+  keyboard_scroll_enabled: boolean;
+  keyboard_scroll_keys: string[];
+  keyboard_smart_text_skip: boolean;
+  keyboard_pgdn_step_notches: number;
+  keyboard_arrow_step_notches: number;
 }
 
 export interface ProcessInfo {
