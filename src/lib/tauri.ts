@@ -90,6 +90,7 @@ export const tauri = {
   setEnabled: (enabled: boolean) => invoke<void>("set_enabled", { enabled }),
 
   getSettings: () => invoke<AppSettings>("get_settings"),
+  getDefaultSettings: () => invoke<AppSettings>("get_default_settings"),
   saveSettings: (settings: AppSettings) =>
     invoke<void>("save_settings", { settings }),
 
