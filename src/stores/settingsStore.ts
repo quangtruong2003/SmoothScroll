@@ -1,10 +1,14 @@
 import { create } from "zustand";
-import { tauri, type AppSettings, type ScrollProfile } from "@/lib/tauri";
+import { useShallow } from "zustand/react/shallow";
+import i18n from "i18next";
+import { tauri, type AppSettings, type ScrollProfile, type ThemeMode } from "@/lib/tauri";
 import { debounce } from "@/lib/debounce";
 import { applyTheme } from "@/lib/theme";
+import { toast } from "@/components/ui/toast";
 
 interface SettingsStore {
   settings: AppSettings | null;
+  defaults: AppSettings | null;
   loading: boolean;
   error: string | null;
 
@@ -24,27 +28,35 @@ interface SettingsStore {
   unassignAppProfile: (processName: string) => Promise<void>;
 }
 
-const SAVE_DEBOUNCE_MS = 250;
+// 350ms debounce: covers a typical slider drag (~200-300ms) so a continuous
+// drag persists exactly once. Memory state updates synchronously for instant
+// UI feedback. See spec § 4 B3 for rationale.
+const SAVE_DEBOUNCE_MS = 350;
 
 const debouncedPersist = debounce(async (settings: AppSettings) => {
   try {
     await tauri.saveSettings(settings);
   } catch (e) {
     console.error("save_settings failed", e);
+    toast.error(i18n.t("errors.save_failed"));
   }
 }, SAVE_DEBOUNCE_MS);
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
   settings: null,
+  defaults: null,
   loading: true,
   error: null,
 
   load: async () => {
     set({ loading: true, error: null });
     try {
-      const settings = await tauri.getSettings();
+      const [settings, defaults] = await Promise.all([
+        tauri.getSettings(),
+        tauri.getDefaultSettings(),
+      ]);
       applyTheme(settings.theme);
-      set({ settings, loading: false });
+      set({ settings, defaults, loading: false });
     } catch (e) {
       set({ loading: false, error: String(e) });
     }
@@ -64,7 +76,12 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   saveNow: async () => {
     const current = get().settings;
     if (!current) return;
-    await tauri.saveSettings(current);
+    try {
+      await tauri.saveSettings(current);
+    } catch (e) {
+      toast.error(i18n.t("errors.save_failed"));
+      throw e;
+    }
   },
 
   setEnabledFromEvent: (enabled) => {
@@ -125,3 +142,127 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     }
   },
 }));
+
+// =============================================================================
+// Narrow selectors
+// =============================================================================
+
+export const useEnabled = () =>
+  useSettingsStore((s) => s.settings?.enabled ?? false);
+
+export const useTheme = (): ThemeMode =>
+  useSettingsStore((s) => s.settings?.theme ?? "System");
+
+export const useDefaults = () =>
+  useSettingsStore((s) => s.defaults);
+
+export const useScrollFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        step_size_px: set.step_size_px,
+        animation_time_ms: set.animation_time_ms,
+        acceleration_delta_ms: set.acceleration_delta_ms,
+        acceleration_max: set.acceleration_max,
+        tail_to_head_ratio: set.tail_to_head_ratio,
+      };
+    })
+  );
+
+export const useAppearanceFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        animation_easing: set.animation_easing,
+        easing_mode: set.easing_mode,
+        tail_to_head_ratio: set.tail_to_head_ratio,
+      };
+    })
+  );
+
+export const useDirectionFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        reverse_wheel_direction: set.reverse_wheel_direction,
+        shift_key_horizontal: set.shift_key_horizontal,
+        horizontal_smoothness: set.horizontal_smoothness,
+      };
+    })
+  );
+
+export const useEdgeScrollFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        edge_scroll_enabled: set.edge_scroll_enabled,
+        edge_scroll_zone_px: set.edge_scroll_zone_px,
+        edge_scroll_max_notches_per_sec: set.edge_scroll_max_notches_per_sec,
+        edge_scroll_modifier_required: set.edge_scroll_modifier_required,
+        edge_scroll_modifier: set.edge_scroll_modifier,
+      };
+    })
+  );
+
+export const useKeyboardFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        keyboard_scroll_enabled: set.keyboard_scroll_enabled,
+        keyboard_scroll_keys: set.keyboard_scroll_keys,
+        keyboard_smart_text_skip: set.keyboard_smart_text_skip,
+        keyboard_pgdn_step_notches: set.keyboard_pgdn_step_notches,
+        keyboard_arrow_step_notches: set.keyboard_arrow_step_notches,
+      };
+    })
+  );
+
+export const useTouchpadFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        touchpad_smoothing_enabled: set.touchpad_smoothing_enabled,
+        touchpad_pixel_multiplier: set.touchpad_pixel_multiplier,
+        touchpad_acceleration_factor: set.touchpad_acceleration_factor,
+      };
+    })
+  );
+
+export const useBehaviorFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        enable_global_hotkey: set.enable_global_hotkey,
+        hotkey_accelerator: set.hotkey_accelerator,
+        start_with_os: set.start_with_os,
+        start_minimized: set.start_minimized,
+        show_tray_icon_state: set.show_tray_icon_state,
+      };
+    })
+  );
+
+export const useGameModeFields = () =>
+  useSettingsStore(
+    useShallow((s) => {
+      const set = s.settings;
+      if (!set) return null;
+      return {
+        game_mode_enabled: set.game_mode_enabled,
+        game_mode_known_apps: set.game_mode_known_apps,
+      };
+    })
+  );
