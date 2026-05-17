@@ -44,6 +44,11 @@ export interface AppSettings {
   excluded_apps: string[];
   profiles: ScrollProfile[];
   app_profiles: Record<string, string>;
+  edge_scroll_enabled: boolean;
+  edge_scroll_zone_px: number;
+  edge_scroll_max_notches_per_sec: number;
+  edge_scroll_modifier_required: boolean;
+  edge_scroll_modifier: string;
 }
 
 export interface ProcessInfo {

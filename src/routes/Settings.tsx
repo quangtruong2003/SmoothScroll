@@ -15,6 +15,7 @@ import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { ThemeSection } from "@/components/settings/ThemeSection";
 import { LanguageSection } from "@/components/settings/LanguageSection";
 import { AboutSection } from "@/components/settings/AboutSection";
+import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -98,6 +99,7 @@ export function SettingsPage() {
                 <ScrollSection />
                 <AppearanceSection />
                 <DirectionSection />
+                <EdgeScrollSection />
               </div>
             </div>
           )}
