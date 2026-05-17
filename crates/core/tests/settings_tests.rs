@@ -128,3 +128,13 @@ fn is_excluded_is_case_insensitive() {
     assert!(!s.is_excluded("vscode"));
     assert!(!s.is_excluded(""));
 }
+
+#[test]
+fn keyboard_scroll_defaults_off() {
+    let s = AppSettings::default();
+    assert!(!s.keyboard_scroll_enabled);
+    assert!(s.keyboard_smart_text_skip);
+    assert_eq!(s.keyboard_pgdn_step_notches, 5);
+    assert_eq!(s.keyboard_arrow_step_notches, 1);
+    assert!(s.keyboard_scroll_keys.iter().any(|k| k == "PageDown"));
+}

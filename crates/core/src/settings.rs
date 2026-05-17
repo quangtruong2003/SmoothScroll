@@ -99,6 +99,13 @@ pub struct AppSettings {
     // Per-app profiles
     pub profiles: Vec<ScrollProfile>,
     pub app_profiles: HashMap<String, String>,  // process_name -> profile_id
+
+    // Keyboard scroll smoothing
+    pub keyboard_scroll_enabled: bool,
+    pub keyboard_scroll_keys: Vec<String>,
+    pub keyboard_smart_text_skip: bool,
+    pub keyboard_pgdn_step_notches: i32,
+    pub keyboard_arrow_step_notches: i32,
 }
 
 impl Default for AppSettings {
@@ -125,6 +132,15 @@ impl Default for AppSettings {
             excluded_apps: Vec::new(),
             profiles: Vec::new(),
             app_profiles: HashMap::new(),
+            keyboard_scroll_enabled: false,
+            keyboard_scroll_keys: vec![
+                "PageUp".to_string(), "PageDown".to_string(),
+                "Space".to_string(), "ShiftSpace".to_string(),
+                "ArrowUp".to_string(), "ArrowDown".to_string(),
+            ],
+            keyboard_smart_text_skip: true,
+            keyboard_pgdn_step_notches: 5,
+            keyboard_arrow_step_notches: 1,
         }
     }
 }
@@ -136,6 +152,9 @@ impl AppSettings {
         self.acceleration_delta_ms = self.acceleration_delta_ms.clamp(0, 500);
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
+
+        self.keyboard_pgdn_step_notches = self.keyboard_pgdn_step_notches.clamp(1, 20);
+        self.keyboard_arrow_step_notches = self.keyboard_arrow_step_notches.clamp(1, 10);
 
         // Clamp all profiles
         for profile in &mut self.profiles {
