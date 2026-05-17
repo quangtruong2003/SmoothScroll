@@ -7,6 +7,7 @@
 pub mod constants;
 pub mod easing;
 pub mod engine;
+pub mod keyboard_scroll;
 pub mod settings;
 
 pub use easing::{compute_easing_fraction, EasingMode};
