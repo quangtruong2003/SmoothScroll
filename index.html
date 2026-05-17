@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SmoothScroll — Smooth Mouse Wheel Scrolling for Windows and macOS (Free, Open Source)</title>
+  <meta name="description" content="Free open-source app that adds Mac-style smooth scrolling to Windows 10/11 and consistent inertia scrolling on macOS. Native low-level input, frame-perfect easing, per-app exclusion. Built with Rust + Tauri 2.">
+  <meta name="keywords" content="smooth scrolling windows, smooth scroll windows 11, mac style scrolling windows, mouse wheel inertia, windows smooth scroll app, free smoothscroll, tauri rust scroll, logitech smoothscroll alternative, wizmouse alternative">
+  <link rel="canonical" href="https://quangtruong2003.github.io/SmoothScroll/">
+
+  <meta property="og:title" content="SmoothScroll — Smooth Mouse Wheel Scrolling for Windows and macOS">
+  <meta property="og:description" content="Free open-source smooth scrolling for Windows 10/11 and macOS. Native input, frame-perfect easing, per-app exclusion.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://quangtruong2003.github.io/SmoothScroll/">
+  <meta property="og:image" content="https://raw.githubusercontent.com/quangtruong2003/SmoothScroll/master/src-tauri/icons/128x128@2x.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SmoothScroll — Smooth Scrolling for Windows & macOS">
+  <meta name="twitter:description" content="Free open-source smooth scrolling for Windows and macOS.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/quangtruong2003/SmoothScroll/master/src-tauri/icons/128x128@2x.png">
+
+  <link rel="icon" href="https://raw.githubusercontent.com/quangtruong2003/SmoothScroll/master/src-tauri/icons/icon.ico">
+  <link rel="stylesheet" href="styles.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SmoothScroll",
+    "operatingSystem": "Windows 10, Windows 11, macOS 12+",
+    "applicationCategory": "UtilitiesApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "downloadUrl": "https://github.com/quangtruong2003/SmoothScroll/releases",
+    "softwareVersion": "0.1.11",
+    "license": "https://opensource.org/licenses/MIT",
+    "url": "https://quangtruong2003.github.io/SmoothScroll/",
+    "sameAs": "https://github.com/quangtruong2003/SmoothScroll",
+    "description": "Smooth mouse-wheel scrolling for Windows and macOS. Native low-level input interception, frame-perfect easing, per-app exclusion. Built with Rust, Tauri 2, and React.",
+    "author": { "@type": "Person", "name": "Quang Truong" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How do I enable smooth scrolling on Windows 11?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Install SmoothScroll from the GitHub Releases page, launch it, and scrolling becomes smooth system-wide. No drivers, no admin rights, no reboot. Toggle with Ctrl+Alt+S." } },
+      { "@type": "Question", "name": "How do I get Mac-style inertia scrolling on Windows?",
+        "acceptedAnswer": { "@type": "Answer", "text": "SmoothScroll re-emits raw mouse-wheel ticks as eased pulses at 120 Hz, producing macOS-trackpad-style gliding inertia for any wheel mouse in any Windows app." } },
+      { "@type": "Question", "name": "Is SmoothScroll free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. SmoothScroll is free and open source under the MIT license. No telemetry, no ads." } },
+      { "@type": "Question", "name": "Does SmoothScroll work with gaming mice like Logitech MX Master and Razer?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. SmoothScroll intercepts wheel events at the OS level via the Windows low-level mouse hook and macOS CGEventTap, so it works with any mouse the OS recognizes." } }
+    ]
+  }
+  </script>
+</head>
+<body>
+<header class="hero">
+  <img src="https://raw.githubusercontent.com/quangtruong2003/SmoothScroll/master/src-tauri/icons/128x128@2x.png" alt="SmoothScroll app icon" width="96" height="96">
+  <h1>SmoothScroll</h1>
+  <p class="tagline">Smooth mouse-wheel scrolling for <strong>Windows 10/11</strong> and <strong>macOS</strong>.</p>
+  <p class="sub">Native low-level input interception · frame-perfect easing · per-app exclusion · free &amp; open source.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/quangtruong2003/SmoothScroll/releases/latest">Download latest release</a>
+    <a class="btn ghost" href="https://github.com/quangtruong2003/SmoothScroll">View on GitHub</a>
+  </div>
+</header>
+
+<main>
+<section>
+  <h2>What it does</h2>
+  <p>Most mice emit discrete wheel ticks that feel jagged in apps without native inertia. SmoothScroll sits between the OS and your applications, swallows raw wheel events, and re-emits them as fluid, eased pulses at 120 Hz — giving you <strong>Mac-style smooth scrolling on Windows</strong> and consistent inertia across every app on macOS.</p>
+</section>
+
+<section>
+  <h2>Features</h2>
+  <ul>
+    <li><strong>Native input interception</strong> — Windows low-level mouse hook (<code>WH_MOUSE_LL</code>); macOS <code>CGEventTap</code>.</li>
+    <li><strong>Frame-perfect easing</strong> — Linear, Cubic, Quintic, Exponential curves tuned for 120 Hz output.</li>
+    <li><strong>Per-app exclusion</strong> — opt apps out by process name; everything else stays smoothed.</li>
+    <li><strong>Global hotkey</strong> — <code>Ctrl+Alt+S</code> default, rebindable.</li>
+    <li><strong>System tray UI</strong> — left-click for settings, right-click for quick controls.</li>
+    <li><strong>Auto-update</strong> — signed releases via Tauri updater (opt-in).</li>
+    <li><strong>Tiny footprint</strong> — single Rust binary, no Electron, no background services.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Install</h2>
+  <h3>Windows 10 / 11</h3>
+  <p>Download <code>SmoothScroll_&lt;version&gt;_x64-setup.exe</code> (NSIS) or <code>.msi</code> from the <a href="https://github.com/quangtruong2003/SmoothScroll/releases">Releases page</a>. Per-user install, no admin rights.</p>
+  <h3>macOS 12+ (Apple Silicon)</h3>
+  <p>Download the <code>.dmg</code>, drag SmoothScroll.app to <code>/Applications</code>, right-click → Open on first launch (Gatekeeper), then grant Accessibility access.</p>
+</section>
+
+<section id="faq">
+  <h2>FAQ</h2>
+  <h3>How do I enable smooth scrolling on Windows 11?</h3>
+  <p>Install SmoothScroll, launch it, and scrolling becomes smooth system-wide. No drivers, no admin rights, no reboot. Toggle on/off with <code>Ctrl+Alt+S</code>.</p>
+  <h3>How do I get Mac-style inertia scrolling on Windows?</h3>
+  <p>SmoothScroll re-emits raw mouse-wheel ticks as eased pulses at 120 Hz, producing the same gliding inertia feel as macOS trackpad scrolling — for any wheel mouse, in any Windows app.</p>
+  <h3>Does it work with Logitech MX Master, Razer, and other gaming mice?</h3>
+  <p>Yes. SmoothScroll intercepts at the OS level, so any mouse the OS recognizes works.</p>
+  <h3>Is it safe with anti-cheat (EAC, BattlEye)?</h3>
+  <p>SmoothScroll uses the same standard input APIs as accessibility tools and screen readers. Per-app exclusion lets you disable it for games that prefer raw input.</p>
+  <h3>Is it free?</h3>
+  <p>Yes — MIT licensed, no telemetry, no ads.</p>
+</section>
+
+<section>
+  <h2>Open source</h2>
+  <p>Source code, issue tracker, and roadmap on <a href="https://github.com/quangtruong2003/SmoothScroll">GitHub</a>. Built with Rust, Tauri 2, and React. Pull requests welcome.</p>
+</section>
+</main>
+
+<footer>
+  <p>&copy; 2026 SmoothScroll contributors · <a href="https://github.com/quangtruong2003/SmoothScroll/blob/master/LICENSE">MIT License</a> · <a href="https://github.com/quangtruong2003/SmoothScroll">GitHub</a></p>
+</footer>
+</body>
+</html>
