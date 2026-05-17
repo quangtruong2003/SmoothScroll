@@ -99,7 +99,7 @@ function MenuItem({
       )}
       <span className="flex-1 text-left">{label}</span>
       {toggle !== undefined && (
-        <Toggle checked={toggle} onChange={onToggle!} />
+        <Toggle checked={checked ?? false} onChange={onToggle!} />
       )}
     </button>
   );
