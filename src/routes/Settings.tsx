@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useTheme } from "@/stores/settingsStore";
 import { applyTheme, watchSystemTheme } from "@/lib/theme";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { EnableHeader } from "@/components/settings/EnableHeader";
@@ -22,7 +22,7 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const load = useSettingsStore((s) => s.load);
   const setEnabledFromEvent = useSettingsStore((s) => s.setEnabledFromEvent);
-  const settings = useSettingsStore((s) => s.settings);
+  const theme = useTheme();
   const loading = useSettingsStore((s) => s.loading);
   const error = useSettingsStore((s) => s.error);
 
@@ -52,12 +52,11 @@ export function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    if (!settings) return;
     const stop = watchSystemTheme(() => {
-      if (settings.theme === "System") applyTheme("System");
+      if (theme === "System") applyTheme("System");
     });
     return stop;
-  }, [settings?.theme]);
+  }, [theme]);
 
   if (loading) {
     return (
