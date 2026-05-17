@@ -1,65 +1,144 @@
+<div align="center">
+
 # SmoothScroll
 
-Cross-platform smooth scrolling utility for Windows + macOS. Rust + Tauri 2 + React rewrite of the Windows-only C# WPF original (which still lives at the parent directory until the rewrite is fully retired).
+**Buttery-smooth mouse-wheel scrolling for Windows and macOS.**
+
+Native low-level input interception, frame-perfect easing, and a tiny resident footprint — built with Rust, Tauri 2, and React.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey.svg)](#install)
+[![Stack](https://img.shields.io/badge/stack-Rust%20%7C%20Tauri%202%20%7C%20React-orange.svg)](#architecture)
+
+</div>
+
+---
+
+## Why SmoothScroll
+
+Most mice and trackpads emit discrete wheel ticks that feel jagged on apps without native inertia. SmoothScroll sits between the OS and your applications, swallows raw wheel events, and re-emits them as fluid, eased pulses at 120 Hz — with per-application opt-out, configurable easing, and a system-tray UI that stays out of your way.
+
+## Features
+
+- **Native input interception** — low-level mouse hook on Windows, `CGEventTap` on macOS. Works in any app that accepts wheel input.
+- **Frame-perfect easing** — pluggable curves (Linear, Cubic, Quintic, Exponential), tuned for 120 Hz output.
+- **Per-app exclusion** — opt specific applications out by process name; everything else stays smoothed.
+- **Global hotkey** — toggle smoothing on/off without leaving your keyboard. Default `Ctrl+Alt+S`.
+- **System tray** — left-click for settings, right-click for quick controls.
+- **Themed UI** — light/dark/system, multi-language (i18next), keyboard-accessible.
+- **Auto-update** — built-in updater, signed releases, opt-in.
+- **Tiny footprint** — single Rust binary, no Electron, no background services.
 
 ## Install
 
 ### Windows
 
-Download `SmoothScroll_<version>_x64-setup.exe` (NSIS) or the `.msi` from the Releases page and run it. Per-user install — no admin needed.
+Grab `SmoothScroll_<version>_x64-setup.exe` (NSIS) or `.msi` from the [Releases page](https://github.com/quangtruong2003/SmoothScroll/releases) and run it. Installation is per-user — no administrator privileges required.
+
+**Requirements:** Windows 10/11 with WebView2 runtime (preinstalled on Windows 11).
 
 ### macOS
 
-Download `SmoothScroll_<version>_aarch64.dmg`, mount it, drag the app into `/Applications`. The first launch is blocked by Gatekeeper because the app isn't signed yet:
+1. Download `SmoothScroll_<version>_aarch64.dmg` and mount it.
+2. Drag **SmoothScroll.app** into `/Applications`.
+3. The first launch is blocked by Gatekeeper (the app isn't notarized yet):
+   - Right-click **SmoothScroll.app** → **Open**
+   - Confirm in the dialog
+4. Grant **Accessibility** access when prompted: System Settings → Privacy & Security → Accessibility → toggle SmoothScroll on.
+5. The app detects the grant automatically and resumes.
 
-1. Right-click `SmoothScroll.app` → **Open**
-2. Confirm in the dialog
-3. The app will then prompt for **Accessibility** access. Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on.
-4. The app polls and resumes automatically once granted.
+**Requirements:** macOS 12 (Monterey) or later, Apple Silicon.
 
 ## Usage
 
-- The app installs a low-level mouse hook (Windows) / event tap (macOS), swallows native wheel events, and re-emits them as smoothed pulses.
-- Tray icon: left-click opens settings, right-click shows menu (Enable, Open Settings, Exit).
-- Default hotkey **Ctrl+Alt+S** toggles smooth scrolling on/off.
-- Per-app exclusion list lets you opt specific apps out of smoothing.
-- Settings persist at `%APPDATA%/SmoothScroll/settings.json` (Windows) or `~/Library/Application Support/SmoothScroll/settings.json` (macOS).
-- Logs at `%APPDATA%/SmoothScroll/logs/` (Windows) or `~/Library/Logs/SmoothScroll/` (macOS), rotated daily, kept 7 days.
+| Action | How |
+|--------|-----|
+| Open settings | Left-click tray icon |
+| Quick menu | Right-click tray icon — Enable, Open Settings, Exit |
+| Toggle on/off | `Ctrl+Alt+S` (rebindable in settings) |
+| Exclude an app | Settings → **Excluded Apps** → add by process name |
 
-## Build from source
+**Settings file:**
+- Windows — `%APPDATA%\SmoothScroll\settings.json`
+- macOS — `~/Library/Application Support/SmoothScroll/settings.json`
 
-Prerequisites:
-- Rust 1.78+ (managed via `rust-toolchain.toml`)
-- Node.js 20+
-- **Windows**: WebView2 runtime (preinstalled on Win11), MSVC build tools
-- **macOS**: Xcode Command Line Tools (`xcode-select --install`)
+**Logs** (rotated daily, retained 7 days):
+- Windows — `%APPDATA%\SmoothScroll\logs\`
+- macOS — `~/Library/Logs/SmoothScroll/`
 
-```bash
-cd tauri
-npm install
-cargo tauri dev          # development
-cargo tauri build        # produce installers
+## Architecture
+
+SmoothScroll is structured as a workspace with a clean separation between pure logic, OS-specific I/O, and UI.
+
 ```
-
-Outputs:
-
-- Windows: `tauri/src-tauri/target/release/bundle/{nsis,msi}/`
-- macOS: `tauri/src-tauri/target/release/bundle/{macos,dmg}/`
-
-## Layout
+┌────────────────────────────────────────────────────────────────┐
+│  src/  (React + TypeScript)                                    │
+│  Settings UI · Radix primitives · Tailwind · Zustand · i18next │
+└──────────────────────────────┬─────────────────────────────────┘
+                               │ Tauri IPC
+┌──────────────────────────────▼─────────────────────────────────┐
+│  src-tauri/  (Tauri 2 · Rust)                                  │
+│  Composition root · IPC commands · tray · global hotkey        │
+└──────────────────────────────┬─────────────────────────────────┘
+                               │
+            ┌──────────────────┴──────────────────┐
+            ▼                                     ▼
+┌───────────────────────┐           ┌─────────────────────────────┐
+│  crates/core/         │           │  crates/platform/           │
+│  Engine · easing math │           │  Windows: low-level hook    │
+│  Settings model       │           │  macOS:   CGEventTap        │
+│  No OS dependencies   │           │  Process resolver · emitter │
+│  Fully unit-tested    │           │  Behind trait abstractions  │
+└───────────────────────┘           └─────────────────────────────┘
+```
 
 | Path | Purpose |
 |------|---------|
-| `crates/core/` | Pure scroll-engine logic, settings, easing math. No OS deps. Unit-tested. |
-| `crates/platform/` | OS-specific implementations behind traits — Windows + macOS. |
-| `src-tauri/` | Tauri 2 app. Composition root, IPC commands, tray, hotkey wiring. |
-| `src/` | React + TypeScript frontend (settings UI). |
-| `docs/` | Specs and migration plans (at repo root, alongside the C# project). |
+| `crates/core/` | Scroll engine, easing math, settings model. Pure Rust, OS-agnostic, fully unit-tested. |
+| `crates/platform/` | OS-specific implementations behind traits — Windows hook, macOS event tap, wheel emitters, process queries. |
+| `src-tauri/` | Tauri 2 host — composition root, IPC commands, tray, hotkey wiring, lifecycle. |
+| `src/` | React + TypeScript settings UI. |
+| `docs/` | Specs, design notes, migration plans. |
+
+## Build from source
+
+**Prerequisites**
+
+- Rust 1.78+ (pinned via `rust-toolchain.toml`)
+- Node.js 20+ with npm/pnpm
+- **Windows:** MSVC build tools, WebView2 runtime
+- **macOS:** Xcode Command Line Tools — `xcode-select --install`
+
+**Build**
+
+```bash
+git clone https://github.com/quangtruong2003/SmoothScroll
+cd SmoothScroll
+
+npm install
+npm run tauri dev      # run with hot reload
+npm run tauri build    # produce installers
+```
+
+**Outputs**
+
+- Windows — `src-tauri/target/release/bundle/{nsis,msi}/`
+- macOS — `src-tauri/target/release/bundle/{macos,dmg}/`
+
+**Test**
+
+```bash
+cargo test --workspace
+```
 
 ## Status
 
-v0.1.0 — feature-complete v1 on Windows and macOS. The C# original at the parent directory is preserved until v0.1.0 sees real-world use; once stable, the C# code will be removed.
+`v0.1.8` — feature-complete v1 on Windows and macOS. The macOS build is currently unsigned; signing and notarization are tracked in [docs/](docs/).
+
+## Contributing
+
+Issues and pull requests are welcome. For substantial changes, open an issue first to discuss the approach. Run `cargo fmt`, `cargo clippy -- -D warnings`, and `cargo test --workspace` before submitting.
 
 ## License
 
-MIT
+[MIT](LICENSE) © SmoothScroll contributors
