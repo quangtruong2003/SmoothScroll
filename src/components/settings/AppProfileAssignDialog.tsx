@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { tauri, type ProcessInfo } from "@/lib/tauri";
+import { tauri, type ProcessInfo, type ProfileSuggestion } from "@/lib/tauri";
 import { Plus } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 
@@ -33,12 +33,17 @@ interface Props {
 export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props) {
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
+  const createProfile = useSettingsStore((s) => s.createProfile);
+  const updateProfile = useSettingsStore((s) => s.updateProfile);
+  const assignAppProfile = useSettingsStore((s) => s.assignAppProfile);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const [processes, setProcesses] = useState<ProcessInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [manualName, setManualName] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState<string>(DISABLED_PROFILE_ID);
+  const [suggestion, setSuggestion] = useState<ProfileSuggestion | null>(null);
+  const [showSuggestion, setShowSuggestion] = useState(true);
 
   useEffect(() => {
     if (!open) return;
@@ -49,6 +54,32 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      setSuggestion(null);
+      setShowSuggestion(true);
+    }
+  }, [open]);
+
+  const selectedApp = manualName.trim();
+
+  useEffect(() => {
+    if (!selectedApp) {
+      setSuggestion(null);
+      return;
+    }
+    let cancelled = false;
+    tauri
+      .suggestProfileForApp(selectedApp)
+      .then((s) => {
+        if (!cancelled) setSuggestion(s);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedApp]);
 
   const lowerAssigned = useMemo(
     () => new Set(alreadyAssignedNames.map((n) => n.toLowerCase())),
@@ -81,6 +112,28 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
     handleAssign(name);
   };
 
+  const handleUseSuggestion = async (s: ProfileSuggestion) => {
+    if (!selectedApp) return;
+    if (s.preset.kind === "Disabled") {
+      await assignAppProfile(selectedApp, DISABLED_PROFILE_ID);
+      setOpen(false);
+      setManualName("");
+      return;
+    }
+    const baseName = `${s.category_label} (auto)`;
+    const newProfile = await createProfile(baseName);
+    const merged: typeof newProfile = {
+      ...newProfile,
+      ...s.preset.data,
+      id: newProfile.id,
+      name: baseName,
+    };
+    await updateProfile(merged);
+    await assignAppProfile(selectedApp, newProfile.id);
+    setOpen(false);
+    setManualName("");
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -94,6 +147,34 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
           <DialogTitle>{t("app_profiles.dialog.title")}</DialogTitle>
           <DialogDescription>{t("app_profiles.dialog.desc")}</DialogDescription>
         </DialogHeader>
+
+        {showSuggestion && suggestion && suggestion.category !== "Unknown" && (
+          <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-900 dark:bg-blue-950">
+            <div>
+              <strong>
+                {t("profiles.suggest.title", { category: suggestion.category_label })}:
+              </strong>{" "}
+              {suggestion.preset.kind === "Disabled"
+                ? t("profiles.suggest.disable")
+                : t("profiles.suggest.custom_preset", {
+                    step: suggestion.preset.data.step_size_px,
+                    ms: suggestion.preset.data.animation_time_ms,
+                  })}
+            </div>
+            <div className="mt-2 flex gap-2">
+              <Button size="sm" onClick={() => handleUseSuggestion(suggestion)}>
+                {t("profiles.suggest.use")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowSuggestion(false)}
+              >
+                {t("profiles.suggest.pick_manually")}
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">

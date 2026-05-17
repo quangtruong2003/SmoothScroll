@@ -1,6 +1,9 @@
 //! Tauri IPC commands callable from JS.
 
 use crate::state::AppState;
+use smoothscroll_core::app_categories::{
+    classify_app, preset_for_category, AppCategory, SuggestedPreset,
+};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{self, is_valid_accelerator, AppSettings, ScrollProfile};
 use smoothscroll_platform::traits::ProcessInfo;
@@ -465,4 +468,22 @@ pub fn unassign_app_profile(
     settings::save(&snapshot).map_err(|e| e.to_string())?;
 
     Ok(())
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ProfileSuggestion {
+    pub category: AppCategory,
+    pub category_label: String,
+    pub preset: SuggestedPreset,
+}
+
+#[tauri::command]
+pub fn suggest_profile_for_app(name: String) -> ProfileSuggestion {
+    let category = classify_app(&name);
+    let preset = preset_for_category(category);
+    ProfileSuggestion {
+        category,
+        category_label: category.label().to_string(),
+        preset,
+    }
 }
