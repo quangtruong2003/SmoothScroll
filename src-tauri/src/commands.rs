@@ -578,3 +578,10 @@ pub fn get_input_source(state: State<'_, Arc<AppState>>) -> &'static str {
         _ => "Wheel",
     }
 }
+
+/// Returns the canonical default settings from `smoothscroll_core`.
+/// Single source of truth for "Reset to default" actions in the UI.
+#[tauri::command]
+pub fn get_default_settings() -> AppSettings {
+    AppSettings::default()
+}
