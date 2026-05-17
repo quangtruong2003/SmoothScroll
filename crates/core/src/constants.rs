@@ -1,4 +1,4 @@
-//! Engine-wide numeric constants. Mirror C# `ScrollConstants`.
+//! Engine-wide numeric constants.
 
 pub const WHEEL_DELTA: i32 = 120;
 pub const EMIT_UNIT: i32 = 12;

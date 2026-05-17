@@ -49,7 +49,7 @@
   /* 25% smaller default font: tightens the entire UI without breaking
    * Tailwind's rem-based scale. Override per-element with text-* if needed. */
   html {
-    font-size: 12px;
+    font-size: 13px;
   }
   * {
     @apply border-border;

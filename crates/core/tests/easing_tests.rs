@@ -26,19 +26,19 @@ fn cubic_out_at_full_returns_one() {
 }
 
 #[test]
-fn cubic_out_midpoint_matches_csharp_formula() {
+fn cubic_out_midpoint_matches_reference_formula() {
     let f = compute_easing_fraction(100.0, 200.0, EasingMode::CubicOut, 3.0, true);
     assert_relative_eq!(f, 0.875, epsilon = 1e-9);
 }
 
 #[test]
-fn quintic_out_midpoint_matches_csharp_formula() {
+fn quintic_out_midpoint_matches_reference_formula() {
     let f = compute_easing_fraction(100.0, 200.0, EasingMode::QuinticOut, 3.0, true);
     assert_relative_eq!(f, 0.96875, epsilon = 1e-9);
 }
 
 #[test]
-fn exponential_out_with_default_ratio_matches_csharp() {
+fn exponential_out_with_default_ratio_matches_reference() {
     let f = compute_easing_fraction(100.0, 200.0, EasingMode::ExponentialOut, 3.0, true);
     let expected = 1.0 - (-2.5_f64).exp();
     assert_relative_eq!(f, expected, epsilon = 1e-9);

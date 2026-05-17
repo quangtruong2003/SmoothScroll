@@ -1,6 +1,6 @@
-//! Resolve the process name under the mouse cursor. Ports
-//! `CachedProcessHelper.cs` — 100ms TTL + HWND-change detection so the
-//! hook hot path pays at most one `OpenProcess`-class call every 100ms.
+//! Resolve the process name under the mouse cursor. 100ms TTL +
+//! HWND-change detection so the hook hot path pays at most one
+//! `OpenProcess`-class call every 100ms.
 
 #![cfg(windows)]
 

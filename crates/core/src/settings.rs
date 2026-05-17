@@ -1,4 +1,4 @@
-//! Application settings. Mirror C# `AppSettings.cs` subset for v1.
+//! Application settings.
 
 use crate::easing::EasingMode;
 use serde::{Deserialize, Serialize};

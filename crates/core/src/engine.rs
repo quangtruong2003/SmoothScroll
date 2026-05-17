@@ -1,4 +1,4 @@
-//! Smooth scroll engine. Ported from `SmoothScrollEngine.cs`.
+//! Smooth scroll engine.
 //!
 //! **Threading:** the engine is *not* thread-safe internally. The caller
 //! (the app crate) wraps it in `parking_lot::Mutex<SmoothScrollEngine>`.

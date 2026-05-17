@@ -14,8 +14,8 @@
       {
         "label": "main",
         "title": "SmoothScroll",
-        "width": 900,
-        "height": 640,
+        "width": 600,
+        "height": 600,
         "minWidth": 480,
         "minHeight": 400,
         "resizable": true,
@@ -26,8 +26,8 @@
       {
         "label": "tray-panel",
         "title": "",
-        "width": 300,
-        "height": 440,
+        "width": 260,
+        "height": 420,
         "resizable": false,
         "decorations": false,
         "transparent": true,

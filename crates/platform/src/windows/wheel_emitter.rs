@@ -1,6 +1,6 @@
 //! Wheel emitter using `SendInput`. Vertical and horizontal pulses are
-//! emitted in the same call when both axes have output, matching the C#
-//! `SendWheel` two-input optimisation.
+//! emitted in the same call when both axes have output (two-input
+//! optimisation).
 
 #![cfg(windows)]
 

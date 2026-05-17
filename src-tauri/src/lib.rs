@@ -1,4 +1,4 @@
-//! App entry point. Composition Root — equivalent to C# `App.xaml.cs.OnStartup`.
+//! App entry point. Composition Root.
 
 mod commands;
 mod engine_thread;

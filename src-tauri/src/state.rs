@@ -1,4 +1,4 @@
-//! Shared mutable state for the Tauri app. Mirrors C# `App` fields.
+//! Shared mutable state for the Tauri app.
 
 use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
