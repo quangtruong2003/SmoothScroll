@@ -3,6 +3,7 @@
 #![cfg(windows)]
 
 mod autostart;
+pub mod fullscreen;
 mod hotkey;
 mod keyboard;
 mod mouse_hook;
@@ -15,6 +16,7 @@ use crate::Platform;
 use std::sync::Arc;
 
 pub use autostart::WindowsAutostart;
+pub use fullscreen::WindowsFullscreenDetector;
 pub use hotkey::WindowsHotkey;
 pub use mouse_hook::WindowsMouseHook;
 pub use process_query::WindowsProcessQuery;
