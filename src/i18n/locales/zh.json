@@ -10,6 +10,8 @@
     "direction": "方向",
     "behavior": "行为",
     "excluded_apps": "排除的应用",
+    "profiles": "滚动配置",
+    "app_profiles": "应用对应配置",
     "language": "语言",
     "theme": "外观",
     "test_scroll": "试用滚动",
@@ -19,8 +21,7 @@
     "general": "总览",
     "scroll": "滚动",
     "apps": "应用",
-    "hotkey": "快捷键",
-    "appearance": "外观",
+    "preferences": "偏好",
     "about": "关于"
   },
   "presets": {
@@ -126,12 +127,57 @@
       "no_match": "没有匹配的进程。"
     }
   },
+  "profiles": {
+    "description": "可指定给特定应用的自定义滚动配置。",
+    "empty": "尚无自定义配置。创建一个配置来按应用微调滚动行为。",
+    "create": "创建配置",
+    "created": "已创建配置 \"{{name}}\"",
+    "deleted": "已删除配置 \"{{name}}\"",
+    "saved": "已保存配置 \"{{name}}\"",
+    "delete_confirm": "删除配置 \"{{name}}\"？",
+    "name_required": "配置名称不能为空",
+    "edit_aria": "编辑 {{name}}",
+    "delete_aria": "删除 {{name}}",
+    "edit_title": "编辑配置：{{name}}",
+    "assigned_to": "已分配给 {{count}} 个应用",
+    "assigned_to_plural": "已分配给 {{count}} 个应用",
+    "unassigned": "尚未分配给任何应用",
+    "create_dialog": {
+      "title": "创建配置",
+      "desc": "为新配置命名，下一步可编辑其设置。",
+      "placeholder": "例如：快速、Mac 风格、慢速阅读"
+    },
+    "field": {
+      "name": "配置名称",
+      "name_desc": "在应用列表中显示的友好标签"
+    }
+  },
+  "app_profiles": {
+    "description": "选择 SmoothScroll 在特定应用中的行为方式。",
+    "empty": "尚无应用覆盖。所有应用都使用全局设置。",
+    "assign": "分配应用",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "已移除 {{name}} 的覆盖",
+    "remove_aria": "移除 {{name}} 的覆盖",
+    "disabled": "禁用（直接传递）",
+    "unknown_profile": "未知配置",
+    "dialog": {
+      "title": "为应用分配配置",
+      "desc": "选择要使用的配置，然后选择要分配的应用。",
+      "select_profile": "要分配的配置"
+    }
+  },
   "errors": {
     "autostart_failed": "无法更改开机启动设置",
     "hotkey_toggle_failed": "无法切换快捷键",
     "hotkey_save_failed": "无法保存快捷键组合",
     "excluded_add_failed": "无法添加应用到排除列表",
-    "excluded_remove_failed": "无法从排除列表中移除应用"
+    "excluded_remove_failed": "无法从排除列表中移除应用",
+    "profile_create_failed": "无法创建配置",
+    "profile_in_use": "无法删除：配置已分配给 {{count}} 个应用",
+    "profile_in_use_plural": "无法删除：配置已分配给 {{count}} 个应用",
+    "app_profile_assign_failed": "无法为应用分配配置",
+    "app_profile_remove_failed": "无法移除应用覆盖"
   },
   "language": {
     "select_label": "显示语言",
@@ -141,7 +187,9 @@
   },
   "common": {
     "loading_settings": "正在加载设置…",
-    "load_failed": "加载设置失败: {{error}}"
+    "load_failed": "加载设置失败: {{error}}",
+    "cancel": "取消",
+    "save": "保存"
   },
   "about": {
     "version": "版本",

@@ -10,6 +10,8 @@
     "direction": "Hướng",
     "behavior": "Hành vi",
     "excluded_apps": "Ứng dụng loại trừ",
+    "profiles": "Hồ sơ cuộn",
+    "app_profiles": "Cuộn theo ứng dụng",
     "language": "Ngôn ngữ",
     "theme": "Giao diện",
     "test_scroll": "Thử cuộn",
@@ -19,8 +21,7 @@
     "general": "Tổng quan",
     "scroll": "Cuộn",
     "apps": "Ứng dụng",
-    "hotkey": "Phím tắt",
-    "appearance": "Giao diện",
+    "preferences": "Tuỳ chọn",
     "about": "Giới thiệu"
   },
   "presets": {
@@ -126,12 +127,57 @@
       "no_match": "Không có process phù hợp."
     }
   },
+  "profiles": {
+    "description": "Cài đặt cuộn tuỳ chỉnh để gán cho từng ứng dụng cụ thể.",
+    "empty": "Chưa có hồ sơ tuỳ chỉnh. Tạo một hồ sơ để tinh chỉnh hành vi cuộn theo từng ứng dụng.",
+    "create": "Tạo hồ sơ",
+    "created": "Đã tạo hồ sơ \"{{name}}\"",
+    "deleted": "Đã xoá hồ sơ \"{{name}}\"",
+    "saved": "Đã lưu hồ sơ \"{{name}}\"",
+    "delete_confirm": "Xoá hồ sơ \"{{name}}\"?",
+    "name_required": "Tên hồ sơ là bắt buộc",
+    "edit_aria": "Chỉnh sửa {{name}}",
+    "delete_aria": "Xoá {{name}}",
+    "edit_title": "Chỉnh sửa hồ sơ: {{name}}",
+    "assigned_to": "Đang dùng cho {{count}} ứng dụng",
+    "assigned_to_plural": "Đang dùng cho {{count}} ứng dụng",
+    "unassigned": "Chưa gán cho ứng dụng nào",
+    "create_dialog": {
+      "title": "Tạo hồ sơ",
+      "desc": "Đặt tên cho hồ sơ mới. Bạn sẽ chỉnh sửa cài đặt ở bước tiếp theo.",
+      "placeholder": "VD: Nhanh, Kiểu Mac, Đọc chậm"
+    },
+    "field": {
+      "name": "Tên hồ sơ",
+      "name_desc": "Tên hiển thị trong danh sách ứng dụng"
+    }
+  },
+  "app_profiles": {
+    "description": "Chọn cách SmoothScroll hoạt động trong từng ứng dụng.",
+    "empty": "Chưa có ghi đè theo ứng dụng. Mọi ứng dụng đang dùng cài đặt chung.",
+    "assign": "Gán ứng dụng",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "Đã xoá ghi đè cho {{name}}",
+    "remove_aria": "Xoá ghi đè cho {{name}}",
+    "disabled": "Tắt (giữ nguyên hệ thống)",
+    "unknown_profile": "Hồ sơ không xác định",
+    "dialog": {
+      "title": "Gán hồ sơ cho ứng dụng",
+      "desc": "Chọn hồ sơ muốn dùng, sau đó chọn ứng dụng để gán.",
+      "select_profile": "Hồ sơ áp dụng"
+    }
+  },
   "errors": {
     "autostart_failed": "Không thể thay đổi cài đặt tự khởi động",
     "hotkey_toggle_failed": "Không thể bật/tắt phím tắt",
     "hotkey_save_failed": "Không thể lưu tổ hợp phím tắt",
     "excluded_add_failed": "Không thể thêm ứng dụng vào danh sách loại trừ",
-    "excluded_remove_failed": "Không thể xoá ứng dụng khỏi danh sách loại trừ"
+    "excluded_remove_failed": "Không thể xoá ứng dụng khỏi danh sách loại trừ",
+    "profile_create_failed": "Không thể tạo hồ sơ",
+    "profile_in_use": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
+    "profile_in_use_plural": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
+    "app_profile_assign_failed": "Không thể gán hồ sơ cho ứng dụng",
+    "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng"
   },
   "language": {
     "select_label": "Ngôn ngữ hiển thị",
@@ -141,7 +187,9 @@
   },
   "common": {
     "loading_settings": "Đang tải cài đặt…",
-    "load_failed": "Không tải được cài đặt: {{error}}"
+    "load_failed": "Không tải được cài đặt: {{error}}",
+    "cancel": "Hủy",
+    "save": "Lưu"
   },
   "about": {
     "version": "Phiên bản",

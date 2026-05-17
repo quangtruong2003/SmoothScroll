@@ -10,6 +10,8 @@
     "direction": "Direction",
     "behavior": "Behavior",
     "excluded_apps": "Excluded apps",
+    "profiles": "Scroll profiles",
+    "app_profiles": "Per-app assignments",
     "language": "Language",
     "theme": "Appearance",
     "test_scroll": "Test scrolling",
@@ -19,8 +21,7 @@
     "general": "General",
     "scroll": "Scroll",
     "apps": "Apps",
-    "hotkey": "Hotkey",
-    "appearance": "Appearance",
+    "preferences": "Preferences",
     "about": "About"
   },
   "presets": {
@@ -126,12 +127,57 @@
       "no_match": "No matching processes."
     }
   },
+  "profiles": {
+    "description": "Custom scroll settings you can assign to specific apps.",
+    "empty": "No custom profiles yet. Create one to fine-tune scroll behavior per app.",
+    "create": "Create profile",
+    "created": "Profile \"{{name}}\" created",
+    "deleted": "Profile \"{{name}}\" deleted",
+    "saved": "Profile \"{{name}}\" saved",
+    "delete_confirm": "Delete profile \"{{name}}\"?",
+    "name_required": "Profile name is required",
+    "edit_aria": "Edit {{name}}",
+    "delete_aria": "Delete {{name}}",
+    "edit_title": "Edit profile: {{name}}",
+    "assigned_to": "Assigned to {{count}} app",
+    "assigned_to_plural": "Assigned to {{count}} apps",
+    "unassigned": "Not assigned to any app",
+    "create_dialog": {
+      "title": "Create profile",
+      "desc": "Give your new profile a name. You can edit its settings next.",
+      "placeholder": "e.g. Fast, Mac-like, Slow Reading"
+    },
+    "field": {
+      "name": "Profile name",
+      "name_desc": "A friendly label shown in the app list"
+    }
+  },
+  "app_profiles": {
+    "description": "Choose how SmoothScroll behaves in specific apps.",
+    "empty": "No per-app overrides. All apps use your global settings.",
+    "assign": "Assign app",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "Removed override for {{name}}",
+    "remove_aria": "Remove override for {{name}}",
+    "disabled": "Disabled (pass-through)",
+    "unknown_profile": "Unknown profile",
+    "dialog": {
+      "title": "Assign profile to app",
+      "desc": "Pick the profile to use, then choose which app to assign it to.",
+      "select_profile": "Profile to assign"
+    }
+  },
   "errors": {
     "autostart_failed": "Failed to change autostart setting",
     "hotkey_toggle_failed": "Failed to toggle hotkey",
     "hotkey_save_failed": "Failed to save hotkey combination",
     "excluded_add_failed": "Failed to add app to excluded list",
-    "excluded_remove_failed": "Failed to remove app from excluded list"
+    "excluded_remove_failed": "Failed to remove app from excluded list",
+    "profile_create_failed": "Failed to create profile",
+    "profile_in_use": "Cannot delete: profile is assigned to {{count}} app",
+    "profile_in_use_plural": "Cannot delete: profile is assigned to {{count}} apps",
+    "app_profile_assign_failed": "Failed to assign profile to app",
+    "app_profile_remove_failed": "Failed to remove app override"
   },
   "language": {
     "select_label": "Display language",
@@ -141,7 +187,9 @@
   },
   "common": {
     "loading_settings": "Loading settings…",
-    "load_failed": "Failed to load settings: {{error}}"
+    "load_failed": "Failed to load settings: {{error}}",
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "about": {
     "version": "Version",

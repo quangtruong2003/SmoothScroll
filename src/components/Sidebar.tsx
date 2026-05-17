@@ -4,8 +4,7 @@ import {
   Activity,
   AppWindow,
   Info,
-  Keyboard,
-  Palette,
+  Settings as SettingsIcon,
   Sliders,
 } from "lucide-react";
 
@@ -13,8 +12,7 @@ export type TabKey =
   | "general"
   | "scroll"
   | "apps"
-  | "hotkey"
-  | "appearance"
+  | "preferences"
   | "about";
 
 interface TabDef {
@@ -27,8 +25,7 @@ const TABS: TabDef[] = [
   { key: "general", labelKey: "tabs.general", icon: <Activity className="h-4 w-4" /> },
   { key: "scroll", labelKey: "tabs.scroll", icon: <Sliders className="h-4 w-4" /> },
   { key: "apps", labelKey: "tabs.apps", icon: <AppWindow className="h-4 w-4" /> },
-  { key: "hotkey", labelKey: "tabs.hotkey", icon: <Keyboard className="h-4 w-4" /> },
-  { key: "appearance", labelKey: "tabs.appearance", icon: <Palette className="h-4 w-4" /> },
+  { key: "preferences", labelKey: "tabs.preferences", icon: <SettingsIcon className="h-4 w-4" /> },
   { key: "about", labelKey: "tabs.about", icon: <Info className="h-4 w-4" /> },
 ];
 

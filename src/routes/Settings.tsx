@@ -10,6 +10,7 @@ import { ScrollSection } from "@/components/settings/ScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
+import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { ThemeSection } from "@/components/settings/ThemeSection";
 import { LanguageSection } from "@/components/settings/LanguageSection";
@@ -100,12 +101,21 @@ export function SettingsPage() {
               </div>
             </div>
           )}
-          {tab === "apps" && <ExcludedAppsSection />}
-          {tab === "hotkey" && <BehaviorSection />}
-          {tab === "appearance" && (
-            <div className="space-y-3">
-              <ThemeSection />
-              <LanguageSection />
+          {tab === "apps" && (
+            <div className="overflow-y-auto pr-1">
+              <div className="space-y-3">
+                <ProfilesSection />
+                <ExcludedAppsSection />
+              </div>
+            </div>
+          )}
+          {tab === "preferences" && (
+            <div className="overflow-y-auto pr-1">
+              <div className="space-y-3">
+                <BehaviorSection />
+                <ThemeSection />
+                <LanguageSection />
+              </div>
             </div>
           )}
           {tab === "about" && <AboutSection />}
