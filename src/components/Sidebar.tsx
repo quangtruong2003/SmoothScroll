@@ -103,13 +103,20 @@ export function Sidebar({ active, onChange, t }: SidebarProps) {
               onClick={() => onChange(tab.key)}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm font-medium transition-colors",
+                "relative flex items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm font-medium transition-colors",
                 "outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
               )}
             >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full transition-all",
+                  isActive ? "bg-primary" : "bg-transparent",
+                )}
+              />
               {tab.icon}
               <span>{t(tab.labelKey)}</span>
             </button>
