@@ -147,6 +147,7 @@ pub fn run() {
             commands::delete_profile,
             commands::assign_app_profile,
             commands::unassign_app_profile,
+            commands::suggest_profile_for_app,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
