@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmoothScroll — 让滚动如丝般顺滑的 Windows 和 macOS 鼠标滚轮</title>
+  <meta name="description" content="适用于 Windows 和 Mac 的顺滑鼠标滚轮滚动。免费，无需设置，安装即用。">
+  <link rel="canonical" href="https://quangtruong2003.github.io/SmoothScroll/zh/">
+  <link rel="alternate" hreflang="en" href="https://quangtruong2003.github.io/SmoothScroll/en/">
+  <link rel="alternate" hreflang="vi" href="https://quangtruong2003.github.io/SmoothScroll/vi/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://quangtruong2003.github.io/SmoothScroll/zh/">
+  <link rel="alternate" hreflang="x-default" href="https://quangtruong2003.github.io/SmoothScroll/en/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SmoothScroll — 顺滑鼠标滚轮滚动">
+  <meta property="og:description" content="适用于 Windows 和 Mac 的顺滑鼠标滚轮滚动。免费，无需设置，安装即用。">
+  <meta property="og:url" content="https://quangtruong2003.github.io/SmoothScroll/zh/">
+  <meta property="og:image" content="https://quangtruong2003.github.io/SmoothScroll/assets/og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="/SmoothScroll/styles.css">
+  <link rel="icon" type="image/png" href="/SmoothScroll/assets/icon-128.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SmoothScroll",
+    "operatingSystem": ["Windows", "macOS"],
+    "applicationCategory": "UtilityApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "适用于 Windows 和 macOS 的顺滑鼠标滚轮滚动。",
+    "url": "https://quangtruong2003.github.io/SmoothScroll/zh/",
+    "softwareVersion": "0.1.15",
+    "author": { "@type": "Person", "name": "quangtruong2003" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "如何在 Windows 11 上启用平滑滚动？", "acceptedAnswer": { "@type": "Answer", "text": "下载 SmoothScroll 并安装，平滑滚动将自动在系统范围内启用。无需配置。" }},
+      { "@type": "Question", "name": "如何在 Windows 上获得 Mac 风格的惯性滚动？", "acceptedAnswer": { "@type": "Answer", "text": "SmoothScroll 拦截鼠标滚轮输入并应用平滑缓动曲线，给您与 macOS 相同的动量滚动体验。" }},
+      { "@type": "Question", "name": "SmoothScroll 免费吗？", "acceptedAnswer": { "@type": "Answer", "text": "是的。SmoothScroll 完全免费，采用 MIT 许可证开源。无付费版本，无广告。" }},
+      { "@type": "Question", "name": "SmoothScroll 支持游戏鼠标吗？", "acceptedAnswer": { "@type": "Answer", "text": "支持。SmoothScroll 适用于任何发送标准滚轮信号的鼠标，包括罗技 G 系列、雷蛇、MX Master 等。" }},
+      { "@type": "Question", "name": "SmoothScroll 与 WizMouse 有何不同？", "acceptedAnswer": { "@type": "Answer", "text": "SmoothScroll 在输入驱动层工作，效果最顺滑，支持按应用排除、120 Hz，二进制文件仅 4 MB。" }},
+      { "@type": "Question", "name": "安全吗？反作弊系统呢？", "acceptedAnswer": { "@type": "Answer", "text": "安全。SmoothScroll 不注入游戏也不修改游戏内存，与 EAC 和 BattlEye 等反作弊系统兼容。" }},
+      { "@type": "Question", "name": "设置存储在哪里？", "acceptedAnswer": { "@type": "Answer", "text": "设置存储在您的用户配置文件夹中。不发送任何数据 — 无遥测。" }},
+      { "@type": "Question", "name": "SmoothScroll 支持 Linux 吗？", "acceptedAnswer": { "@type": "Answer", "text": "目前仅支持 Windows 和 macOS。Linux 桌面环境通常已内置平滑滚动。" }}
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳转到主要内容</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/SmoothScroll/zh/" class="header-logo">
+        <img src="/SmoothScroll/assets/icon-128.png" alt="" width="32" height="32">SmoothScroll
+      </a>
+      <nav aria-label="主导航">
+        <ul class="header-nav">
+          <li><a href="#features">功能</a></li>
+          <li><a href="#install">安装</a></li>
+          <li><a href="#faq">常见问题</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <select id="lang-dropdown" class="lang-select" aria-label="选择语言">
+          <option value="en">English</option>
+          <option value="vi">Tiếng Việt</option>
+          <option value="zh" selected>简体中文</option>
+        </select>
+        <div class="github-btn">
+          <iframe src="https://ghbtns.com/github-btn.html?user=quangtruong2003&repo=SmoothScroll&type=star&count=true" width="100" height="20" title="GitHub Stars"></iframe>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <div class="container">
+        <div class="hero-eyebrow"><span>⭐</span> 受 Windows 和 Mac 高端用户信赖</div>
+        <h1>让滚动如丝般顺滑。</h1>
+        <p class="hero-subhead">适用于 Windows 和 Mac 的顺滑鼠标滚轮滚动。免费，无需设置，安装即用。</p>
+        <div class="hero-cta"><a id="cta-primary" href="#" class="btn btn-primary">⬇ 下载 Windows 版</a></div>
+        <span id="trust-line" class="micro" data-tpl="v{version} · 免费 · {size} · 无需注册" data-fallback-size="2.8 MB">v0.1.15 · 免费 · 2.8 MB · 无需注册</span>
+        <div class="hero-other-dl">
+          <button id="toggle-other" type="button" aria-expanded="false">其他下载 ↓</button>
+          <div id="other-downloads" aria-live="polite"></div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <img class="screenshot-settings" src="/SmoothScroll/assets/screenshot-settings.svg" alt="" width="800" height="480" loading="eager">
+          <img class="screenshot-tray" src="/SmoothScroll/assets/screenshot-tray.svg" alt="" width="280" height="200" loading="eager">
+        </div>
+      </div>
+    </section>
+    <section class="before-after" id="compare" aria-labelledby="compare-heading">
+      <div class="container">
+        <h2 id="compare-heading">感受差异。</h2>
+        <div class="grid">
+          <div class="ba-col ba-before">
+            <div class="ba-label">未安装 SmoothScroll</div>
+            <div class="ba-scroller" aria-label="卡顿滚动演示">
+              <div class="scroll-text">█ 卡顿<br>█ 跳跃<br>█ 突然停止<br>█ 卡顿<br>█ 跳跃<br>█ 突然停止<br>█ 卡顿<br>█ 跳跃</div>
+            </div>
+          </div>
+          <div class="ba-col ba-after">
+            <div class="ba-label">已安装 SmoothScroll</div>
+            <div class="ba-scroller" aria-label="平滑滚动演示">
+              <div class="scroll-text">░ 丝滑<br>░ 平顺<br>░ 滑动<br>░ 丝滑<br>░ 平顺<br>░ 滑动<br>░ 丝滑<br>░ 平顺</div>
+            </div>
+          </div>
+        </div>
+        <p class="caption">您的鼠标滚轮，终于顺滑了。</p>
+      </div>
+    </section>
+    <section class="features" id="features" aria-labelledby="features-heading">
+      <div class="container">
+        <h2 id="features-heading">您将获得。</h2>
+        <div class="grid">
+          <article class="feature-card"><span class="feature-icon">✦</span><h3>全局生效</h3><p>浏览器、Word、Excel、Photoshop — 您电脑上的任何应用。</p></article>
+          <article class="feature-card"><span class="feature-icon">⚡</span><h3>极速响应</h3><p>120 Hz 脉冲，无延迟。4 MB 二进制文件。静默运行。</p></article>
+          <article class="feature-card"><span class="feature-icon">🎯</span><h3>按应用控制</h3><p>为游戏或不需要平滑滚动的应用禁用功能。</p></article>
+          <article class="feature-card"><span class="feature-icon">🔒</span><h3>隐私开源</h3><p>无遥测，无广告，无需注册。MIT 许可证。</p></article>
+          <article class="feature-card"><span class="feature-icon">🟢</span><h3>永久免费</h3><p>无付费版本，无广告，无打扰。一次安装，永久使用。</p></article>
+          <article class="feature-card"><span class="feature-icon">⌨</span><h3>快捷键切换</h3><p>按 Ctrl+Alt+S 即时开启或关闭平滑滚动。</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="screenshots" id="screenshots" aria-labelledby="screenshots-heading">
+      <div class="container">
+        <h2 id="screenshots-heading">实际效果。</h2>
+        <div class="bento-grid">
+          <div class="bento-item">
+            <img src="/SmoothScroll/assets/screenshot-settings.svg" alt="设置面板" width="800" height="480" loading="lazy" data-lightbox="/SmoothScroll/assets/screenshot-settings.svg">
+          </div>
+          <div class="bento-side">
+            <div class="bento-item">
+              <img src="/SmoothScroll/assets/screenshot-theme.svg" alt="主题切换" width="400" height="240" loading="lazy" data-lightbox="/SmoothScroll/assets/screenshot-theme.svg">
+            </div>
+            <div class="bento-item">
+              <img src="/SmoothScroll/assets/screenshot-exclusion.svg" alt="按应用排除" width="400" height="240" loading="lazy" data-lightbox="/SmoothScroll/assets/screenshot-exclusion.svg">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <dialog id="lightbox-dialog" aria-label="查看图片"><img src="" alt=""></dialog>
+    <section class="how-it-works" id="how" aria-labelledby="how-heading">
+      <div class="container">
+        <h2 id="how-heading">三步搞定。</h2>
+        <div class="steps-grid">
+          <div class="step"><div class="step-num">1</div><h3>下载</h3><p>4 MB，免费，无需注册。选择 Windows 或 Mac。</p></div>
+          <div class="step"><div class="step-num">2</div><h3>安装</h3><p>用户级安装，无需管理员，无需重启。</p></div>
+          <div class="step"><div class="step-num">3</div><h3>完成</h3><p>SmoothScroll 自动启动。滚动任何应用。</p></div>
+        </div>
+        <div class="cta-row"><a id="cta-how" href="#" class="btn btn-primary">⬇ 下载 Windows 版</a></div>
+      </div>
+    </section>
+    <section class="install" id="install" aria-labelledby="install-heading">
+      <div class="container">
+        <h2 id="install-heading">一分钟内完成安装。</h2>
+        <div class="install-tabs" role="tablist" aria-label="平台">
+          <button class="install-tab active" data-platform="win" role="tab" aria-selected="true">Windows</button>
+          <button class="install-tab" data-platform="mac" role="tab" aria-selected="false">macOS</button>
+        </div>
+        <div id="panel-win" class="install-panel active" role="tabpanel">
+          <div class="code-block">
+            <button class="copy-btn" type="button" data-copied="已复制！">复制</button>
+            <pre>1. 下载 SmoothScroll_0.1.15_x64-setup.exe
+
+2. 双击安装。无需管理员密码。
+
+3. SmoothScroll 自动启动。
+   在系统托盘附近找到图标。
+
+右键点击托盘图标打开设置。
+按 Ctrl+Alt+S 切换平滑滚动。</pre>
+          </div>
+          <p class="install-note">安装到 <code>%LOCALAPPDATA%</code>。无需管理员权限。</p>
+        </div>
+        <div id="panel-mac" class="install-panel" role="tabpanel">
+          <div class="code-block">
+            <button class="copy-btn" type="button" data-copied="已复制！">复制</button>
+            <pre>1. 下载 SmoothScroll_0.1.15_aarch64.dmg (Apple Silicon)
+
+2. 打开 .dmg，将 SmoothScroll 拖到应用程序。
+
+3. 从应用程序打开 SmoothScroll。
+   在提示时授予辅助功能权限。</pre>
+          </div>
+          <p class="install-note">macOS 需要辅助功能权限才能拦截滚动事件。</p>
+        </div>
+      </div>
+    </section>
+    <section class="faq" id="faq" aria-labelledby="faq-heading">
+      <div class="container">
+        <h2 id="faq-heading">有问题？有答案。</h2>
+        <div class="faq-list">
+          <div class="faq-item"><details><summary>如何在 Windows 11 上启用平滑滚动？</summary><div class="answer"><p>下载 SmoothScroll 并安装，平滑滚动将自动在系统范围内启用。无需配置。</p></div></details></div>
+          <div class="faq-item"><details><summary>如何在 Windows 上获得 Mac 风格的惯性滚动？</summary><div class="answer"><p>SmoothScroll 拦截鼠标滚轮输入并应用平滑缓动曲线，给您与 macOS 相同的动量滚动体验。</p></div></details></div>
+          <div class="faq-item"><details><summary>SmoothScroll 免费吗？</summary><div class="answer"><p>是的。完全免费，采用 MIT 许可证开源。无付费版本，无广告。</p></div></details></div>
+          <div class="faq-item"><details><summary>支持游戏鼠标吗？</summary><div class="answer"><p>支持。适用于任何发送标准滚轮信号的鼠标，包括罗技 G 系列、雷蛇、MX Master 等。</p></div></details></div>
+          <div class="faq-item"><details><summary>与 WizMouse 有何不同？</summary><div class="answer"><p>在输入驱动层工作，效果最顺滑，支持按应用排除、120 Hz，二进制文件仅 4 MB。</p></div></details></div>
+          <div class="faq-item"><details><summary>安全吗？反作弊系统呢？</summary><div class="answer"><p>安全。不注入游戏也不修改游戏内存，与 EAC 和 BattlEye 等反作弊系统兼容。</p></div></details></div>
+          <div class="faq-item"><details><summary>设置存储在哪里？</summary><div class="answer"><p>存储在您的用户配置文件夹中。不发送任何数据 — 无遥测。</p></div></details></div>
+          <div class="faq-item"><details><summary>支持 Linux 吗？</summary><div class="answer"><p>目前仅支持 Windows 和 macOS。Linux 桌面环境通常已内置平滑滚动。</p></div></details></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand"><img src="/SmoothScroll/assets/icon-128.png" alt="" width="24" height="24">SmoothScroll</div>
+        <ul class="footer-links">
+          <li><a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/quangtruong2003/SmoothScroll/blob/main/LICENSE" target="_blank" rel="noopener">许可证</a></li>
+          <li><a href="https://github.com/quangtruong2003/SmoothScroll/releases" target="_blank" rel="noopener">发布</a></li>
+          <li><a href="https://github.com/quangtruong2003/SmoothScroll/issues" target="_blank" rel="noopener">问题</a></li>
+        </ul>
+      </div>
+      <p class="footer-copy">由 quangtruong2003 用 ♥ 制作 · © 2026 · MIT 许可证</p>
+    </div>
+  </footer>
+  <div class="floating-bar" aria-label="下载">
+    <div class="floating-brand"><img src="/SmoothScroll/assets/icon-128.png" alt="" width="24" height="24">SmoothScroll <span id="floating-version">v0.1.15</span></div>
+    <a id="cta-floating" href="#" class="btn btn-primary btn-sm">⬇ 下载 Windows 版</a>
+  </div>
+  <script src="/SmoothScroll/scripts/download.js"></script>
+  <script src="/SmoothScroll/scripts/ui.js"></script>
+</body>
+</html>
