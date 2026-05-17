@@ -106,12 +106,15 @@
       "Light": "浅色",
       "Dark": "深色",
       "System": "跟随系统"
-    }
+    },
+    "reset_to_default": "恢复默认值"
   },
   "excluded": {
     "empty": "尚未排除任何应用。平滑滚动在所有应用中均启用。",
     "add": "添加应用",
     "remove_aria": "移除 {{name}}",
+    "added": "已将 {{name}} 添加到排除列表",
+    "removed": "已从排除列表中移除 {{name}}",
     "dialog": {
       "title": "排除一个应用",
       "desc": "选择正在运行的应用或输入进程名（不含 .exe）。",
@@ -122,6 +125,13 @@
       "scanning": "正在扫描进程…",
       "no_match": "没有匹配的进程。"
     }
+  },
+  "errors": {
+    "autostart_failed": "无法更改开机启动设置",
+    "hotkey_toggle_failed": "无法切换快捷键",
+    "hotkey_save_failed": "无法保存快捷键组合",
+    "excluded_add_failed": "无法添加应用到排除列表",
+    "excluded_remove_failed": "无法从排除列表中移除应用"
   },
   "language": {
     "select_label": "显示语言",

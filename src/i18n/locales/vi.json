@@ -106,12 +106,15 @@
       "Light": "Sáng",
       "Dark": "Tối",
       "System": "Theo hệ thống"
-    }
+    },
+    "reset_to_default": "Đặt về mặc định"
   },
   "excluded": {
     "empty": "Chưa có ứng dụng nào bị loại trừ. Cuộn mượt được áp dụng ở mọi nơi.",
     "add": "Thêm ứng dụng",
     "remove_aria": "Xoá {{name}}",
+    "added": "Đã thêm {{name}} vào danh sách loại trừ",
+    "removed": "Đã xoá {{name}} khỏi danh sách loại trừ",
     "dialog": {
       "title": "Loại trừ một ứng dụng",
       "desc": "Chọn ứng dụng đang chạy hoặc nhập tên process (không kèm .exe).",
@@ -122,6 +125,13 @@
       "scanning": "Đang quét process…",
       "no_match": "Không có process phù hợp."
     }
+  },
+  "errors": {
+    "autostart_failed": "Không thể thay đổi cài đặt tự khởi động",
+    "hotkey_toggle_failed": "Không thể bật/tắt phím tắt",
+    "hotkey_save_failed": "Không thể lưu tổ hợp phím tắt",
+    "excluded_add_failed": "Không thể thêm ứng dụng vào danh sách loại trừ",
+    "excluded_remove_failed": "Không thể xoá ứng dụng khỏi danh sách loại trừ"
   },
   "language": {
     "select_label": "Ngôn ngữ hiển thị",

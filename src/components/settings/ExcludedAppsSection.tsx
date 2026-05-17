@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { tauri } from "@/lib/tauri";
 import { AddAppDialog } from "./AddAppDialog";
+import { toast } from "@/components/ui/toast";
 
 export function ExcludedAppsSection() {
   const { t } = useTranslation();
@@ -18,8 +19,9 @@ export function ExcludedAppsSection() {
     try {
       await tauri.addExcludedApp(name);
       await load();
+      toast.success(t("excluded.added", { name }));
     } catch (e) {
-      console.error("addExcludedApp failed", e);
+      toast.error(t("errors.excluded_add_failed"));
     }
   };
 
@@ -27,8 +29,9 @@ export function ExcludedAppsSection() {
     try {
       await tauri.removeExcludedApp(name);
       await load();
+      toast.success(t("excluded.removed", { name }));
     } catch (e) {
-      console.error("removeExcludedApp failed", e);
+      toast.error(t("errors.excluded_remove_failed"));
     }
   };
 

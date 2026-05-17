@@ -4,6 +4,8 @@ import App from "./App";
 import "./index.css";
 import { initI18n, type Lang } from "./i18n";
 import { tauri } from "./lib/tauri";
+import { Toaster } from "@/components/ui/toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 async function bootstrap() {
   let lang: Lang = "en";
@@ -19,7 +21,10 @@ async function bootstrap() {
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-      <App />
+      <TooltipProvider>
+        <App />
+        <Toaster />
+      </TooltipProvider>
     </React.StrictMode>,
   );
 }

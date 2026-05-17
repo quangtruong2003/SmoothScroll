@@ -4,6 +4,15 @@ import { Slider } from "@/components/ui/slider";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { SettingRow } from "./SettingRow";
 import { ScrollPresets } from "./ScrollPresets";
+import { ResetButton } from "./ResetButton";
+
+const DEFAULTS = {
+  step_size_px: 120,
+  animation_time_ms: 360,
+  acceleration_delta_ms: 70,
+  acceleration_max: 7,
+  tail_to_head_ratio: 6,
+};
 
 export function ScrollSection() {
   const { t } = useTranslation();
@@ -33,6 +42,10 @@ export function ScrollSection() {
             className="w-48"
             onValueChange={([v]) => patch({ step_size_px: v })}
           />
+          <ResetButton
+            onClick={() => patch({ step_size_px: DEFAULTS.step_size_px })}
+            disabled={settings.step_size_px === DEFAULTS.step_size_px}
+          />
         </SettingRow>
 
         <SettingRow
@@ -49,6 +62,10 @@ export function ScrollSection() {
             step={10}
             className="w-48"
             onValueChange={([v]) => patch({ animation_time_ms: v })}
+          />
+          <ResetButton
+            onClick={() => patch({ animation_time_ms: DEFAULTS.animation_time_ms })}
+            disabled={settings.animation_time_ms === DEFAULTS.animation_time_ms}
           />
         </SettingRow>
 
@@ -67,6 +84,10 @@ export function ScrollSection() {
             className="w-48"
             onValueChange={([v]) => patch({ acceleration_delta_ms: v })}
           />
+          <ResetButton
+            onClick={() => patch({ acceleration_delta_ms: DEFAULTS.acceleration_delta_ms })}
+            disabled={settings.acceleration_delta_ms === DEFAULTS.acceleration_delta_ms}
+          />
         </SettingRow>
 
         <SettingRow
@@ -84,6 +105,10 @@ export function ScrollSection() {
             className="w-48"
             onValueChange={([v]) => patch({ acceleration_max: v })}
           />
+          <ResetButton
+            onClick={() => patch({ acceleration_max: DEFAULTS.acceleration_max })}
+            disabled={settings.acceleration_max === DEFAULTS.acceleration_max}
+          />
         </SettingRow>
 
         <SettingRow
@@ -100,6 +125,10 @@ export function ScrollSection() {
             step={1}
             className="w-48"
             onValueChange={([v]) => patch({ tail_to_head_ratio: v })}
+          />
+          <ResetButton
+            onClick={() => patch({ tail_to_head_ratio: DEFAULTS.tail_to_head_ratio })}
+            disabled={settings.tail_to_head_ratio === DEFAULTS.tail_to_head_ratio}
           />
         </SettingRow>
       </CardContent>

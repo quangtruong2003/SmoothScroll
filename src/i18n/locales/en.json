@@ -106,12 +106,15 @@
       "Light": "Light",
       "Dark": "Dark",
       "System": "System"
-    }
+    },
+    "reset_to_default": "Reset to default"
   },
   "excluded": {
     "empty": "No apps excluded. Smooth scrolling is active everywhere.",
     "add": "Add app",
     "remove_aria": "Remove {{name}}",
+    "added": "{{name}} added to excluded apps",
+    "removed": "{{name}} removed from excluded apps",
     "dialog": {
       "title": "Exclude an app",
       "desc": "Pick a running app or type its process name (without .exe).",
@@ -122,6 +125,13 @@
       "scanning": "Scanning processes…",
       "no_match": "No matching processes."
     }
+  },
+  "errors": {
+    "autostart_failed": "Failed to change autostart setting",
+    "hotkey_toggle_failed": "Failed to toggle hotkey",
+    "hotkey_save_failed": "Failed to save hotkey combination",
+    "excluded_add_failed": "Failed to add app to excluded list",
+    "excluded_remove_failed": "Failed to remove app from excluded list"
   },
   "language": {
     "select_label": "Display language",

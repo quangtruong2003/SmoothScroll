@@ -6,6 +6,7 @@ import { tauri } from "@/lib/tauri";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { HotkeyRecorderInput } from "@/components/HotkeyRecorderInput";
 import { SettingRow } from "./SettingRow";
+import { toast } from "@/components/ui/toast";
 
 export function BehaviorSection() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export function BehaviorSection() {
       await tauri.setAutostart(next);
       setAutostartState(next);
     } catch (e) {
-      console.error("setAutostart failed", e);
+      toast.error(t("errors.autostart_failed"));
     }
   };
 
@@ -35,7 +36,7 @@ export function BehaviorSection() {
     try {
       await tauri.setHotkeyEnabled(next);
     } catch (e) {
-      setHotkeyError(String(e));
+      toast.error(t("errors.hotkey_toggle_failed"));
       patch({ enable_global_hotkey: !next });
     }
   };
@@ -46,8 +47,9 @@ export function BehaviorSection() {
     patch({ hotkey_accelerator: accel });
     try {
       await tauri.setHotkeyAccelerator(accel);
+      toast.success(t("settings.hotkey_accelerator.saved"));
     } catch (e) {
-      setHotkeyError(String(e));
+      toast.error(t("errors.hotkey_save_failed"));
       patch({ hotkey_accelerator: previous });
     }
   };
