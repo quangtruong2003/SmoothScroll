@@ -5,6 +5,7 @@
 mod autostart;
 mod hotkey;
 mod keyboard;
+pub mod keyboard_scroll_hook;
 mod mouse_hook;
 mod process_query;
 mod timer;
@@ -16,6 +17,7 @@ use std::sync::Arc;
 
 pub use autostart::WindowsAutostart;
 pub use hotkey::WindowsHotkey;
+pub use keyboard_scroll_hook::WindowsKeyboardScrollHook;
 pub use mouse_hook::WindowsMouseHook;
 pub use process_query::WindowsProcessQuery;
 pub use timer::HighResTimerGuard;
