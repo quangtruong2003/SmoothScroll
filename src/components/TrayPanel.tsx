@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSettingsStore } from '../stores/settingsStore';
+import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
+import type { AppSettings } from '../lib/tauri';
 
 function AppIcon({ size = 28 }: { size?: number }) {
   return (
@@ -164,7 +165,6 @@ function MenuItem({
 
 export function TrayPanel() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
 
   const [enabled, setEnabledState] = useState(false);
   const [autostart, setAutostartState] = useState(false);
@@ -172,16 +172,39 @@ export function TrayPanel() {
   const [appVersion, setAppVersion] = useState('0.1.0');
 
   useEffect(() => {
+    const prevHtmlBg = document.documentElement.style.background;
+    const prevBodyBg = document.body.style.background;
+    document.documentElement.style.background = 'transparent';
+    document.body.style.background = 'transparent';
+
     invoke<boolean>('get_enabled').then(setEnabledState);
     invoke<boolean>('get_autostart').then(setAutostartState);
     invoke<string>('app_version').then(setAppVersion);
-  }, []);
+    invoke<AppSettings>('get_settings').then((s) => {
+      setStartMinimized(Boolean(s?.start_minimized));
+    });
 
-  useEffect(() => {
-    if (settings) {
-      setStartMinimized(settings.start_minimized);
-    }
-  }, [settings]);
+    const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
+      setEnabledState(Boolean(event.payload));
+    });
+
+    const unlistenSettings = listen<AppSettings>('settings-changed', (event) => {
+      const s = event.payload;
+      if (s?.start_minimized !== undefined) {
+        setStartMinimized(Boolean(s.start_minimized));
+      }
+      if (s?.start_with_os !== undefined) {
+        setAutostartState(Boolean(s.start_with_os));
+      }
+    });
+
+    return () => {
+      unlistenEnabled.then((u) => u()).catch(() => {});
+      unlistenSettings.then((u) => u()).catch(() => {});
+      document.documentElement.style.background = prevHtmlBg;
+      document.body.style.background = prevBodyBg;
+    };
+  }, []);
 
   const handleSetEnabled = useCallback(async (v: boolean) => {
     setEnabledState(v);
@@ -195,12 +218,10 @@ export function TrayPanel() {
 
   const handleSetStartMinimized = useCallback(async (v: boolean) => {
     setStartMinimized(v);
-    const current = settings;
-    if (current) {
-      const updated = { ...current, start_minimized: v };
-      await invoke('save_settings', { settings: updated });
-    }
-  }, [settings]);
+    const current = await invoke<AppSettings>('get_settings');
+    const updated = { ...current, start_minimized: v };
+    await invoke('save_settings', { settings: updated });
+  }, []);
 
   const handleOpenSettings = useCallback(async () => {
     await invoke('close_tray_panel');
@@ -225,12 +246,11 @@ export function TrayPanel() {
 
   return (
     <div
-      className="flex flex-col h-screen select-none overflow-hidden"
+      className="tray-panel-root flex flex-col h-screen select-none overflow-hidden"
       style={{
         background: 'rgba(24, 24, 27, 0.96)',
-        borderRadius: '12px',
-        border: '1px solid rgba(63, 63, 70, 0.6)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.05)',
+        borderRadius: 12,
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
       }}
     >
       {/* Header */}
