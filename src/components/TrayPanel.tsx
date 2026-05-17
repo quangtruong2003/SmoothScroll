@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
-import type { AppSettings } from '../lib/tauri';
+import type { AppSettings, ThemeMode } from '../lib/tauri';
+import { applyTheme } from '../lib/theme';
 
 function Toggle({
   checked,
@@ -17,8 +18,8 @@ function Toggle({
       className={`
         relative inline-flex h-5 w-9 items-center rounded-full
         transition-colors duration-200 focus:outline-none focus:ring-2
-        focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900
-        ${checked ? 'bg-blue-500' : 'bg-zinc-600'}
+        focus:ring-ring focus:ring-offset-2 focus:ring-offset-background
+        ${checked ? 'bg-primary' : 'bg-muted'}
       `}
       role="switch"
       aria-checked={checked}
@@ -37,7 +38,7 @@ function Toggle({
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="px-3 pt-3 pb-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         {children}
       </span>
     </div>
@@ -120,9 +121,9 @@ function MenuItem({
   variant?: 'default' | 'destructive' | 'muted';
 }) {
   const variantClasses = {
-    default: 'text-zinc-50 hover:bg-zinc-700 active:bg-zinc-600',
-    destructive: 'text-red-400 hover:bg-zinc-700 active:bg-zinc-600',
-    muted: 'text-zinc-400 hover:bg-zinc-700 active:bg-zinc-600',
+    default: 'text-foreground hover:bg-accent active:bg-accent',
+    destructive: 'text-destructive hover:bg-accent active:bg-accent',
+    muted: 'text-muted-foreground hover:bg-accent active:bg-accent',
   };
 
   return (
@@ -141,7 +142,7 @@ function MenuItem({
       `}
     >
       {icon && (
-        <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-zinc-400">
+        <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-muted-foreground">
           {icon}
         </span>
       )}
@@ -162,16 +163,12 @@ export function TrayPanel() {
   const [appVersion, setAppVersion] = useState('0.1.0');
 
   useEffect(() => {
-    const prevHtmlBg = document.documentElement.style.background;
-    const prevBodyBg = document.body.style.background;
-    document.documentElement.style.background = 'transparent';
-    document.body.style.background = 'transparent';
-
     invoke<boolean>('get_enabled').then(setEnabledState);
     invoke<boolean>('get_autostart').then(setAutostartState);
     invoke<string>('app_version').then(setAppVersion);
     invoke<AppSettings>('get_settings').then((s) => {
       setStartMinimized(Boolean(s?.start_minimized));
+      applyTheme((s?.theme ?? 'System') as ThemeMode);
     });
 
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
@@ -191,8 +188,6 @@ export function TrayPanel() {
     return () => {
       unlistenEnabled.then((u) => u()).catch(() => {});
       unlistenSettings.then((u) => u()).catch(() => {});
-      document.documentElement.style.background = prevHtmlBg;
-      document.body.style.background = prevBodyBg;
     };
   }, []);
 
@@ -235,28 +230,20 @@ export function TrayPanel() {
   }, []);
 
   return (
-    <div
-      className="tray-panel-root flex flex-col h-screen select-none overflow-hidden"
-      style={{
-        background: 'rgba(24, 24, 27, 0.96)',
-        borderRadius: 12,
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
-      }}
-    >
+    <div className="tray-panel-root flex flex-col h-screen select-none overflow-hidden rounded-xl border bg-background/95 text-foreground shadow-2xl backdrop-blur">
       {/* Header */}
-      <div
-        className="flex items-center gap-2.5 px-4 py-3"
-        style={{ borderBottom: '1px solid rgba(63, 63, 70, 0.5)' }}
-      >
-        <span className="text-sm font-semibold text-zinc-50 leading-none">SmoothScroll</span>
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
+        <span className="text-sm font-semibold leading-none">SmoothScroll</span>
         <div className="ml-auto flex items-center gap-1.5">
           <div
-            className="w-1.5 h-1.5 rounded-full transition-colors duration-300"
-            style={{ backgroundColor: enabled ? '#4ade80' : '#52525b' }}
+            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+              enabled ? 'bg-green-500' : 'bg-muted-foreground'
+            }`}
           />
           <span
-            className="text-[10px] font-medium transition-colors duration-300"
-            style={{ color: enabled ? '#4ade80' : '#52525b' }}
+            className={`text-[10px] font-medium transition-colors duration-300 ${
+              enabled ? 'text-green-500' : 'text-muted-foreground'
+            }`}
           >
             {enabled ? t('tray.status_on') : t('tray.status_off')}
           </span>
@@ -264,7 +251,7 @@ export function TrayPanel() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#3f3f46 transparent' }}>
+      <div className="flex-1 overflow-y-auto">
 
         {/* Quick Access */}
         <SectionLabel>{t('tray.quick_access')}</SectionLabel>
@@ -326,12 +313,9 @@ export function TrayPanel() {
       </div>
 
       {/* Footer */}
-      <div
-        className="px-4 py-2 flex items-center justify-between"
-        style={{ borderTop: '1px solid rgba(63, 63, 70, 0.5)' }}
-      >
-        <span className="text-[10px] text-zinc-600">SmoothScroll</span>
-        <span className="text-[10px] text-zinc-600">{appVersion}</span>
+      <div className="px-4 py-2 flex items-center justify-between border-t border-border">
+        <span className="text-[10px] text-muted-foreground">SmoothScroll</span>
+        <span className="text-[10px] text-muted-foreground">{appVersion}</span>
       </div>
     </div>
   );
