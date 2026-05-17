@@ -15,6 +15,9 @@
     "language": "语言",
     "theme": "外观",
     "test_scroll": "试用滚动",
+    "touchpad": "精确触控板",
+    "keyboard_scroll": "键盘滚动平滑",
+    "game_mode": "游戏模式",
     "about": "关于"
   },
   "tabs": {
@@ -176,6 +179,28 @@
       "select_profile": "要分配的配置"
     }
   },
+  "touchpad": {
+    "detected": "已检测",
+    "enable_smoothing": "启用触控板平滑",
+    "pixel_multiplier": "像素倍数：{{value}}x",
+    "acceleration_factor": "加速因子：{{value}}x"
+  },
+  "keyboard_scroll": {
+    "windows_only": "（仅 Windows）",
+    "enable_smoothing": "启用键盘平滑",
+    "active_keys": "启用的按键",
+    "pgdn_step": "PageUp/PageDown 步长：{{value}} 档",
+    "arrow_step": "方向键步长：{{value}} 档",
+    "skip_in_text_inputs": "在文本输入框中跳过"
+  },
+  "game_mode": {
+    "auto_disable": "游戏中自动禁用",
+    "status_label": "状态",
+    "status_active": "🎮 已启用 — 已暂停平滑滚动",
+    "status_inactive": "未启用",
+    "known_games": "已知游戏",
+    "placeholder": "game.exe"
+  },
   "errors": {
     "autostart_failed": "无法更改开机启动设置",
     "hotkey_toggle_failed": "无法切换快捷键",
@@ -198,7 +223,8 @@
     "loading_settings": "正在加载设置…",
     "load_failed": "加载设置失败: {{error}}",
     "cancel": "取消",
-    "save": "保存"
+    "save": "保存",
+    "add": "添加"
   },
   "about": {
     "version": "版本",

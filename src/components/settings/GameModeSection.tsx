@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { tauri } from "@/lib/tauri";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function GameModeSection() {
+  const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const patch = useSettingsStore((s) => s.patch);
   const [active, setActive] = useState(false);
@@ -25,21 +27,22 @@ export function GameModeSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Game mode</CardTitle>
+        <CardTitle>{t("section.game_mode")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label>Auto-disable in games</Label>
+          <Label>{t("game_mode.auto_disable")}</Label>
           <Switch
             checked={settings.game_mode_enabled}
             onCheckedChange={(v) => patch({ game_mode_enabled: v })}
           />
         </div>
         <div className={`rounded p-2 text-sm ${active ? "bg-orange-100 dark:bg-orange-950" : "bg-muted"}`}>
-          Status: {active ? "🎮 Active — smooth scrolling paused" : "Inactive"}
+          {t("game_mode.status_label")}:{" "}
+          {active ? t("game_mode.status_active") : t("game_mode.status_inactive")}
         </div>
         <div className="space-y-2">
-          <Label>Known games</Label>
+          <Label>{t("game_mode.known_games")}</Label>
           <div className="flex flex-wrap gap-1">
             {settings.game_mode_known_apps.map((g) => (
               <span key={g} className="inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-xs">
@@ -55,7 +58,11 @@ export function GameModeSection() {
             ))}
           </div>
           <div className="flex gap-2">
-            <Input placeholder="game.exe" value={newGame} onChange={(e) => setNewGame(e.target.value)} />
+            <Input
+              placeholder={t("game_mode.placeholder")}
+              value={newGame}
+              onChange={(e) => setNewGame(e.target.value)}
+            />
             <Button
               onClick={async () => {
                 if (!newGame.trim()) return;
@@ -63,7 +70,7 @@ export function GameModeSection() {
                 patch({ game_mode_known_apps: [...settings.game_mode_known_apps, newGame.trim()] });
                 setNewGame("");
               }}
-            >Add</Button>
+            >{t("common.add")}</Button>
           </div>
         </div>
       </CardContent>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { tauri, type InputSourceLabel } from "@/lib/tauri";
 import { Switch } from "@/components/ui/switch";
@@ -13,6 +14,7 @@ const ICON: Record<InputSourceLabel, string> = {
 };
 
 export function TouchpadSection() {
+  const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const patch = useSettingsStore((s) => s.patch);
   const [source, setSource] = useState<InputSourceLabel>("Wheel");
@@ -29,15 +31,15 @@ export function TouchpadSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Precision touchpad</CardTitle>
+        <CardTitle>{t("section.touchpad")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded p-2 text-sm bg-muted">
-          Detected: {ICON[source]} {source}
+          {t("touchpad.detected")}: {ICON[source]} {source}
         </div>
 
         <div className="flex items-center justify-between">
-          <Label>Enable touchpad smoothing</Label>
+          <Label>{t("touchpad.enable_smoothing")}</Label>
           <Switch
             checked={settings.touchpad_smoothing_enabled}
             onCheckedChange={(v) => patch({ touchpad_smoothing_enabled: v })}
@@ -45,7 +47,11 @@ export function TouchpadSection() {
         </div>
 
         <div>
-          <Label>Pixel multiplier: {settings.touchpad_pixel_multiplier.toFixed(2)}x</Label>
+          <Label>
+            {t("touchpad.pixel_multiplier", {
+              value: settings.touchpad_pixel_multiplier.toFixed(2),
+            })}
+          </Label>
           <Slider
             min={0.5} max={3} step={0.1}
             value={[settings.touchpad_pixel_multiplier]}
@@ -55,7 +61,11 @@ export function TouchpadSection() {
         </div>
 
         <div>
-          <Label>Acceleration factor: {settings.touchpad_acceleration_factor.toFixed(2)}x</Label>
+          <Label>
+            {t("touchpad.acceleration_factor", {
+              value: settings.touchpad_acceleration_factor.toFixed(2),
+            })}
+          </Label>
           <Slider
             min={0} max={3} step={0.1}
             value={[settings.touchpad_acceleration_factor]}

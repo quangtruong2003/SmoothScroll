@@ -4,16 +4,6 @@ import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import type { AppSettings } from '../lib/tauri';
 
-function AppIcon({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="6" fill="#18181B" />
-      <rect x="6" y="6" width="20" height="20" rx="4" fill="#3B82F6" />
-      <path d="M11 16h10M16 11v10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function Toggle({
   checked,
   onChange,
@@ -258,11 +248,7 @@ export function TrayPanel() {
         className="flex items-center gap-2.5 px-4 py-3"
         style={{ borderBottom: '1px solid rgba(63, 63, 70, 0.5)' }}
       >
-        <AppIcon size={28} />
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold text-zinc-50 leading-none">SmoothScroll</span>
-          <span className="text-[10px] text-zinc-500 mt-0.5">{t('about.version')}</span>
-        </div>
+        <span className="text-sm font-semibold text-zinc-50 leading-none">SmoothScroll</span>
         <div className="ml-auto flex items-center gap-1.5">
           <div
             className="w-1.5 h-1.5 rounded-full transition-colors duration-300"

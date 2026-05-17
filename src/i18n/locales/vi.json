@@ -15,6 +15,9 @@
     "language": "Ngôn ngữ",
     "theme": "Giao diện",
     "test_scroll": "Thử cuộn",
+    "touchpad": "Touchpad chính xác",
+    "keyboard_scroll": "Làm mượt cuộn bằng bàn phím",
+    "game_mode": "Chế độ game",
     "about": "Giới thiệu"
   },
   "tabs": {
@@ -176,6 +179,28 @@
       "select_profile": "Hồ sơ áp dụng"
     }
   },
+  "touchpad": {
+    "detected": "Đã phát hiện",
+    "enable_smoothing": "Bật làm mượt touchpad",
+    "pixel_multiplier": "Hệ số pixel: {{value}}x",
+    "acceleration_factor": "Hệ số tăng tốc: {{value}}x"
+  },
+  "keyboard_scroll": {
+    "windows_only": "(Chỉ Windows)",
+    "enable_smoothing": "Bật làm mượt cuộn bàn phím",
+    "active_keys": "Phím đang dùng",
+    "pgdn_step": "Bước PageUp/PageDown: {{value}} nấc",
+    "arrow_step": "Bước phím mũi tên: {{value}} nấc",
+    "skip_in_text_inputs": "Bỏ qua trong ô nhập văn bản"
+  },
+  "game_mode": {
+    "auto_disable": "Tự tắt khi chơi game",
+    "status_label": "Trạng thái",
+    "status_active": "🎮 Đang hoạt động — đã tạm dừng cuộn mượt",
+    "status_inactive": "Không hoạt động",
+    "known_games": "Danh sách game",
+    "placeholder": "game.exe"
+  },
   "errors": {
     "autostart_failed": "Không thể thay đổi cài đặt tự khởi động",
     "hotkey_toggle_failed": "Không thể bật/tắt phím tắt",
@@ -198,7 +223,8 @@
     "loading_settings": "Đang tải cài đặt…",
     "load_failed": "Không tải được cài đặt: {{error}}",
     "cancel": "Hủy",
-    "save": "Lưu"
+    "save": "Lưu",
+    "add": "Thêm"
   },
   "about": {
     "version": "Phiên bản",

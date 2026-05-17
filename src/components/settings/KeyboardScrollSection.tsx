@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const KEYS = ["PageUp", "PageDown", "Space", "ShiftSpace", "ArrowUp", "ArrowDown"];
 
 export function KeyboardScrollSection() {
+  const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const patch = useSettingsStore((s) => s.patch);
   if (!settings) return null;
@@ -22,11 +24,16 @@ export function KeyboardScrollSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Keyboard scroll smoothing <span className="text-xs text-muted-foreground">(Windows only)</span></CardTitle>
+        <CardTitle>
+          {t("section.keyboard_scroll")}{" "}
+          <span className="text-xs text-muted-foreground">
+            {t("keyboard_scroll.windows_only")}
+          </span>
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label>Enable keyboard smoothing</Label>
+          <Label>{t("keyboard_scroll.enable_smoothing")}</Label>
           <Switch
             checked={settings.keyboard_scroll_enabled}
             onCheckedChange={(v) => patch({ keyboard_scroll_enabled: v })}
@@ -34,7 +41,7 @@ export function KeyboardScrollSection() {
         </div>
 
         <div>
-          <Label>Active keys</Label>
+          <Label>{t("keyboard_scroll.active_keys")}</Label>
           <div className="mt-1 flex flex-wrap gap-1">
             {KEYS.map((k) => {
               const on = settings.keyboard_scroll_keys.includes(k);
@@ -51,7 +58,11 @@ export function KeyboardScrollSection() {
         </div>
 
         <div>
-          <Label>PageUp/PageDown step: {settings.keyboard_pgdn_step_notches} notches</Label>
+          <Label>
+            {t("keyboard_scroll.pgdn_step", {
+              value: settings.keyboard_pgdn_step_notches,
+            })}
+          </Label>
           <Slider
             min={1} max={20} step={1}
             value={[settings.keyboard_pgdn_step_notches]}
@@ -61,7 +72,11 @@ export function KeyboardScrollSection() {
         </div>
 
         <div>
-          <Label>Arrow step: {settings.keyboard_arrow_step_notches} notches</Label>
+          <Label>
+            {t("keyboard_scroll.arrow_step", {
+              value: settings.keyboard_arrow_step_notches,
+            })}
+          </Label>
           <Slider
             min={1} max={10} step={1}
             value={[settings.keyboard_arrow_step_notches]}
@@ -71,7 +86,7 @@ export function KeyboardScrollSection() {
         </div>
 
         <div className="flex items-center justify-between">
-          <Label>Skip in text inputs</Label>
+          <Label>{t("keyboard_scroll.skip_in_text_inputs")}</Label>
           <Switch
             checked={settings.keyboard_smart_text_skip}
             onCheckedChange={(v) => patch({ keyboard_smart_text_skip: v })}

@@ -15,6 +15,9 @@
     "language": "Language",
     "theme": "Appearance",
     "test_scroll": "Test scrolling",
+    "touchpad": "Precision touchpad",
+    "keyboard_scroll": "Keyboard scroll smoothing",
+    "game_mode": "Game mode",
     "about": "About"
   },
   "tabs": {
@@ -176,6 +179,28 @@
       "select_profile": "Profile to assign"
     }
   },
+  "touchpad": {
+    "detected": "Detected",
+    "enable_smoothing": "Enable touchpad smoothing",
+    "pixel_multiplier": "Pixel multiplier: {{value}}x",
+    "acceleration_factor": "Acceleration factor: {{value}}x"
+  },
+  "keyboard_scroll": {
+    "windows_only": "(Windows only)",
+    "enable_smoothing": "Enable keyboard smoothing",
+    "active_keys": "Active keys",
+    "pgdn_step": "PageUp/PageDown step: {{value}} notches",
+    "arrow_step": "Arrow step: {{value}} notches",
+    "skip_in_text_inputs": "Skip in text inputs"
+  },
+  "game_mode": {
+    "auto_disable": "Auto-disable in games",
+    "status_label": "Status",
+    "status_active": "🎮 Active — smooth scrolling paused",
+    "status_inactive": "Inactive",
+    "known_games": "Known games",
+    "placeholder": "game.exe"
+  },
   "errors": {
     "autostart_failed": "Failed to change autostart setting",
     "hotkey_toggle_failed": "Failed to toggle hotkey",
@@ -198,7 +223,8 @@
     "loading_settings": "Loading settings…",
     "load_failed": "Failed to load settings: {{error}}",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "add": "Add"
   },
   "about": {
     "version": "Version",
