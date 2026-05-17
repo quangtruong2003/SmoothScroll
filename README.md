@@ -108,7 +108,7 @@ SmoothScroll is structured as a workspace with a clean separation between pure l
 
 **Prerequisites**
 
-- Rust 1.78+ (pinned via `rust-toolchain.toml`)
+- Rust 1.95+ (pinned via `rust-toolchain.toml`)
 - Node.js 20+ with npm/pnpm
 - **Windows:** MSVC build tools, WebView2 runtime
 - **macOS:** Xcode Command Line Tools — `xcode-select --install`
@@ -137,7 +137,7 @@ cargo test --workspace
 
 ## Status
 
-`v0.1.8` — feature-complete v1 on Windows and macOS. The macOS build is currently unsigned; signing and notarization are tracked in [docs/](docs/).
+`v0.1.12` — feature-complete v1 on Windows and macOS. The macOS build is currently unsigned; signing and notarization are tracked in [docs/](docs/).
 
 ## FAQ
 
