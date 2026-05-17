@@ -17,6 +17,7 @@ import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
 import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
+import { TabContent } from "@/components/settings/TabContent";
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -77,42 +78,64 @@ export function SettingsPage() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar active={tab} onChange={setTab} t={t} />
       <main className="flex-1 overflow-hidden px-6 py-5">
-        <div className="mx-auto flex h-full max-w-2xl flex-col gap-3">
+        <div
+          key={tab}
+          className="mx-auto h-full max-w-2xl animate-tab-in"
+        >
           {tab === "general" && (
-            <>
+            <TabContent
+              title={t("tabs.general.title")}
+              description={t("tabs.general.description")}
+              scrollable={false}
+            >
               <EnableHeader />
               <TestSandboxSection />
-            </>
+            </TabContent>
           )}
+
           {tab === "scroll" && (
-            <div className="overflow-y-auto pr-1">
-              <div className="space-y-3">
-                <ScrollSection />
-                <AppearanceSection />
-                <DirectionSection />
-                <EdgeScrollSection />
-                <KeyboardScrollSection />
-                <TouchpadSection />
-              </div>
-            </div>
+            <TabContent
+              title={t("tabs.scroll.title")}
+              description={t("tabs.scroll.description")}
+            >
+              <ScrollSection />
+              <AppearanceSection />
+              <DirectionSection />
+              <EdgeScrollSection />
+              <KeyboardScrollSection />
+              <TouchpadSection />
+            </TabContent>
           )}
+
           {tab === "apps" && (
-            <div className="overflow-y-auto pr-1">
-              <div className="space-y-3">
-                <ProfilesSection />
-                <ExcludedAppsSection />
-              </div>
-            </div>
+            <TabContent
+              title={t("tabs.apps.title")}
+              description={t("tabs.apps.description")}
+            >
+              <ProfilesSection />
+              <ExcludedAppsSection />
+            </TabContent>
           )}
+
           {tab === "preferences" && (
-            <div className="overflow-y-auto pr-1">
-              <div className="space-y-3">
-                <BehaviorSection />
-                <GameModeSection />
-              </div>
-            </div>
+            <TabContent
+              title={t("tabs.preferences.title")}
+              description={t("tabs.preferences.description")}
+            >
+              <BehaviorSection />
+              <GameModeSection />
+            </TabContent>
           )}
-          {tab === "about" && <AboutSection />}
+
+          {tab === "about" && (
+            <TabContent
+              title={t("tabs.about.title")}
+              description={t("tabs.about.description")}
+              scrollable={false}
+            >
+              <AboutSection />
+            </TabContent>
+          )}
         </div>
       </main>
     </div>
