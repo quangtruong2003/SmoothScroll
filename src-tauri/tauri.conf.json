@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "SmoothScroll",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "identifier": "com.smoothscroll.app",
   "build": {
     "frontendDist": "../dist",
@@ -44,7 +44,12 @@
   "bundle": {
     "active": true,
     "createUpdaterArtifacts": true,
-    "targets": ["nsis", "msi", "app", "dmg"],
+    "targets": [
+      "nsis",
+      "msi",
+      "app",
+      "dmg"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -58,13 +63,21 @@
     "copyright": "Copyright 2026 SmoothScroll contributors",
     "windows": {
       "wix": {
-        "language": ["en-US", "vi-VN", "zh-CN"]
+        "language": [
+          "en-US",
+          "vi-VN",
+          "zh-CN"
+        ]
       },
       "nsis": {
         "displayLanguageSelector": true,
         "installerIcon": "icons/icon.ico",
         "installMode": "currentUser",
-        "languages": ["English", "Vietnamese", "SimpChinese"]
+        "languages": [
+          "English",
+          "Vietnamese",
+          "SimpChinese"
+        ]
       },
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256"
@@ -79,7 +92,10 @@
       "providerShortName": null,
       "dmg": {
         "background": null,
-        "windowSize": { "width": 540, "height": 380 }
+        "windowSize": {
+          "width": 540,
+          "height": 380
+        }
       }
     }
   },
