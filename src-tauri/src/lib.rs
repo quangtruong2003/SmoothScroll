@@ -78,6 +78,8 @@ pub fn run() {
         }
     }
 
+    let _ = crate::commands::refresh_keyboard_hook(&app_state);
+
     let state_for_setup = app_state.clone();
 
     // OwnedHandles is managed by Tauri so it is dropped on app exit —
