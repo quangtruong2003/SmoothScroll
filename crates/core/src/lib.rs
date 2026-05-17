@@ -4,6 +4,7 @@
 //! no Tauri dependencies. All effects (timers, SendInput, file I/O for
 //! settings) live above this layer.
 
+pub mod app_categories;
 pub mod constants;
 pub mod easing;
 pub mod engine;
