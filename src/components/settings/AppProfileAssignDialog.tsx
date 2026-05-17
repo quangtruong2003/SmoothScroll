@@ -151,21 +151,26 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
         {showSuggestion && suggestion && suggestion.category !== "Unknown" && (
           <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-900 dark:bg-blue-950">
             <div>
-              <strong>Suggested for {suggestion.category_label}:</strong>{" "}
+              <strong>
+                {t("profiles.suggest.title", { category: suggestion.category_label })}:
+              </strong>{" "}
               {suggestion.preset.kind === "Disabled"
-                ? "Disable smoothing"
-                : `Custom preset (${suggestion.preset.data.step_size_px}px, ${suggestion.preset.data.animation_time_ms}ms)`}
+                ? t("profiles.suggest.disable")
+                : t("profiles.suggest.custom_preset", {
+                    step: suggestion.preset.data.step_size_px,
+                    ms: suggestion.preset.data.animation_time_ms,
+                  })}
             </div>
             <div className="mt-2 flex gap-2">
               <Button size="sm" onClick={() => handleUseSuggestion(suggestion)}>
-                Use suggestion
+                {t("profiles.suggest.use")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setShowSuggestion(false)}
               >
-                Pick manually
+                {t("profiles.suggest.pick_manually")}
               </Button>
             </div>
           </div>

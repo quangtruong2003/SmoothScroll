@@ -152,6 +152,13 @@
     "field": {
       "name": "配置名称",
       "name_desc": "在应用列表中显示的友好标签"
+    },
+    "suggest": {
+      "title": "为 {{category}} 推荐",
+      "disable": "禁用平滑滚动",
+      "custom_preset": "自定义预设（{{step}}px，{{ms}}ms）",
+      "use": "使用建议",
+      "pick_manually": "手动选择"
     }
   },
   "app_profiles": {
