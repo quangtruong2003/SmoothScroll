@@ -227,7 +227,7 @@ export function TrayPanel() {
         </div>
 
         {/* About */}
-        <SectionLabel>{t('tray.about')}</SectionLabel>
+        <SectionLabel>{t('tray.system')}</SectionLabel>
         <div className="px-2 pb-2 space-y-0.5">
           <MenuItem
             label={t('tray.quit')}
