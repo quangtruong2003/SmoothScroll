@@ -15,7 +15,7 @@
     "language": "语言",
     "theme": "外观",
     "test_scroll": "试用滚动",
-    "touchpad": "精确触控板",
+    "touchpad": "精密触控板",
     "keyboard_scroll": "键盘滚动平滑",
     "game_mode": "游戏模式",
     "about": "关于"
@@ -111,7 +111,27 @@
       "Dark": "深色",
       "System": "跟随系统"
     },
-    "reset_to_default": "恢复默认值"
+    "reset_to_default": "恢复默认值",
+    "touchpad": {
+      "detected": "已检测",
+      "source": {
+        "Wheel": "鼠标滚轮",
+        "HighResWheel": "高分辨率滚轮",
+        "Touchpad": "精密触控板"
+      },
+      "enable": {
+        "title": "平滑触控板滚动",
+        "desc": "对高分辨率触控板输入应用缓动"
+      },
+      "pixel_multiplier": {
+        "title": "像素倍率",
+        "desc": "缩放触控板的原始像素增量"
+      },
+      "acceleration": {
+        "title": "加速系数",
+        "desc": "增强快速滑动。0 表示禁用加速。"
+      }
+    }
   },
   "excluded": {
     "empty": "尚未排除任何应用。平滑滚动在所有应用中均启用。",
@@ -178,12 +198,6 @@
       "desc": "选择要使用的配置，然后选择要分配的应用。",
       "select_profile": "要分配的配置"
     }
-  },
-  "touchpad": {
-    "detected": "已检测",
-    "enable_smoothing": "启用触控板平滑",
-    "pixel_multiplier": "像素倍数：{{value}}x",
-    "acceleration_factor": "加速因子：{{value}}x"
   },
   "keyboard_scroll": {
     "windows_only": "（仅 Windows）",

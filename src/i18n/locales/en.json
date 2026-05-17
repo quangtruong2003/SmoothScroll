@@ -111,7 +111,27 @@
       "Dark": "Dark",
       "System": "System"
     },
-    "reset_to_default": "Reset to default"
+    "reset_to_default": "Reset to default",
+    "touchpad": {
+      "detected": "Detected",
+      "source": {
+        "Wheel": "Mouse wheel",
+        "HighResWheel": "High-resolution wheel",
+        "Touchpad": "Precision touchpad"
+      },
+      "enable": {
+        "title": "Smooth touchpad scrolling",
+        "desc": "Apply easing to high-resolution touchpad input"
+      },
+      "pixel_multiplier": {
+        "title": "Pixel multiplier",
+        "desc": "Scale raw pixel deltas from the touchpad"
+      },
+      "acceleration": {
+        "title": "Acceleration factor",
+        "desc": "Boost large flicks. 0 disables acceleration."
+      }
+    }
   },
   "excluded": {
     "empty": "No apps excluded. Smooth scrolling is active everywhere.",
@@ -178,12 +198,6 @@
       "desc": "Pick the profile to use, then choose which app to assign it to.",
       "select_profile": "Profile to assign"
     }
-  },
-  "touchpad": {
-    "detected": "Detected",
-    "enable_smoothing": "Enable touchpad smoothing",
-    "pixel_multiplier": "Pixel multiplier: {{value}}x",
-    "acceleration_factor": "Acceleration factor: {{value}}x"
   },
   "keyboard_scroll": {
     "windows_only": "(Windows only)",

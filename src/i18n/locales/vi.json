@@ -111,7 +111,27 @@
       "Dark": "Tối",
       "System": "Theo hệ thống"
     },
-    "reset_to_default": "Đặt về mặc định"
+    "reset_to_default": "Đặt về mặc định",
+    "touchpad": {
+      "detected": "Đã phát hiện",
+      "source": {
+        "Wheel": "Chuột thường",
+        "HighResWheel": "Chuột độ phân giải cao",
+        "Touchpad": "Touchpad chính xác"
+      },
+      "enable": {
+        "title": "Cuộn touchpad mượt",
+        "desc": "Áp dụng easing cho input touchpad độ phân giải cao"
+      },
+      "pixel_multiplier": {
+        "title": "Hệ số pixel",
+        "desc": "Điều chỉnh delta pixel thô từ touchpad"
+      },
+      "acceleration": {
+        "title": "Hệ số gia tốc",
+        "desc": "Khuếch đại cú vuốt nhanh. 0 để tắt gia tốc."
+      }
+    }
   },
   "excluded": {
     "empty": "Chưa có ứng dụng nào bị loại trừ. Cuộn mượt được áp dụng ở mọi nơi.",
@@ -178,12 +198,6 @@
       "desc": "Chọn hồ sơ muốn dùng, sau đó chọn ứng dụng để gán.",
       "select_profile": "Hồ sơ áp dụng"
     }
-  },
-  "touchpad": {
-    "detected": "Đã phát hiện",
-    "enable_smoothing": "Bật làm mượt touchpad",
-    "pixel_multiplier": "Hệ số pixel: {{value}}x",
-    "acceleration_factor": "Hệ số tăng tốc: {{value}}x"
   },
   "keyboard_scroll": {
     "windows_only": "(Chỉ Windows)",
