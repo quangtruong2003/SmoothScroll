@@ -224,11 +224,6 @@ export function TrayPanel() {
             onClick={handleOpenLog}
             icon={<FileText className="h-4 w-4" />}
           />
-        </div>
-
-        {/* About */}
-        <SectionLabel>{t('tray.system')}</SectionLabel>
-        <div className="px-2 pb-2 space-y-0.5">
           <MenuItem
             label={t('tray.quit')}
             onClick={handleQuit}
