@@ -44,6 +44,8 @@ export interface AppSettings {
   excluded_apps: string[];
   profiles: ScrollProfile[];
   app_profiles: Record<string, string>;
+  game_mode_enabled: boolean;
+  game_mode_known_apps: string[];
 }
 
 export interface ProcessInfo {
@@ -100,4 +102,11 @@ export const tauri = {
     invoke<void>("assign_app_profile", { processName, profileId }),
   unassignAppProfile: (processName: string) =>
     invoke<void>("unassign_app_profile", { processName }),
+
+  // Game mode
+  addKnownGame: (name: string) =>
+    invoke<void>("add_known_game", { name }),
+  removeKnownGame: (name: string) =>
+    invoke<void>("remove_known_game", { name }),
+  getGameModeStatus: () => invoke<boolean>("get_game_mode_status"),
 };
