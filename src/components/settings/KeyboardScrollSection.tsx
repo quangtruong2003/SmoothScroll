@@ -1,16 +1,18 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettingsStore, useKeyboardFields } from "@/stores/settingsStore";
+import { useSettingsStore, useKeyboardFields, useDefaults } from "@/stores/settingsStore";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResetButton } from "./ResetButton";
 
 const KEYS = ["PageUp", "PageDown", "Space", "ShiftSpace", "ArrowUp", "ArrowDown"];
 
 function KeyboardScrollSectionInner() {
   const { t } = useTranslation();
   const fields = useKeyboardFields();
+  const defaults = useDefaults();
   const patch = useSettingsStore((s) => s.patch);
   if (!fields) return null;
 
@@ -64,12 +66,20 @@ function KeyboardScrollSectionInner() {
               value: fields.keyboard_pgdn_step_notches,
             })}
           </Label>
-          <Slider
-            min={1} max={20} step={1}
-            value={[fields.keyboard_pgdn_step_notches]}
-            onValueChange={([v]) => patch({ keyboard_pgdn_step_notches: v })}
-            disabled={!fields.keyboard_scroll_enabled}
-          />
+          <div className="flex items-center gap-3">
+            <Slider
+              min={1} max={20} step={1}
+              value={[fields.keyboard_pgdn_step_notches]}
+              onValueChange={([v]) => patch({ keyboard_pgdn_step_notches: v })}
+              disabled={!fields.keyboard_scroll_enabled}
+            />
+            {defaults && (
+              <ResetButton
+                onClick={() => patch({ keyboard_pgdn_step_notches: defaults.keyboard_pgdn_step_notches })}
+                disabled={fields.keyboard_pgdn_step_notches === defaults.keyboard_pgdn_step_notches}
+              />
+            )}
+          </div>
         </div>
 
         <div>
@@ -78,12 +88,20 @@ function KeyboardScrollSectionInner() {
               value: fields.keyboard_arrow_step_notches,
             })}
           </Label>
-          <Slider
-            min={1} max={10} step={1}
-            value={[fields.keyboard_arrow_step_notches]}
-            onValueChange={([v]) => patch({ keyboard_arrow_step_notches: v })}
-            disabled={!fields.keyboard_scroll_enabled}
-          />
+          <div className="flex items-center gap-3">
+            <Slider
+              min={1} max={10} step={1}
+              value={[fields.keyboard_arrow_step_notches]}
+              onValueChange={([v]) => patch({ keyboard_arrow_step_notches: v })}
+              disabled={!fields.keyboard_scroll_enabled}
+            />
+            {defaults && (
+              <ResetButton
+                onClick={() => patch({ keyboard_arrow_step_notches: defaults.keyboard_arrow_step_notches })}
+                disabled={fields.keyboard_arrow_step_notches === defaults.keyboard_arrow_step_notches}
+              />
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between">

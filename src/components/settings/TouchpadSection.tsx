@@ -1,12 +1,13 @@
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
-import { useSettingsStore, useTouchpadFields } from "@/stores/settingsStore";
+import { useSettingsStore, useTouchpadFields, useDefaults } from "@/stores/settingsStore";
 import { tauri, type InputSourceLabel } from "@/lib/tauri";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingRow } from "./SettingRow";
+import { ResetButton } from "./ResetButton";
 
 const ICON: Record<InputSourceLabel, string> = {
   Wheel: "🖱️",
@@ -17,6 +18,7 @@ const ICON: Record<InputSourceLabel, string> = {
 function TouchpadSectionInner() {
   const { t } = useTranslation();
   const fields = useTouchpadFields();
+  const defaults = useDefaults();
   const patch = useSettingsStore((s) => s.patch);
   const [source, setSource] = useState<InputSourceLabel>("Wheel");
 
@@ -76,6 +78,12 @@ function TouchpadSectionInner() {
             onValueChange={([v]) => patch({ touchpad_pixel_multiplier: v })}
             disabled={!fields.touchpad_smoothing_enabled}
           />
+          {defaults && (
+            <ResetButton
+              onClick={() => patch({ touchpad_pixel_multiplier: defaults.touchpad_pixel_multiplier })}
+              disabled={fields.touchpad_pixel_multiplier === defaults.touchpad_pixel_multiplier}
+            />
+          )}
         </SettingRow>
 
         <SettingRow
@@ -94,6 +102,12 @@ function TouchpadSectionInner() {
             onValueChange={([v]) => patch({ touchpad_acceleration_factor: v })}
             disabled={!fields.touchpad_smoothing_enabled}
           />
+          {defaults && (
+            <ResetButton
+              onClick={() => patch({ touchpad_acceleration_factor: defaults.touchpad_acceleration_factor })}
+              disabled={fields.touchpad_acceleration_factor === defaults.touchpad_acceleration_factor}
+            />
+          )}
         </SettingRow>
       </CardContent>
     </Card>
