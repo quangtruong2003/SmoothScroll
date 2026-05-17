@@ -8,6 +8,7 @@ mod mouse_hook;
 mod permissions;
 mod process_query;
 mod wheel_emitter;
+pub mod window_geom;
 
 pub use autostart::MacosAutostart;
 pub use hotkey::MacosHotkey;
@@ -15,6 +16,7 @@ pub use mouse_hook::MacosMouseHook;
 pub use permissions::is_trusted as is_accessibility_trusted;
 pub use process_query::MacosProcessQuery;
 pub use wheel_emitter::MacosWheelEmitter;
+pub use window_geom::MacosWindowGeometry;
 
 use crate::types::Result;
 use crate::Platform;
