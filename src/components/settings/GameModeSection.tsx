@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useGameModeFields } from "@/stores/settingsStore";
 import { tauri } from "@/lib/tauri";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function GameModeSection() {
+function GameModeSectionInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const fields = useGameModeFields();
   const patch = useSettingsStore((s) => s.patch);
   const [active, setActive] = useState(false);
   const [newGame, setNewGame] = useState("");
@@ -22,7 +22,7 @@ export function GameModeSection() {
     return () => { unlistenPromise.then((u) => u()); };
   }, []);
 
-  if (!settings) return null;
+  if (!fields) return null;
 
   return (
     <Card>
@@ -33,7 +33,7 @@ export function GameModeSection() {
         <div className="flex items-center justify-between">
           <Label>{t("game_mode.auto_disable")}</Label>
           <Switch
-            checked={settings.game_mode_enabled}
+            checked={fields.game_mode_enabled}
             onCheckedChange={(v) => patch({ game_mode_enabled: v })}
           />
         </div>
@@ -44,14 +44,14 @@ export function GameModeSection() {
         <div className="space-y-2">
           <Label>{t("game_mode.known_games")}</Label>
           <div className="flex flex-wrap gap-1">
-            {settings.game_mode_known_apps.map((g) => (
+            {fields.game_mode_known_apps.map((g) => (
               <span key={g} className="inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-xs">
                 {g}
                 <button
                   className="text-muted-foreground hover:text-foreground"
                   onClick={async () => {
                     await tauri.removeKnownGame(g);
-                    patch({ game_mode_known_apps: settings.game_mode_known_apps.filter((x) => x !== g) });
+                    patch({ game_mode_known_apps: fields.game_mode_known_apps.filter((x) => x !== g) });
                   }}
                 >×</button>
               </span>
@@ -67,7 +67,7 @@ export function GameModeSection() {
               onClick={async () => {
                 if (!newGame.trim()) return;
                 await tauri.addKnownGame(newGame);
-                patch({ game_mode_known_apps: [...settings.game_mode_known_apps, newGame.trim()] });
+                patch({ game_mode_known_apps: [...fields.game_mode_known_apps, newGame.trim()] });
                 setNewGame("");
               }}
             >{t("common.add")}</Button>
@@ -77,3 +77,5 @@ export function GameModeSection() {
     </Card>
   );
 }
+
+export const GameModeSection = memo(GameModeSectionInner);

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -8,16 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useAppearanceFields } from "@/stores/settingsStore";
 import type { EasingMode } from "@/lib/tauri";
 import { EasingCurvePreview } from "@/components/EasingCurvePreview";
 import { SettingRow } from "./SettingRow";
 
-export function AppearanceSection() {
+function AppearanceSectionInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const fields = useAppearanceFields();
   const patch = useSettingsStore((s) => s.patch);
-  if (!settings) return null;
+  if (!fields) return null;
 
   const easingLabels: Record<EasingMode, string> = {
     ExponentialOut: t("settings.easing_curve.ExponentialOut"),
@@ -39,7 +40,7 @@ export function AppearanceSection() {
         >
           <Switch
             id="easing-toggle"
-            checked={settings.animation_easing}
+            checked={fields.animation_easing}
             onCheckedChange={(v) => patch({ animation_easing: v })}
           />
         </SettingRow>
@@ -50,7 +51,7 @@ export function AppearanceSection() {
           description={t("settings.easing_curve.desc")}
         >
           <Select
-            value={settings.easing_mode}
+            value={fields.easing_mode}
             onValueChange={(v) => patch({ easing_mode: v as EasingMode })}
           >
             <SelectTrigger id="easing-mode" className="w-56">
@@ -73,12 +74,14 @@ export function AppearanceSection() {
             {t("settings.easing_curve.preview")}
           </span>
           <EasingCurvePreview
-            mode={settings.easing_mode}
-            tailToHeadRatio={settings.tail_to_head_ratio}
-            enabled={settings.animation_easing}
+            mode={fields.easing_mode}
+            tailToHeadRatio={fields.tail_to_head_ratio}
+            enabled={fields.animation_easing}
           />
         </div>
       </CardContent>
     </Card>
   );
 }
+
+export const AppearanceSection = memo(AppearanceSectionInner);

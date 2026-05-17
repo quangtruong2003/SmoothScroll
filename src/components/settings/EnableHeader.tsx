@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { tauri } from "@/lib/tauri";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useEnabled } from "@/stores/settingsStore";
 
-export function EnableHeader() {
+function EnableHeaderInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const settingsEnabled = useEnabled();
   const patch = useSettingsStore((s) => s.patch);
   const [trayEnabled, setTrayEnabled] = useState<boolean>(true);
 
@@ -15,9 +15,7 @@ export function EnableHeader() {
     tauri.getEnabled().then(setTrayEnabled);
   }, []);
 
-  if (!settings) return null;
-
-  const enabled = settings.enabled && trayEnabled;
+  const enabled = settingsEnabled && trayEnabled;
 
   const onToggle = async (next: boolean) => {
     patch({ enabled: next });
@@ -44,3 +42,5 @@ export function EnableHeader() {
     </div>
   );
 }
+
+export const EnableHeader = memo(EnableHeaderInner);

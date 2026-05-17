@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useTouchpadFields } from "@/stores/settingsStore";
 import { tauri, type InputSourceLabel } from "@/lib/tauri";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
@@ -14,9 +14,9 @@ const ICON: Record<InputSourceLabel, string> = {
   Touchpad: "💻",
 };
 
-export function TouchpadSection() {
+function TouchpadSectionInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const fields = useTouchpadFields();
   const patch = useSettingsStore((s) => s.patch);
   const [source, setSource] = useState<InputSourceLabel>("Wheel");
 
@@ -34,7 +34,7 @@ export function TouchpadSection() {
     };
   }, []);
 
-  if (!settings) return null;
+  if (!fields) return null;
 
   return (
     <Card>
@@ -55,7 +55,7 @@ export function TouchpadSection() {
         >
           <Switch
             id="touchpad-enable"
-            checked={settings.touchpad_smoothing_enabled}
+            checked={fields.touchpad_smoothing_enabled}
             onCheckedChange={(v) => patch({ touchpad_smoothing_enabled: v })}
           />
         </SettingRow>
@@ -64,7 +64,7 @@ export function TouchpadSection() {
           htmlFor="touchpad-mult"
           title={t("settings.touchpad.pixel_multiplier.title")}
           description={t("settings.touchpad.pixel_multiplier.desc")}
-          trailing={`${settings.touchpad_pixel_multiplier.toFixed(2)}x`}
+          trailing={`${fields.touchpad_pixel_multiplier.toFixed(2)}x`}
         >
           <Slider
             id="touchpad-mult"
@@ -72,9 +72,9 @@ export function TouchpadSection() {
             max={3}
             step={0.1}
             className="w-48"
-            value={[settings.touchpad_pixel_multiplier]}
+            value={[fields.touchpad_pixel_multiplier]}
             onValueChange={([v]) => patch({ touchpad_pixel_multiplier: v })}
-            disabled={!settings.touchpad_smoothing_enabled}
+            disabled={!fields.touchpad_smoothing_enabled}
           />
         </SettingRow>
 
@@ -82,7 +82,7 @@ export function TouchpadSection() {
           htmlFor="touchpad-accel"
           title={t("settings.touchpad.acceleration.title")}
           description={t("settings.touchpad.acceleration.desc")}
-          trailing={`${settings.touchpad_acceleration_factor.toFixed(2)}x`}
+          trailing={`${fields.touchpad_acceleration_factor.toFixed(2)}x`}
         >
           <Slider
             id="touchpad-accel"
@@ -90,12 +90,14 @@ export function TouchpadSection() {
             max={3}
             step={0.1}
             className="w-48"
-            value={[settings.touchpad_acceleration_factor]}
+            value={[fields.touchpad_acceleration_factor]}
             onValueChange={([v]) => patch({ touchpad_acceleration_factor: v })}
-            disabled={!settings.touchpad_smoothing_enabled}
+            disabled={!fields.touchpad_smoothing_enabled}
           />
         </SettingRow>
       </CardContent>
     </Card>
   );
 }
+
+export const TouchpadSection = memo(TouchpadSectionInner);
