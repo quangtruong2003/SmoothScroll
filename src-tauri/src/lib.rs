@@ -159,6 +159,10 @@ pub fn run() {
             commands::delete_profile,
             commands::assign_app_profile,
             commands::unassign_app_profile,
+            // Game mode
+            commands::add_known_game,
+            commands::remove_known_game,
+            commands::get_game_mode_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
