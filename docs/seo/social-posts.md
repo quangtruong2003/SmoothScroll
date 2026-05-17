@@ -72,7 +72,22 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
 
 **Title:** `SmoothScroll v0.1.11 — built a free smooth-scrolling app for Windows + macOS in Rust`
 
-**Body:** (same body as r/rust, less technical detail; emphasize the journey + open source angle)
+**Body:**
+
+    Just shipped v0.1.11 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source side project I've been polishing for the last few months.
+
+    The itch: every time I switched from my Mac to my Windows desktop, mouse-wheel scrolling felt like jumping from a smooth glide to a series of clicks. Existing tools either only redirect scroll (WizMouse) or are tied to specific hardware (Logitech Options+). I wanted Mac-style inertia for any wheel mouse on any Windows app.
+
+    Built it in Rust + Tauri 2:
+    - Single binary, no Electron, ~10 MB resident
+    - System tray UI, global hotkey toggle (Ctrl+Alt+S)
+    - Per-app exclusion for games that need raw input
+    - MIT licensed, signed releases for Windows and macOS
+
+    Live site: https://quangtruong2003.github.io/SmoothScroll/
+    Source: https://github.com/quangtruong2003/SmoothScroll
+
+    Feedback very welcome — especially from anyone who's done OS-level input interception before.
 
 ---
 
@@ -131,7 +146,17 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
     Free, open-source utility that adds Mac-style smooth scrolling to Windows and consistent mouse-wheel inertia on macOS. Native low-level input interception, frame-perfect easing at 120 Hz, per-app exclusion, system-tray UI. Built with Rust and Tauri 2. MIT licensed, no telemetry.
 
 **Topics:** Productivity · Developer Tools · Open Source · Mac · Windows
-**First comment:** same body as the HN comment.
+
+**First comment (post immediately after launch goes live):**
+
+    Hi Product Hunt! I built SmoothScroll because mouse-wheel scrolling on Windows feels jagged compared to macOS trackpad inertia, and the closest existing tools (WizMouse, KatMouse) only redirect scroll without smoothing motion.
+
+    It sits between the OS and your apps via the Windows low-level mouse hook (WH_MOUSE_LL) and macOS CGEventTap, swallows raw wheel ticks, and re-emits them as eased pulses at 120 Hz. Per-app exclusion lets you disable it for games or apps that prefer raw input.
+
+    Stack: Rust + Tauri 2 + React. Single binary, no Electron, no telemetry. MIT licensed.
+
+    Happy to answer questions — and feedback on the easing curves or input-hook design is very welcome.
+
 **Best launch day:** Tuesday or Wednesday at 12:01am Pacific.
 
 ---

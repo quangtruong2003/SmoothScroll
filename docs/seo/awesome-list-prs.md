@@ -48,6 +48,12 @@ Targets prioritized by relevance and acceptance rate. Submit in this order:
 
     * [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) - Free, open-source smooth mouse-wheel scrolling for Windows 10/11. Native low-level input hook, frame-perfect easing, per-app exclusion.
 
+**PR title:** `Add SmoothScroll under Productivity / Mouse and Keyboard`
+
+**PR body:**
+
+    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source utility for Windows 10/11 that adds Mac-style smooth mouse-wheel scrolling. Native low-level input hook (no driver), frame-perfect easing at 120 Hz, per-app exclusion, system-tray UI. MIT licensed, signed v0.1.11 release available.
+
 ## 4. agarrharr/awesome-cli-apps — skip (not a CLI)
 ## 5. styfle/awesome-online-ide — skip (not an IDE)
 
