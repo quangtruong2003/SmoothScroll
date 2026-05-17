@@ -5,6 +5,8 @@
 //! Lifecycle: the sink holds an `Arc<AppState>` to keep settings accessible.
 
 use crate::state::AppState;
+use parking_lot::Mutex;
+use smoothscroll_core::settings::AppSettings;
 use smoothscroll_platform::traits::HookEventSink;
 use smoothscroll_platform::types::{HookDecision, ModifierKeys};
 use std::sync::atomic::Ordering;
@@ -14,6 +16,9 @@ use std::time::Instant;
 pub struct EngineSink {
     pub state: Arc<AppState>,
     pub epoch: Instant,
+    /// Tracks the last applied profile ID to avoid redundant engine updates.
+    /// None = global settings active, Some(id) = a specific profile is active.
+    last_applied_profile: Mutex<Option<String>>,
 }
 
 impl EngineSink {
@@ -21,6 +26,7 @@ impl EngineSink {
         Arc::new(Self {
             state,
             epoch: Instant::now(),
+            last_applied_profile: Mutex::new(None),
         })
     }
 
@@ -28,35 +34,105 @@ impl EngineSink {
         self.epoch.elapsed().as_millis() as u64
     }
 
-    fn is_excluded(&self) -> bool {
-        // Fast path: skip the cursor-under-process lookup entirely when the
-        // user has no exclusions. This is the common case and saves us from
-        // walking the window list on every wheel notch.
-        if self.state.settings.read().excluded_apps.is_empty() {
-            return false;
+    /// Resolves the active state for the current cursor position:
+    /// - `None` = pass-through (excluded/disabled)
+    /// - `Some(())` = process with smooth scrolling active (engine settings already applied)
+    fn resolve_active(&self) -> Option<()> {
+        let (has_excluded, has_profiles) = {
+            let s = self.state.settings.read();
+            (!s.excluded_apps.is_empty(), !s.app_profiles.is_empty())
+        };
+
+        // Fast path: no exclusions and no app profiles configured.
+        // Reset to global settings if a profile was previously active.
+        if !has_excluded && !has_profiles {
+            self.reset_to_global_if_needed();
+            return Some(());
         }
+
         let start = std::time::Instant::now();
         let process_name = match self.state.processes.process_name_under_cursor() {
             Some(n) => n,
-            None => return false,
+            None => {
+                self.reset_to_global_if_needed();
+                return Some(());
+            }
         };
-        let result = self.state.settings.read().is_excluded(&process_name);
+
+        let s = self.state.settings.read();
+
+        // Check disabled (covers both __disabled__ profile and legacy excluded_apps)
+        if s.is_excluded(&process_name) {
+            let elapsed = start.elapsed();
+            if elapsed > std::time::Duration::from_millis(2) {
+                tracing::debug!(?elapsed, process = %process_name, "resolve_active disabled");
+            }
+            return None;
+        }
+
+        // Check for assigned profile
+        if let Some(profile) = s.get_profile_for_process(&process_name) {
+            self.apply_profile_if_changed(profile, &s);
+        } else {
+            // No profile assigned, ensure global settings are active
+            drop(s);
+            self.reset_to_global_if_needed();
+        }
+
         let elapsed = start.elapsed();
         if elapsed > std::time::Duration::from_millis(2) {
-            tracing::debug!(?elapsed, process = %process_name, "is_excluded slow path");
+            tracing::debug!(?elapsed, process = %process_name, "resolve_active slow path");
         }
-        result
+
+        Some(())
+    }
+
+    fn apply_profile_if_changed(
+        &self,
+        profile: &smoothscroll_core::settings::ScrollProfile,
+        settings: &AppSettings,
+    ) {
+        let mut last = self.last_applied_profile.lock();
+        if last.as_deref() == Some(profile.id.as_str()) {
+            return;
+        }
+        // Build merged settings: global settings with profile fields overridden
+        let mut merged = settings.clone();
+        merged.step_size_px = profile.step_size_px;
+        merged.animation_time_ms = profile.animation_time_ms;
+        merged.acceleration_delta_ms = profile.acceleration_delta_ms;
+        merged.acceleration_max = profile.acceleration_max;
+        merged.tail_to_head_ratio = profile.tail_to_head_ratio;
+        merged.animation_easing = profile.animation_easing;
+        merged.easing_mode = profile.easing_mode;
+        merged.reverse_wheel_direction = profile.reverse_wheel_direction;
+        merged.horizontal_smoothness = profile.horizontal_smoothness;
+
+        self.state.engine.lock().apply_settings(merged);
+        *last = Some(profile.id.clone());
+        tracing::debug!(profile_id = %profile.id, profile_name = %profile.name, "applied profile");
+    }
+
+    fn reset_to_global_if_needed(&self) {
+        let mut last = self.last_applied_profile.lock();
+        if last.is_none() {
+            return;
+        }
+        let global = self.state.settings.read().clone();
+        self.state.engine.lock().apply_settings(global);
+        *last = None;
+        tracing::debug!("reset to global settings");
     }
 
     fn route_vertical(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-        if self.is_excluded() {
+        if self.resolve_active().is_none() {
             return HookDecision::Pass;
         }
         let (shift_to_horizontal, horizontal_smoothness) = {
-            let s = self.state.settings.read();
+            let s = self.state.engine.lock().settings().clone();
             (s.shift_key_horizontal, s.horizontal_smoothness)
         };
 
@@ -81,10 +157,10 @@ impl EngineSink {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-        if self.is_excluded() {
+        if self.resolve_active().is_none() {
             return HookDecision::Pass;
         }
-        let horizontal_smoothness = self.state.settings.read().horizontal_smoothness;
+        let horizontal_smoothness = self.state.engine.lock().settings().horizontal_smoothness;
         if !horizontal_smoothness {
             return HookDecision::Pass;
         }

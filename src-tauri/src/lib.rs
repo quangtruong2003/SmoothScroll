@@ -140,6 +140,13 @@ pub fn run() {
             commands::show_main_window,
             commands::navigate_to,
             commands::quit_app,
+            // Profile management
+            commands::list_profiles,
+            commands::create_profile,
+            commands::update_profile,
+            commands::delete_profile,
+            commands::assign_app_profile,
+            commands::unassign_app_profile,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");

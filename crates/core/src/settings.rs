@@ -2,6 +2,7 @@
 
 use crate::easing::EasingMode;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// User-selectable theme mode for the settings UI.
@@ -11,6 +12,51 @@ pub enum ThemeMode {
     Dark,
     #[default]
     System,
+}
+
+/// A named scroll profile with customizable settings.
+/// Can be assigned to specific applications for per-app scrolling behavior.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScrollProfile {
+    pub id: String,
+    pub name: String,
+    pub step_size_px: i32,
+    pub animation_time_ms: i32,
+    pub acceleration_delta_ms: i32,
+    pub acceleration_max: i32,
+    pub tail_to_head_ratio: i32,
+    pub animation_easing: bool,
+    pub easing_mode: EasingMode,
+    pub reverse_wheel_direction: bool,
+    pub horizontal_smoothness: bool,
+}
+
+impl ScrollProfile {
+    /// Create a new profile with the given ID and name, using default scroll settings.
+    pub fn new(id: impl Into<String>, name: impl Into<String>) -> Self {
+        Self {
+            id: id.into(),
+            name: name.into(),
+            step_size_px: 120,
+            animation_time_ms: 360,
+            acceleration_delta_ms: 70,
+            acceleration_max: 7,
+            tail_to_head_ratio: 3,
+            animation_easing: true,
+            easing_mode: EasingMode::ExponentialOut,
+            reverse_wheel_direction: false,
+            horizontal_smoothness: true,
+        }
+    }
+
+    /// Clamp all numeric fields to valid ranges.
+    pub fn clamp(&mut self) {
+        self.step_size_px = self.step_size_px.clamp(10, 500);
+        self.animation_time_ms = self.animation_time_ms.clamp(10, 2000);
+        self.acceleration_delta_ms = self.acceleration_delta_ms.clamp(0, 500);
+        self.acceleration_max = self.acceleration_max.clamp(1, 20);
+        self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
+    }
 }
 
 /// Persisted user settings.
@@ -49,6 +95,10 @@ pub struct AppSettings {
 
     // App management
     pub excluded_apps: Vec<String>,
+
+    // Per-app profiles
+    pub profiles: Vec<ScrollProfile>,
+    pub app_profiles: HashMap<String, String>,  // process_name -> profile_id
 }
 
 impl Default for AppSettings {
@@ -73,6 +123,8 @@ impl Default for AppSettings {
             hotkey_accelerator: "Ctrl+Alt+S".to_string(),
             show_tray_icon_state: true,
             excluded_apps: Vec::new(),
+            profiles: Vec::new(),
+            app_profiles: HashMap::new(),
         }
     }
 }
@@ -85,6 +137,11 @@ impl AppSettings {
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
 
+        // Clamp all profiles
+        for profile in &mut self.profiles {
+            profile.clamp();
+        }
+
         const KNOWN_LANGS: [&str; 3] = ["en", "vi", "zh"];
         if !KNOWN_LANGS.contains(&self.language.as_str()) {
             self.language = "en".to_string();
@@ -95,14 +152,60 @@ impl AppSettings {
         }
     }
 
+    /// Migrate from v1 (excluded_apps) to v2 (app_profiles).
+    /// Should be called after loading settings.
+    pub fn migrate_from_v1(&mut self) {
+        if !self.excluded_apps.is_empty() && self.app_profiles.is_empty() {
+            for app in self.excluded_apps.drain(..) {
+                self.app_profiles.insert(app, Self::DISABLED_PROFILE_ID.to_string());
+            }
+        }
+    }
+
+    /// Special profile ID for disabled (pass-through) apps.
+    pub const DISABLED_PROFILE_ID: &'static str = "__disabled__";
+
     /// Case-insensitive exact-match check against the excluded list.
+    /// Also checks app_profiles for "__disabled__" assignment.
     pub fn is_excluded(&self, process_name: &str) -> bool {
         if process_name.is_empty() {
             return false;
         }
+        // Check new system first
+        if let Some(profile_id) = self.app_profiles.get(process_name) {
+            if profile_id == Self::DISABLED_PROFILE_ID {
+                return true;
+            }
+        }
+        // Fall back to legacy excluded_apps
         self.excluded_apps
             .iter()
             .any(|app| app.eq_ignore_ascii_case(process_name))
+    }
+
+    /// Returns the profile assigned to a process, if any.
+    /// Returns None if the process should use default settings.
+    pub fn get_profile_for_process(&self, process_name: &str) -> Option<&ScrollProfile> {
+        if process_name.is_empty() {
+            return None;
+        }
+        let profile_id = self.app_profiles.get(process_name)?;
+        if profile_id == Self::DISABLED_PROFILE_ID {
+            return None; // Pass-through
+        }
+        self.profiles.iter().find(|p| &p.id == profile_id)
+    }
+
+    /// Assign a profile to an app. Use None to remove assignment.
+    pub fn assign_profile(&mut self, process_name: String, profile_id: Option<String>) {
+        match profile_id {
+            Some(id) => {
+                self.app_profiles.insert(process_name, id);
+            }
+            None => {
+                self.app_profiles.remove(&process_name);
+            }
+        }
     }
 }
 
@@ -190,6 +293,7 @@ fn try_load() -> Result<AppSettings, SettingsError> {
     let bytes = std::fs::read(&path)?;
     let mut settings: AppSettings = serde_json::from_slice(&bytes)?;
     settings.clamp();
+    settings.migrate_from_v1();
     Ok(settings)
 }
 

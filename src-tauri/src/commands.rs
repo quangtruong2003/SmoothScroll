@@ -2,7 +2,7 @@
 
 use crate::state::AppState;
 use smoothscroll_core::engine::SmoothScrollEngine;
-use smoothscroll_core::settings::{self, is_valid_accelerator, AppSettings};
+use smoothscroll_core::settings::{self, is_valid_accelerator, AppSettings, ScrollProfile};
 use smoothscroll_platform::traits::ProcessInfo;
 use smoothscroll_platform::types::Accelerator;
 use std::sync::atomic::Ordering;
@@ -13,6 +13,12 @@ use tauri::{AppHandle, Emitter, Manager, State};
 /// the change. Safe to call when no windows exist.
 pub(crate) fn emit_enabled_changed<R: tauri::Runtime>(app: &AppHandle<R>, enabled: bool) {
     let _ = app.emit("enabled-changed", enabled);
+}
+
+/// Emit `settings-changed` with the full settings snapshot so all windows
+/// can reload their state (used by TrayPanel to sync start_minimized, etc.).
+pub(crate) fn emit_settings_changed<R: tauri::Runtime>(app: &AppHandle<R>, settings: &AppSettings) {
+    let _ = app.emit("settings-changed", settings.clone());
 }
 
 /// Re-register the global hotkey using the current settings. Returns the
@@ -74,6 +80,8 @@ pub fn set_enabled<R: tauri::Runtime>(
         *e = SmoothScrollEngine::new(s);
     }
     emit_enabled_changed(&app, enabled);
+    let current = state.settings.read().clone();
+    emit_settings_changed(&app, &current);
     tracing::info!(enabled, "set_enabled");
 }
 
@@ -102,6 +110,7 @@ pub fn save_settings<R: tauri::Runtime>(
     state.engine_signal.signal();
 
     emit_enabled_changed(&app, clamped.enabled);
+    emit_settings_changed(&app, &clamped);
     tracing::debug!("settings saved");
     Ok(())
 }
@@ -196,7 +205,11 @@ pub fn get_autostart(state: State<'_, Arc<AppState>>) -> bool {
 }
 
 #[tauri::command]
-pub fn set_autostart(state: State<'_, Arc<AppState>>, enabled: bool) -> Result<(), String> {
+pub fn set_autostart<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, Arc<AppState>>,
+    enabled: bool,
+) -> Result<(), String> {
     state.autostart.set(enabled).map_err(|e| e.to_string())?;
     {
         let mut s = state.settings.write();
@@ -204,6 +217,7 @@ pub fn set_autostart(state: State<'_, Arc<AppState>>, enabled: bool) -> Result<(
     }
     let snapshot = state.settings.read().clone();
     smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    emit_settings_changed(&app, &snapshot);
     Ok(())
 }
 
@@ -300,5 +314,140 @@ fn open_path(path: &std::path::Path) -> std::io::Result<()> {
         std::process::Command::new("open").arg(path).spawn()?;
     }
     let _ = path;
+    Ok(())
+}
+
+// ============================================================================
+// Profile Management Commands
+// ============================================================================
+
+/// List all scroll profiles.
+#[tauri::command]
+pub fn list_profiles(state: State<'_, Arc<AppState>>) -> Vec<ScrollProfile> {
+    state.settings.read().profiles.clone()
+}
+
+/// Create a new scroll profile with default settings.
+#[tauri::command]
+pub fn create_profile(
+    state: State<'_, Arc<AppState>>,
+    name: String,
+) -> Result<ScrollProfile, String> {
+    let id = uuid::Uuid::new_v4().to_string();
+    let profile = ScrollProfile::new(&id, name);
+
+    {
+        let mut s = state.settings.write();
+        s.profiles.push(profile.clone());
+    }
+
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    Ok(profile)
+}
+
+/// Update an existing profile.
+#[tauri::command]
+pub fn update_profile(
+    state: State<'_, Arc<AppState>>,
+    profile: ScrollProfile,
+) -> Result<(), String> {
+    {
+        let mut s = state.settings.write();
+        if let Some(existing) = s.profiles.iter_mut().find(|p| p.id == profile.id) {
+            *existing = profile.clone();
+            existing.clamp();
+        } else {
+            return Err(format!("profile '{}' not found", profile.id));
+        }
+    }
+
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+/// Delete a profile. Returns error if apps are assigned to it.
+#[tauri::command]
+pub fn delete_profile(
+    state: State<'_, Arc<AppState>>,
+    profile_id: String,
+) -> Result<(), String> {
+    {
+        let mut s = state.settings.write();
+
+        // Check if any apps are assigned to this profile
+        let assigned_apps: Vec<_> = s
+            .app_profiles
+            .iter()
+            .filter(|(_, id)| **id == profile_id)
+            .map(|(name, _)| name.clone())
+            .collect();
+
+        if !assigned_apps.is_empty() {
+            return Err(format!(
+                "Cannot delete: apps assigned to this profile: {}",
+                assigned_apps.join(", ")
+            ));
+        }
+
+        // Remove profile
+        let before_len = s.profiles.len();
+        s.profiles.retain(|p| p.id != profile_id);
+        if s.profiles.len() == before_len {
+            return Err(format!("profile '{}' not found", profile_id));
+        }
+    }
+
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+/// Assign a profile to an app. Use profile_id = None to remove assignment.
+#[tauri::command]
+pub fn assign_app_profile(
+    state: State<'_, Arc<AppState>>,
+    process_name: String,
+    profile_id: Option<String>,
+) -> Result<(), String> {
+    {
+        let mut s = state.settings.write();
+
+        // Validate profile exists (unless it's the special disabled ID)
+        if let Some(ref id) = profile_id {
+            if id != AppSettings::DISABLED_PROFILE_ID {
+                if !s.profiles.iter().any(|p| &p.id == id) {
+                    return Err(format!("profile '{}' not found", id));
+                }
+            }
+        }
+
+        s.assign_profile(process_name, profile_id);
+    }
+
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+/// Remove profile assignment from an app.
+#[tauri::command]
+pub fn unassign_app_profile(
+    state: State<'_, Arc<AppState>>,
+    process_name: String,
+) -> Result<(), String> {
+    {
+        let mut s = state.settings.write();
+        s.app_profiles.remove(&process_name);
+    }
+
+    let snapshot = state.settings.read().clone();
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+
     Ok(())
 }

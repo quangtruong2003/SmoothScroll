@@ -8,6 +8,20 @@ export type EasingMode =
 
 export type ThemeMode = "Light" | "Dark" | "System";
 
+export interface ScrollProfile {
+  id: string;
+  name: string;
+  step_size_px: number;
+  animation_time_ms: number;
+  acceleration_delta_ms: number;
+  acceleration_max: number;
+  tail_to_head_ratio: number;
+  animation_easing: boolean;
+  easing_mode: EasingMode;
+  reverse_wheel_direction: boolean;
+  horizontal_smoothness: boolean;
+}
+
 export interface AppSettings {
   enabled: boolean;
   step_size_px: number;
@@ -28,6 +42,8 @@ export interface AppSettings {
   hotkey_accelerator: string;
   show_tray_icon_state: boolean;
   excluded_apps: string[];
+  profiles: ScrollProfile[];
+  app_profiles: Record<string, string>;
 }
 
 export interface ProcessInfo {
@@ -74,4 +90,14 @@ export const tauri = {
   closeTrayPanel: () => invoke<void>("close_tray_panel"),
   showMainWindow: () => invoke<void>("show_main_window"),
   navigateTo: (section: string) => invoke<void>("navigate_to", { section }),
+
+  // Profile management
+  listProfiles: () => invoke<ScrollProfile[]>("list_profiles"),
+  createProfile: (name: string) => invoke<ScrollProfile>("create_profile", { name }),
+  updateProfile: (profile: ScrollProfile) => invoke<void>("update_profile", { profile }),
+  deleteProfile: (profileId: string) => invoke<void>("delete_profile", { profileId }),
+  assignAppProfile: (processName: string, profileId: string | null) =>
+    invoke<void>("assign_app_profile", { processName, profileId }),
+  unassignAppProfile: (processName: string) =>
+    invoke<void>("unassign_app_profile", { processName }),
 };
