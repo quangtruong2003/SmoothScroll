@@ -12,6 +12,7 @@ import { DirectionSection } from "@/components/settings/DirectionSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
+import { GameModeSection } from "@/components/settings/GameModeSection";
 import { ThemeSection } from "@/components/settings/ThemeSection";
 import { LanguageSection } from "@/components/settings/LanguageSection";
 import { AboutSection } from "@/components/settings/AboutSection";
@@ -113,6 +114,7 @@ export function SettingsPage() {
             <div className="overflow-y-auto pr-1">
               <div className="space-y-3">
                 <BehaviorSection />
+                <GameModeSection />
                 <ThemeSection />
                 <LanguageSection />
               </div>

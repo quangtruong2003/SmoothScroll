@@ -14,6 +14,20 @@ pub enum ThemeMode {
     System,
 }
 
+fn default_games_list() -> Vec<String> {
+    [
+        "LeagueOfLegends.exe", "VALORANT.exe", "csgo.exe", "cs2.exe",
+        "dota2.exe", "ApexLegends.exe", "RainbowSix.exe",
+        "FortniteClient-Win64-Shipping.exe", "PUBG.exe",
+        "GTA5.exe", "RDR2.exe", "eldenring.exe", "Cyberpunk2077.exe",
+        "witcher3.exe", "MinecraftLauncher.exe", "javaw.exe",
+        "RocketLeague.exe", "Overwatch.exe", "Overwatch2.exe",
+        "WoW.exe", "ffxiv_dx11.exe", "warframe.exe",
+        "factorio.exe", "Terraria.exe", "StardewValley.exe",
+        "ETS2.exe", "ats.exe", "dishonored2.exe",
+    ].iter().map(|s| s.to_string()).collect()
+}
+
 /// A named scroll profile with customizable settings.
 /// Can be assigned to specific applications for per-app scrolling behavior.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -99,6 +113,10 @@ pub struct AppSettings {
     // Per-app profiles
     pub profiles: Vec<ScrollProfile>,
     pub app_profiles: HashMap<String, String>,  // process_name -> profile_id
+
+    // Game mode
+    pub game_mode_enabled: bool,
+    pub game_mode_known_apps: Vec<String>,
 }
 
 impl Default for AppSettings {
@@ -125,6 +143,8 @@ impl Default for AppSettings {
             excluded_apps: Vec::new(),
             profiles: Vec::new(),
             app_profiles: HashMap::new(),
+            game_mode_enabled: true,
+            game_mode_known_apps: default_games_list(),
         }
     }
 }

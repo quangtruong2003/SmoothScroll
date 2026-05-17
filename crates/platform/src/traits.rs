@@ -67,3 +67,5 @@ pub trait Hotkey: Send + Sync {
         on_pressed: Box<dyn Fn() + Send + Sync>,
     ) -> Result<HotkeyHandle>;
 }
+
+pub trait FullscreenDetector: Send + Sync { fn is_foreground_fullscreen(&self) -> bool; }

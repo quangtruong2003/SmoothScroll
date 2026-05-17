@@ -2,6 +2,7 @@
 
 mod commands;
 mod engine_thread;
+pub mod game_mode;
 mod hook_wiring;
 mod state;
 mod tray;
@@ -28,6 +29,13 @@ pub fn run() {
     let engine = Arc::new(Mutex::new(SmoothScrollEngine::new(loaded_settings.clone())));
     let settings_arc = Arc::new(RwLock::new(loaded_settings));
 
+    #[cfg(windows)]
+    let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =
+        Arc::new(smoothscroll_platform::windows::WindowsFullscreenDetector);
+    #[cfg(target_os = "macos")]
+    let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =
+        Arc::new(smoothscroll_platform::macos::MacosFullscreenDetector);
+
     let app_state = Arc::new(AppState {
         engine,
         settings: settings_arc,
@@ -39,6 +47,8 @@ pub fn run() {
         hotkey_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
+        game_mode_active: Arc::new(AtomicBool::new(false)),
+        fullscreen_detector,
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());
@@ -98,6 +108,8 @@ pub fn run() {
         .setup(move |app| {
             tray::init(app.handle(), state_for_setup.clone())?;
 
+            crate::game_mode::spawn(app.handle().clone(), state_for_setup.clone());
+
             if let Some(win) = app.get_webview_window("main") {
                 let win_clone = win.clone();
                 win.on_window_event(move |event| {
@@ -148,6 +160,10 @@ pub fn run() {
             commands::assign_app_profile,
             commands::unassign_app_profile,
             commands::suggest_profile_for_app,
+            // Game mode
+            commands::add_known_game,
+            commands::remove_known_game,
+            commands::get_game_mode_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");

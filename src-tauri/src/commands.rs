@@ -487,3 +487,41 @@ pub fn suggest_profile_for_app(name: String) -> ProfileSuggestion {
         preset,
     }
 }
+
+#[tauri::command]
+pub fn add_known_game(state: State<'_, Arc<AppState>>, name: String) -> Result<(), String> {
+    let trimmed = name.trim().to_string();
+    if trimmed.is_empty() {
+        return Err("name cannot be empty".into());
+    }
+    {
+        let mut s = state.settings.write();
+        if !s
+            .game_mode_known_apps
+            .iter()
+            .any(|g| g.eq_ignore_ascii_case(&trimmed))
+        {
+            s.game_mode_known_apps.push(trimmed);
+        }
+    }
+    let snap = state.settings.read().clone();
+    settings::save(&snap).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn remove_known_game(state: State<'_, Arc<AppState>>, name: String) -> Result<(), String> {
+    {
+        let mut s = state.settings.write();
+        s.game_mode_known_apps
+            .retain(|g| !g.eq_ignore_ascii_case(&name));
+    }
+    let snap = state.settings.read().clone();
+    settings::save(&snap).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_game_mode_status(state: State<'_, Arc<AppState>>) -> bool {
+    state.game_mode_active.load(Ordering::Relaxed)
+}

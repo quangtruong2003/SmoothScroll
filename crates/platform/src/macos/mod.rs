@@ -8,8 +8,10 @@ mod mouse_hook;
 mod permissions;
 mod process_query;
 mod wheel_emitter;
+pub mod fullscreen;
 
 pub use autostart::MacosAutostart;
+pub use fullscreen::MacosFullscreenDetector;
 pub use hotkey::MacosHotkey;
 pub use mouse_hook::MacosMouseHook;
 pub use permissions::is_trusted as is_accessibility_trusted;

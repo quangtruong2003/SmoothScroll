@@ -148,6 +148,9 @@ impl EngineSink {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
+        if self.state.game_mode_active.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
         if self.resolve_active().is_none() {
             return HookDecision::Pass;
         }
@@ -175,6 +178,9 @@ impl EngineSink {
 
     fn route_horizontal(&self, delta: i32) -> HookDecision {
         if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+        if self.state.game_mode_active.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
         if self.resolve_active().is_none() {
@@ -210,8 +216,8 @@ mod tests {
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::settings::AppSettings;
     use smoothscroll_platform::traits::{
-        Autostart, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessInfo,
-        ProcessQuery, WheelEmitter,
+        Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook,
+        ProcessInfo, ProcessQuery, WheelEmitter,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Result};
     use std::sync::atomic::AtomicBool;
@@ -260,6 +266,12 @@ mod tests {
             Ok(HotkeyHandle::new(Box::new(())))
         }
     }
+    struct StubFullscreen;
+    impl FullscreenDetector for StubFullscreen {
+        fn is_foreground_fullscreen(&self) -> bool {
+            false
+        }
+    }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
         Arc::new(AppState {
@@ -273,6 +285,8 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            game_mode_active: Arc::new(AtomicBool::new(false)),
+            fullscreen_detector: Arc::new(StubFullscreen),
         })
     }
 
@@ -305,6 +319,8 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            game_mode_active: Arc::new(AtomicBool::new(false)),
+            fullscreen_detector: Arc::new(StubFullscreen),
         })
     }
 
@@ -444,5 +460,16 @@ mod tests {
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+    }
+
+    #[test]
+    fn game_mode_active_passes_through() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        state.game_mode_active.store(true, Ordering::Relaxed);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 }
