@@ -13,36 +13,7 @@ import {
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
-
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      onClick={() => onChange(!checked)}
-      className={`
-        relative inline-flex h-5 w-9 items-center rounded-full
-        transition-colors duration-200 focus:outline-none focus:ring-2
-        focus:ring-ring focus:ring-offset-2 focus:ring-offset-background
-        ${checked ? 'bg-primary' : 'bg-muted'}
-      `}
-      role="switch"
-      aria-checked={checked}
-    >
-      <span
-        className={`
-          inline-block h-4 w-4 transform rounded-full bg-white shadow-md
-          transition-transform duration-200
-          ${checked ? 'translate-x-4' : 'translate-x-0.5'}
-        `}
-      />
-    </button>
-  );
-}
+import { Switch } from '@/components/ui/switch';
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -54,6 +25,16 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+interface MenuItemProps {
+  icon?: React.ReactNode;
+  label: string;
+  toggle?: boolean;
+  checked?: boolean;
+  onToggle?: (v: boolean) => void;
+  onClick?: () => void;
+  variant?: 'default' | 'destructive' | 'muted';
+}
+
 function MenuItem({
   icon,
   label,
@@ -62,35 +43,35 @@ function MenuItem({
   onToggle,
   onClick,
   variant = 'default',
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  toggle?: boolean;
-  checked?: boolean;
-  onToggle?: (v: boolean) => void;
-  onClick?: () => void;
-  variant?: 'default' | 'destructive' | 'muted';
-}) {
+}: MenuItemProps) {
   const variantClasses = {
     default: 'text-foreground hover:bg-accent active:bg-accent',
     destructive: 'text-destructive hover:bg-accent active:bg-accent',
     muted: 'text-muted-foreground hover:bg-accent active:bg-accent',
   };
 
+  const baseClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${variantClasses[variant]}`;
+
+  if (toggle !== undefined) {
+    const isOn = checked ?? false;
+    return (
+      <label className={`${baseClass} cursor-pointer`}>
+        {icon && (
+          <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-muted-foreground">
+            {icon}
+          </span>
+        )}
+        <span className="flex-1 text-left">{label}</span>
+        <Switch checked={isOn} onCheckedChange={(v) => onToggle?.(v)} />
+      </label>
+    );
+  }
+
   return (
     <button
-      onClick={() => {
-        if (toggle && onToggle) {
-          onToggle(!checked);
-        } else if (onClick) {
-          onClick();
-        }
-      }}
-      className={`
-        w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
-        text-sm font-medium transition-colors duration-150
-        ${variantClasses[variant]}
-      `}
+      type="button"
+      onClick={onClick}
+      className={baseClass}
     >
       {icon && (
         <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-muted-foreground">
@@ -98,9 +79,6 @@ function MenuItem({
         </span>
       )}
       <span className="flex-1 text-left">{label}</span>
-      {toggle !== undefined && (
-        <Toggle checked={checked ?? false} onChange={onToggle!} />
-      )}
     </button>
   );
 }
