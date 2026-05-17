@@ -35,3 +35,9 @@ pub enum PlatformError {
 }
 
 pub type Result<T> = std::result::Result<T, PlatformError>;
+
+#[derive(Debug, Clone, Copy)]
+pub struct KeyboardKeyEvent {
+    pub key: smoothscroll_core::keyboard_scroll::KeyboardScrollKey,
+    pub is_autorepeat: bool,
+}

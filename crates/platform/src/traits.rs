@@ -1,7 +1,7 @@
 //! Trait definitions for OS-specific subsystems. Implementations live in
 //! `windows/` and `macos/` modules (cfg-gated).
 
-use crate::types::{Accelerator, HookDecision, ModifierKeys, Result};
+use crate::types::{Accelerator, HookDecision, KeyboardKeyEvent, ModifierKeys, Result};
 use std::sync::Arc;
 
 /// Receives parsed hook events. Implementation lives in the app crate.
@@ -66,4 +66,12 @@ pub trait Hotkey: Send + Sync {
         accel: Accelerator,
         on_pressed: Box<dyn Fn() + Send + Sync>,
     ) -> Result<HotkeyHandle>;
+}
+
+pub trait KeyboardScrollSink: Send + Sync {
+    fn on_key(&self, ev: KeyboardKeyEvent) -> HookDecision;
+}
+
+pub trait KeyboardScrollHook: Send + Sync {
+    fn install(&self, sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle>;
 }
