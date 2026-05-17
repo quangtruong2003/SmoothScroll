@@ -33,8 +33,7 @@
         "transparent": true,
         "skipTaskbar": true,
         "alwaysOnTop": true,
-        "visible": false,
-        "url": "index.html"
+        "visible": false
       }
     ],
     "security": {

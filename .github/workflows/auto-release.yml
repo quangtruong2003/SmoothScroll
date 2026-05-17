@@ -1,21 +1,89 @@
-name: Release
+name: Auto Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [master]
+    paths:
+      - 'crates/**'
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'package.json'
+      - 'Cargo.toml'
 
 permissions:
   contents: write
 
 jobs:
+  bump:
+    if: "!startsWith(github.event.head_commit.message, 'chore: bump version')"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo bin
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: cargo-edit-${{ runner.os }}
+
+      - name: Install cargo-edit
+        run: |
+          if ! command -v cargo-set-version &> /dev/null; then
+            cargo install cargo-edit --locked
+          fi
+
+      - name: Bump workspace version
+        id: bump
+        run: |
+          cargo set-version --bump patch \
+            -p smoothscroll_core \
+            -p smoothscroll_platform \
+            -p smoothscroll-app
+          NEW_VERSION=$(grep -m1 '^version =' Cargo.toml | sed -E 's/.*"(.*)"/\1/')
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Bumped to $NEW_VERSION"
+
+      - name: Sync package.json
+        run: |
+          jq --arg v "${{ steps.bump.outputs.version }}" '.version = $v' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Sync tauri.conf.json
+        run: |
+          jq --arg v "${{ steps.bump.outputs.version }}" '.version = $v' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
+          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
+
+      - name: Commit + tag + push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml Cargo.lock crates/*/Cargo.toml src-tauri/Cargo.toml package.json src-tauri/tauri.conf.json
+          git commit -m "chore: bump version to v${{ steps.bump.outputs.version }}"
+          git tag "v${{ steps.bump.outputs.version }}"
+          git push origin master
+          git push origin "v${{ steps.bump.outputs.version }}"
+
   build-windows:
+    needs: bump
     runs-on: windows-latest
     env:
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -34,7 +102,7 @@ jobs:
       - name: Generate latest.json
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}".TrimStart("v")
+          $version = "${{ needs.bump.outputs.version }}"
           $exeName = "SmoothScroll_${version}_x64-setup.exe"
           $exePath = "target/release/bundle/nsis/$exeName"
           $sigPath = "$exePath.sig"
@@ -46,11 +114,11 @@ jobs:
 
           $signature = Get-Content -Raw -Path $sigPath
           $pubDate = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ" -AsUTC)
-          $assetUrl = "https://github.com/quangtruong2003/SmoothScroll/releases/download/${{ github.ref_name }}/$exeName"
+          $assetUrl = "https://github.com/quangtruong2003/SmoothScroll/releases/download/${{ needs.bump.outputs.tag }}/$exeName"
 
           $latest = @{
             version = $version
-            notes = "See full changelog at https://github.com/quangtruong2003/SmoothScroll/releases/tag/${{ github.ref_name }}"
+            notes = "See full changelog at https://github.com/quangtruong2003/SmoothScroll/releases/tag/${{ needs.bump.outputs.tag }}"
             pub_date = $pubDate
             platforms = @{
               "windows-x86_64" = @{
@@ -67,6 +135,7 @@ jobs:
       - name: Upload installers + feed to Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.bump.outputs.tag }}
           generate_release_notes: true
           files: |
             target/release/bundle/nsis/*.exe
@@ -75,6 +144,7 @@ jobs:
             release-feed/latest.json
 
   build-macos:
+    needs: bump
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -90,6 +160,8 @@ jobs:
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -110,5 +182,6 @@ jobs:
       - name: Upload .dmg to Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.bump.outputs.tag }}
           generate_release_notes: true
           files: target/${{ matrix.target }}/release/bundle/dmg/*.dmg
