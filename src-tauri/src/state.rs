@@ -6,7 +6,7 @@ use smoothscroll_core::settings::AppSettings;
 use smoothscroll_platform::traits::{
     Autostart, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter,
 };
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::Arc;
 
 #[derive(Default)]
@@ -35,4 +35,5 @@ pub struct AppState {
     pub hotkey_handle: Arc<Mutex<Option<HotkeyHandle>>>,
     pub engine_signal: Arc<EngineSignal>,
     pub enabled: Arc<AtomicBool>,
+    pub last_input_source: Arc<AtomicU8>,
 }

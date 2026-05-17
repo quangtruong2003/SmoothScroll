@@ -189,6 +189,65 @@ impl EngineSink {
         self.state.engine_signal.signal();
         HookDecision::Swallow
     }
+
+    fn route_vertical_with_source(&self, delta: i32, mods: ModifierKeys, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+        if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+        if self.resolve_active().is_none() {
+            return HookDecision::Pass;
+        }
+        let (shift_to_horizontal, horizontal_smoothness) = {
+            let s = self.state.engine.lock().settings().clone();
+            (s.shift_key_horizontal, s.horizontal_smoothness)
+        };
+
+        self.update_last_source(source);
+
+        let now = self.now_ms();
+
+        if mods.shift && shift_to_horizontal {
+            if horizontal_smoothness {
+                self.state.engine.lock().on_hwheel_with_source(delta, now, source);
+                self.state.engine_signal.signal();
+                HookDecision::Swallow
+            } else {
+                HookDecision::Pass
+            }
+        } else {
+            self.state.engine.lock().on_wheel_with_source(delta, now, source);
+            self.state.engine_signal.signal();
+            HookDecision::Swallow
+        }
+    }
+
+    fn route_horizontal_with_source(&self, delta: i32, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+        if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+        if self.resolve_active().is_none() {
+            return HookDecision::Pass;
+        }
+        let horizontal_smoothness = self.state.engine.lock().settings().horizontal_smoothness;
+        if !horizontal_smoothness {
+            return HookDecision::Pass;
+        }
+        self.update_last_source(source);
+        let now = self.now_ms();
+        self.state.engine.lock().on_hwheel_with_source(delta, now, source);
+        self.state.engine_signal.signal();
+        HookDecision::Swallow
+    }
+
+    fn update_last_source(&self, source: smoothscroll_core::input_source::InputSource) {
+        use smoothscroll_core::input_source::InputSource;
+        let code: u8 = match source {
+            InputSource::Wheel => 0,
+            InputSource::HighResWheel => 1,
+            InputSource::Touchpad => 2,
+        };
+        self.state.last_input_source.store(code, std::sync::atomic::Ordering::Relaxed);
+    }
 }
 
 impl HookEventSink for EngineSink {
@@ -198,6 +257,14 @@ impl HookEventSink for EngineSink {
 
     fn on_hwheel(&self, delta: i32) -> HookDecision {
         self.route_horizontal(delta)
+    }
+
+    fn on_wheel_ext(&self, delta: i32, mods: ModifierKeys, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+        self.route_vertical_with_source(delta, mods, source)
+    }
+
+    fn on_hwheel_ext(&self, delta: i32, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+        self.route_horizontal_with_source(delta, source)
     }
 }
 
@@ -273,6 +340,7 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
         })
     }
 
@@ -305,6 +373,7 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
         })
     }
 

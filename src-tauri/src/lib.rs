@@ -39,6 +39,7 @@ pub fn run() {
         hotkey_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
+        last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());
