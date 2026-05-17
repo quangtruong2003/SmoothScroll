@@ -10,8 +10,13 @@ use smoothscroll_core::settings::AppSettings;
 use smoothscroll_platform::traits::HookEventSink;
 use smoothscroll_platform::types::{HookDecision, ModifierKeys};
 use std::sync::atomic::Ordering;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::time::Instant;
+
+/// Callback signature invoked when the input-source classifier transitions
+/// between Wheel/HighResWheel/Touchpad. Installed once at startup by
+/// `lib.rs::setup()` to bridge to `AppHandle::emit("input-source-changed")`.
+type InputSourceEmitter = Box<dyn Fn(&'static str) + Send + Sync>;
 
 pub struct EngineSink {
     pub state: Arc<AppState>,
@@ -19,6 +24,9 @@ pub struct EngineSink {
     /// Tracks the last applied profile ID to avoid redundant engine updates.
     /// None = global settings active, Some(id) = a specific profile is active.
     last_applied_profile: Mutex<Option<String>>,
+    /// Set once during setup (after `AppHandle` becomes available). Called on
+    /// classifier transitions only — never on identical-source events.
+    input_source_emitter: OnceLock<InputSourceEmitter>,
 }
 
 impl EngineSink {
@@ -27,7 +35,17 @@ impl EngineSink {
             state,
             epoch: Instant::now(),
             last_applied_profile: Mutex::new(None),
+            input_source_emitter: OnceLock::new(),
         })
+    }
+
+    /// Install the bridge to the Tauri event system. Idempotent — only the
+    /// first call wins. Called from `lib.rs::setup()` once `AppHandle` exists.
+    pub fn install_input_source_emitter<F>(&self, f: F)
+    where
+        F: Fn(&'static str) + Send + Sync + 'static,
+    {
+        let _ = self.input_source_emitter.set(Box::new(f));
     }
 
     fn now_ms(&self) -> u64 {
@@ -252,7 +270,17 @@ impl EngineSink {
             InputSource::HighResWheel => 1,
             InputSource::Touchpad => 2,
         };
-        self.state.last_input_source.store(code, std::sync::atomic::Ordering::Relaxed);
+        let old = self.state.last_input_source.swap(code, Ordering::Relaxed);
+        if old != code {
+            if let Some(emit) = self.input_source_emitter.get() {
+                let label: &'static str = match code {
+                    1 => "HighResWheel",
+                    2 => "Touchpad",
+                    _ => "Wheel",
+                };
+                emit(label);
+            }
+        }
     }
 }
 

@@ -24,6 +24,15 @@ pub(crate) fn emit_settings_changed<R: tauri::Runtime>(app: &AppHandle<R>, setti
     let _ = app.emit("settings-changed", settings.clone());
 }
 
+/// Emit `input-source-changed` so the Settings UI reflects the live source
+/// without polling. Call when InputClassifier transitions between sources.
+pub(crate) fn emit_input_source_changed<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    label: &'static str,
+) {
+    let _ = app.emit("input-source-changed", label);
+}
+
 pub(crate) fn refresh_keyboard_hook(state: &Arc<AppState>) -> Result<(), String> {
     let enabled = state.settings.read().keyboard_scroll_enabled;
     if enabled {

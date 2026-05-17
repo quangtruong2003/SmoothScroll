@@ -75,6 +75,7 @@ pub fn run() {
     edge_scroll_thread::spawn(app_state.clone());
 
     let sink = EngineSink::new(app_state.clone());
+    let sink_for_emitter = sink.clone();
 
     #[cfg(target_os = "macos")]
     let trusted = smoothscroll_platform::macos::is_accessibility_trusted(false);
@@ -130,6 +131,13 @@ pub fn run() {
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
             tray::init(app.handle(), state_for_setup.clone())?;
+
+            // Bridge classifier transitions to the frontend so it can drop
+            // its 1Hz polling and react push-style.
+            let app_for_emit = app.handle().clone();
+            sink_for_emitter.install_input_source_emitter(move |label| {
+                crate::commands::emit_input_source_changed(&app_for_emit, label);
+            });
 
             crate::game_mode::spawn(app.handle().clone(), state_for_setup.clone());
 
