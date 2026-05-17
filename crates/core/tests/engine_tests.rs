@@ -1,4 +1,5 @@
 use smoothscroll_core::engine::{EngineOutput, SmoothScrollEngine};
+use smoothscroll_core::input_source::InputSource;
 use smoothscroll_core::settings::AppSettings;
 
 fn settings() -> AppSettings {
@@ -162,6 +163,45 @@ fn reverse_direction_inverts_both_axes() {
         total_h < 0,
         "reversed horizontal should be negative, got {total_h}"
     );
+}
+
+#[test]
+fn touchpad_input_skips_acceleration() {
+    let mut e = SmoothScrollEngine::new(AppSettings::default());
+    for i in 0..6 {
+        e.on_wheel_with_source(30, i * 20, InputSource::Touchpad);
+    }
+    assert!(e.has_pending_work());
+    let mut total = 0;
+    for _ in 0..200 {
+        let out = e.step(8.33);
+        total += out.vertical;
+        if !e.has_pending_work() { break; }
+    }
+    assert!(total.abs() < 600, "touchpad output too large: {}", total);
+}
+
+#[test]
+fn touchpad_pixel_multiplier_scales_output() {
+    let mut s = AppSettings::default();
+    s.touchpad_pixel_multiplier = 2.0;
+    let mut e = SmoothScrollEngine::new(s);
+    for i in 0..6 {
+        e.on_wheel_with_source(30, i * 20, InputSource::Touchpad);
+    }
+    let mut total = 0;
+    for _ in 0..200 {
+        total += e.step(8.33).vertical;
+        if !e.has_pending_work() { break; }
+    }
+    assert!(total > 0, "expected positive output");
+}
+
+#[test]
+fn legacy_on_wheel_still_works() {
+    let mut e = SmoothScrollEngine::new(AppSettings::default());
+    e.on_wheel(120, 0);
+    assert!(e.has_pending_work());
 }
 
 fn drain_vertical(e: &mut SmoothScrollEngine) -> i32 {
