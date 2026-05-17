@@ -24,6 +24,15 @@ pub(crate) fn emit_settings_changed<R: tauri::Runtime>(app: &AppHandle<R>, setti
     let _ = app.emit("settings-changed", settings.clone());
 }
 
+/// Emit `input-source-changed` so the Settings UI reflects the live source
+/// without polling. Call when InputClassifier transitions between sources.
+pub(crate) fn emit_input_source_changed<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    label: &'static str,
+) {
+    let _ = app.emit("input-source-changed", label);
+}
+
 pub(crate) fn refresh_keyboard_hook(state: &Arc<AppState>) -> Result<(), String> {
     let enabled = state.settings.read().keyboard_scroll_enabled;
     if enabled {
@@ -568,4 +577,11 @@ pub fn get_input_source(state: State<'_, Arc<AppState>>) -> &'static str {
         2 => "Touchpad",
         _ => "Wheel",
     }
+}
+
+/// Returns the canonical default settings from `smoothscroll_core`.
+/// Single source of truth for "Reset to default" actions in the UI.
+#[tauri::command]
+pub fn get_default_settings() -> AppSettings {
+    AppSettings::default()
 }

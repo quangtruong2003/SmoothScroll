@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { listen } from "@tauri-apps/api/event";
+import { useSettingsStore, useTouchpadFields, useDefaults } from "@/stores/settingsStore";
 import { tauri, type InputSourceLabel } from "@/lib/tauri";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SettingRow } from "./SettingRow";
+import { ResetButton } from "./ResetButton";
 
 const ICON: Record<InputSourceLabel, string> = {
   Wheel: "🖱️",
@@ -13,67 +15,103 @@ const ICON: Record<InputSourceLabel, string> = {
   Touchpad: "💻",
 };
 
-export function TouchpadSection() {
+function TouchpadSectionInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const fields = useTouchpadFields();
+  const defaults = useDefaults();
   const patch = useSettingsStore((s) => s.patch);
   const [source, setSource] = useState<InputSourceLabel>("Wheel");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      tauri.getInputSource().then(setSource);
-    }, 1000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+    void tauri.getInputSource().then((s) => {
+      if (!cancelled) setSource(s);
+    });
+    const unlistenP = listen<InputSourceLabel>("input-source-changed", (e) => {
+      setSource(e.payload);
+    });
+    return () => {
+      cancelled = true;
+      unlistenP.then((u) => u()).catch(() => {});
+    };
   }, []);
 
-  if (!settings) return null;
+  if (!fields) return null;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t("section.touchpad")}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="rounded p-2 text-sm bg-muted">
-          {t("touchpad.detected")}: {ICON[source]} {source}
+      <CardContent className="divide-y">
+        <div className="rounded-md border bg-muted/30 px-3 py-2 text-sm flex items-center gap-2">
+          <span className="text-muted-foreground">{t("settings.touchpad.detected")}:</span>
+          <span aria-hidden>{ICON[source]}</span>
+          <span className="font-medium">{t(`settings.touchpad.source.${source}`)}</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <Label>{t("touchpad.enable_smoothing")}</Label>
+        <SettingRow
+          htmlFor="touchpad-enable"
+          title={t("settings.touchpad.enable.title")}
+          description={t("settings.touchpad.enable.desc")}
+        >
           <Switch
-            checked={settings.touchpad_smoothing_enabled}
+            id="touchpad-enable"
+            checked={fields.touchpad_smoothing_enabled}
             onCheckedChange={(v) => patch({ touchpad_smoothing_enabled: v })}
           />
-        </div>
+        </SettingRow>
 
-        <div>
-          <Label>
-            {t("touchpad.pixel_multiplier", {
-              value: settings.touchpad_pixel_multiplier.toFixed(2),
-            })}
-          </Label>
+        <SettingRow
+          htmlFor="touchpad-mult"
+          title={t("settings.touchpad.pixel_multiplier.title")}
+          description={t("settings.touchpad.pixel_multiplier.desc")}
+          trailing={`${fields.touchpad_pixel_multiplier.toFixed(2)}x`}
+        >
           <Slider
-            min={0.5} max={3} step={0.1}
-            value={[settings.touchpad_pixel_multiplier]}
+            id="touchpad-mult"
+            min={0.5}
+            max={3}
+            step={0.1}
+            className="w-48"
+            value={[fields.touchpad_pixel_multiplier]}
             onValueChange={([v]) => patch({ touchpad_pixel_multiplier: v })}
-            disabled={!settings.touchpad_smoothing_enabled}
+            disabled={!fields.touchpad_smoothing_enabled}
           />
-        </div>
+          {defaults && (
+            <ResetButton
+              onClick={() => patch({ touchpad_pixel_multiplier: defaults.touchpad_pixel_multiplier })}
+              disabled={fields.touchpad_pixel_multiplier === defaults.touchpad_pixel_multiplier}
+            />
+          )}
+        </SettingRow>
 
-        <div>
-          <Label>
-            {t("touchpad.acceleration_factor", {
-              value: settings.touchpad_acceleration_factor.toFixed(2),
-            })}
-          </Label>
+        <SettingRow
+          htmlFor="touchpad-accel"
+          title={t("settings.touchpad.acceleration.title")}
+          description={t("settings.touchpad.acceleration.desc")}
+          trailing={`${fields.touchpad_acceleration_factor.toFixed(2)}x`}
+        >
           <Slider
-            min={0} max={3} step={0.1}
-            value={[settings.touchpad_acceleration_factor]}
+            id="touchpad-accel"
+            min={0}
+            max={3}
+            step={0.1}
+            className="w-48"
+            value={[fields.touchpad_acceleration_factor]}
             onValueChange={([v]) => patch({ touchpad_acceleration_factor: v })}
-            disabled={!settings.touchpad_smoothing_enabled}
+            disabled={!fields.touchpad_smoothing_enabled}
           />
-        </div>
+          {defaults && (
+            <ResetButton
+              onClick={() => patch({ touchpad_acceleration_factor: defaults.touchpad_acceleration_factor })}
+              disabled={fields.touchpad_acceleration_factor === defaults.touchpad_acceleration_factor}
+            />
+          )}
+        </SettingRow>
       </CardContent>
     </Card>
   );
 }
+
+export const TouchpadSection = memo(TouchpadSectionInner);

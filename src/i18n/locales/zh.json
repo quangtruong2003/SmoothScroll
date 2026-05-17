@@ -15,17 +15,17 @@
     "language": "语言",
     "theme": "外观",
     "test_scroll": "试用滚动",
-    "touchpad": "精确触控板",
+    "touchpad": "精密触控板",
     "keyboard_scroll": "键盘滚动平滑",
     "game_mode": "游戏模式",
     "about": "关于"
   },
   "tabs": {
-    "general": "总览",
-    "scroll": "滚动",
-    "apps": "应用",
-    "preferences": "偏好",
-    "about": "关于"
+    "general": { "label": "通用", "title": "通用", "description": "快速切换与实时测试。" },
+    "scroll": { "label": "滚动", "title": "滚动", "description": "调整步长、缓动、方向和输入源。" },
+    "apps": { "label": "应用", "title": "按应用", "description": "针对特定应用的配置和排除项。" },
+    "preferences": { "label": "偏好", "title": "偏好", "description": "行为、热键和游戏模式。" },
+    "about": { "label": "关于", "title": "关于", "description": "版本、更新和日志。" }
   },
   "presets": {
     "slow": "慢速",
@@ -111,7 +111,27 @@
       "Dark": "深色",
       "System": "跟随系统"
     },
-    "reset_to_default": "恢复默认值"
+    "reset_to_default": "恢复默认值",
+    "touchpad": {
+      "detected": "已检测",
+      "source": {
+        "Wheel": "鼠标滚轮",
+        "HighResWheel": "高分辨率滚轮",
+        "Touchpad": "精密触控板"
+      },
+      "enable": {
+        "title": "平滑触控板滚动",
+        "desc": "对高分辨率触控板输入应用缓动"
+      },
+      "pixel_multiplier": {
+        "title": "像素倍率",
+        "desc": "缩放触控板的原始像素增量"
+      },
+      "acceleration": {
+        "title": "加速系数",
+        "desc": "增强快速滑动。0 表示禁用加速。"
+      }
+    }
   },
   "excluded": {
     "empty": "尚未排除任何应用。平滑滚动在所有应用中均启用。",
@@ -179,12 +199,6 @@
       "select_profile": "要分配的配置"
     }
   },
-  "touchpad": {
-    "detected": "已检测",
-    "enable_smoothing": "启用触控板平滑",
-    "pixel_multiplier": "像素倍数：{{value}}x",
-    "acceleration_factor": "加速因子：{{value}}x"
-  },
   "keyboard_scroll": {
     "windows_only": "（仅 Windows）",
     "enable_smoothing": "启用键盘平滑",
@@ -211,7 +225,8 @@
     "profile_in_use": "无法删除：配置已分配给 {{count}} 个应用",
     "profile_in_use_plural": "无法删除：配置已分配给 {{count}} 个应用",
     "app_profile_assign_failed": "无法为应用分配配置",
-    "app_profile_remove_failed": "无法移除应用覆盖"
+    "app_profile_remove_failed": "无法移除应用覆盖",
+    "save_failed": "保存设置失败。更改保留在内存中但不会持久化。"
   },
   "language": {
     "select_label": "显示语言",

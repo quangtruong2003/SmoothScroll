@@ -1,89 +1,125 @@
-import { useEffect, useState } from "react";
-import type { Update } from "@tauri-apps/plugin-updater";
+import { useEffect, useReducer } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { SettingsPage } from "./routes/Settings";
 import { PermissionGate } from "./components/macos/PermissionGate";
 import { TrayPanel } from "./components/TrayPanel";
 import { ForcedUpdateModal } from "./components/ForcedUpdateModal";
 import { tauri } from "./lib/tauri";
 import { checkForUpdate } from "./lib/updater";
-import { getCurrentWindow } from "@tauri-apps/api/window";
-
-type UpdateGateState =
-  | { kind: "checking" }
-  | { kind: "skip" }
-  | { kind: "available"; update: Update; currentVersion: string };
+import { bootReducer, initialBootState } from "./lib/bootMachine";
+import { useDelayedFlag } from "./lib/useDelayedFlag";
 
 export default function App() {
-  const [granted, setGranted] = useState<boolean | null>(null);
-  const [windowLabel, setWindowLabel] = useState<string | null>(null);
-  const [updateGate, setUpdateGate] = useState<UpdateGateState>({ kind: "checking" });
+  const [state, dispatch] = useReducer(bootReducer, initialBootState);
+  const showSplash = useDelayedFlag(200);
 
+  // 1) Detect window label once.
   useEffect(() => {
     const label = getCurrentWindow().label;
-    setWindowLabel(label);
-
-    if (label === "tray-panel") return;
-
-    tauri
-      .accessibilityStatus()
-      .then(setGranted)
-      .catch(() => setGranted(true));
+    dispatch({ type: "WINDOW_DETECTED", label });
   }, []);
 
+  // 2) Accessibility check (only on main window, only when entering that state).
   useEffect(() => {
-    if (windowLabel !== "main") return;
+    if (state.kind !== "checking-accessibility") return;
     let cancelled = false;
+    void tauri
+      .accessibilityStatus()
+      .then((granted) => {
+        if (!cancelled) dispatch({ type: "ACCESSIBILITY_RESULT", granted });
+      })
+      .catch(() => {
+        if (!cancelled) dispatch({ type: "ACCESSIBILITY_RESULT", granted: true });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [state.kind]);
+
+  // 3) Update + trusted check fire in parallel when entering checking-update.
+  useEffect(() => {
+    if (state.kind !== "checking-update") return;
+    let cancelled = false;
+
     void (async () => {
       const result = await checkForUpdate();
       if (cancelled) return;
       if (result.state === "available") {
-        // Force show window so user sees the modal even if started in tray
         await tauri.showMainWindow().catch(() => {});
-        setUpdateGate({
-          kind: "available",
+        dispatch({
+          type: "UPDATE_AVAILABLE",
           update: result.update,
           currentVersion: result.currentVersion,
         });
       } else {
-        // up-to-date OR error (offline) → let user use the app
-        setUpdateGate({ kind: "skip" });
+        dispatch({ type: "UPDATE_NONE" });
       }
     })();
+
+    void tauri
+      .isTrustedDevice()
+      .then((trusted) => {
+        if (!cancelled) dispatch({ type: "TRUSTED_RESULT", trusted });
+      })
+      .catch(() => {
+        if (!cancelled) dispatch({ type: "TRUSTED_RESULT", trusted: false });
+      });
+
     return () => {
       cancelled = true;
     };
-  }, [windowLabel]);
+  }, [state.kind]);
 
-  const [trusted, setTrusted] = useState(false);
-  useEffect(() => {
-    tauri
-      .isTrustedDevice()
-      .then(setTrusted)
-      .catch(() => setTrusted(false));
-  }, []);
+  // 4) Render
+  switch (state.kind) {
+    case "init":
+    case "checking-accessibility":
+    case "checking-update":
+      return showSplash ? <BootSplash /> : null;
 
-  // Tray panel window renders TrayPanel directly
-  if (windowLabel === "tray-panel") {
-    return <TrayPanel />;
+    case "tray-panel":
+      return <TrayPanel />;
+
+    case "needs-accessibility":
+      return (
+        <PermissionGate
+          onGranted={() => dispatch({ type: "ACCESSIBILITY_GRANTED" })}
+        />
+      );
+
+    case "update-required":
+      // Wait for trusted result before showing modal — avoids flicker on Skip button.
+      if (!state.trustedKnown) {
+        return showSplash ? <BootSplash /> : null;
+      }
+      return (
+        <ForcedUpdateModal
+          update={state.update}
+          currentVersion={state.currentVersion}
+          canSkip={state.trusted}
+          onSkip={() => dispatch({ type: "UPDATE_SKIPPED" })}
+        />
+      );
+
+    case "ready":
+      return <SettingsPage />;
   }
+}
 
-  if (updateGate.kind === "available") {
-    return (
-      <ForcedUpdateModal
-        update={updateGate.update}
-        currentVersion={updateGate.currentVersion}
-        canSkip={trusted}
-        onSkip={() => setUpdateGate({ kind: "skip" })}
-      />
-    );
-  }
-
-  // Don't render Settings until the update check resolves — avoids a flash
-  if (updateGate.kind === "checking") return null;
-
-  // Main window
-  if (granted === null) return null;
-  if (!granted) return <PermissionGate onGranted={() => setGranted(true)} />;
-
-  return <SettingsPage />;
+function BootSplash() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex h-screen items-center justify-center bg-background"
+    >
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary"
+          aria-hidden
+        />
+        <p className="text-xs text-muted-foreground">SmoothScroll</p>
+      </div>
+    </div>
+  );
 }

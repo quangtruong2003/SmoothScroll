@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { tauri } from "@/lib/tauri";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useBehaviorFields } from "@/stores/settingsStore";
 import { HotkeyRecorderInput } from "@/components/HotkeyRecorderInput";
 import { SettingRow } from "./SettingRow";
 import { toast } from "@/components/ui/toast";
 
-export function BehaviorSection() {
+function BehaviorSectionInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const fields = useBehaviorFields();
   const patch = useSettingsStore((s) => s.patch);
   const [autostart, setAutostartState] = useState(false);
   const [hotkeyError, setHotkeyError] = useState<string | null>(null);
@@ -19,7 +19,7 @@ export function BehaviorSection() {
     tauri.getAutostart().then(setAutostartState);
   }, []);
 
-  if (!settings) return null;
+  if (!fields) return null;
 
   const onAutostart = async (next: boolean) => {
     try {
@@ -43,7 +43,7 @@ export function BehaviorSection() {
 
   const onHotkeyCommit = async (accel: string) => {
     setHotkeyError(null);
-    const previous = settings.hotkey_accelerator;
+    const previous = fields.hotkey_accelerator;
     patch({ hotkey_accelerator: accel });
     try {
       await tauri.setHotkeyAccelerator(accel);
@@ -67,7 +67,7 @@ export function BehaviorSection() {
         >
           <Switch
             id="hotkey-toggle"
-            checked={settings.enable_global_hotkey}
+            checked={fields.enable_global_hotkey}
             onCheckedChange={onHotkeyEnabledChange}
           />
         </SettingRow>
@@ -79,9 +79,9 @@ export function BehaviorSection() {
         >
           <div className="flex flex-col items-end gap-1">
             <HotkeyRecorderInput
-              value={settings.hotkey_accelerator}
+              value={fields.hotkey_accelerator}
               onCommit={onHotkeyCommit}
-              disabled={!settings.enable_global_hotkey}
+              disabled={!fields.enable_global_hotkey}
             />
             {hotkeyError && (
               <span className="text-xs text-destructive max-w-[12rem] text-right">
@@ -110,7 +110,7 @@ export function BehaviorSection() {
         >
           <Switch
             id="start-minimized"
-            checked={settings.start_minimized}
+            checked={fields.start_minimized}
             onCheckedChange={(v) => patch({ start_minimized: v })}
           />
         </SettingRow>
@@ -118,3 +118,5 @@ export function BehaviorSection() {
     </Card>
   );
 }
+
+export const BehaviorSection = memo(BehaviorSectionInner);

@@ -21,11 +21,31 @@
     "about": "About"
   },
   "tabs": {
-    "general": "General",
-    "scroll": "Scroll",
-    "apps": "Apps",
-    "preferences": "Preferences",
-    "about": "About"
+    "general": {
+      "label": "General",
+      "title": "General",
+      "description": "Quick toggles and live test."
+    },
+    "scroll": {
+      "label": "Scroll",
+      "title": "Scroll",
+      "description": "Tune step size, easing, direction, and input sources."
+    },
+    "apps": {
+      "label": "Apps",
+      "title": "Per-app",
+      "description": "Profiles and exclusions tailored to specific applications."
+    },
+    "preferences": {
+      "label": "Preferences",
+      "title": "Preferences",
+      "description": "Behavior, hotkeys, and game mode."
+    },
+    "about": {
+      "label": "About",
+      "title": "About",
+      "description": "Version, updates, and logs."
+    }
   },
   "presets": {
     "slow": "Slow",
@@ -111,7 +131,27 @@
       "Dark": "Dark",
       "System": "System"
     },
-    "reset_to_default": "Reset to default"
+    "reset_to_default": "Reset to default",
+    "touchpad": {
+      "detected": "Detected",
+      "source": {
+        "Wheel": "Mouse wheel",
+        "HighResWheel": "High-resolution wheel",
+        "Touchpad": "Precision touchpad"
+      },
+      "enable": {
+        "title": "Smooth touchpad scrolling",
+        "desc": "Apply easing to high-resolution touchpad input"
+      },
+      "pixel_multiplier": {
+        "title": "Pixel multiplier",
+        "desc": "Scale raw pixel deltas from the touchpad"
+      },
+      "acceleration": {
+        "title": "Acceleration factor",
+        "desc": "Boost large flicks. 0 disables acceleration."
+      }
+    }
   },
   "excluded": {
     "empty": "No apps excluded. Smooth scrolling is active everywhere.",
@@ -179,12 +219,6 @@
       "select_profile": "Profile to assign"
     }
   },
-  "touchpad": {
-    "detected": "Detected",
-    "enable_smoothing": "Enable touchpad smoothing",
-    "pixel_multiplier": "Pixel multiplier: {{value}}x",
-    "acceleration_factor": "Acceleration factor: {{value}}x"
-  },
   "keyboard_scroll": {
     "windows_only": "(Windows only)",
     "enable_smoothing": "Enable keyboard smoothing",
@@ -211,7 +245,8 @@
     "profile_in_use": "Cannot delete: profile is assigned to {{count}} app",
     "profile_in_use_plural": "Cannot delete: profile is assigned to {{count}} apps",
     "app_profile_assign_failed": "Failed to assign profile to app",
-    "app_profile_remove_failed": "Failed to remove app override"
+    "app_profile_remove_failed": "Failed to remove app override",
+    "save_failed": "Failed to save settings. Changes are kept in memory but won't persist."
   },
   "language": {
     "select_label": "Display language",

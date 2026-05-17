@@ -21,11 +21,11 @@
     "about": "Giới thiệu"
   },
   "tabs": {
-    "general": "Tổng quan",
-    "scroll": "Cuộn",
-    "apps": "Ứng dụng",
-    "preferences": "Tuỳ chọn",
-    "about": "Giới thiệu"
+    "general": { "label": "Chung", "title": "Chung", "description": "Bật/tắt nhanh và khu vực thử nghiệm." },
+    "scroll": { "label": "Cuộn", "title": "Cuộn", "description": "Tinh chỉnh bước cuộn, easing, hướng và nguồn input." },
+    "apps": { "label": "Ứng dụng", "title": "Theo ứng dụng", "description": "Profile và loại trừ riêng cho từng ứng dụng." },
+    "preferences": { "label": "Tuỳ chọn", "title": "Tuỳ chọn", "description": "Hành vi, phím tắt và chế độ game." },
+    "about": { "label": "Thông tin", "title": "Thông tin", "description": "Phiên bản, cập nhật và log." }
   },
   "presets": {
     "slow": "Chậm",
@@ -111,7 +111,27 @@
       "Dark": "Tối",
       "System": "Theo hệ thống"
     },
-    "reset_to_default": "Đặt về mặc định"
+    "reset_to_default": "Đặt về mặc định",
+    "touchpad": {
+      "detected": "Đã phát hiện",
+      "source": {
+        "Wheel": "Chuột thường",
+        "HighResWheel": "Chuột độ phân giải cao",
+        "Touchpad": "Touchpad chính xác"
+      },
+      "enable": {
+        "title": "Cuộn touchpad mượt",
+        "desc": "Áp dụng easing cho input touchpad độ phân giải cao"
+      },
+      "pixel_multiplier": {
+        "title": "Hệ số pixel",
+        "desc": "Điều chỉnh delta pixel thô từ touchpad"
+      },
+      "acceleration": {
+        "title": "Hệ số gia tốc",
+        "desc": "Khuếch đại cú vuốt nhanh. 0 để tắt gia tốc."
+      }
+    }
   },
   "excluded": {
     "empty": "Chưa có ứng dụng nào bị loại trừ. Cuộn mượt được áp dụng ở mọi nơi.",
@@ -179,12 +199,6 @@
       "select_profile": "Hồ sơ áp dụng"
     }
   },
-  "touchpad": {
-    "detected": "Đã phát hiện",
-    "enable_smoothing": "Bật làm mượt touchpad",
-    "pixel_multiplier": "Hệ số pixel: {{value}}x",
-    "acceleration_factor": "Hệ số tăng tốc: {{value}}x"
-  },
   "keyboard_scroll": {
     "windows_only": "(Chỉ Windows)",
     "enable_smoothing": "Bật làm mượt cuộn bàn phím",
@@ -211,7 +225,8 @@
     "profile_in_use": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
     "profile_in_use_plural": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
     "app_profile_assign_failed": "Không thể gán hồ sơ cho ứng dụng",
-    "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng"
+    "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng",
+    "save_failed": "Lưu cài đặt thất bại. Thay đổi vẫn còn trong bộ nhớ nhưng sẽ không được lưu."
   },
   "language": {
     "select_label": "Ngôn ngữ hiển thị",

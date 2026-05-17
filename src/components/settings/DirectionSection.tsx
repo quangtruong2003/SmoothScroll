@@ -1,14 +1,15 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore, useDirectionFields } from "@/stores/settingsStore";
 import { SettingRow } from "./SettingRow";
 
-export function DirectionSection() {
+function DirectionSectionInner() {
   const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings);
+  const fields = useDirectionFields();
   const patch = useSettingsStore((s) => s.patch);
-  if (!settings) return null;
+  if (!fields) return null;
 
   return (
     <Card>
@@ -23,7 +24,7 @@ export function DirectionSection() {
         >
           <Switch
             id="reverse-wheel"
-            checked={settings.reverse_wheel_direction}
+            checked={fields.reverse_wheel_direction}
             onCheckedChange={(v) => patch({ reverse_wheel_direction: v })}
           />
         </SettingRow>
@@ -35,7 +36,7 @@ export function DirectionSection() {
         >
           <Switch
             id="horizontal-smoothness"
-            checked={settings.horizontal_smoothness}
+            checked={fields.horizontal_smoothness}
             onCheckedChange={(v) => patch({ horizontal_smoothness: v })}
           />
         </SettingRow>
@@ -47,7 +48,7 @@ export function DirectionSection() {
         >
           <Switch
             id="shift-horizontal"
-            checked={settings.shift_key_horizontal}
+            checked={fields.shift_key_horizontal}
             onCheckedChange={(v) => patch({ shift_key_horizontal: v })}
           />
         </SettingRow>
@@ -55,3 +56,5 @@ export function DirectionSection() {
     </Card>
   );
 }
+
+export const DirectionSection = memo(DirectionSectionInner);
