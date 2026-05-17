@@ -225,7 +225,8 @@
     "profile_in_use": "Cannot delete: profile is assigned to {{count}} app",
     "profile_in_use_plural": "Cannot delete: profile is assigned to {{count}} apps",
     "app_profile_assign_failed": "Failed to assign profile to app",
-    "app_profile_remove_failed": "Failed to remove app override"
+    "app_profile_remove_failed": "Failed to remove app override",
+    "save_failed": "Failed to save settings. Changes are kept in memory but won't persist."
   },
   "language": {
     "select_label": "Display language",

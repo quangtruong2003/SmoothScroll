@@ -225,7 +225,8 @@
     "profile_in_use": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
     "profile_in_use_plural": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
     "app_profile_assign_failed": "Không thể gán hồ sơ cho ứng dụng",
-    "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng"
+    "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng",
+    "save_failed": "Lưu cài đặt thất bại. Thay đổi vẫn còn trong bộ nhớ nhưng sẽ không được lưu."
   },
   "language": {
     "select_label": "Ngôn ngữ hiển thị",

@@ -225,7 +225,8 @@
     "profile_in_use": "无法删除：配置已分配给 {{count}} 个应用",
     "profile_in_use_plural": "无法删除：配置已分配给 {{count}} 个应用",
     "app_profile_assign_failed": "无法为应用分配配置",
-    "app_profile_remove_failed": "无法移除应用覆盖"
+    "app_profile_remove_failed": "无法移除应用覆盖",
+    "save_failed": "保存设置失败。更改保留在内存中但不会持久化。"
   },
   "language": {
     "select_label": "显示语言",
