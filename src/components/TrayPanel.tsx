@@ -2,6 +2,15 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
+import {
+  MousePointer2,
+  Monitor,
+  Minimize2,
+  Settings,
+  LayoutGrid,
+  FileText,
+  Power,
+} from 'lucide-react';
 import type { AppSettings, ThemeMode } from '../lib/tauri';
 import { applyTheme } from '../lib/theme';
 
@@ -42,64 +51,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         {children}
       </span>
     </div>
-  );
-}
-
-function IconScroll({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11z" opacity=".4"/>
-      <path d="M8 4v4l3 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    </svg>
-  );
-}
-
-function IconWindows({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M0 3v5h7V0L0 3zm9 0v5h7V0L9 3z"/>
-    </svg>
-  );
-}
-
-function IconMinimize({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <rect x="3" y="7" width="10" height="2" rx="1"/>
-    </svg>
-  );
-}
-
-function IconSettings({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 10a2 2 0 100-4 2 2 0 000 4zm6.32-1.906l-1.042-.578a5.5 5.5 0 00-.35-1.044l.63-.9.744.372a.5.5 0 00.612-.142l2.5-3a.5.5 0 00-.098-.726l-2.5-2.5a.5.5 0 00-.726.098l-1.5 2a.5.5 0 00.098.726l.78.78a5.5 5.5 0 00-1.044.35l-.578-1.042A.5.5 0 0012 3.5V2.5a.5.5 0 00-.5-.5H9a.5.5 0 00-.5.5v1a.5.5 0 00-.172.42l-1.042.578a5.5 5.5 0 00-1.044.35l-.9-.63a.5.5 0 00-.612.142l-2.5 3a.5.5 0 00.098.726l2.5 2.5a.5.5 0 00.726-.098l.78-.78a5.5 5.5 0 00.35 1.044l-.578 1.042A.5.5 0 006 11.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00.42-.172z"/>
-    </svg>
-  );
-}
-
-function IconApps({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M2 8a6 6 0 1112 0A6 6 0 012 8zm6-3a3 3 0 100 6 3 3 0 000-6zM4 5a4 4 0 118 0 4 4 0 01-8 0z"/>
-    </svg>
-  );
-}
-
-function IconLog({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path fillRule="evenodd" d="M2 2h12v12H2V2zm1 1v10h10V3H3zm2 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/>
-    </svg>
-  );
-}
-
-function IconQuit({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M5.5 3.5l7 4.5-7 4.5V10l5.5-3.5L5.5 3V3.5z"/>
-      <rect x="3" y="2" width="1.5" height="12" rx="0.75"/>
-    </svg>
   );
 }
 
@@ -261,21 +212,21 @@ export function TrayPanel() {
             toggle
             checked={enabled}
             onToggle={handleSetEnabled}
-            icon={<IconScroll />}
+            icon={<MousePointer2 className="h-4 w-4" />}
           />
           <MenuItem
             label={t('tray.start_with_windows')}
             toggle
             checked={autostart}
             onToggle={handleSetAutostart}
-            icon={<IconWindows />}
+            icon={<Monitor className="h-4 w-4" />}
           />
           <MenuItem
             label={t('tray.start_minimized')}
             toggle
             checked={startMinimized}
             onToggle={handleSetStartMinimized}
-            icon={<IconMinimize />}
+            icon={<Minimize2 className="h-4 w-4" />}
           />
         </div>
 
@@ -285,17 +236,17 @@ export function TrayPanel() {
           <MenuItem
             label={t('tray.open_settings')}
             onClick={handleOpenSettings}
-            icon={<IconSettings />}
+            icon={<Settings className="h-4 w-4" />}
           />
           <MenuItem
             label={t('tray.excluded_apps')}
             onClick={handleOpenExcludedApps}
-            icon={<IconApps />}
+            icon={<LayoutGrid className="h-4 w-4" />}
           />
           <MenuItem
             label={t('tray.open_log')}
             onClick={handleOpenLog}
-            icon={<IconLog />}
+            icon={<FileText className="h-4 w-4" />}
           />
         </div>
 
@@ -306,7 +257,7 @@ export function TrayPanel() {
             label={t('tray.quit')}
             onClick={handleQuit}
             variant="destructive"
-            icon={<IconQuit />}
+            icon={<Power className="h-4 w-4" />}
           />
         </div>
 
