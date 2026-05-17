@@ -210,8 +210,8 @@ mod tests {
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::settings::AppSettings;
     use smoothscroll_platform::traits::{
-        Autostart, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessInfo,
-        ProcessQuery, WheelEmitter,
+        Autostart, HookEventSink, HookHandle, Hotkey, HotkeyHandle, KeyboardScrollHook,
+        KeyboardScrollSink, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Result};
     use std::sync::atomic::AtomicBool;
@@ -220,6 +220,12 @@ mod tests {
     struct StubHook;
     impl MouseHook for StubHook {
         fn install(&self, _sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
+            Ok(HookHandle::new(Box::new(())))
+        }
+    }
+    struct StubKeyboardHook;
+    impl KeyboardScrollHook for StubKeyboardHook {
+        fn install(&self, _sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle> {
             Ok(HookHandle::new(Box::new(())))
         }
     }
@@ -271,6 +277,8 @@ mod tests {
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
             hotkey_handle: Arc::new(Mutex::new(None)),
+            keyboard_hook: Arc::new(StubKeyboardHook),
+            keyboard_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
         })
@@ -303,6 +311,8 @@ mod tests {
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
             hotkey_handle: Arc::new(Mutex::new(None)),
+            keyboard_hook: Arc::new(StubKeyboardHook),
+            keyboard_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
         })

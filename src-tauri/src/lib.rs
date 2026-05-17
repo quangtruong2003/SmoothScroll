@@ -3,6 +3,7 @@
 mod commands;
 mod engine_thread;
 mod hook_wiring;
+pub mod keyboard_sink;
 mod state;
 mod tray;
 
@@ -28,6 +29,13 @@ pub fn run() {
     let engine = Arc::new(Mutex::new(SmoothScrollEngine::new(loaded_settings.clone())));
     let settings_arc = Arc::new(RwLock::new(loaded_settings));
 
+    #[cfg(windows)]
+    let keyboard_hook: Arc<dyn smoothscroll_platform::traits::KeyboardScrollHook> =
+        Arc::new(smoothscroll_platform::windows::WindowsKeyboardScrollHook);
+    #[cfg(target_os = "macos")]
+    let keyboard_hook: Arc<dyn smoothscroll_platform::traits::KeyboardScrollHook> =
+        Arc::new(smoothscroll_platform::macos::MacosKeyboardScrollHook);
+
     let app_state = Arc::new(AppState {
         engine,
         settings: settings_arc,
@@ -37,6 +45,8 @@ pub fn run() {
         autostart: platform.autostart,
         hotkey: platform.hotkey,
         hotkey_handle: Arc::new(Mutex::new(None)),
+        keyboard_hook,
+        keyboard_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
     });
