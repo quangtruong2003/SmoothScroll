@@ -8,6 +8,13 @@ use std::sync::Arc;
 pub trait HookEventSink: Send + Sync {
     fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision;
     fn on_hwheel(&self, delta: i32) -> HookDecision;
+
+    fn on_wheel_ext(&self, delta: i32, mods: ModifierKeys, _source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+        self.on_wheel(delta, mods)
+    }
+    fn on_hwheel_ext(&self, delta: i32, _source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+        self.on_hwheel(delta)
+    }
 }
 
 /// Opaque RAII handle. Dropping uninstalls the hook.
