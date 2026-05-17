@@ -52,6 +52,20 @@ export interface ProcessInfo {
   window_title: string;
 }
 
+export type AppCategory =
+  | "Browser" | "Ide" | "Office" | "Pdf"
+  | "Terminal" | "Chat" | "Media" | "Game" | "Unknown";
+
+export type SuggestedPreset =
+  | { kind: "Profile"; data: ScrollProfile }
+  | { kind: "Disabled" };
+
+export interface ProfileSuggestion {
+  category: AppCategory;
+  category_label: string;
+  preset: SuggestedPreset;
+}
+
 export const tauri = {
   ping: () => invoke<string>("ping"),
 
@@ -100,4 +114,7 @@ export const tauri = {
     invoke<void>("assign_app_profile", { processName, profileId }),
   unassignAppProfile: (processName: string) =>
     invoke<void>("unassign_app_profile", { processName }),
+
+  suggestProfileForApp: (name: string) =>
+    invoke<ProfileSuggestion>("suggest_profile_for_app", { name }),
 };
