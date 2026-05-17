@@ -128,3 +128,21 @@ fn is_excluded_is_case_insensitive() {
     assert!(!s.is_excluded("vscode"));
     assert!(!s.is_excluded(""));
 }
+
+#[test]
+fn touchpad_defaults() {
+    let s = AppSettings::default();
+    assert!(s.touchpad_smoothing_enabled);
+    assert_eq!(s.touchpad_pixel_multiplier, 1.0);
+    assert_eq!(s.touchpad_acceleration_factor, 1.0);
+}
+
+#[test]
+fn touchpad_clamp_bounds() {
+    let mut s = AppSettings::default();
+    s.touchpad_pixel_multiplier = 0.0;
+    s.touchpad_acceleration_factor = -5.0;
+    s.clamp();
+    assert!(s.touchpad_pixel_multiplier >= 0.1);
+    assert!(s.touchpad_acceleration_factor >= 0.0);
+}

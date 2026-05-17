@@ -99,6 +99,11 @@ pub struct AppSettings {
     // Per-app profiles
     pub profiles: Vec<ScrollProfile>,
     pub app_profiles: HashMap<String, String>,  // process_name -> profile_id
+
+    // Precision Touchpad
+    pub touchpad_smoothing_enabled: bool,
+    pub touchpad_pixel_multiplier: f64,
+    pub touchpad_acceleration_factor: f64,
 }
 
 impl Default for AppSettings {
@@ -125,6 +130,9 @@ impl Default for AppSettings {
             excluded_apps: Vec::new(),
             profiles: Vec::new(),
             app_profiles: HashMap::new(),
+            touchpad_smoothing_enabled: true,
+            touchpad_pixel_multiplier: 1.0,
+            touchpad_acceleration_factor: 1.0,
         }
     }
 }
@@ -136,6 +144,9 @@ impl AppSettings {
         self.acceleration_delta_ms = self.acceleration_delta_ms.clamp(0, 500);
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
+
+        self.touchpad_pixel_multiplier = self.touchpad_pixel_multiplier.clamp(0.1, 5.0);
+        self.touchpad_acceleration_factor = self.touchpad_acceleration_factor.clamp(0.0, 3.0);
 
         // Clamp all profiles
         for profile in &mut self.profiles {
