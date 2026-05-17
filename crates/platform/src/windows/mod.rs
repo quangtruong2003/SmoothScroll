@@ -9,6 +9,7 @@ mod mouse_hook;
 mod process_query;
 mod timer;
 mod wheel_emitter;
+pub mod window_geom;
 
 use crate::types::Result;
 use crate::Platform;
@@ -20,6 +21,7 @@ pub use mouse_hook::WindowsMouseHook;
 pub use process_query::WindowsProcessQuery;
 pub use timer::HighResTimerGuard;
 pub use wheel_emitter::WindowsWheelEmitter;
+pub use window_geom::WindowsWindowGeometry;
 
 pub fn build() -> Result<Platform> {
     Ok(Platform {
