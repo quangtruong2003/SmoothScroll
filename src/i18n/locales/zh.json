@@ -202,6 +202,7 @@
   },
   "about": {
     "version": "版本",
+    "author": "作者",
     "open_logs": "打开日志文件夹",
     "homepage": "主页",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
@@ -214,6 +215,20 @@
     "downloading": "正在下载… {{pct}}%",
     "ready_to_restart": "已安装更新。重新启动以应用。",
     "restart_now": "立即重启"
+  },
+  "forced_update": {
+    "title": "必须更新",
+    "description": "有新版本可用，您必须更新 SmoothScroll 才能继续使用。(当前: v{{current}} → 最新: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "更新内容",
+    "install": "下载并安装",
+    "downloading": "正在下载… {{pct}}%",
+    "downloading_btn": "正在下载…",
+    "installed_btn": "已安装",
+    "restarting": "已安装更新。正在重新启动…",
+    "quit": "退出应用",
+    "skip": "跳过（受信任设备）",
+    "error": "更新失败: {{message}}"
   },
   "tray": {
     "quick_access": "快速访问",

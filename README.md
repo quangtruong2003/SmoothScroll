@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="src-tauri/icons/128x128@2x.png" alt="SmoothScroll" width="128" height="128" />
+
 # SmoothScroll
 
 **Buttery-smooth mouse-wheel scrolling for Windows and macOS.**

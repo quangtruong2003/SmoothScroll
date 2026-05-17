@@ -39,3 +39,13 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+# Fast local release builds for testing exe + installer + updater flow.
+# Usage: npx tauri build --profile release-fast --bundles nsis
+# Trade-offs vs `release`: ~3-5x faster link, larger binary (~20-30%),
+# slightly slower runtime (negligible for this app's hot paths).
+[profile.release-fast]
+inherits = "release"
+lto = false
+codegen-units = 16
+strip = false

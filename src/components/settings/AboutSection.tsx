@@ -65,6 +65,17 @@ export function AboutSection() {
           <span className="font-medium tabular-nums">{version}</span>
         </div>
         <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">{t("about.author")}</span>
+          <a
+            href="https://github.com/quangtruong2003"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-primary hover:underline"
+          >
+            Nguyễn Quang Trường
+          </a>
+        </div>
+        <div className="flex items-center justify-between">
           <span className="text-muted-foreground">{t("about.homepage")}</span>
           <a
             href={t("about.homepage_url")}

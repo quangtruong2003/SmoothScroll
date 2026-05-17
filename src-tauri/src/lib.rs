@@ -169,6 +169,7 @@ pub fn run() {
             commands::accessibility_status,
             commands::accessibility_request_prompt,
             commands::app_version,
+            commands::is_trusted_device,
             commands::open_log_dir,
             commands::open_tray_panel,
             commands::close_tray_panel,

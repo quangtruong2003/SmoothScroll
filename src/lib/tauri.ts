@@ -115,12 +115,14 @@ export const tauri = {
     invoke<boolean>("accessibility_request_prompt"),
 
   appVersion: () => invoke<string>("app_version"),
+  isTrustedDevice: () => invoke<boolean>("is_trusted_device"),
   openLogDir: () => invoke<void>("open_log_dir"),
 
   openTrayPanel: () => invoke<void>("open_tray_panel"),
   closeTrayPanel: () => invoke<void>("close_tray_panel"),
   showMainWindow: () => invoke<void>("show_main_window"),
   navigateTo: (section: string) => invoke<void>("navigate_to", { section }),
+  quitApp: () => invoke<void>("quit_app"),
 
   // Profile management
   listProfiles: () => invoke<ScrollProfile[]>("list_profiles"),

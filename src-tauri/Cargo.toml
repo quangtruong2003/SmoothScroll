@@ -30,6 +30,7 @@ tracing-subscriber = { workspace = true }
 tracing-appender = { workspace = true }
 directories = { workspace = true }
 uuid = { version = "1", features = ["v4"] }
+hostname = "0.4"
 
 [features]
 default = []

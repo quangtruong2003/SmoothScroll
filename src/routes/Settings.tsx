@@ -15,8 +15,6 @@ import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { GameModeSection } from "@/components/settings/GameModeSection";
-import { ThemeSection } from "@/components/settings/ThemeSection";
-import { LanguageSection } from "@/components/settings/LanguageSection";
 import { AboutSection } from "@/components/settings/AboutSection";
 import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
 
@@ -33,15 +31,6 @@ export function SettingsPage() {
   useEffect(() => {
     load();
   }, [load]);
-
-  // Background update check 5s after mount. Result is discarded; user must
-  // visit About → Check now to see status. Keeping launch silent.
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      void import("@/lib/updater").then(({ checkForUpdate }) => checkForUpdate());
-    }, 5000);
-    return () => clearTimeout(handle);
-  }, []);
 
   useEffect(() => {
     const unlistenPromise = listen<boolean>("enabled-changed", (event) => {
@@ -121,8 +110,6 @@ export function SettingsPage() {
               <div className="space-y-3">
                 <BehaviorSection />
                 <GameModeSection />
-                <ThemeSection />
-                <LanguageSection />
               </div>
             </div>
           )}

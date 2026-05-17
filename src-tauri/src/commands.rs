@@ -289,6 +289,22 @@ pub fn app_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
 
+/// Returns true if the current machine's hostname matches one in the
+/// comma-separated list compiled into the binary via the
+/// `SMOOTHSCROLL_TRUSTED_HOSTS` env var at build time. When the env var is
+/// unset (release builds for end users), this always returns false — forced
+/// update cannot be bypassed.
+#[tauri::command]
+pub fn is_trusted_device() -> bool {
+    const TRUSTED: Option<&str> = option_env!("SMOOTHSCROLL_TRUSTED_HOSTS");
+    let Some(list) = TRUSTED else { return false };
+    let Ok(host) = hostname::get() else { return false };
+    let host = host.to_string_lossy().to_lowercase();
+    list.split(',')
+        .map(|s| s.trim().to_lowercase())
+        .any(|allowed| !allowed.is_empty() && allowed == host)
+}
+
 #[tauri::command]
 pub fn open_log_dir(_state: State<'_, Arc<AppState>>) -> Result<(), String> {
     let dir = crate::log_dir();

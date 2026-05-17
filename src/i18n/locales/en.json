@@ -202,6 +202,7 @@
   },
   "about": {
     "version": "Version",
+    "author": "Author",
     "open_logs": "Open log folder",
     "homepage": "Homepage",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
@@ -214,6 +215,20 @@
     "downloading": "Downloading… {{pct}}%",
     "ready_to_restart": "Update installed. Restart to apply.",
     "restart_now": "Restart now"
+  },
+  "forced_update": {
+    "title": "Update required",
+    "description": "A new version is available. You must update SmoothScroll to continue using it. (Current: v{{current}} → New: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "What's new",
+    "install": "Download & install",
+    "downloading": "Downloading… {{pct}}%",
+    "downloading_btn": "Downloading…",
+    "installed_btn": "Installed",
+    "restarting": "Update installed. Restarting…",
+    "quit": "Quit app",
+    "skip": "Skip (trusted device)",
+    "error": "Update failed: {{message}}"
   },
   "tray": {
     "quick_access": "Quick Access",

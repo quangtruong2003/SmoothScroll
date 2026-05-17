@@ -202,6 +202,7 @@
   },
   "about": {
     "version": "Phiên bản",
+    "author": "Tác giả",
     "open_logs": "Mở thư mục log",
     "homepage": "Trang chủ",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
@@ -214,6 +215,20 @@
     "downloading": "Đang tải… {{pct}}%",
     "ready_to_restart": "Đã cài đặt. Khởi động lại để áp dụng.",
     "restart_now": "Khởi động lại"
+  },
+  "forced_update": {
+    "title": "Bắt buộc cập nhật",
+    "description": "Đã có phiên bản mới. Bạn cần cập nhật SmoothScroll để tiếp tục sử dụng. (Hiện tại: v{{current}} → Mới: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "Có gì mới",
+    "install": "Tải & cài đặt",
+    "downloading": "Đang tải… {{pct}}%",
+    "downloading_btn": "Đang tải…",
+    "installed_btn": "Đã cài đặt",
+    "restarting": "Đã cài đặt xong. Đang khởi động lại…",
+    "quit": "Thoát app",
+    "skip": "Bỏ qua (máy tin cậy)",
+    "error": "Cập nhật thất bại: {{message}}"
   },
   "tray": {
     "quick_access": "Truy cập nhanh",
