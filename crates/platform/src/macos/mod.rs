@@ -4,6 +4,7 @@
 
 mod autostart;
 mod hotkey;
+pub mod keyboard_scroll_hook;
 mod mouse_hook;
 mod permissions;
 mod process_query;
@@ -14,6 +15,7 @@ pub mod window_geom;
 pub use autostart::MacosAutostart;
 pub use fullscreen::MacosFullscreenDetector;
 pub use hotkey::MacosHotkey;
+pub use keyboard_scroll_hook::MacosKeyboardScrollHook;
 pub use mouse_hook::MacosMouseHook;
 pub use permissions::is_trusted as is_accessibility_trusted;
 pub use process_query::MacosProcessQuery;

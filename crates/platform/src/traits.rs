@@ -1,7 +1,7 @@
 //! Trait definitions for OS-specific subsystems. Implementations live in
 //! `windows/` and `macos/` modules (cfg-gated).
 
-use crate::types::{Accelerator, HookDecision, ModifierKeys, Point, Result, WindowRect};
+use crate::types::{Accelerator, HookDecision, KeyboardKeyEvent, ModifierKeys, Point, Result, WindowRect};
 use std::sync::Arc;
 
 /// Receives parsed hook events. Implementation lives in the app crate.
@@ -72,4 +72,12 @@ pub trait FullscreenDetector: Send + Sync { fn is_foreground_fullscreen(&self) -
 
 pub trait WindowGeometry: Send + Sync {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)>;
+}
+
+pub trait KeyboardScrollSink: Send + Sync {
+    fn on_key(&self, ev: KeyboardKeyEvent) -> HookDecision;
+}
+
+pub trait KeyboardScrollHook: Send + Sync {
+    fn install(&self, sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle>;
 }

@@ -124,6 +124,13 @@ pub struct AppSettings {
     pub edge_scroll_max_notches_per_sec: f64,
     pub edge_scroll_modifier_required: bool,
     pub edge_scroll_modifier: String,
+
+    // Keyboard scroll smoothing
+    pub keyboard_scroll_enabled: bool,
+    pub keyboard_scroll_keys: Vec<String>,
+    pub keyboard_smart_text_skip: bool,
+    pub keyboard_pgdn_step_notches: i32,
+    pub keyboard_arrow_step_notches: i32,
 }
 
 impl Default for AppSettings {
@@ -157,6 +164,15 @@ impl Default for AppSettings {
             edge_scroll_max_notches_per_sec: 5.0,
             edge_scroll_modifier_required: false,
             edge_scroll_modifier: "Alt".to_string(),
+            keyboard_scroll_enabled: false,
+            keyboard_scroll_keys: vec![
+                "PageUp".to_string(), "PageDown".to_string(),
+                "Space".to_string(), "ShiftSpace".to_string(),
+                "ArrowUp".to_string(), "ArrowDown".to_string(),
+            ],
+            keyboard_smart_text_skip: true,
+            keyboard_pgdn_step_notches: 5,
+            keyboard_arrow_step_notches: 1,
         }
     }
 }
@@ -168,6 +184,9 @@ impl AppSettings {
         self.acceleration_delta_ms = self.acceleration_delta_ms.clamp(0, 500);
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
+
+        self.keyboard_pgdn_step_notches = self.keyboard_pgdn_step_notches.clamp(1, 20);
+        self.keyboard_arrow_step_notches = self.keyboard_arrow_step_notches.clamp(1, 10);
 
         // Clamp all profiles
         for profile in &mut self.profiles {
