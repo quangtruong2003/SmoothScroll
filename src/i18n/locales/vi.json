@@ -135,6 +135,8 @@
     "deleted": "Đã xoá hồ sơ \"{{name}}\"",
     "saved": "Đã lưu hồ sơ \"{{name}}\"",
     "delete_confirm": "Xoá hồ sơ \"{{name}}\"?",
+    "delete_confirm_desc": "Hồ sơ sẽ bị xoá vĩnh viễn. Các ứng dụng đang dùng phải được gỡ trước.",
+    "delete": "Xoá",
     "name_required": "Tên hồ sơ là bắt buộc",
     "edit_aria": "Chỉnh sửa {{name}}",
     "delete_aria": "Xoá {{name}}",

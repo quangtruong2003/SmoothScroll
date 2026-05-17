@@ -50,7 +50,7 @@ impl EngineSink {
             return Some(());
         }
 
-        let start = std::time::Instant::now();
+        let start = Instant::now();
         let process_name = match self.state.processes.process_name_under_cursor() {
             Some(n) => n,
             None => {
@@ -59,58 +59,78 @@ impl EngineSink {
             }
         };
 
-        let s = self.state.settings.read();
+        // Build merged settings while holding the read lock briefly, then drop
+        // it before mutating the engine to avoid blocking writers.
+        enum Action {
+            PassThrough,
+            ApplyProfile {
+                id: String,
+                name: String,
+                merged: Box<AppSettings>,
+            },
+            ResetGlobal,
+        }
 
-        // Check disabled (covers both __disabled__ profile and legacy excluded_apps)
-        if s.is_excluded(&process_name) {
-            let elapsed = start.elapsed();
-            if elapsed > std::time::Duration::from_millis(2) {
-                tracing::debug!(?elapsed, process = %process_name, "resolve_active disabled");
+        let action = {
+            let s = self.state.settings.read();
+            if s.is_excluded(&process_name) {
+                Action::PassThrough
+            } else if let Some(profile) = s.get_profile_for_process(&process_name) {
+                let mut merged = s.clone();
+                merged.step_size_px = profile.step_size_px;
+                merged.animation_time_ms = profile.animation_time_ms;
+                merged.acceleration_delta_ms = profile.acceleration_delta_ms;
+                merged.acceleration_max = profile.acceleration_max;
+                merged.tail_to_head_ratio = profile.tail_to_head_ratio;
+                merged.animation_easing = profile.animation_easing;
+                merged.easing_mode = profile.easing_mode;
+                merged.reverse_wheel_direction = profile.reverse_wheel_direction;
+                merged.horizontal_smoothness = profile.horizontal_smoothness;
+                Action::ApplyProfile {
+                    id: profile.id.clone(),
+                    name: profile.name.clone(),
+                    merged: Box::new(merged),
+                }
+            } else {
+                Action::ResetGlobal
             }
-            return None;
-        }
+        };
 
-        // Check for assigned profile
-        if let Some(profile) = s.get_profile_for_process(&process_name) {
-            self.apply_profile_if_changed(profile, &s);
-        } else {
-            // No profile assigned, ensure global settings are active
-            drop(s);
-            self.reset_to_global_if_needed();
+        match action {
+            Action::PassThrough => {
+                let elapsed = start.elapsed();
+                if elapsed > std::time::Duration::from_millis(2) {
+                    tracing::debug!(?elapsed, process = %process_name, "resolve_active disabled");
+                }
+                None
+            }
+            Action::ApplyProfile { id, name, merged } => {
+                self.apply_profile_if_changed(id, name, *merged);
+                let elapsed = start.elapsed();
+                if elapsed > std::time::Duration::from_millis(2) {
+                    tracing::debug!(?elapsed, process = %process_name, "resolve_active slow path");
+                }
+                Some(())
+            }
+            Action::ResetGlobal => {
+                self.reset_to_global_if_needed();
+                let elapsed = start.elapsed();
+                if elapsed > std::time::Duration::from_millis(2) {
+                    tracing::debug!(?elapsed, process = %process_name, "resolve_active slow path");
+                }
+                Some(())
+            }
         }
-
-        let elapsed = start.elapsed();
-        if elapsed > std::time::Duration::from_millis(2) {
-            tracing::debug!(?elapsed, process = %process_name, "resolve_active slow path");
-        }
-
-        Some(())
     }
 
-    fn apply_profile_if_changed(
-        &self,
-        profile: &smoothscroll_core::settings::ScrollProfile,
-        settings: &AppSettings,
-    ) {
+    fn apply_profile_if_changed(&self, profile_id: String, profile_name: String, merged: AppSettings) {
         let mut last = self.last_applied_profile.lock();
-        if last.as_deref() == Some(profile.id.as_str()) {
+        if last.as_deref() == Some(profile_id.as_str()) {
             return;
         }
-        // Build merged settings: global settings with profile fields overridden
-        let mut merged = settings.clone();
-        merged.step_size_px = profile.step_size_px;
-        merged.animation_time_ms = profile.animation_time_ms;
-        merged.acceleration_delta_ms = profile.acceleration_delta_ms;
-        merged.acceleration_max = profile.acceleration_max;
-        merged.tail_to_head_ratio = profile.tail_to_head_ratio;
-        merged.animation_easing = profile.animation_easing;
-        merged.easing_mode = profile.easing_mode;
-        merged.reverse_wheel_direction = profile.reverse_wheel_direction;
-        merged.horizontal_smoothness = profile.horizontal_smoothness;
-
         self.state.engine.lock().apply_settings(merged);
-        *last = Some(profile.id.clone());
-        tracing::debug!(profile_id = %profile.id, profile_name = %profile.name, "applied profile");
+        tracing::debug!(profile_id = %profile_id, profile_name = %profile_name, "applied profile");
+        *last = Some(profile_id);
     }
 
     fn reset_to_global_if_needed(&self) {

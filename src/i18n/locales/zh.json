@@ -135,6 +135,8 @@
     "deleted": "已删除配置 \"{{name}}\"",
     "saved": "已保存配置 \"{{name}}\"",
     "delete_confirm": "删除配置 \"{{name}}\"？",
+    "delete_confirm_desc": "此配置将被永久删除。请先取消分配给该配置的应用。",
+    "delete": "删除",
     "name_required": "配置名称不能为空",
     "edit_aria": "编辑 {{name}}",
     "delete_aria": "删除 {{name}}",

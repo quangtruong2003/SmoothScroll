@@ -135,6 +135,8 @@
     "deleted": "Profile \"{{name}}\" deleted",
     "saved": "Profile \"{{name}}\" saved",
     "delete_confirm": "Delete profile \"{{name}}\"?",
+    "delete_confirm_desc": "This profile will be removed permanently. Apps assigned to it must be unassigned first.",
+    "delete": "Delete",
     "name_required": "Profile name is required",
     "edit_aria": "Edit {{name}}",
     "delete_aria": "Delete {{name}}",

@@ -64,14 +64,20 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
         .primary_monitor()
         .ok()
         .flatten()
-        .map(|m| m.size().width as i32)
+        .map(|m| m.work_area().size.width as i32)
         .unwrap_or(1920);
     let screen_h = app
         .primary_monitor()
         .ok()
         .flatten()
-        .map(|m| m.size().height as i32)
+        .map(|m| m.work_area().size.height as i32)
         .unwrap_or(1080);
+    let work_y = app
+        .primary_monitor()
+        .ok()
+        .flatten()
+        .map(|m| m.work_area().position.y)
+        .unwrap_or(0);
 
     // Position: center horizontally at cursor, offset slightly upward
     let mut x = cursor.x - panel_w / 2;
@@ -84,11 +90,11 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
     if x < 0 {
         x = 8;
     }
-    if y + panel_h > screen_h {
-        y = screen_h - panel_h - 8;
+    if y + panel_h > screen_h + work_y {
+        y = screen_h + work_y - panel_h - 8;
     }
-    if y < 0 {
-        y = 8;
+    if y < work_y {
+        y = work_y + 8;
     }
 
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition { x, y }));

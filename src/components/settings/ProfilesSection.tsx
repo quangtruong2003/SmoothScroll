@@ -27,6 +27,7 @@ export function ProfilesSection() {
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [editing, setEditing] = useState<ScrollProfile | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ScrollProfile | null>(null);
 
   if (!settings) return null;
 
@@ -46,21 +47,29 @@ export function ProfilesSection() {
       setCreateOpen(false);
       setEditing(profile);
     } catch (e) {
+      console.error("createProfile failed", e);
       toast.error(t("errors.profile_create_failed"));
     }
   };
 
-  const handleDelete = async (profile: ScrollProfile) => {
+  const requestDelete = (profile: ScrollProfile) => {
     const usage = usageCount(profile.id);
     if (usage > 0) {
       toast.error(t("errors.profile_in_use", { count: usage }));
       return;
     }
-    if (!confirm(t("profiles.delete_confirm", { name: profile.name }))) return;
+    setPendingDelete(profile);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const profile = pendingDelete;
+    setPendingDelete(null);
     try {
       await deleteProfile(profile.id);
       toast.success(t("profiles.deleted", { name: profile.name }));
     } catch (e) {
+      console.error("deleteProfile failed", e);
       toast.error(String(e));
     }
   };
@@ -144,7 +153,7 @@ export function ProfilesSection() {
                         variant="ghost"
                         size="icon"
                         aria-label={t("profiles.delete_aria", { name: profile.name })}
-                        onClick={() => handleDelete(profile)}
+                        onClick={() => requestDelete(profile)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -163,6 +172,32 @@ export function ProfilesSection() {
           onClose={() => setEditing(null)}
         />
       )}
+
+      <Dialog
+        open={pendingDelete !== null}
+        onOpenChange={(o) => !o && setPendingDelete(null)}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {pendingDelete
+                ? t("profiles.delete_confirm", { name: pendingDelete.name })
+                : ""}
+            </DialogTitle>
+            <DialogDescription>
+              {t("profiles.delete_confirm_desc")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPendingDelete(null)}>
+              {t("common.cancel")}
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              {t("profiles.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

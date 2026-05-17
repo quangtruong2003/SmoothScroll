@@ -333,8 +333,15 @@ pub fn create_profile(
     state: State<'_, Arc<AppState>>,
     name: String,
 ) -> Result<ScrollProfile, String> {
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        return Err("profile name cannot be empty".to_string());
+    }
+    if trimmed.len() > 64 {
+        return Err("profile name too long (max 64 characters)".to_string());
+    }
     let id = uuid::Uuid::new_v4().to_string();
-    let profile = ScrollProfile::new(&id, name);
+    let profile = ScrollProfile::new(&id, trimmed);
 
     {
         let mut s = state.settings.write();
@@ -353,10 +360,18 @@ pub fn update_profile(
     state: State<'_, Arc<AppState>>,
     profile: ScrollProfile,
 ) -> Result<(), String> {
+    let trimmed_name = profile.name.trim();
+    if trimmed_name.is_empty() {
+        return Err("profile name cannot be empty".to_string());
+    }
+    if trimmed_name.len() > 64 {
+        return Err("profile name too long (max 64 characters)".to_string());
+    }
     {
         let mut s = state.settings.write();
         if let Some(existing) = s.profiles.iter_mut().find(|p| p.id == profile.id) {
             *existing = profile.clone();
+            existing.name = trimmed_name.to_string();
             existing.clamp();
         } else {
             return Err(format!("profile '{}' not found", profile.id));
@@ -397,7 +412,7 @@ pub fn delete_profile(
         let before_len = s.profiles.len();
         s.profiles.retain(|p| p.id != profile_id);
         if s.profiles.len() == before_len {
-            return Err(format!("profile '{}' not found", profile_id));
+            return Err(format!("profile '{profile_id}' not found"));
         }
     }
 
@@ -419,10 +434,10 @@ pub fn assign_app_profile(
 
         // Validate profile exists (unless it's the special disabled ID)
         if let Some(ref id) = profile_id {
-            if id != AppSettings::DISABLED_PROFILE_ID {
-                if !s.profiles.iter().any(|p| &p.id == id) {
-                    return Err(format!("profile '{}' not found", id));
-                }
+            if id != AppSettings::DISABLED_PROFILE_ID
+                && !s.profiles.iter().any(|p| &p.id == id)
+            {
+                return Err(format!("profile '{id}' not found"));
             }
         }
 
