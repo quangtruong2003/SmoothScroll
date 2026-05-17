@@ -38,3 +38,39 @@ fn classifies_known_games() {
     assert_eq!(classify_app("LeagueOfLegends.exe"), AppCategory::Game);
     assert_eq!(classify_app("VALORANT.exe"), AppCategory::Game);
 }
+
+use smoothscroll_core::app_categories::{preset_for_category, SuggestedPreset};
+
+#[test]
+fn ide_preset_is_snappy() {
+    let preset = preset_for_category(AppCategory::Ide);
+    match preset {
+        SuggestedPreset::Profile(p) => {
+            assert_eq!(p.step_size_px, 100);
+            assert_eq!(p.animation_time_ms, 250);
+            assert_eq!(p.acceleration_max, 10);
+        }
+        _ => panic!("expected Profile"),
+    }
+}
+
+#[test]
+fn game_preset_is_disabled() {
+    assert!(matches!(preset_for_category(AppCategory::Game), SuggestedPreset::Disabled));
+}
+
+#[test]
+fn pdf_preset_is_mac_like() {
+    if let SuggestedPreset::Profile(p) = preset_for_category(AppCategory::Pdf) {
+        assert_eq!(p.step_size_px, 140);
+        assert_eq!(p.animation_time_ms, 500);
+    } else { panic!("expected Profile"); }
+}
+
+#[test]
+fn unknown_preset_matches_global_default() {
+    if let SuggestedPreset::Profile(p) = preset_for_category(AppCategory::Unknown) {
+        assert_eq!(p.step_size_px, 120);
+        assert_eq!(p.animation_time_ms, 360);
+    } else { panic!("expected Profile"); }
+}
