@@ -6,6 +6,7 @@
 
 pub mod constants;
 pub mod easing;
+pub mod edge_scroll;
 pub mod engine;
 pub mod settings;
 
