@@ -5,6 +5,7 @@ use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::AppSettings;
 use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter,
+    WindowGeometry,
 };
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
@@ -37,4 +38,5 @@ pub struct AppState {
     pub enabled: Arc<AtomicBool>,
     pub game_mode_active: Arc<AtomicBool>,
     pub fullscreen_detector: Arc<dyn FullscreenDetector>,
+    pub window_geom: Arc<dyn WindowGeometry>,
 }

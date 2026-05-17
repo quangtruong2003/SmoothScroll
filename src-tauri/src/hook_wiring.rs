@@ -217,9 +217,9 @@ mod tests {
     use smoothscroll_core::settings::AppSettings;
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook,
-        ProcessInfo, ProcessQuery, WheelEmitter,
+        ProcessInfo, ProcessQuery, WheelEmitter, WindowGeometry,
     };
-    use smoothscroll_platform::types::{Accelerator, PlatformError, Result};
+    use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
 
@@ -272,6 +272,12 @@ mod tests {
             false
         }
     }
+    struct StubWindowGeom;
+    impl WindowGeometry for StubWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+    }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
         Arc::new(AppState {
@@ -287,6 +293,7 @@ mod tests {
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
             fullscreen_detector: Arc::new(StubFullscreen),
+            window_geom: Arc::new(StubWindowGeom),
         })
     }
 
@@ -321,6 +328,7 @@ mod tests {
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
             fullscreen_detector: Arc::new(StubFullscreen),
+            window_geom: Arc::new(StubWindowGeom),
         })
     }
 

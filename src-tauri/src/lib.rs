@@ -1,6 +1,7 @@
 //! App entry point. Composition Root.
 
 mod commands;
+mod edge_scroll_thread;
 mod engine_thread;
 pub mod game_mode;
 mod hook_wiring;
@@ -23,6 +24,13 @@ pub fn run() {
     init_logging();
 
     let platform = smoothscroll_platform::current().expect("build platform");
+
+    #[cfg(windows)]
+    let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
+        Arc::new(smoothscroll_platform::windows::WindowsWindowGeometry);
+    #[cfg(target_os = "macos")]
+    let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
+        Arc::new(smoothscroll_platform::macos::MacosWindowGeometry);
 
     let loaded_settings = settings::load();
     let enabled_initial = loaded_settings.enabled;
@@ -49,9 +57,11 @@ pub fn run() {
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
         game_mode_active: Arc::new(AtomicBool::new(false)),
         fullscreen_detector,
+        window_geom,
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());
+    edge_scroll_thread::spawn(app_state.clone());
 
     let sink = EngineSink::new(app_state.clone());
 

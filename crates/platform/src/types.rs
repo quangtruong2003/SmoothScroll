@@ -35,3 +35,12 @@ pub enum PlatformError {
 }
 
 pub type Result<T> = std::result::Result<T, PlatformError>;
+
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+pub struct Point { pub x: i32, pub y: i32 }
+
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+pub struct WindowRect {
+    pub left: i32, pub top: i32,
+    pub right: i32, pub bottom: i32,
+}
