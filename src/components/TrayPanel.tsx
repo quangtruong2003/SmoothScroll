@@ -11,8 +11,8 @@ import {
   FileText,
   Power,
 } from 'lucide-react';
-import type { AppSettings, ThemeMode } from '../lib/tauri';
 import { applyTheme } from '../lib/theme';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 function Toggle({
   checked,
@@ -108,39 +108,40 @@ function MenuItem({
 export function TrayPanel() {
   const { t } = useTranslation();
 
+  const settings = useSettingsStore((s) => s.settings);
+  const load = useSettingsStore((s) => s.load);
+  const patch = useSettingsStore((s) => s.patch);
+
   const [enabled, setEnabledState] = useState(false);
   const [autostart, setAutostartState] = useState(false);
-  const [startMinimized, setStartMinimized] = useState(false);
   const [appVersion, setAppVersion] = useState('0.1.0');
+
+  const startMinimized = settings?.start_minimized ?? false;
 
   useEffect(() => {
     invoke<boolean>('get_enabled').then(setEnabledState);
     invoke<boolean>('get_autostart').then(setAutostartState);
     invoke<string>('app_version').then(setAppVersion);
-    invoke<AppSettings>('get_settings').then((s) => {
-      setStartMinimized(Boolean(s?.start_minimized));
-      applyTheme((s?.theme ?? 'System') as ThemeMode);
-    });
+    if (!settings) void load();
 
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
       setEnabledState(Boolean(event.payload));
     });
 
-    const unlistenSettings = listen<AppSettings>('settings-changed', (event) => {
-      const s = event.payload;
-      if (s?.start_minimized !== undefined) {
-        setStartMinimized(Boolean(s.start_minimized));
-      }
-      if (s?.start_with_os !== undefined) {
-        setAutostartState(Boolean(s.start_with_os));
-      }
-    });
-
     return () => {
       unlistenEnabled.then((u) => u()).catch(() => {});
-      unlistenSettings.then((u) => u()).catch(() => {});
     };
   }, []);
+
+  useEffect(() => {
+    if (settings?.start_with_os !== undefined) {
+      setAutostartState(Boolean(settings.start_with_os));
+    }
+  }, [settings?.start_with_os]);
+
+  useEffect(() => {
+    if (settings) applyTheme(settings.theme);
+  }, [settings?.theme]);
 
   const handleSetEnabled = useCallback(async (v: boolean) => {
     setEnabledState(v);
@@ -152,12 +153,9 @@ export function TrayPanel() {
     await invoke('set_autostart', { enabled: v });
   }, []);
 
-  const handleSetStartMinimized = useCallback(async (v: boolean) => {
-    setStartMinimized(v);
-    const current = await invoke<AppSettings>('get_settings');
-    const updated = { ...current, start_minimized: v };
-    await invoke('save_settings', { settings: updated });
-  }, []);
+  const handleSetStartMinimized = useCallback((v: boolean) => {
+    patch({ start_minimized: v });
+  }, [patch]);
 
   const handleOpenSettings = useCallback(async () => {
     await invoke('close_tray_panel');
