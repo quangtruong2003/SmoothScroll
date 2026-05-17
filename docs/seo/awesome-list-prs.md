@@ -18,11 +18,11 @@ Targets prioritized by relevance and acceptance rate. Submit in this order:
 
     Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a Tauri 2 + Rust desktop utility that adds Mac-style smooth scrolling to Windows and consistent mouse-wheel inertia on macOS.
 
-    - Tauri 2, Rust 1.78+, React + TypeScript front end
-    - MIT licensed, signed releases for Windows and macOS
-    - Working v0.1.11 release
+    - Tauri 2, Rust 1.95+, React + TypeScript front end
+    - MIT licensed, signed Windows installers (NSIS + MSI); macOS notarization in progress
+    - Working v0.1.12 release
 
-    Per the [contributing guide](CONTRIBUTING.md), the entry is alphabetized within Utilities and follows the existing format with platform icons.
+    Per the [contributing guide](https://github.com/tauri-apps/awesome-tauri/blob/main/CONTRIBUTING.md), the entry is alphabetized within Utilities and follows the existing format with platform icons.
 
 ## 2. rust-unofficial/awesome-rust
 
@@ -52,7 +52,7 @@ Targets prioritized by relevance and acceptance rate. Submit in this order:
 
 **PR body:**
 
-    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source utility for Windows 10/11 that adds Mac-style smooth mouse-wheel scrolling. Native low-level input hook (no driver), frame-perfect easing at 120 Hz, per-app exclusion, system-tray UI. MIT licensed, signed v0.1.11 release available.
+    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source utility for Windows 10/11 that adds Mac-style smooth mouse-wheel scrolling. Native low-level input hook (no driver), frame-perfect easing at 120 Hz, per-app exclusion, system-tray UI. MIT licensed, signed v0.1.12 release available.
 
 ## 4. agarrharr/awesome-cli-apps — skip (not a CLI)
 ## 5. styfle/awesome-online-ide — skip (not an IDE)
