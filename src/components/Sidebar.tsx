@@ -28,11 +28,11 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { key: "general", labelKey: "tabs.general", icon: <Activity className="h-4 w-4" /> },
-  { key: "scroll", labelKey: "tabs.scroll", icon: <Sliders className="h-4 w-4" /> },
-  { key: "apps", labelKey: "tabs.apps", icon: <AppWindow className="h-4 w-4" /> },
-  { key: "preferences", labelKey: "tabs.preferences", icon: <SettingsIcon className="h-4 w-4" /> },
-  { key: "about", labelKey: "tabs.about", icon: <Info className="h-4 w-4" /> },
+  { key: "general", labelKey: "tabs.general.label", icon: <Activity className="h-4 w-4" /> },
+  { key: "scroll", labelKey: "tabs.scroll.label", icon: <Sliders className="h-4 w-4" /> },
+  { key: "apps", labelKey: "tabs.apps.label", icon: <AppWindow className="h-4 w-4" /> },
+  { key: "preferences", labelKey: "tabs.preferences.label", icon: <SettingsIcon className="h-4 w-4" /> },
+  { key: "about", labelKey: "tabs.about.label", icon: <Info className="h-4 w-4" /> },
 ];
 
 const FlagIcon = ({ lang }: { lang: Lang }) => {
