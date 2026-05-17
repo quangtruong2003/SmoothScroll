@@ -137,7 +137,7 @@ cargo test --workspace
 
 ## Status
 
-`v0.1.12` — feature-complete v1 on Windows and macOS. The macOS build is currently unsigned; signing and notarization are tracked in [docs/](docs/).
+`v0.1.13` — feature-complete v1 on Windows and macOS. The macOS build is currently unsigned; signing and notarization are tracked in [docs/](docs/).
 
 ## FAQ
 

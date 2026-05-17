@@ -30,7 +30,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
 
 **Body:**
 
-    Hey r/rust, I just released v0.1.12 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) — a small cross-platform utility that adds eased, 120 Hz inertia to raw mouse-wheel input on Windows and macOS.
+    Hey r/rust, I just released v0.1.13 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) — a small cross-platform utility that adds eased, 120 Hz inertia to raw mouse-wheel input on Windows and macOS.
 
     Architecture:
     - `crates/core/` — pure Rust engine, easing math, settings model. No OS deps. Fully unit-tested.
@@ -84,11 +84,11 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
 
 ## Reddit — r/sideproject
 
-**Title:** `SmoothScroll v0.1.12 — built a free smooth-scrolling app for Windows + macOS in Rust`
+**Title:** `SmoothScroll v0.1.13 — built a free smooth-scrolling app for Windows + macOS in Rust`
 
 **Body:**
 
-    Just shipped v0.1.12 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source side project I've been polishing for the last few months.
+    Just shipped v0.1.13 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source side project I've been polishing for the last few months.
 
     The itch: every time I switched from my Mac to my Windows desktop, mouse-wheel scrolling felt like jumping from a smooth glide to a series of clicks. Existing tools either only redirect scroll (WizMouse) or are tied to specific hardware (Logitech Options+). I wanted Mac-style inertia for any wheel mouse on any Windows app.
 
@@ -109,7 +109,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
 
 **Tweet 1 (announce):**
 
-    Just shipped SmoothScroll v0.1.12 🪶
+    Just shipped SmoothScroll v0.1.13 🪶
 
     Free, open-source, Mac-style smooth mouse-wheel scrolling for Windows and macOS.
 
@@ -137,7 +137,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
 
 **Post:**
 
-    Excited to share v0.1.12 of SmoothScroll — a small, free, open-source utility that brings Mac-style smooth mouse-wheel scrolling to Windows.
+    Excited to share v0.1.13 of SmoothScroll — a small, free, open-source utility that brings Mac-style smooth mouse-wheel scrolling to Windows.
 
     Built with Rust and Tauri 2, it intercepts wheel input at the OS level and re-emits eased pulses at 120 Hz. The core engine is pure Rust with full unit-test coverage; OS-specific input lives behind trait abstractions.
 
