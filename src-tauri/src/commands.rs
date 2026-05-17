@@ -544,3 +544,12 @@ pub fn remove_known_game(state: State<'_, Arc<AppState>>, name: String) -> Resul
 pub fn get_game_mode_status(state: State<'_, Arc<AppState>>) -> bool {
     state.game_mode_active.load(Ordering::Relaxed)
 }
+
+#[tauri::command]
+pub fn get_input_source(state: State<'_, Arc<AppState>>) -> &'static str {
+    match state.last_input_source.load(Ordering::Relaxed) {
+        1 => "HighResWheel",
+        2 => "Touchpad",
+        _ => "Wheel",
+    }
+}

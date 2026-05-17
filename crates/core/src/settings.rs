@@ -131,6 +131,11 @@ pub struct AppSettings {
     pub keyboard_smart_text_skip: bool,
     pub keyboard_pgdn_step_notches: i32,
     pub keyboard_arrow_step_notches: i32,
+
+    // Precision Touchpad
+    pub touchpad_smoothing_enabled: bool,
+    pub touchpad_pixel_multiplier: f64,
+    pub touchpad_acceleration_factor: f64,
 }
 
 impl Default for AppSettings {
@@ -173,6 +178,9 @@ impl Default for AppSettings {
             keyboard_smart_text_skip: true,
             keyboard_pgdn_step_notches: 5,
             keyboard_arrow_step_notches: 1,
+            touchpad_smoothing_enabled: true,
+            touchpad_pixel_multiplier: 1.0,
+            touchpad_acceleration_factor: 1.0,
         }
     }
 }
@@ -187,6 +195,9 @@ impl AppSettings {
 
         self.keyboard_pgdn_step_notches = self.keyboard_pgdn_step_notches.clamp(1, 20);
         self.keyboard_arrow_step_notches = self.keyboard_arrow_step_notches.clamp(1, 10);
+
+        self.touchpad_pixel_multiplier = self.touchpad_pixel_multiplier.clamp(0.1, 5.0);
+        self.touchpad_acceleration_factor = self.touchpad_acceleration_factor.clamp(0.0, 3.0);
 
         // Clamp all profiles
         for profile in &mut self.profiles {

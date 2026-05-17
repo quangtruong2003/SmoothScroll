@@ -9,6 +9,7 @@ pub mod constants;
 pub mod easing;
 pub mod edge_scroll;
 pub mod engine;
+pub mod input_source;
 pub mod keyboard_scroll;
 pub mod settings;
 

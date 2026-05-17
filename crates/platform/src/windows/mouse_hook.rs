@@ -45,6 +45,9 @@ const LLMHF_LOWER_IL_INJECTED: u32 = 0x00000002;
 struct HookContext {
     sink: Arc<dyn HookEventSink>,
     modifiers: Arc<ModifierState>,
+    classifier_v: Mutex<smoothscroll_core::input_source::InputClassifier>,
+    classifier_h: Mutex<smoothscroll_core::input_source::InputClassifier>,
+    epoch: std::time::Instant,
 }
 
 static HOOK_CONTEXT: Mutex<Option<Arc<HookContext>>> = Mutex::new(None);
@@ -93,6 +96,9 @@ impl MouseHook for WindowsMouseHook {
         *HOOK_CONTEXT.lock() = Some(Arc::new(HookContext {
             sink,
             modifiers: modifier_state,
+            classifier_v: Mutex::new(smoothscroll_core::input_source::InputClassifier::new()),
+            classifier_h: Mutex::new(smoothscroll_core::input_source::InputClassifier::new()),
+            epoch: std::time::Instant::now(),
         }));
 
         let (tx, rx) = std::sync::mpsc::sync_channel::<Result<u32>>(1);
@@ -158,9 +164,16 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
     let delta = raw_delta as i32;
     let mods = ctx.modifiers.snapshot();
 
+    let now_ms = ctx.epoch.elapsed().as_millis() as u64;
     let decision = match msg {
-        x if x == WM_MOUSEWHEEL => ctx.sink.on_wheel(delta, mods),
-        x if x == WM_MOUSEHWHEEL => ctx.sink.on_hwheel(delta),
+        x if x == WM_MOUSEWHEEL => {
+            let source = ctx.classifier_v.lock().classify(delta, now_ms);
+            ctx.sink.on_wheel_ext(delta, mods, source)
+        }
+        x if x == WM_MOUSEHWHEEL => {
+            let source = ctx.classifier_h.lock().classify(delta, now_ms);
+            ctx.sink.on_hwheel_ext(delta, source)
+        }
         _ => HookDecision::Pass,
     };
 

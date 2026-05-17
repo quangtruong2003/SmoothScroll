@@ -7,7 +7,7 @@ use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, HookHandle, Hotkey, HotkeyHandle, KeyboardScrollHook,
     MouseHook, ProcessQuery, WheelEmitter, WindowGeometry,
 };
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::Arc;
 
 #[derive(Default)]
@@ -41,4 +41,5 @@ pub struct AppState {
     pub game_mode_active: Arc<AtomicBool>,
     pub fullscreen_detector: Arc<dyn FullscreenDetector>,
     pub window_geom: Arc<dyn WindowGeometry>,
+    pub last_input_source: Arc<AtomicU8>,
 }

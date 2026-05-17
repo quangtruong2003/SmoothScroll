@@ -68,6 +68,7 @@ pub fn run() {
         game_mode_active: Arc::new(AtomicBool::new(false)),
         fullscreen_detector,
         window_geom,
+        last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());
@@ -186,6 +187,7 @@ pub fn run() {
             commands::add_known_game,
             commands::remove_known_game,
             commands::get_game_mode_status,
+            commands::get_input_source,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");

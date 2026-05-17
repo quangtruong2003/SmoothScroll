@@ -166,3 +166,21 @@ fn keyboard_scroll_defaults_off() {
     assert_eq!(s.keyboard_arrow_step_notches, 1);
     assert!(s.keyboard_scroll_keys.iter().any(|k| k == "PageDown"));
 }
+
+#[test]
+fn touchpad_defaults() {
+    let s = AppSettings::default();
+    assert!(s.touchpad_smoothing_enabled);
+    assert_eq!(s.touchpad_pixel_multiplier, 1.0);
+    assert_eq!(s.touchpad_acceleration_factor, 1.0);
+}
+
+#[test]
+fn touchpad_clamp_bounds() {
+    let mut s = AppSettings::default();
+    s.touchpad_pixel_multiplier = 0.0;
+    s.touchpad_acceleration_factor = -5.0;
+    s.clamp();
+    assert!(s.touchpad_pixel_multiplier >= 0.1);
+    assert!(s.touchpad_acceleration_factor >= 0.0);
+}

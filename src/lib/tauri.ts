@@ -8,6 +8,8 @@ export type EasingMode =
 
 export type ThemeMode = "Light" | "Dark" | "System";
 
+export type InputSourceLabel = "Wheel" | "HighResWheel" | "Touchpad";
+
 export interface ScrollProfile {
   id: string;
   name: string;
@@ -56,6 +58,9 @@ export interface AppSettings {
   keyboard_smart_text_skip: boolean;
   keyboard_pgdn_step_notches: number;
   keyboard_arrow_step_notches: number;
+  touchpad_smoothing_enabled: boolean;
+  touchpad_pixel_multiplier: number;
+  touchpad_acceleration_factor: number;
 }
 
 export interface ProcessInfo {
@@ -136,4 +141,8 @@ export const tauri = {
   removeKnownGame: (name: string) =>
     invoke<void>("remove_known_game", { name }),
   getGameModeStatus: () => invoke<boolean>("get_game_mode_status"),
+
+  async getInputSource(): Promise<InputSourceLabel> {
+    return invoke<InputSourceLabel>("get_input_source");
+  },
 };
