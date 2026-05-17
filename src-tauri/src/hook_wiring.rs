@@ -211,9 +211,9 @@ mod tests {
     use smoothscroll_core::settings::AppSettings;
     use smoothscroll_platform::traits::{
         Autostart, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessInfo,
-        ProcessQuery, WheelEmitter,
+        ProcessQuery, WheelEmitter, WindowGeometry,
     };
-    use smoothscroll_platform::types::{Accelerator, PlatformError, Result};
+    use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
 
@@ -260,6 +260,12 @@ mod tests {
             Ok(HotkeyHandle::new(Box::new(())))
         }
     }
+    struct StubWindowGeom;
+    impl WindowGeometry for StubWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+    }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
         Arc::new(AppState {
@@ -273,6 +279,7 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            window_geom: Arc::new(StubWindowGeom),
         })
     }
 
@@ -305,6 +312,7 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            window_geom: Arc::new(StubWindowGeom),
         })
     }
 

@@ -1,6 +1,7 @@
 //! App entry point. Composition Root — equivalent to C# `App.xaml.cs.OnStartup`.
 
 mod commands;
+mod edge_scroll_thread;
 mod engine_thread;
 mod hook_wiring;
 mod state;
@@ -23,6 +24,13 @@ pub fn run() {
 
     let platform = smoothscroll_platform::current().expect("build platform");
 
+    #[cfg(windows)]
+    let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
+        Arc::new(smoothscroll_platform::windows::WindowsWindowGeometry);
+    #[cfg(target_os = "macos")]
+    let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
+        Arc::new(smoothscroll_platform::macos::MacosWindowGeometry);
+
     let loaded_settings = settings::load();
     let enabled_initial = loaded_settings.enabled;
     let engine = Arc::new(Mutex::new(SmoothScrollEngine::new(loaded_settings.clone())));
@@ -39,9 +47,11 @@ pub fn run() {
         hotkey_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
+        window_geom,
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());
+    edge_scroll_thread::spawn(app_state.clone());
 
     let sink = EngineSink::new(app_state.clone());
 
