@@ -10,6 +10,7 @@ import {
 import { setLanguage, SUPPORTED_LANGS, type Lang } from "@/i18n";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { tauri } from "@/lib/tauri";
+import { FlagIcon } from "@/components/FlagIcon";
 import { SettingRow } from "./SettingRow";
 
 export function LanguageSection() {
@@ -29,6 +30,8 @@ export function LanguageSection() {
     }
   };
 
+  const currentLang = settings.language as Lang;
+
   return (
     <Card>
       <CardHeader>
@@ -41,12 +44,20 @@ export function LanguageSection() {
             onValueChange={(v) => onChange(v as Lang)}
           >
             <SelectTrigger id="language-select" className="w-56">
-              <SelectValue />
+              <SelectValue>
+                <span className="flex items-center gap-2">
+                  <FlagIcon lang={currentLang} />
+                  <span>{t(`language.${currentLang}`)}</span>
+                </span>
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {SUPPORTED_LANGS.map((l) => (
                 <SelectItem key={l} value={l}>
-                  {t(`language.${l}`)}
+                  <span className="flex items-center gap-2">
+                    <FlagIcon lang={l} />
+                    <span>{t(`language.${l}`)}</span>
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
