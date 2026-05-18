@@ -68,3 +68,36 @@
     font-weight: 700;
   }
 }
+
+@layer components {
+  .bg-dot-grid::before,
+  .bg-dot-grid::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .bg-dot-grid::before {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><circle cx='12' cy='12' r='0.75' fill='currentColor'/></svg>");
+    background-size: 24px 24px;
+    color: hsl(var(--foreground));
+    opacity: 0.04;
+  }
+
+  .bg-dot-grid::after {
+    background: radial-gradient(
+      circle 150px at var(--mx, 50%) var(--my, 50%),
+      hsl(var(--brand-from) / 0.10),
+      hsl(var(--brand-to) / 0.05) 60%,
+      transparent 100%
+    );
+    transition: opacity 200ms ease-out;
+  }
+
+  @media (hover: none), (prefers-reduced-motion: reduce) {
+    .bg-dot-grid::after {
+      opacity: 0.5;
+    }
+  }
+}

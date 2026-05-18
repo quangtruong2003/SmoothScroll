@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Toaster } from 'sonner'
+import { BackgroundDotGrid } from '@/components/BackgroundDotGrid'
 import './globals.css'
 
 const BASE_PATH = process.env.NODE_ENV === 'production' ? '/SmoothScroll' : ''
@@ -31,6 +32,7 @@ export default function RootLayout({
         <meta name="color-scheme" content="light dark" />
       </head>
       <body>
+        <BackgroundDotGrid />
         {children}
         <Toaster position="bottom-right" richColors closeButton />
       </body>
