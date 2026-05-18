@@ -164,18 +164,18 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
           aria-label={t("section.language")}
           className="w-full h-8 px-2 text-xs"
         >
-          <span className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <FlagIcon lang={currentLang} />
             <span className="truncate">{t(`language.${currentLang}`)}</span>
-          </span>
+          </div>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-popover backdrop-blur-none">
           {SUPPORTED_LANGS.map((l) => (
             <SelectItem key={l} value={l}>
-              <span className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <FlagIcon lang={l} />
                 <span>{t(`language.${l}`)}</span>
-              </span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
