@@ -204,7 +204,9 @@ impl AppSettings {
             profile.clamp();
         }
 
-        const KNOWN_LANGS: [&str; 3] = ["en", "vi", "zh"];
+        const KNOWN_LANGS: [&str; 14] = [
+            "en", "vi", "zh", "fr", "de", "hi", "id", "it", "ja", "ko", "pt-BR", "es", "tr", "ru",
+        ];
         if !KNOWN_LANGS.contains(&self.language.as_str()) {
             self.language = "en".to_string();
         }

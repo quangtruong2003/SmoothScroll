@@ -85,7 +85,9 @@ fn unknown_language_falls_back_to_en() {
 
 #[test]
 fn known_languages_are_preserved() {
-    for lang in ["en", "vi", "zh"] {
+    for lang in [
+        "en", "vi", "zh", "fr", "de", "hi", "id", "it", "ja", "ko", "pt-BR", "es", "tr", "ru",
+    ] {
         let mut s = AppSettings::default();
         s.language = lang.to_string();
         s.clamp();
