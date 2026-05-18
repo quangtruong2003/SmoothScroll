@@ -23,6 +23,8 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <meta name="color-scheme" content="light dark" />
+        <link rel="icon" type="image/png" href="/assets/icon-128.png" />
+        <link rel="apple-touch-icon" href="/assets/icon-128.png" />
       </head>
       <body>
         {children}

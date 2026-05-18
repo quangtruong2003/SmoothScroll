@@ -24,9 +24,20 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
   }, [])
 
   useEffect(() => {
+    const cached = typeof window !== 'undefined' ? sessionStorage.getItem('gh-stars') : null
+    if (cached) {
+      setStars(cached)
+      return
+    }
     fetch('https://api.github.com/repos/quangtruong2003/SmoothScroll')
-      .then((r) => r.json())
-      .then((d) => setStars(d.stargazers_count?.toLocaleString() ?? null))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const value = d?.stargazers_count?.toLocaleString() ?? null
+        if (value) {
+          setStars(value)
+          try { sessionStorage.setItem('gh-stars', value) } catch {}
+        }
+      })
       .catch(() => {})
   }, [])
 

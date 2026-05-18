@@ -28,18 +28,7 @@ export const FALLBACK_RELEASE = {
 } as const
 
 export async function fetchLatestRelease(): Promise<Release> {
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/${REPO}/releases/latest`,
-      {
-        headers: { Accept: 'application/vnd.github+json' },
-      }
-    )
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return (await res.json()) as Release
-  } catch {
-    return FALLBACK_RELEASE as unknown as Release
-  }
+  return FALLBACK_RELEASE as unknown as Release
 }
 
 export function formatDownloadCount(count: number): string {

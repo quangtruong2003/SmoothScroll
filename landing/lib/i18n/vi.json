@@ -7,7 +7,7 @@
     "subtitle": "SmoothScroll giúp mọi lần cuộn chuột đều mượt mà — như đang dùng trackpad cao cấp. Không cần học cách dùng, không cần cài thêm gì.",
     "cta": "Tải cho Windows",
     "ctaFallback": "Tải xuống",
-    "trustLine": "Miễn phí, không thu thập dữ liệu. Giấy phép MIT.",
+    "trustLine": "Miễn phí, không thu thập dữ liệu. Giấy phép source-available.",
     "seeHow": "Xem cách hoạt động",
     "demoPrompt": "Cuộn thẻ bên dưới. Sau đó bật công tắc.",
     "demoToast": "Muốn trải nghiệm thực tế? — Hãy tải về."
@@ -42,20 +42,20 @@
   },
   "trayPreview": { "title": "Nó sống trong khay hệ thống", "subtitle": "Điều khiển mọi thứ mà không cần mở cài đặt." },
   "stats": { "title": "Được tin dùng bởi", "githubStars": "Sao GitHub", "downloads": "Lượt tải", "version": "Phiên bản", "fallback": { "stars": "5.2k", "downloads": "50k+", "version": "v1.0.0" } },
-  "indie": { "title": "Tạo bởi một lập trình viên indie", "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.", "points": ["Giấy phép MIT — tự kiểm tra code", "Không telemetry hay thu thập dữ liệu", "Không quảng cáo, không premium, không upsell", "Xây dựng công khai trên GitHub"], "cta": "Xem trên GitHub" },
+  "indie": { "title": "Tạo bởi một lập trình viên indie", "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.", "points": ["Giấy phép source-available (FSL-1.1 → Apache 2.0) — tự kiểm tra code", "Không telemetry hay thu thập dữ liệu", "Không quảng cáo, không premium, không upsell", "Xây dựng công khai trên GitHub"], "cta": "Xem trên GitHub" },
   "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe — không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho {os}" },
   "faq": { "title": "Câu hỏi thường gặp", "questions": [
     { "q": "Có hoạt động với mọi ứng dụng không?", "a": "SmoothScroll chặn input wheel từ chuột trước khi đến ứng dụng, nên hoạt động với hầu hết mọi thứ — Chrome, VS Code, File Explorer, Adobe apps." },
     { "q": "Có tốn pin không?", "a": "Không. SmoothScroll gần như không dùng CPU khi rảnh rỗi và chỉ xử lý khi có sự kiện cuộn." },
-    { "q": "Có an toàn không? Cài gì vào máy?", "a": "SmoothScroll là một file chạy độc lập. Không có service, không có daemon, không có driver. Không có network listener. Có thể tự kiểm chứng code nguồn MIT trên GitHub." },
+    { "q": "Có an toàn không? Cài gì vào máy?", "a": "SmoothScroll là một file chạy độc lập. Không có service, không có daemon, không có driver. Không có network listener. Có thể tự kiểm chứng code nguồn trên GitHub (FSL-1.1-Apache-2.0)." },
     { "q": "Khác gì smooth scroll có sẵn của Windows?", "a": "Smooth scroll của Windows phụ thuộc từng ứng dụng và không nhất quán. SmoothScroll cung cấp một đường cong thống nhất, có thể cấu hình, áp dụng toàn cục." },
     { "q": "Có hoạt động với chuột gaming không?", "a": "Có. SmoothScroll tôn trọng delta thực từ phần cứng và áp dụng làm mượt bên trên." },
     { "q": "Có thể tắt cho ứng dụng cụ thể không?", "a": "Có. Có hồ sơ loại trừ theo ứng dụng. Mở tray panel và thêm ứng dụng vào danh sách loại trừ." },
     { "q": "Hỗ trợ Windows phiên bản nào?", "a": "Windows 10 và Windows 11 được hỗ trợ đầy đủ." },
     { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller — không có gì khác trên hệ thống." }
   ]},
-  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaSub": "Miễn phí mãi mãi. Giấy phép MIT." },
-  "footer": { "tagline": "Cuộn mượt cho Windows.", "links": { "github": "GitHub", "license": "Giấy phó MIT" } },
+  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaSub": "Miễn phí mãi mãi. Giấy phép source-available." },
+  "footer": { "tagline": "Cuộn mượt cho Windows.", "links": { "github": "GitHub", "license": "Giấy phép" } },
   "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" }
 }

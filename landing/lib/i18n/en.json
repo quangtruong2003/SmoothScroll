@@ -73,7 +73,7 @@
     "title": "Made by an indie dev",
     "subtitle": "Independent, transparent, and community-driven.",
     "points": [
-      "MIT licensed — audit the code yourself",
+      "Source-available (FSL-1.1 → Apache 2.0) — audit the code yourself",
       "Zero telemetry or data collection",
       "No ads, no premium tier, no upsell",
       "Built in the open on GitHub"
@@ -99,7 +99,7 @@
     "questions": [
       { "q": "Does this work with all apps?", "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything — Chrome, VS Code, File Explorer, Adobe apps, and more." },
       { "q": "Will it drain my battery?", "a": "No. SmoothScroll runs at near-zero CPU when idle and only processes input during scroll events. Most users see no measurable battery impact." },
-      { "q": "Is it safe? What does it install?", "a": "SmoothScroll is a standalone executable. No service, no daemon, no system driver. It doesn't install any network listeners or telemetry. You can verify this by reading the MIT-licensed source on GitHub." },
+      { "q": "Is it safe? What does it install?", "a": "SmoothScroll is a standalone executable. No service, no daemon, no system driver. It doesn't install any network listeners or telemetry. You can verify this by reading the source on GitHub (FSL-1.1-Apache-2.0)." },
       { "q": "How is this different from Windows' built-in smooth scrolling?", "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll provides a unified, configurable curve applied globally — with per-app profiles, adjustable strength, and instant toggle." },
       { "q": "Does it work with gaming mice or high-DPI devices?", "a": "Yes. SmoothScroll respects the actual scroll delta from your hardware and applies smoothing on top. Works with all mice tested so far, including high-refresh and gaming mice." },
       { "q": "Can I disable it for specific apps?", "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list." },
@@ -111,13 +111,13 @@
     "title": "Ready to feel the difference?",
     "subtitle": "Join thousands of developers and designers who scroll better.",
     "cta": "Download SmoothScroll",
-    "ctaSub": "Free forever. MIT license."
+    "ctaSub": "Free forever. Source-available license."
   },
   "footer": {
     "tagline": "Smooth scroll for Windows.",
     "links": {
       "github": "GitHub",
-      "license": "MIT License"
+      "license": "License"
     }
   },
   "exitIntent": {

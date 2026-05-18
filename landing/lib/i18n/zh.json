@@ -7,7 +7,7 @@
     "subtitle": "SmoothScroll 让每次滚轮都丝般顺滑——就像在使用高端触控板。无需学习，无臃肿软件，就是顺。",
     "cta": "下载 Windows 版",
     "ctaFallback": "立即下载",
-    "trustLine": "免费，无遥测。MIT 许可。",
+    "trustLine": "免费，无遥测。源代码可见许可。",
     "seeHow": "看实际效果",
     "demoPrompt": "滚动下方卡片，然后拨动开关。",
     "demoToast": "想真实体验？——下载试试。"
@@ -42,20 +42,20 @@
   },
   "trayPreview": { "title": "它就住在系统托盘里", "subtitle": "无需打开设置，一切尽在掌控。" },
   "stats": { "title": "被信任使用", "githubStars": "GitHub 星星", "downloads": "下载量", "version": "版本", "fallback": { "stars": "5.2k", "downloads": "50k+", "version": "v1.0.0" } },
-  "indie": { "title": "独立开发者出品", "subtitle": "独立，透明、社区驱动。", "points": ["MIT 许可——自行审计代码", "零遥测或数据收集", "无广告、无高级版、无推销", "在 GitHub 上公开构建"], "cta": "在 GitHub 查看" },
+  "indie": { "title": "独立开发者出品", "subtitle": "独立，透明、社区驱动。", "points": ["源代码可见许可 (FSL-1.1 → Apache 2.0)——自行审计代码", "零遥测或数据收集", "无广告、无高级版、无推销", "在 GitHub 上公开构建"], "cta": "在 GitHub 查看" },
   "install": { "title": "60 秒开始体验", "subtitle": "下载、运行、感受不同。", "tabs": { "windows": { "label": "Windows", "steps": ["点击下方下载安装包", "运行 .exe——无需安装向导，无需管理员权限", "SmoothScroll 自动启动。搞定。"] }, "macos": { "label": "macOS", "steps": ["点击下方下载 DMG", "将 SmoothScroll 拖到应用程序", "在系统设置 → 隐私与安全 → 辅助功能 中授予辅助功能权限", "完成。"] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "默认保存到 %LOCALAPPDATA%", "macos": "需要辅助功能权限来拦截全局输入" }, "cta": "下载 {os} 版" },
   "faq": { "title": "常见问题", "questions": [
     { "q": "所有应用都支持吗？", "a": "SmoothScroll 在滚轮输入到达任何应用之前就拦截了，所以几乎支持所有应用——Chrome、VS Code、文件资源管理器、Adobe 全家桶等。" },
     { "q": "会耗电吗？", "a": "不会。SmoothScroll 空闲时 CPU 几乎为零，只在滚动事件时处理。大多数用户感受不到电池影响。" },
-    { "q": "安全吗？会安装什么？", "a": "SmoothScroll 是一个独立可执行文件。没有服务、没有守护进程、没有系统驱动。不含网络监听器。可以在 GitHub 上阅读 MIT 许可的源代码自行验证。" },
+    { "q": "安全吗？会安装什么？", "a": "SmoothScroll 是一个独立可执行文件。没有服务、没有守护进程、没有系统驱动。不含网络监听器。可以在 GitHub 上阅读源代码自行验证 (FSL-1.1-Apache-2.0)。" },
     { "q": "和 Windows 自带的平滑滚动有何不同？", "a": "Windows 自带的平滑滚动按应用而异且不统一。SmoothScroll 提供统一的、可配置的曲线，全局生效，并支持按应用配置、即开即关。" },
     { "q": "游戏鼠标或高 DPI 设备能用吗？", "a": "能。SmoothScroll 尊重硬件原始滚动增量并在其上应用平滑处理。已测试各种鼠标，包括高刷新率和游戏鼠标。" },
     { "q": "可以针对特定应用关闭吗？", "a": "可以。内置了按应用排除配置文件。打开托盘面板，将应用添加到排除列表即可。" },
     { "q": "支持哪些 Windows 版本？", "a": "Windows 10 和 Windows 11 完全支持。" },
     { "q": "如何卸载？", "a": "直接删除可执行文件即可。无需卸载程序——系统里没有别的东西。" }
   ]},
-  "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaSub": "永久免费。MIT 许可。" },
-  "footer": { "tagline": "Windows 流畅滚动。", "links": { "github": "GitHub", "license": "MIT 许可" } },
+  "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaSub": "永久免费。源代码可见许可。" },
+  "footer": { "tagline": "Windows 流畅滚动。", "links": { "github": "GitHub", "license": "许可证" } },
   "exitIntent": { "title": "等等，先别走！", "message": "下载 SmoothScroll，让每次滚动都自然流畅。", "cta": "免费下载" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" }
 }
