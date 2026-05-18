@@ -54,7 +54,7 @@
     { "q": "支持哪些 Windows 版本？", "a": "Windows 10 和 Windows 11 完全支持。" },
     { "q": "如何卸载？", "a": "直接删除可执行文件即可。无需卸载程序——系统里没有别的东西。" }
   ]},
-  "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaSub": "永久免费。源代码可见许可。" },
+  "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaSub": "目前免费。源代码可见许可。" },
   "footer": { "tagline": "Windows 流畅滚动。", "links": { "github": "GitHub", "license": "许可证" } },
   "exitIntent": { "title": "等等，先别走！", "message": "下载 SmoothScroll，让每次滚动都自然流畅。", "cta": "免费下载" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" }
