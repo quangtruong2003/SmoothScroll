@@ -19,7 +19,7 @@ Targets prioritized by relevance and acceptance rate. Submit in this order:
     Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a Tauri 2 + Rust desktop utility that adds Mac-style smooth scrolling to Windows and consistent mouse-wheel inertia on macOS.
 
     - Tauri 2, Rust 1.95+, React + TypeScript front end
-    - MIT licensed, signed Windows installers (NSIS + MSI); macOS notarization in progress
+    - Source-available (FSL-1.1-Apache-2.0, converts to Apache 2.0 after 2 years), signed Windows installers (NSIS + MSI); macOS notarization in progress
     - Working v0.1.13 release
 
     Per the [contributing guide](https://github.com/tauri-apps/awesome-tauri/blob/main/CONTRIBUTING.md), the entry is alphabetized within Utilities and follows the existing format with platform icons.
@@ -37,7 +37,7 @@ Targets prioritized by relevance and acceptance rate. Submit in this order:
 
 **PR body:**
 
-    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a cross-platform smooth-scrolling utility written in Rust (Tauri 2 host + native low-level input on Windows/macOS, MIT licensed).
+    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a cross-platform smooth-scrolling utility written in Rust (Tauri 2 host + native low-level input on Windows/macOS, source-available under FSL-1.1-Apache-2.0).
 
 ## 3. Awesome-Windows/Awesome
 
@@ -46,13 +46,13 @@ Targets prioritized by relevance and acceptance rate. Submit in this order:
 
 **Line to add:**
 
-    * [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) - Free, open-source smooth mouse-wheel scrolling for Windows 10/11. Native low-level input hook, frame-perfect easing, per-app exclusion.
+    * [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) - Free, source-available smooth mouse-wheel scrolling for Windows 10/11. Native low-level input hook, frame-perfect easing, per-app exclusion.
 
 **PR title:** `Add SmoothScroll under Productivity / Mouse and Keyboard`
 
 **PR body:**
 
-    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source utility for Windows 10/11 that adds Mac-style smooth mouse-wheel scrolling. Native low-level input hook (no driver), frame-perfect easing at 120 Hz, per-app exclusion, system-tray UI. MIT licensed, signed v0.1.13 release available.
+    Adds [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free source-available utility for Windows 10/11 that adds Mac-style smooth mouse-wheel scrolling. Native low-level input hook (no driver), frame-perfect easing at 120 Hz, per-app exclusion, system-tray UI. Licensed under FSL-1.1-Apache-2.0, signed v0.1.13 release available.
 
 ## 4. agarrharr/awesome-cli-apps — skip (not a CLI)
 ## 5. styfle/awesome-online-ide — skip (not an IDE)
