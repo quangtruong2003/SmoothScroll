@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmoothScroll — Redirecting...</title>
+  <meta http-equiv="refresh" content="0;url=https://quangtruong2003.github.io/SmoothScroll/en/">
+  <script>
+    (function () {
+      var stored = null;
+      try { stored = localStorage.getItem('ssc-lang'); } catch (e) { /* ignore */ }
+      var lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      var target = 'en';
+      if (stored && (stored === 'en' || stored === 'vi' || stored === 'zh')) {
+        target = stored;
+      } else if (lang.startsWith('vi')) {
+        target = 'vi';
+      } else if (lang.startsWith('zh')) {
+        target = 'zh';
+      }
+      var base = 'https://quangtruong2003.github.io/SmoothScroll/';
+      location.replace(base + target + '/');
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family: system-ui, sans-serif; text-align: center; padding: 2rem; color: #666;">
+    Redirecting to your language version…
+  </p>
+</body>
+</html>

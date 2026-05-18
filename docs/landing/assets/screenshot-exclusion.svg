@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="SmoothScroll per-app exclusion list placeholder">
+  <defs>
+    <linearGradient id="exBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c1e27"/>
+      <stop offset="100%" stop-color="#0a0b10"/>
+    </linearGradient>
+    <linearGradient id="exAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#exBg)"/>
+  <text x="20" y="32" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" fill="#f5f6fa" font-weight="700">Per-app exclusion</text>
+  <text x="20" y="50" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" fill="#9aa0b3">Apps below scroll natively (smoothing off).</text>
+  <rect x="20" y="68" width="360" height="36" rx="8" fill="#14151c"/>
+  <rect x="32" y="80" width="12" height="12" rx="3" fill="url(#exAccent)"/>
+  <path d="M34 86 L37 89 L42 83" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="56" y="90" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" fill="#f5f6fa">VALORANT.exe</text>
+  <text x="372" y="90" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" fill="#5b6273" text-anchor="end">Game</text>
+  <rect x="20" y="112" width="360" height="36" rx="8" fill="#14151c"/>
+  <rect x="32" y="124" width="12" height="12" rx="3" fill="url(#exAccent)"/>
+  <path d="M34 130 L37 133 L42 127" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="56" y="134" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" fill="#f5f6fa">Photoshop.exe</text>
+  <text x="372" y="134" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" fill="#5b6273" text-anchor="end">Creative</text>
+  <rect x="20" y="156" width="360" height="36" rx="8" fill="#14151c"/>
+  <rect x="32" y="168" width="12" height="12" rx="3" stroke="#5b6273" stroke-width="1.5" fill="none"/>
+  <text x="56" y="178" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" fill="#9aa0b3">Figma.exe</text>
+  <text x="372" y="178" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" fill="#5b6273" text-anchor="end">Design</text>
+  <rect x="20" y="204" width="120" height="28" rx="14" fill="url(#exAccent)"/>
+  <text x="80" y="222" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" fill="#0a0b10" font-weight="600" text-anchor="middle">+ Add app</text>
+</svg>
