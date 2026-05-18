@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import type { Locale } from '@/lib/i18n/dict'
 
+const BASE_PATH = process.env.NODE_ENV === 'production' ? '/SmoothScroll' : ''
+
 interface NavigationProps {
   locale: Locale
   langSwitcherDict?: Record<string, string>
@@ -52,7 +54,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
       <nav className="container flex items-center justify-between">
         <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg">
           <Image
-            src="/assets/icon-128.png"
+            src={`${BASE_PATH}/assets/icon-128.png`}
             alt="SmoothScroll logo"
             width={28}
             height={28}
