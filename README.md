@@ -8,7 +8,7 @@
 
 **Smooth mouse-wheel scrolling for Windows 10, Windows 11, and macOS.** Native low-level input interception, frame-perfect easing, per-app exclusion. A free, open-source alternative to Logitech SmoothScroll, WizMouse, and Mac-style inertia scrolling utilities — built with Rust, Tauri 2, and React.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
+[![License: FSL-1.1-Apache-2.0](https://img.shields.io/badge/license-FSL--1.1--Apache--2.0-blue.svg)](#license)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey.svg)](#install)
 [![Stack](https://img.shields.io/badge/stack-Rust%20%7C%20Tauri%202%20%7C%20React-orange.svg)](#architecture)
 [![Release](https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=release)](https://github.com/quangtruong2003/SmoothScroll/releases)
@@ -151,7 +151,7 @@ SmoothScroll re-emits raw mouse-wheel ticks as eased pulses at 120 Hz, producing
 
 ### Is SmoothScroll free?
 
-Yes. SmoothScroll is free and open source under the MIT license. No telemetry, no ads, no paid tier.
+Yes. SmoothScroll is free for personal, educational, research, and internal use under the [Functional Source License (FSL-1.1-Apache-2.0)](LICENSE). No telemetry, no ads. Commercial use that competes with SmoothScroll requires a separate license — contact the author. Two years after each release, the code automatically converts to Apache 2.0.
 
 ### Does SmoothScroll work with gaming mice (Logitech, Razer, MX Master)?
 
@@ -183,4 +183,21 @@ Issues and pull requests are welcome. For substantial changes, open an issue fir
 
 ## License
 
-[MIT](LICENSE) © SmoothScroll contributors
+Licensed under the [Functional Source License, Version 1.1, Apache 2.0 Future License](LICENSE) (FSL-1.1-Apache-2.0).
+
+**What you can do for free:**
+- View, study, and learn from the source code
+- Use it for personal, educational, or research purposes
+- Use it internally within your organization
+- Modify it and contribute back via pull requests
+- Redistribute copies under the same license
+
+**What requires a separate commercial license:**
+- Offering SmoothScroll (or a substantially similar product) as a paid product or service
+- Selling, sublicensing, or hosting it as a competing commercial offering
+
+**Future Apache 2.0 grant:** Two years after each release date, that release automatically becomes available under the Apache License 2.0 — fully open source, no restrictions.
+
+For commercial licensing inquiries, please open an issue or contact the author.
+
+Copyright © 2026 Quang Truong ([@quangtruong2003](https://github.com/quangtruong2003))

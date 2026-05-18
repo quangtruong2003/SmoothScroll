@@ -20,12 +20,6 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 
   return (
     <>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md"
-      >
-        Skip to content
-      </a>
       <Hero dict={{ hero: dict.hero }} />
       <PainPoints dict={{ painPoints: dict.painPoints }} />
       <SolutionBridge dict={{ solutionBridge: dict.solutionBridge }} />
