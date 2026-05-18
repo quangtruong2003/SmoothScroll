@@ -39,12 +39,14 @@ export function Stats({ dict }: StatsProps) {
   const fb = useMemo(() => s.fallback ?? { stars: '—', downloads: '—', version: '—' }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [stars, setStars] = useState<string>(fb.stars ?? '—')
-  const [downloads, setDownloads] = useState<string>(formatDownloadCount(fakeDownloadOffset()))
+  const [downloads, setDownloads] = useState<string>(fb.downloads ?? '—')
   const [version, setVersion] = useState<string>(fb.version ?? '—')
 
   useEffect(() => {
     const fallbackStars = fb.stars ?? '—'
     const fallbackVersion = fb.version ?? '—'
+
+    setDownloads(formatDownloadCount(fakeDownloadOffset()))
 
     fetchLatestRelease()
       .then((releaseData) => {
