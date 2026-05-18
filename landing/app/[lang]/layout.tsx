@@ -4,11 +4,6 @@ import { getDictionary, locales, type Locale } from '@/lib/i18n/dict'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 
-interface LangLayoutProps {
-  children: React.ReactNode
-  params: { lang: string }
-}
-
 export async function generateStaticParams() {
   return locales.map((locale) => ({ lang: locale }))
 }
@@ -16,9 +11,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: string }
+  params: Promise<{ lang: string }>
 }): Promise<Metadata> {
-  const locale = params.lang as Locale
+  const { lang } = await params
+  const locale = lang as Locale
   const dict = await getDictionary(locale)
 
   return {
@@ -43,8 +39,15 @@ export async function generateMetadata({
   }
 }
 
-export default async function LangLayout({ children, params }: LangLayoutProps) {
-  const locale = params.lang as Locale
+export default async function LangLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+  const locale = lang as Locale
   if (!locales.includes(locale)) notFound()
 
   const dict = await getDictionary(locale)
@@ -62,7 +65,7 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: (dict.faq?.questions ?? []).map((q: { q: string; a: string }) => ({
+    mainEntity: (dict.faq?.questions ?? []).map((q) => ({
       '@type': 'Question',
       name: q.q,
       acceptedAnswer: { '@type': 'Answer', text: q.a },

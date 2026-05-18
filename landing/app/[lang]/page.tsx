@@ -13,12 +13,9 @@ import { StickyDownloadBar } from '@/components/StickyDownloadBar'
 import { ExitIntentModal } from '@/components/ExitIntentModal'
 import { getDictionary, type Locale } from '@/lib/i18n/dict'
 
-interface PageProps {
-  params: { lang: string }
-}
-
-export default async function LandingPage({ params }: PageProps) {
-  const locale = params.lang as Locale
+export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const locale = lang as Locale
   const dict = await getDictionary(locale)
 
   return (

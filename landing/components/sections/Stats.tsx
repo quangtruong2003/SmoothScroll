@@ -1,21 +1,13 @@
+'use client'
+
 import { FadeUp } from '@/components/motion/FadeUp'
 import { fetchLatestRelease, formatDownloadCount } from '@/lib/github'
 import { Star, Download, Tag } from 'lucide-react'
+import type { Dictionary } from '@/lib/i18n/dict'
+import { useState, useEffect, useMemo } from 'react'
 
 interface StatsProps {
-  dict: {
-    stats: {
-      title: string
-      githubStars: string
-      downloads: string
-      version: string
-      fallback: { stars: string; downloads: string; version: string }
-    }
-  }
-}
-
-interface StatsInnerProps extends StatsProps['dict']['stats'] {
-  releaseData: Awaited<ReturnType<typeof fetchLatestRelease>> | null
+  dict: { stats?: Dictionary['stats'] }
 }
 
 function StatCard({
@@ -36,20 +28,39 @@ function StatCard({
   )
 }
 
-export async function Stats({ dict }: StatsProps) {
-  let releaseData = null
-  try {
-    releaseData = await fetchLatestRelease()
-  } catch { /* intentionally empty */ }
+export function Stats({ dict }: StatsProps) {
+  const s = dict?.stats ?? {
+    title: '',
+    githubStars: '',
+    downloads: '',
+    version: '',
+    fallback: { stars: '—', downloads: '—', version: '—' },
+  }
+  const fb = useMemo(() => s.fallback ?? { stars: '—', downloads: '—', version: '—' }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { stats: s, fallback } = dict
-  const stars = releaseData
-    ? (await fetch(`https://api.github.com/repos/grayscut/SmoothScroll`).then((r) => r.json()).catch(() => null))?.stargazers_count?.toLocaleString() ?? fallback.stars
-    : fallback.stars
-  const downloads = releaseData
-    ? formatDownloadCount(releaseData.assets.reduce((sum, a) => sum + (a.download_count ?? 0), 0))
-    : fallback.downloads
-  const version = releaseData?.tag_name ?? fallback.version
+  const [stars, setStars] = useState<string>(fb.stars ?? '—')
+  const [downloads, setDownloads] = useState<string>(fb.downloads ?? '—')
+  const [version, setVersion] = useState<string>(fb.version ?? '—')
+
+  useEffect(() => {
+    const fallbackStars = fb.stars ?? '—'
+    const fallbackVersion = fb.version ?? '—'
+    fetchLatestRelease()
+      .then((releaseData) => {
+        if (!releaseData) return
+        fetch('https://api.github.com/repos/grayscut/SmoothScroll')
+          .then((r) => r.json())
+          .then((ghData) => {
+            setStars(ghData.stargazers_count?.toLocaleString() ?? fallbackStars)
+          })
+          .catch(() => {})
+        setDownloads(formatDownloadCount(
+          releaseData.assets.reduce((sum, a) => sum + (a.download_count ?? 0), 0)
+        ))
+        setVersion(releaseData.tag_name ?? fallbackVersion)
+      })
+      .catch(() => {})
+  }, [fb])
 
   return (
     <section className="py-20 px-4">
@@ -61,9 +72,9 @@ export async function Stats({ dict }: StatsProps) {
         </FadeUp>
         <FadeUp delay={0.1}>
           <div className="grid sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <StatCard icon={Star} value={stars} label={s.githubStars} />
-            <StatCard icon={Download} value={downloads} label={s.downloads} />
-            <StatCard icon={Tag} value={version} label={s.version} />
+            <StatCard icon={Star} value={stars} label={s.githubStars ?? ''} />
+            <StatCard icon={Download} value={downloads} label={s.downloads ?? ''} />
+            <StatCard icon={Tag} value={version} label={s.version ?? ''} />
           </div>
         </FadeUp>
       </div>

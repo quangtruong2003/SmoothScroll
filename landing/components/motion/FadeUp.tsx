@@ -24,7 +24,7 @@ export const FadeUp = forwardRef<HTMLDivElement, FadeUpProps>(
         transition={{
           duration,
           delay,
-          ease: prefersReducedMotion ? 'linear' : [0.16, 1, 0.3, 1],
+          ease: prefersReducedMotion ? 'linear' : ([0.16, 1, 0.3, 1] as const),
         }}
         className={className}
         {...props}

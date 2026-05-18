@@ -1,16 +1,14 @@
+'use client'
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 interface FAQProps {
-  dict: {
-    faq: {
-      title: string
-      questions: { q: string; a: string }[]
-    }
-  }
+  dict: { faq?: Dictionary['faq'] }
 }
 
 export function FAQ({ dict }: FAQProps) {
-  const { faq: f } = dict
+  const f = dict?.faq ?? { title: '', questions: [] }
 
   return (
     <section className="py-20 px-4">
@@ -20,7 +18,7 @@ export function FAQ({ dict }: FAQProps) {
         </h2>
         <div className="max-w-2xl mx-auto">
           <Accordion type="single" collapsible>
-            {f.questions.map((item, idx) => (
+            {(f.questions ?? []).map((item, idx) => (
               <AccordionItem key={idx} value={`item-${idx}`}>
                 <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed">

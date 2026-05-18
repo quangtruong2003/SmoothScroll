@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Github, Star } from 'lucide-react'
+import { Star, Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import type { Locale } from '@/lib/i18n/dict'
 
 interface NavigationProps {
   locale: Locale
-  langSwitcherDict: Record<string, string>
+  langSwitcherDict?: Record<string, string>
 }
 
-export function Navigation({ locale, langSwitcherDict }: NavigationProps) {
+export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false)
   const [stars, setStars] = useState<string | null>(null)
 

@@ -3,6 +3,8 @@ import { locales } from '@/lib/i18n/dict'
 
 const BASE = 'https://grayscut.github.io/SmoothScroll'
 
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${BASE}/en`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },

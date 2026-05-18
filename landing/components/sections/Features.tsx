@@ -1,23 +1,21 @@
+'use client'
+
 import { FadeUp } from '@/components/motion/FadeUp'
 import { StaggerContainer, staggerItem } from '@/components/motion/StaggerContainer'
 import { motion } from 'motion/react'
 import {
   Settings2, Layers, Cpu, Battery, ShieldCheck, ToggleLeft
 } from 'lucide-react'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 const ICONS = [Settings2, Layers, Cpu, Battery, ShieldCheck, ToggleLeft]
 
 interface FeaturesProps {
-  dict: {
-    features: {
-      title: string
-      items: { title: string; description: string }[]
-    }
-  }
+  dict: { features?: Dictionary['features'] }
 }
 
 export function Features({ dict }: FeaturesProps) {
-  const { features: f } = dict
+  const f: { title?: string; items?: { title?: string; description?: string }[] } = dict?.features ?? { title: '', items: [] }
 
   return (
     <section className="py-20 px-4">
@@ -28,7 +26,7 @@ export function Features({ dict }: FeaturesProps) {
           </h2>
         </FadeUp>
         <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-          {f.items.map((item, idx) => {
+          {(f.items ?? []).map((item, idx) => {
             const Icon = ICONS[idx % ICONS.length]
             return (
               <motion.div

@@ -1,17 +1,15 @@
+'use client'
+
 import { FadeUp } from '@/components/motion/FadeUp'
 import { TrayPreview } from '@/components/TrayPreview'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 interface TrayPreviewSectionProps {
-  dict: {
-    trayPreview: {
-      title: string
-      subtitle: string
-    }
-  }
+  dict: { trayPreview?: Dictionary['trayPreview'] }
 }
 
 export function TrayPreviewSection({ dict }: TrayPreviewSectionProps) {
-  const { trayPreview: t } = dict
+  const t = dict?.trayPreview ?? { title: '', subtitle: '' }
 
   return (
     <section className="py-20 px-4 bg-muted/30">

@@ -6,31 +6,10 @@ import { DownloadCTA } from '@/components/DownloadCTA'
 import { Copy, Check } from 'lucide-react'
 import { useState } from 'react'
 import { useDownloadUrl } from '@/lib/useDownloadUrl'
-import { cn } from '@/lib/utils'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 interface InstallProps {
-  dict: {
-    install: {
-      title: string
-      subtitle: string
-      tabs: {
-        windows: {
-          label: string
-          steps: string[]
-        }
-        macos: {
-          label: string
-          steps: string[]
-        }
-      }
-      filename: string
-      note: {
-        windows: string
-        macos: string
-      }
-      cta: string
-    }
-  }
+  dict: { install?: Dictionary['install'] }
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -49,7 +28,14 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export function Install({ dict }: InstallProps) {
-  const { install: i } = dict
+  const i = dict?.install ?? {
+    title: '',
+    subtitle: '',
+    tabs: { windows: { label: '', steps: [] }, macos: { label: '', steps: [] } },
+    filename: '',
+    note: { windows: '', macos: '' },
+    cta: '',
+  }
   const { os, ctaLabel } = useDownloadUrl()
 
   const defaultTab = os === 'mac' ? 'macos' : 'windows'
@@ -64,13 +50,13 @@ export function Install({ dict }: InstallProps) {
 
         <Tabs defaultValue={defaultTab} className="max-w-2xl mx-auto">
           <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="windows">{i.tabs.windows.label}</TabsTrigger>
-            <TabsTrigger value="macos">{i.tabs.macos.label}</TabsTrigger>
+            <TabsTrigger value="windows">{i.tabs?.windows?.label ?? ''}</TabsTrigger>
+            <TabsTrigger value="macos">{i.tabs?.macos?.label ?? ''}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="windows" className="space-y-6">
             <ol className="space-y-4">
-              {i.tabs.windows.steps.map((step, idx) => (
+              {(i.tabs?.windows?.steps ?? []).map((step, idx) => (
                 <li key={idx} className="flex gap-4">
                   <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-brand-from to-brand-to text-white text-sm font-bold flex items-center justify-center">
                     {idx + 1}
@@ -81,19 +67,19 @@ export function Install({ dict }: InstallProps) {
             </ol>
             <div className="rounded-md bg-muted p-4 flex items-center justify-between gap-2">
               <code className="text-sm font-mono text-muted-foreground overflow-x-auto">
-                %LOCALAPPDATA%\SmoothScroll\{i.filename}
+                %LOCALAPPDATA%\SmoothScroll\{i.filename ?? ''}
               </code>
-              <CopyButton text={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename}`} />
+              <CopyButton text={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`} />
             </div>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <span className="text-yellow-500">&#9888;</span>
-              {i.note.windows}
+              {i.note?.windows ?? ''}
             </p>
           </TabsContent>
 
           <TabsContent value="macos" className="space-y-6">
             <ol className="space-y-4">
-              {i.tabs.macos.steps.map((step, idx) => (
+              {(i.tabs?.macos?.steps ?? []).map((step, idx) => (
                 <li key={idx} className="flex gap-4">
                   <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-brand-from to-brand-to text-white text-sm font-bold flex items-center justify-center">
                     {idx + 1}
@@ -104,7 +90,7 @@ export function Install({ dict }: InstallProps) {
             </ol>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <span className="text-yellow-500">&#9888;</span>
-              {i.note.macos}
+              {i.note?.macos ?? ''}
             </p>
           </TabsContent>
         </Tabs>

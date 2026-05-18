@@ -1,9 +1,9 @@
+'use client'
+
 import { FadeUp } from '@/components/motion/FadeUp'
 
 interface SolutionBridgeProps {
-  dict: {
-    solutionBridge: { line: string }
-  }
+  dict: { solutionBridge?: { line?: string } }
 }
 
 export function SolutionBridge({ dict }: SolutionBridgeProps) {
@@ -12,7 +12,7 @@ export function SolutionBridge({ dict }: SolutionBridgeProps) {
       <div className="container">
         <FadeUp>
           <p className="text-2xl sm:text-3xl font-bold text-center leading-snug">
-            {dict.solutionBridge.line}
+            {dict?.solutionBridge?.line ?? ''}
           </p>
         </FadeUp>
       </div>

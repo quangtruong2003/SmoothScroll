@@ -1,31 +1,21 @@
+'use client'
+
 import { DemoScroll } from '@/components/DemoScroll'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { Badge } from '@/components/ui/badge'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 interface HeroProps {
-  dict: {
-    hero: {
-      eyebrow: string
-      title: string
-      titleAccent: string
-      subtitle: string
-      cta: string
-      trustLine: string
-      seeHow: string
-      demoPrompt: string
-      demoToast: string
-    }
-  }
+  dict: { hero?: Dictionary['hero'] }
 }
 
 export function Hero({ dict }: HeroProps) {
-  const { hero: h } = dict
+  const h = dict?.hero ?? { eyebrow: '', title: '', titleAccent: '', subtitle: '', cta: 'Download', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
 
   return (
     <section className="min-h-screen flex items-center pt-20 pb-16 px-4">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left: Copy */}
           <div className="flex flex-col gap-6">
             <Badge variant="secondary" className="w-fit">{h.eyebrow}</Badge>
 
@@ -41,7 +31,7 @@ export function Hero({ dict }: HeroProps) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <DownloadCTA label={h.cta} variant="brand" size="lg" />
+              <DownloadCTA label={h.cta ?? 'Download'} variant="brand" size="lg" />
               <a href="#how-it-works" className="flex items-center justify-center px-6 py-2 text-sm font-medium rounded-md border border-border hover:bg-accent transition-colors">
                 {h.seeHow}
               </a>
@@ -50,9 +40,8 @@ export function Hero({ dict }: HeroProps) {
             <p className="text-sm text-muted-foreground">{h.trustLine}</p>
           </div>
 
-          {/* Right: Demo */}
           <div>
-            <DemoScroll prompt={h.demoPrompt} toastMessage={h.demoToast} />
+            <DemoScroll prompt={h.demoPrompt ?? ''} toastMessage={h.demoToast ?? ''} />
           </div>
         </div>
       </div>

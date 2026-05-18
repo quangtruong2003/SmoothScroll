@@ -1,21 +1,19 @@
+'use client'
+
 import { FadeUp } from '@/components/motion/FadeUp'
 import { StaggerContainer, staggerItem } from '@/components/motion/StaggerContainer'
 import { motion } from 'motion/react'
 import { Zap, BatteryLow, Mouse } from 'lucide-react'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 const ICONS = [Zap, BatteryLow, Mouse]
 
 interface PainPointsProps {
-  dict: {
-    painPoints: {
-      title: string
-      points: { title: string; description: string }[]
-    }
-  }
+  dict: { painPoints?: Dictionary['painPoints'] }
 }
 
 export function PainPoints({ dict }: PainPointsProps) {
-  const { painPoints: p } = dict
+  const p = dict?.painPoints ?? { title: '', points: [] }
 
   return (
     <section className="py-20 px-4">
@@ -26,7 +24,7 @@ export function PainPoints({ dict }: PainPointsProps) {
           </h2>
         </FadeUp>
         <StaggerContainer className="grid md:grid-cols-3 gap-8">
-          {p.points.map((point, idx) => {
+          {(p.points ?? []).map((point, idx) => {
             const Icon = ICONS[idx]
             return (
               <motion.div

@@ -1,23 +1,17 @@
+'use client'
+
 import { FadeUp } from '@/components/motion/FadeUp'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Github, Check, Lock, Ban, Globe } from 'lucide-react'
-
-const RADIX_INDIE = [0, 1, 2, 3] as const
+import { Github, Check } from 'lucide-react'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 interface IndieProps {
-  dict: {
-    indie: {
-      title: string
-      subtitle: string
-      points: string[]
-      cta: string
-    }
-  }
+  dict: { indie?: Dictionary['indie'] }
 }
 
 export function Indie({ dict }: IndieProps) {
-  const { indie: i } = dict
+  const i = dict?.indie ?? { title: '', subtitle: '', points: [], cta: '' }
 
   return (
     <section className="py-20 px-4">
@@ -31,7 +25,7 @@ export function Indie({ dict }: IndieProps) {
           </FadeUp>
           <FadeUp delay={0.1}>
             <div className="grid sm:grid-cols-2 gap-4 mb-10">
-              {i.points.map((point, idx) => (
+              {(i.points ?? []).map((point, idx) => (
                 <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-card border">
                   <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">

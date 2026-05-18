@@ -1,6 +1,6 @@
-// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { DemoScroll } from './DemoScroll'
 
 const dict = {
@@ -24,10 +24,11 @@ describe('DemoScroll', () => {
   })
 
   it('toggles smooth scroll on switch change', async () => {
+    const user = userEvent.setup()
     render(<DemoScroll {...dict} />)
     const sw = screen.getByRole('switch')
     expect(sw).not.toBeChecked()
-    await fireEvent.click(sw)
+    await user.click(sw)
     expect(sw).toBeChecked()
   })
 })

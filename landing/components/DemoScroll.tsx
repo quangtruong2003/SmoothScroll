@@ -39,9 +39,6 @@ const SAMPLE_LINES = [
   '// Toggle the switch to feel the difference.',
 ]
 
-const SMOOTH_EASING = 'cubic-bezier(0.25, 0.1, 0.25, 1.0)'
-const NATIVE_EASING = 'auto'
-
 interface DemoScrollProps {
   prompt: string
   toastMessage: string
@@ -107,7 +104,7 @@ export function DemoScroll({ prompt, toastMessage }: DemoScrollProps) {
         transition={{ duration: 0.3, delay: 0.2 }}
         ref={cardRef}
         className="w-full max-w-md h-[480px] rounded-xl border bg-card shadow-xl overflow-y-auto select-none"
-        style={{ scrollBehavior: prefersReducedMotion ? 'auto' : (enabled ? SMOOTH_EASING : NATIVE_EASING) }}
+        style={{ scrollBehavior: prefersReducedMotion ? 'auto' : (enabled ? 'smooth' : 'auto') }}
         tabIndex={0}
         aria-label="Demo scroll card"
       >

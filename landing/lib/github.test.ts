@@ -16,13 +16,13 @@ describe('github.ts', () => {
 
   describe('formatSize', () => {
     it('formats MB', () => {
-      expect(formatSize(5242880)).toBe('5.0 MB')
+      expect(formatSize(5000000)).toBe('5.0 MB')
     })
     it('formats GB', () => {
-      expect(formatSize(1073741824)).toBe('1.0 GB')
+      expect(formatSize(1000000000)).toBe('1.0 GB')
     })
     it('formats KB', () => {
-      expect(formatSize(512000)).toBe('500 KB')
+      expect(formatSize(500000)).toBe('500 KB')
     })
   })
 })

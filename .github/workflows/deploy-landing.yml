@@ -1,34 +1,40 @@
-name: Deploy Landing
+name: Deploy Landing Page
 
 on:
   push:
     branches: [master]
-    paths:
-      - 'docs/landing/**'
-      - '.github/workflows/deploy-landing.yml'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
-concurrency:
-  group: deploy-landing
-  cancel-in-progress: true
-
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: grant
     steps:
-      - name: Checkout master
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Deploy docs/landing/ to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: landing/package-lock.json
+
+      - run: cd landing && npm ci
+
+      - run: cd landing && npm run build
+        env:
+          NODE_ENV: production
+
+      - run: cp -r landing/out/* docs/landing/
+
+      - run: rm -rf docs/landing/assets
+         # Preserve user-supplied static assets
+      - run: cp -r public/assets docs/landing/ 2>/dev/null || true
+
+      - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/landing
           publish_branch: gh-pages
-          keep_files: false
-          commit_message: 'deploy: ${{ github.event.head_commit.message }}'
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'

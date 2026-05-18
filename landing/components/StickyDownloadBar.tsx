@@ -38,7 +38,7 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
-          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           className="fixed bottom-0 inset-x-0 z-50 border-t bg-background/90 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.1)] px-4 py-3"
           role="complementary"
           aria-label="Download bar"
