@@ -3,38 +3,59 @@ name: Deploy Landing Page
 on:
   push:
     branches: [master]
+    paths:
+      - 'landing/**'
+      - '.github/workflows/deploy-landing.yml'
   workflow_dispatch:
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: grant
-    steps:
-      - uses: actions/checkout@v4
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
 
-      - uses: actions/setup-node@v4
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: landing/package-lock.json
 
-      - run: cd landing && npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - run: cd landing && npm run build
+      - name: Build Next.js static export
+        run: npm run build
         env:
           NODE_ENV: production
 
-      - run: cp -r landing/out/* docs/landing/
+      - name: Add .nojekyll
+        run: touch out/.nojekyll
 
-      - run: rm -rf docs/landing/assets
-         # Preserve user-supplied static assets
-      - run: cp -r public/assets docs/landing/ 2>/dev/null || true
-
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/landing
-          publish_branch: gh-pages
+          path: landing/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

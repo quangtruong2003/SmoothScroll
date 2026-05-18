@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://quangtruong2003.github.io/SmoothScroll/sitemap.xml
