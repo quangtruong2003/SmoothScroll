@@ -18,17 +18,14 @@ export const metadata: Metadata = {
   },
 }
 
-const themeScript = `(function(){try{var m=window.matchMedia('(prefers-color-scheme: dark)');var apply=function(e){if(e.matches){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}};apply(m);if(m.addEventListener){m.addEventListener('change',apply)}else{m.addListener(apply)}}catch(e){}})();`
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <meta name="color-scheme" content="light dark" />
       </head>
       <body>

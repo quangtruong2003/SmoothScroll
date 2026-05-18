@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* App-consistent neutral palette (hue 240, copied from src/index.css) */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -26,31 +25,32 @@
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
 
-    /* Marketing brand accent — used sparingly */
     --brand-from: 220 90% 65%;
     --brand-to: 260 80% 70%;
   }
 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 240 10% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 240 4.9% 83.9%;
+    }
   }
 }
 
@@ -79,25 +79,22 @@
   }
 
   .bg-dot-grid::before {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><circle cx='12' cy='12' r='0.75' fill='currentColor'/></svg>");
-    background-size: 24px 24px;
-    color: hsl(var(--foreground));
-    opacity: 0.04;
+    background-image: radial-gradient(hsl(var(--foreground) / 0.18) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 
   .bg-dot-grid::after {
     background: radial-gradient(
-      circle 150px at var(--mx, 50%) var(--my, 50%),
-      hsl(var(--brand-from) / 0.10),
-      hsl(var(--brand-to) / 0.05) 60%,
+      circle 220px at var(--mx, 50%) var(--my, 50%),
+      hsl(var(--brand-from) / 0.18),
+      hsl(var(--brand-to) / 0.08) 55%,
       transparent 100%
     );
-    transition: opacity 200ms ease-out;
   }
 
   @media (hover: none), (prefers-reduced-motion: reduce) {
     .bg-dot-grid::after {
-      opacity: 0.5;
+      opacity: 0.6;
     }
   }
 }
