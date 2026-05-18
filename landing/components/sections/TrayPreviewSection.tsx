@@ -1,8 +1,10 @@
 'use client'
 
+import Image from 'next/image'
 import { FadeUp } from '@/components/motion/FadeUp'
-import { TrayPreview } from '@/components/TrayPreview'
 import type { Dictionary } from '@/lib/i18n/dict'
+
+const BASE_PATH = process.env.NODE_ENV === 'production' ? '/SmoothScroll' : ''
 
 interface TrayPreviewSectionProps {
   dict: { trayPreview?: Dictionary['trayPreview'] }
@@ -21,7 +23,16 @@ export function TrayPreviewSection({ dict }: TrayPreviewSectionProps) {
           </FadeUp>
           <FadeUp delay={0.15}>
             <div className="flex justify-center lg:justify-end">
-              <TrayPreview />
+              <div className="relative max-w-sm w-full rounded-xl overflow-hidden shadow-2xl ring-1 ring-border">
+                <Image
+                  src={`${BASE_PATH}/assets/screenshot-tray.png`}
+                  alt="SmoothScroll system tray panel"
+                  width={300}
+                  height={430}
+                  className="w-full h-auto block"
+                  priority={false}
+                />
+              </div>
             </div>
           </FadeUp>
         </div>
