@@ -1,0 +1,318 @@
+{
+  "app": {
+    "title": "SmoothScroll",
+    "tagline_on": "Yumuşak kaydırma etkin",
+    "tagline_off": "Yerel kaydırma etkin"
+  },
+  "section": {
+    "scrolling": "Kaydırma",
+    "animation": "Animasyon",
+    "direction": "Yön",
+    "behavior": "Davranış",
+    "excluded_apps": "Hariç tutulan uygulamalar",
+    "profiles": "Kaydırma profilleri",
+    "app_profiles": "Uygulama başına atamalar",
+    "language": "Dil",
+    "theme": "Görünüm",
+    "test_scroll": "Kaydırmayı test et",
+    "touchpad": "Hassas dokunmatik yüzey",
+    "keyboard_scroll": "Klavye kaydırma yumuşatması",
+    "game_mode": "Oyun modu",
+    "about": "Hakkında"
+  },
+  "tabs": {
+    "general": {
+      "label": "Genel",
+      "title": "Genel",
+      "description": "Hızlı düğmeler ve canlı test."
+    },
+    "scroll": {
+      "label": "Kaydırma",
+      "title": "Kaydırma",
+      "description": "Adım boyutu, easing, yön ve giriş kaynaklarını ayarlayın."
+    },
+    "apps": {
+      "label": "Uygulamalar",
+      "title": "Uygulama başına",
+      "description": "Belirli uygulamalara özel profiller ve hariç tutmalar."
+    },
+    "preferences": {
+      "label": "Tercihler",
+      "title": "Tercihler",
+      "description": "Davranış, kısayollar ve oyun modu."
+    },
+    "about": {
+      "label": "Hakkında",
+      "title": "Hakkında",
+      "description": "Sürüm, güncellemeler ve günlükler."
+    }
+  },
+  "presets": {
+    "slow": "Yavaş",
+    "default": "Varsayılan",
+    "fast": "Hızlı",
+    "snappy": "Çevik",
+    "mac_like": "Mac tarzı",
+    "linear": "Doğrusal"
+  },
+  "test_scroll": {
+    "description": "Mevcut ayarları hissetmek için kutunun içinde kaydırın.",
+    "line": "Satır {{n}} — tekerleği burada deneyin"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Adım boyutu",
+      "desc": "Tekerlek çentiği başına kaydırılan piksel"
+    },
+    "anim_time": {
+      "title": "Animasyon süresi",
+      "desc": "Her kaydırma hareketi ne kadar sürer"
+    },
+    "accel_window": {
+      "title": "İvme penceresi",
+      "desc": "Bu pencere içindeki çentikler momentum biriktirir"
+    },
+    "accel_max": {
+      "title": "Maksimum ivme",
+      "desc": "İvme çarpanının üst sınırı"
+    },
+    "tail_ratio": {
+      "title": "Kuyruk/baş oranı",
+      "desc": "Daha yüksek değerler daha keskin bir ease-out eğrisi verir"
+    },
+    "easing_toggle": {
+      "title": "Yumuşatma",
+      "desc": "Her kaydırma hareketine easing eğrisi uygula"
+    },
+    "easing_curve": {
+      "title": "Easing eğrisi",
+      "desc": "Yavaşlama eğrisinin şekli",
+      "preview": "Önizleme",
+      "ExponentialOut": "Exponential Out (varsayılan)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Doğrusal"
+    },
+    "reverse_wheel": {
+      "title": "Yönü tersine çevir",
+      "desc": "Kaydırma yönünü tersine çevir (doğal stil)"
+    },
+    "horizontal_smoothness": {
+      "title": "Yatay kaydırmayı yumuşat",
+      "desc": "Eğimli tekerlek ve Shift+tekerlek kaydırmalarına yumuşatma uygula"
+    },
+    "shift_horizontal": {
+      "title": "Shift'i yataya çevir",
+      "desc": "Kaydırırken Shift'i basılı tutmak yatay kaydırma yapar"
+    },
+    "global_hotkey": {
+      "title": "Global kısayol",
+      "desc": "Yumuşak kaydırmayı açıp kapatmak için seçilen kombinasyonu herhangi bir yerde kullanın"
+    },
+    "hotkey_accelerator": {
+      "title": "Kısayol kombinasyonu",
+      "desc": "Tıklayın ve kullanmak istediğiniz tuşlara basın",
+      "press": "Bir tuş kombinasyonuna basın…",
+      "empty": "Kaydetmek için tıklayın",
+      "aria": "Kısayol kombinasyonu girişi"
+    },
+    "start_with_os": {
+      "title": "Windows ile başlat",
+      "desc": "Oturum açıldığında SmoothScroll'u başlat"
+    },
+    "start_minimized": {
+      "title": "Tepsiye küçültülmüş başlat",
+      "desc": "Başlatıldığında ayarlar penceresini gizle"
+    },
+    "theme": {
+      "title": "Tema",
+      "desc": "Açık, koyu veya sistemi izle",
+      "Light": "Açık",
+      "Dark": "Koyu",
+      "System": "Sistem"
+    },
+    "reset_to_default": "Varsayılana sıfırla",
+    "touchpad": {
+      "detected": "Algılandı",
+      "source": {
+        "Wheel": "Fare tekerleği",
+        "HighResWheel": "Yüksek çözünürlüklü tekerlek",
+        "Touchpad": "Hassas dokunmatik yüzey"
+      },
+      "enable": {
+        "title": "Yumuşak dokunmatik yüzey kaydırması",
+        "desc": "Yüksek çözünürlüklü dokunmatik yüzey girişine easing uygula"
+      },
+      "pixel_multiplier": {
+        "title": "Piksel çarpanı",
+        "desc": "Dokunmatik yüzeyden gelen ham piksel deltalarını ölçeklendir"
+      },
+      "acceleration": {
+        "title": "İvme faktörü",
+        "desc": "Büyük hareketleri güçlendir. 0 ivmeyi devre dışı bırakır."
+      }
+    }
+  },
+  "excluded": {
+    "empty": "Hariç tutulan uygulama yok. Yumuşak kaydırma her yerde etkin.",
+    "add": "Uygulama ekle",
+    "remove_aria": "{{name}} öğesini kaldır",
+    "added": "{{name}} hariç tutulan uygulamalara eklendi",
+    "removed": "{{name}} hariç tutulan uygulamalardan kaldırıldı",
+    "dialog": {
+      "title": "Bir uygulamayı hariç tut",
+      "desc": "Çalışan bir uygulamayı seçin veya işlem adını yazın (.exe olmadan).",
+      "filter": "Filtrele…",
+      "manual": "Veya işlem adı yazın…",
+      "manual_button": "Ekle",
+      "cancel": "İptal",
+      "scanning": "İşlemler taranıyor…",
+      "no_match": "Eşleşen işlem yok."
+    }
+  },
+  "profiles": {
+    "description": "Belirli uygulamalara atayabileceğiniz özel kaydırma ayarları.",
+    "empty": "Henüz özel profil yok. Uygulama başına kaydırma davranışını ayarlamak için bir tane oluşturun.",
+    "create": "Profil oluştur",
+    "created": "\"{{name}}\" profili oluşturuldu",
+    "deleted": "\"{{name}}\" profili silindi",
+    "saved": "\"{{name}}\" profili kaydedildi",
+    "delete_confirm": "\"{{name}}\" profili silinsin mi?",
+    "delete_confirm_desc": "Bu profil kalıcı olarak kaldırılacak. Atanan uygulamaların önce ataması kaldırılmalıdır.",
+    "delete": "Sil",
+    "name_required": "Profil adı gereklidir",
+    "edit_aria": "{{name}} öğesini düzenle",
+    "delete_aria": "{{name}} öğesini sil",
+    "edit_title": "Profili düzenle: {{name}}",
+    "assigned_to": "{{count}} uygulamaya atandı",
+    "assigned_to_plural": "{{count}} uygulamaya atandı",
+    "unassigned": "Hiçbir uygulamaya atanmadı",
+    "create_dialog": {
+      "title": "Profil oluştur",
+      "desc": "Yeni profilinize bir ad verin. Ayarlarını sonraki adımda düzenleyebilirsiniz.",
+      "placeholder": "örn. Hızlı, Mac tarzı, Yavaş okuma"
+    },
+    "field": {
+      "name": "Profil adı",
+      "name_desc": "Uygulama listesinde gösterilen kullanıcı dostu etiket"
+    },
+    "suggest": {
+      "title": "{{category}} için önerilen",
+      "disable": "Yumuşatmayı devre dışı bırak",
+      "custom_preset": "Özel ön ayar ({{step}}px, {{ms}}ms)",
+      "use": "Öneriyi kullan",
+      "pick_manually": "Manuel olarak seç"
+    }
+  },
+  "app_profiles": {
+    "description": "SmoothScroll'un belirli uygulamalarda nasıl davranacağını seçin.",
+    "empty": "Uygulama başına geçersiz kılma yok. Tüm uygulamalar global ayarlarınızı kullanır.",
+    "assign": "Uygulama ata",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "{{name}} için geçersiz kılma kaldırıldı",
+    "remove_aria": "{{name}} için geçersiz kılmayı kaldır",
+    "disabled": "Devre dışı (pass-through)",
+    "unknown_profile": "Bilinmeyen profil",
+    "dialog": {
+      "title": "Uygulamaya profil ata",
+      "desc": "Kullanılacak profili seçin, ardından atanacak uygulamayı seçin.",
+      "select_profile": "Atanacak profil"
+    }
+  },
+  "keyboard_scroll": {
+    "windows_only": "(Yalnızca Windows)",
+    "enable_smoothing": "Klavye yumuşatmasını etkinleştir",
+    "active_keys": "Aktif tuşlar",
+    "pgdn_step": "PageUp/PageDown adımı: {{value}} çentik",
+    "arrow_step": "Ok adımı: {{value}} çentik",
+    "skip_in_text_inputs": "Metin alanlarında atla"
+  },
+  "game_mode": {
+    "auto_disable": "Oyunlarda otomatik devre dışı bırak",
+    "status_label": "Durum",
+    "status_active": "🎮 Aktif — yumuşak kaydırma duraklatıldı",
+    "status_inactive": "Pasif",
+    "known_games": "Bilinen oyunlar",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "Otomatik başlatma ayarı değiştirilemedi",
+    "hotkey_toggle_failed": "Kısayol açılıp kapatılamadı",
+    "hotkey_save_failed": "Kısayol kombinasyonu kaydedilemedi",
+    "excluded_add_failed": "Uygulama hariç tutma listesine eklenemedi",
+    "excluded_remove_failed": "Uygulama hariç tutma listesinden kaldırılamadı",
+    "profile_create_failed": "Profil oluşturulamadı",
+    "profile_in_use": "Silinemiyor: profil {{count}} uygulamaya atanmış",
+    "profile_in_use_plural": "Silinemiyor: profil {{count}} uygulamaya atanmış",
+    "app_profile_assign_failed": "Profil uygulamaya atanamadı",
+    "app_profile_remove_failed": "Uygulama geçersiz kılması kaldırılamadı",
+    "save_failed": "Ayarlar kaydedilemedi. Değişiklikler bellekte tutulur ancak kalıcı olmayacak."
+  },
+  "language": {
+    "select_label": "Görüntüleme dili",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "Ayarlar yükleniyor…",
+    "load_failed": "Ayarlar yüklenemedi: {{error}}",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "add": "Ekle"
+  },
+  "about": {
+    "version": "Sürüm",
+    "author": "Yazar",
+    "open_logs": "Günlük klasörünü aç",
+    "homepage": "Ana sayfa",
+    "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
+    "updates": "Güncellemeler",
+    "check_now": "Şimdi denetle",
+    "checking": "Denetleniyor…",
+    "up_to_date": "En son sürümü kullanıyorsunuz.",
+    "update_available": "Güncelleme mevcut: v{{version}}",
+    "install_now": "Şimdi yükle",
+    "downloading": "İndiriliyor… {{pct}}%",
+    "ready_to_restart": "Güncelleme yüklendi. Uygulamak için yeniden başlatın.",
+    "restart_now": "Şimdi yeniden başlat"
+  },
+  "forced_update": {
+    "title": "Güncelleme gerekli",
+    "description": "Yeni bir sürüm mevcut. Kullanmaya devam etmek için SmoothScroll'u güncellemelisiniz. (Mevcut: v{{current}} → Yeni: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "Yenilikler",
+    "install": "İndir ve yükle",
+    "downloading": "İndiriliyor… {{pct}}%",
+    "downloading_btn": "İndiriliyor…",
+    "installed_btn": "Yüklendi",
+    "restarting": "Güncelleme yüklendi. Yeniden başlatılıyor…",
+    "quit": "Çıkış",
+    "skip": "Atla (güvenilir cihaz)",
+    "error": "Güncelleme başarısız: {{message}}"
+  },
+  "tray": {
+    "quick_access": "Hızlı erişim",
+    "smooth_scrolling": "Yumuşak kaydırma",
+    "start_with_windows": "Windows ile başlat",
+    "start_minimized": "Küçültülmüş başlat",
+    "actions": "Eylemler",
+    "open_settings": "Ayarları aç",
+    "excluded_apps": "Hariç tutulan uygulamalar",
+    "open_log": "Günlük dosyasını aç",
+    "quit": "SmoothScroll'tan çık",
+    "status_on": "ON",
+    "status_off": "OFF"
+  }
+}

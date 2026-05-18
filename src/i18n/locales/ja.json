@@ -1,0 +1,318 @@
+{
+  "app": {
+    "title": "SmoothScroll",
+    "tagline_on": "スムーススクロールが有効です",
+    "tagline_off": "ネイティブスクロールが有効です"
+  },
+  "section": {
+    "scrolling": "スクロール",
+    "animation": "アニメーション",
+    "direction": "方向",
+    "behavior": "動作",
+    "excluded_apps": "除外アプリ",
+    "profiles": "スクロールプロファイル",
+    "app_profiles": "アプリ別の割り当て",
+    "language": "言語",
+    "theme": "外観",
+    "test_scroll": "スクロールをテスト",
+    "touchpad": "高精度タッチパッド",
+    "keyboard_scroll": "キーボードスクロールのスムージング",
+    "game_mode": "ゲームモード",
+    "about": "情報"
+  },
+  "tabs": {
+    "general": {
+      "label": "一般",
+      "title": "一般",
+      "description": "クイックトグルとライブテスト。"
+    },
+    "scroll": {
+      "label": "スクロール",
+      "title": "スクロール",
+      "description": "ステップサイズ、イージング、方向、入力ソースを調整します。"
+    },
+    "apps": {
+      "label": "アプリ",
+      "title": "アプリ別",
+      "description": "特定のアプリ向けのプロファイルと除外設定。"
+    },
+    "preferences": {
+      "label": "環境設定",
+      "title": "環境設定",
+      "description": "動作、ホットキー、ゲームモード。"
+    },
+    "about": {
+      "label": "情報",
+      "title": "情報",
+      "description": "バージョン、アップデート、ログ。"
+    }
+  },
+  "presets": {
+    "slow": "遅い",
+    "default": "デフォルト",
+    "fast": "速い",
+    "snappy": "キビキビ",
+    "mac_like": "Macライク",
+    "linear": "リニア"
+  },
+  "test_scroll": {
+    "description": "現在の設定を確かめるにはボックス内でスクロールしてください。",
+    "line": "{{n}}行目 — ここでホイールを試してください"
+  },
+  "settings": {
+    "step_size": {
+      "title": "ステップサイズ",
+      "desc": "ホイール1ノッチあたりのスクロールピクセル数"
+    },
+    "anim_time": {
+      "title": "アニメーション時間",
+      "desc": "各スクロール動作の継続時間"
+    },
+    "accel_window": {
+      "title": "加速ウィンドウ",
+      "desc": "このウィンドウ内のノッチで勢いが累積されます"
+    },
+    "accel_max": {
+      "title": "最大加速",
+      "desc": "加速倍率の上限"
+    },
+    "tail_ratio": {
+      "title": "テール/ヘッド比",
+      "desc": "値が大きいほどイーズアウトが鋭くなります"
+    },
+    "easing_toggle": {
+      "title": "スムーズイージング",
+      "desc": "各スクロール動作にイージングカーブを適用"
+    },
+    "easing_curve": {
+      "title": "イージングカーブ",
+      "desc": "減速カーブの形状",
+      "preview": "プレビュー",
+      "ExponentialOut": "Exponential Out (デフォルト)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Linear"
+    },
+    "reverse_wheel": {
+      "title": "方向を反転",
+      "desc": "スクロール方向を反転 (ナチュラルスタイル)"
+    },
+    "horizontal_smoothness": {
+      "title": "水平スクロールをスムーズに",
+      "desc": "チルトホイールとShift+ホイールにスムージングを適用"
+    },
+    "shift_horizontal": {
+      "title": "Shiftで水平スクロールに変換",
+      "desc": "スクロール中にShiftを押すと水平スクロールになります"
+    },
+    "global_hotkey": {
+      "title": "グローバルホットキー",
+      "desc": "どこからでも指定の組み合わせでスムーススクロールを切り替え"
+    },
+    "hotkey_accelerator": {
+      "title": "キーの組み合わせ",
+      "desc": "クリックして使いたいキーを押してください",
+      "press": "キーの組み合わせを押してください…",
+      "empty": "クリックして記録",
+      "aria": "ホットキーの組み合わせ入力"
+    },
+    "start_with_os": {
+      "title": "Windowsと同時に起動",
+      "desc": "ログイン時にSmoothScrollを起動します"
+    },
+    "start_minimized": {
+      "title": "最小化された状態でトレイに起動",
+      "desc": "起動時に設定ウィンドウを非表示にします"
+    },
+    "theme": {
+      "title": "テーマ",
+      "desc": "ライト、ダーク、またはシステムに従う",
+      "Light": "ライト",
+      "Dark": "ダーク",
+      "System": "システム"
+    },
+    "reset_to_default": "デフォルトに戻す",
+    "touchpad": {
+      "detected": "検出済み",
+      "source": {
+        "Wheel": "マウスホイール",
+        "HighResWheel": "高解像度ホイール",
+        "Touchpad": "高精度タッチパッド"
+      },
+      "enable": {
+        "title": "タッチパッドのスムーズスクロール",
+        "desc": "高解像度タッチパッド入力にイージングを適用"
+      },
+      "pixel_multiplier": {
+        "title": "ピクセル乗数",
+        "desc": "タッチパッドからの生のピクセルデルタをスケール"
+      },
+      "acceleration": {
+        "title": "加速係数",
+        "desc": "大きなフリックを強調。0で加速を無効化。"
+      }
+    }
+  },
+  "excluded": {
+    "empty": "除外アプリはありません。スムーススクロールはどこでも有効です。",
+    "add": "アプリを追加",
+    "remove_aria": "{{name}} を削除",
+    "added": "{{name}} を除外アプリに追加しました",
+    "removed": "{{name}} を除外アプリから削除しました",
+    "dialog": {
+      "title": "アプリを除外",
+      "desc": "実行中のアプリを選ぶか、プロセス名を入力してください (.exeなし)。",
+      "filter": "絞り込み…",
+      "manual": "またはプロセス名を入力…",
+      "manual_button": "追加",
+      "cancel": "キャンセル",
+      "scanning": "プロセスをスキャン中…",
+      "no_match": "一致するプロセスがありません。"
+    }
+  },
+  "profiles": {
+    "description": "特定のアプリに割り当てられるカスタムスクロール設定。",
+    "empty": "カスタムプロファイルはまだありません。アプリ別にスクロールを調整するには作成してください。",
+    "create": "プロファイルを作成",
+    "created": "プロファイル「{{name}}」を作成しました",
+    "deleted": "プロファイル「{{name}}」を削除しました",
+    "saved": "プロファイル「{{name}}」を保存しました",
+    "delete_confirm": "プロファイル「{{name}}」を削除しますか?",
+    "delete_confirm_desc": "このプロファイルは完全に削除されます。割り当て済みのアプリは先に解除する必要があります。",
+    "delete": "削除",
+    "name_required": "プロファイル名は必須です",
+    "edit_aria": "{{name}} を編集",
+    "delete_aria": "{{name}} を削除",
+    "edit_title": "プロファイルを編集: {{name}}",
+    "assigned_to": "{{count}} 個のアプリに割り当て済み",
+    "assigned_to_plural": "{{count}} 個のアプリに割り当て済み",
+    "unassigned": "どのアプリにも割り当てられていません",
+    "create_dialog": {
+      "title": "プロファイルを作成",
+      "desc": "新しいプロファイルに名前を付けてください。次の手順で設定を編集できます。",
+      "placeholder": "例: 速い、Macライク、ゆっくり読む"
+    },
+    "field": {
+      "name": "プロファイル名",
+      "name_desc": "アプリ一覧に表示されるラベル"
+    },
+    "suggest": {
+      "title": "{{category}} におすすめ",
+      "disable": "スムージングを無効化",
+      "custom_preset": "カスタムプリセット ({{step}}px, {{ms}}ms)",
+      "use": "提案を使用",
+      "pick_manually": "手動で選ぶ"
+    }
+  },
+  "app_profiles": {
+    "description": "特定のアプリでのSmoothScrollの動作を選択します。",
+    "empty": "アプリ別の上書きはありません。すべてのアプリがグローバル設定を使用します。",
+    "assign": "アプリを割り当て",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "{{name}} の上書きを削除しました",
+    "remove_aria": "{{name}} の上書きを削除",
+    "disabled": "無効 (パススルー)",
+    "unknown_profile": "不明なプロファイル",
+    "dialog": {
+      "title": "アプリにプロファイルを割り当て",
+      "desc": "使用するプロファイルを選び、割り当てるアプリを選択してください。",
+      "select_profile": "割り当てるプロファイル"
+    }
+  },
+  "keyboard_scroll": {
+    "windows_only": "(Windowsのみ)",
+    "enable_smoothing": "キーボードスムージングを有効化",
+    "active_keys": "有効キー",
+    "pgdn_step": "PageUp/PageDown ステップ: {{value}} ノッチ",
+    "arrow_step": "矢印キー ステップ: {{value}} ノッチ",
+    "skip_in_text_inputs": "テキスト入力欄ではスキップ"
+  },
+  "game_mode": {
+    "auto_disable": "ゲーム中は自動で無効化",
+    "status_label": "ステータス",
+    "status_active": "🎮 アクティブ — スムーススクロールを一時停止中",
+    "status_inactive": "非アクティブ",
+    "known_games": "既知のゲーム",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "自動起動の設定変更に失敗しました",
+    "hotkey_toggle_failed": "ホットキーの切り替えに失敗しました",
+    "hotkey_save_failed": "ホットキーの組み合わせを保存できませんでした",
+    "excluded_add_failed": "アプリを除外リストに追加できませんでした",
+    "excluded_remove_failed": "アプリを除外リストから削除できませんでした",
+    "profile_create_failed": "プロファイルを作成できませんでした",
+    "profile_in_use": "削除できません: プロファイルは {{count}} 個のアプリに割り当てられています",
+    "profile_in_use_plural": "削除できません: プロファイルは {{count}} 個のアプリに割り当てられています",
+    "app_profile_assign_failed": "アプリにプロファイルを割り当てられませんでした",
+    "app_profile_remove_failed": "アプリの上書きを削除できませんでした",
+    "save_failed": "設定の保存に失敗しました。変更はメモリには残りますが、保持されません。"
+  },
+  "language": {
+    "select_label": "表示言語",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "設定を読み込み中…",
+    "load_failed": "設定の読み込みに失敗しました: {{error}}",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "add": "追加"
+  },
+  "about": {
+    "version": "バージョン",
+    "author": "作者",
+    "open_logs": "ログフォルダを開く",
+    "homepage": "ホームページ",
+    "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
+    "updates": "アップデート",
+    "check_now": "今すぐ確認",
+    "checking": "確認中…",
+    "up_to_date": "最新バージョンを使用しています。",
+    "update_available": "アップデートあり: v{{version}}",
+    "install_now": "今すぐインストール",
+    "downloading": "ダウンロード中… {{pct}}%",
+    "ready_to_restart": "アップデートをインストールしました。適用するには再起動してください。",
+    "restart_now": "今すぐ再起動"
+  },
+  "forced_update": {
+    "title": "アップデートが必要です",
+    "description": "新しいバージョンが利用可能です。続けて使用するにはSmoothScrollをアップデートしてください。(現在: v{{current}} → 新規: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "新着情報",
+    "install": "ダウンロードしてインストール",
+    "downloading": "ダウンロード中… {{pct}}%",
+    "downloading_btn": "ダウンロード中…",
+    "installed_btn": "インストール済み",
+    "restarting": "アップデートをインストールしました。再起動中…",
+    "quit": "終了",
+    "skip": "スキップ (信頼できる端末)",
+    "error": "アップデートに失敗しました: {{message}}"
+  },
+  "tray": {
+    "quick_access": "クイックアクセス",
+    "smooth_scrolling": "スムーススクロール",
+    "start_with_windows": "Windowsと同時に起動",
+    "start_minimized": "最小化された状態で起動",
+    "actions": "アクション",
+    "open_settings": "設定を開く",
+    "excluded_apps": "除外アプリ",
+    "open_log": "ログファイルを開く",
+    "quit": "SmoothScrollを終了",
+    "status_on": "ON",
+    "status_off": "OFF"
+  }
+}

@@ -232,7 +232,18 @@
     "select_label": "显示语言",
     "en": "English",
     "vi": "Tiếng Việt",
-    "zh": "中文"
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
   },
   "common": {
     "loading_settings": "正在加载设置…",
