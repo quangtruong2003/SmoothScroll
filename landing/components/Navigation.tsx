@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -39,10 +40,14 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
     >
       <nav className="container flex items-center justify-between">
         <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <rect width="20" height="20" rx="4" fill="hsl(240 5.9% 10%)" />
-            <path d="M5 8h10M5 12h10" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+          <Image
+            src="/assets/icon-128.png"
+            alt="SmoothScroll logo"
+            width={28}
+            height={28}
+            priority
+            className="rounded-md"
+          />
           SmoothScroll
         </Link>
 
