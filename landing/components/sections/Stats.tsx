@@ -2,6 +2,7 @@
 
 import { FadeUp } from '@/components/motion/FadeUp'
 import { fetchLatestRelease, formatDownloadCount, fakeDownloadOffset } from '@/lib/github'
+import { useGitHubStars } from '@/lib/useGitHubStars'
 import { Star, Download, Tag } from 'lucide-react'
 import type { Dictionary } from '@/lib/i18n/dict'
 import { useState, useEffect, useMemo } from 'react'
@@ -38,14 +39,12 @@ export function Stats({ dict }: StatsProps) {
   }
   const fb = useMemo(() => s.fallback ?? { stars: '—', downloads: '—', version: '—' }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [stars, setStars] = useState<string>(fb.stars ?? '—')
+  const liveStars = useGitHubStars()
   const [downloads, setDownloads] = useState<string>(fb.downloads ?? '—')
   const [version, setVersion] = useState<string>(fb.version ?? '—')
 
   useEffect(() => {
-    const fallbackStars = fb.stars ?? '—'
     const fallbackVersion = fb.version ?? '—'
-
     setDownloads(formatDownloadCount(fakeDownloadOffset()))
 
     fetchLatestRelease()
@@ -58,23 +57,9 @@ export function Stats({ dict }: StatsProps) {
         setVersion(releaseData.tag_name ?? fallbackVersion)
       })
       .catch(() => {})
-
-    const cachedStars = (() => {
-      try { return sessionStorage.getItem('gh-stars') } catch { return null }
-    })()
-    if (cachedStars) {
-      setStars(cachedStars)
-      return
-    }
-    fetch('https://api.github.com/repos/quangtruong2003/SmoothScroll')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        const value = d?.stargazers_count?.toLocaleString() ?? fallbackStars
-        setStars(value)
-        try { sessionStorage.setItem('gh-stars', value) } catch {}
-      })
-      .catch(() => {})
   }, [fb])
+
+  const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '—')
 
   return (
     <section className="py-20 px-4">
@@ -86,7 +71,7 @@ export function Stats({ dict }: StatsProps) {
         </FadeUp>
         <FadeUp delay={0.1}>
           <div className="grid sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <StatCard icon={Star} value={stars} label={s.githubStars ?? ''} />
+            <StatCard icon={Star} value={starsDisplay} label={s.githubStars ?? ''} />
             <StatCard icon={Download} value={downloads} label={s.downloads ?? ''} />
             <StatCard icon={Tag} value={version} label={s.version ?? ''} />
           </div>

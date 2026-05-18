@@ -7,7 +7,7 @@ export function FlagIcon({ lang }: { lang: Locale }) {
   switch (lang) {
     case 'vi':
       return (
-        <svg {...COMMON} aria-hidden className={CLASSES}>
+        <svg {...COMMON} aria-hidden="true" className={CLASSES}>
           <rect width="18" height="12" fill="#DA251D" />
           <polygon
             points="9,2.4 10.05,5.46 13.32,5.46 10.68,7.32 11.73,10.38 9,8.52 6.27,10.38 7.32,7.32 4.68,5.46 7.95,5.46"
@@ -17,7 +17,7 @@ export function FlagIcon({ lang }: { lang: Locale }) {
       )
     case 'zh':
       return (
-        <svg {...COMMON} aria-hidden className={CLASSES}>
+        <svg {...COMMON} aria-hidden="true" className={CLASSES}>
           <rect width="18" height="12" fill="#DE2910" />
           <g fill="#FFDE00">
             <polygon points="3,1.6 3.55,3.05 5.1,3.05 3.85,3.95 4.4,5.4 3,4.5 1.6,5.4 2.15,3.95 0.9,3.05 2.45,3.05" />
@@ -31,7 +31,7 @@ export function FlagIcon({ lang }: { lang: Locale }) {
     case 'en':
     default:
       return (
-        <svg {...COMMON} aria-hidden className={CLASSES}>
+        <svg {...COMMON} aria-hidden="true" className={CLASSES}>
           <rect width="18" height="12" fill="#B22234" />
           <g fill="#FFFFFF">
             <rect y="0.92" width="18" height="0.92" />

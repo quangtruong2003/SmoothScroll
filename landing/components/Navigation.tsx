@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
+import { useGitHubStars } from '@/lib/useGitHubStars'
 import type { Locale } from '@/lib/i18n/dict'
 
 const BASE_PATH = process.env.NODE_ENV === 'production' ? '/SmoothScroll' : ''
@@ -17,30 +18,12 @@ interface NavigationProps {
 
 export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false)
-  const [stars, setStars] = useState<string | null>(null)
+  const stars = useGitHubStars()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    const cached = typeof window !== 'undefined' ? sessionStorage.getItem('gh-stars') : null
-    if (cached) {
-      setStars(cached)
-      return
-    }
-    fetch('https://api.github.com/repos/quangtruong2003/SmoothScroll')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        const value = d?.stargazers_count?.toLocaleString() ?? null
-        if (value) {
-          setStars(value)
-          try { sessionStorage.setItem('gh-stars', value) } catch {}
-        }
-      })
-      .catch(() => {})
   }, [])
 
   return (
@@ -65,7 +48,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
         </Link>
 
         <div className="flex items-center gap-4">
-          {stars && (
+          {stars !== null && (
             <a
               href="https://github.com/quangtruong2003/SmoothScroll"
               target="_blank"
@@ -73,7 +56,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <Star className="h-4 w-4" />
-              <span>{stars}</span>
+              <span>{stars.toLocaleString()}</span>
             </a>
           )}
           <a

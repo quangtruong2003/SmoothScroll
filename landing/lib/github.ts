@@ -52,15 +52,20 @@ export async function fetchLatestRelease(): Promise<Release> {
 // Deterministic per-day fake download offset.
 // Real downloads from GitHub API are added on top, so genuine clicks still count.
 // Each day adds 30-100 fakes; same day always returns same number across renders.
+let _fakeOffsetCache: { day: number; value: number } | null = null
+
 export function fakeDownloadOffset(now: number = Date.now()): number {
   const LAUNCH = new Date('2026-01-01').getTime()
   const days = Math.max(0, Math.floor((now - LAUNCH) / 86_400_000))
+  if (_fakeOffsetCache && _fakeOffsetCache.day === days) return _fakeOffsetCache.value
+
   let seed = 42
   let total = 0
   for (let i = 0; i < days; i++) {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
     total += 30 + Math.floor((seed / 0xffffffff) * 71) // 30..100
   }
+  _fakeOffsetCache = { day: days, value: total }
   return total
 }
 
