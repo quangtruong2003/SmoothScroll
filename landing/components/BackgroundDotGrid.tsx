@@ -11,30 +11,55 @@ export function BackgroundDotGrid() {
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const noHover = window.matchMedia('(hover: none)').matches
-    if (reduced || noHover) {
-      root.style.setProperty('--mx', '50%')
-      root.style.setProperty('--my', '50%')
-      return
+    if (reduced || noHover) return
+
+    let targetX = -1000
+    let targetY = -1000
+    let currentX = -1000
+    let currentY = -1000
+    let rafId = 0
+    let hasMoved = false
+
+    const tick = () => {
+      currentX += (targetX - currentX) * 0.18
+      currentY += (targetY - currentY) * 0.18
+      root.style.setProperty('--mx', currentX + 'px')
+      root.style.setProperty('--my', currentY + 'px')
+
+      if (Math.abs(targetX - currentX) > 0.5 || Math.abs(targetY - currentY) > 0.5) {
+        rafId = requestAnimationFrame(tick)
+      } else {
+        rafId = 0
+      }
     }
 
-    let pendingX = 0
-    let pendingY = 0
-    let queued = false
-
     const onMove = (e: MouseEvent) => {
-      pendingX = e.clientX
-      pendingY = e.clientY
-      if (queued) return
-      queued = true
-      requestAnimationFrame(() => {
-        root.style.setProperty('--mx', pendingX + 'px')
-        root.style.setProperty('--my', pendingY + 'px')
-        queued = false
-      })
+      targetX = e.clientX
+      targetY = e.clientY
+      if (!hasMoved) {
+        // First move: jump to cursor instead of springing in from off-screen
+        currentX = targetX
+        currentY = targetY
+        hasMoved = true
+      }
+      if (!rafId) rafId = requestAnimationFrame(tick)
+    }
+
+    const onLeave = () => {
+      // Park the spotlight off-screen so it doesn't linger when the cursor leaves
+      targetX = -1000
+      targetY = -1000
+      if (!rafId) rafId = requestAnimationFrame(tick)
     }
 
     window.addEventListener('mousemove', onMove, { passive: true })
-    return () => window.removeEventListener('mousemove', onMove)
+    document.addEventListener('mouseleave', onLeave)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseleave', onLeave)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   return (

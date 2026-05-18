@@ -76,25 +76,41 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-  }
-
-  .bg-dot-grid::before {
-    background-image: radial-gradient(hsl(var(--foreground) / 0.18) 1px, transparent 1px);
     background-size: 22px 22px;
+    background-position: 0 0;
   }
 
+  /* Base layer: every dot, low opacity, always visible */
+  .bg-dot-grid::before {
+    background-image: radial-gradient(
+      hsl(var(--foreground) / 0.12) 1px,
+      transparent 1.5px
+    );
+  }
+
+  /* Highlight layer: same grid, brand color, masked to a circle around the cursor */
   .bg-dot-grid::after {
-    background: radial-gradient(
-      circle 220px at var(--mx, 50%) var(--my, 50%),
-      hsl(var(--brand-from) / 0.18),
-      hsl(var(--brand-to) / 0.08) 55%,
+    background-image: radial-gradient(
+      hsl(var(--brand-from) / 0.85) 1.6px,
+      transparent 2.1px
+    );
+    -webkit-mask-image: radial-gradient(
+      circle 220px at var(--mx, -100px) var(--my, -100px),
+      black 0%,
+      black 30%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      circle 220px at var(--mx, -100px) var(--my, -100px),
+      black 0%,
+      black 30%,
       transparent 100%
     );
   }
 
   @media (hover: none), (prefers-reduced-motion: reduce) {
     .bg-dot-grid::after {
-      opacity: 0.6;
+      display: none;
     }
   }
 }
