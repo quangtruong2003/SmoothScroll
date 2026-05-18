@@ -29,28 +29,26 @@
     --brand-to: 260 80% 70%;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: 240 10% 3.9%;
-      --foreground: 0 0% 98%;
-      --card: 240 10% 3.9%;
-      --card-foreground: 0 0% 98%;
-      --popover: 240 10% 3.9%;
-      --popover-foreground: 0 0% 98%;
-      --primary: 0 0% 98%;
-      --primary-foreground: 240 5.9% 10%;
-      --secondary: 240 3.7% 15.9%;
-      --secondary-foreground: 0 0% 98%;
-      --muted: 240 3.7% 15.9%;
-      --muted-foreground: 240 5% 64.9%;
-      --accent: 240 3.7% 15.9%;
-      --accent-foreground: 0 0% 98%;
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
-      --border: 240 3.7% 15.9%;
-      --input: 240 3.7% 15.9%;
-      --ring: 240 4.9% 83.9%;
-    }
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 }
 
@@ -58,43 +56,16 @@
   * {
     @apply border-border;
   }
+  html {
+    @apply bg-background;
+  }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
     font-size: 16px;
     line-height: 1.6;
   }
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.02em;
     font-weight: 700;
-  }
-}
-
-@layer components {
-  .bg-dot-grid::before,
-  .bg-dot-grid::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .bg-dot-grid::before {
-    background-image: radial-gradient(hsl(var(--foreground) / 0.18) 1px, transparent 1px);
-    background-size: 22px 22px;
-  }
-
-  .bg-dot-grid::after {
-    background: radial-gradient(
-      circle 220px at var(--mx, 50%) var(--my, 50%),
-      hsl(var(--brand-from) / 0.18),
-      hsl(var(--brand-to) / 0.08) 55%,
-      transparent 100%
-    );
-  }
-
-  @media (hover: none), (prefers-reduced-motion: reduce) {
-    .bg-dot-grid::after {
-      opacity: 0.6;
-    }
   }
 }

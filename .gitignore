@@ -28,3 +28,5 @@ landing/tsconfig.tsbuildinfo
 landing/fix.js
 landing/next-env.d.ts
 landing/test-results/
+
+.cursor/
