@@ -12,11 +12,13 @@ import {
 
 const GAP = 22
 const DOT_RADIUS = 1.0
+const MAX_DOT_RADIUS = 2.6
 const INFLUENCE_RADIUS = 220
-const MAX_PUSH = 14
+const MAX_PULL = 7
+const MAX_SHADOW_BLUR = 8
 const LERP_FACTOR = 0.18
 const SETTLE_THRESHOLD = 0.3
-const STATIC_ALPHA = 0.14
+const STATIC_ALPHA = 0.1
 const OFFSCREEN = -10000
 
 interface ThemeColors {
@@ -53,7 +55,8 @@ export function BackgroundDotGrid() {
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const noHover = window.matchMedia('(hover: none)').matches
-    const animate = !reduced && !noHover
+    const animate = !noHover
+    const motion = animate && !reduced
 
     let grid: Point[] = []
     let viewW = 0
@@ -95,7 +98,14 @@ export function BackgroundDotGrid() {
       if (!ctx) return false
       ctx.clearRect(0, 0, viewW, viewH)
       const staticStyle = rgbaToFillStyle(theme.staticColor)
+      const brand = theme.brandColor
+      const shadowColor = `rgba(${brand.r},${brand.g},${brand.b},0.9)`
       let stillMoving = false
+      let shadowOn = false
+
+      ctx.fillStyle = staticStyle
+      ctx.shadowBlur = 0
+      ctx.shadowColor = 'transparent'
 
       for (const p of grid) {
         const dx = p.x - currentX
@@ -103,7 +113,12 @@ export function BackgroundDotGrid() {
         const dist = Math.sqrt(dx * dx + dy * dy)
 
         if (dist >= INFLUENCE_RADIUS) {
-          ctx.fillStyle = staticStyle
+          if (shadowOn) {
+            ctx.shadowBlur = 0
+            ctx.shadowColor = 'transparent'
+            ctx.fillStyle = staticStyle
+            shadowOn = false
+          }
           ctx.beginPath()
           ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2)
           ctx.fill()
@@ -112,29 +127,46 @@ export function BackgroundDotGrid() {
 
         const f = falloff(dist, INFLUENCE_RADIUS)
         const safeDist = Math.max(dist, 0.001)
-        const push = f * MAX_PUSH
-        const drawX = p.x + (dx / safeDist) * push
-        const drawY = p.y + (dy / safeDist) * push
+        const pull = f * MAX_PULL
+        // Pull dot toward cursor: subtract the unit vector pointing from cursor to dot.
+        const drawX = motion ? p.x - (dx / safeDist) * pull : p.x
+        const drawY = motion ? p.y - (dy / safeDist) * pull : p.y
+        const radius = DOT_RADIUS + (MAX_DOT_RADIUS - DOT_RADIUS) * f
         const color = lerpRgba(theme.staticColor, theme.brandColor, f)
 
+        ctx.shadowBlur = MAX_SHADOW_BLUR * f
+        ctx.shadowColor = shadowColor
         ctx.fillStyle = rgbaToFillStyle(color)
+        shadowOn = true
+
         ctx.beginPath()
-        ctx.arc(drawX, drawY, DOT_RADIUS, 0, Math.PI * 2)
+        ctx.arc(drawX, drawY, radius, 0, Math.PI * 2)
         ctx.fill()
 
-        if (push > SETTLE_THRESHOLD) stillMoving = true
+        if (motion && pull > SETTLE_THRESHOLD) stillMoving = true
+      }
+
+      if (shadowOn) {
+        ctx.shadowBlur = 0
+        ctx.shadowColor = 'transparent'
       }
 
       return stillMoving
     }
 
     function tick() {
-      currentX += (targetX - currentX) * LERP_FACTOR
-      currentY += (targetY - currentY) * LERP_FACTOR
+      if (motion) {
+        currentX += (targetX - currentX) * LERP_FACTOR
+        currentY += (targetY - currentY) * LERP_FACTOR
+      } else {
+        currentX = targetX
+        currentY = targetY
+      }
       const stillMoving = drawFrame()
       const cursorSettling =
-        Math.abs(targetX - currentX) > SETTLE_THRESHOLD ||
-        Math.abs(targetY - currentY) > SETTLE_THRESHOLD
+        motion &&
+        (Math.abs(targetX - currentX) > SETTLE_THRESHOLD ||
+          Math.abs(targetY - currentY) > SETTLE_THRESHOLD)
       if (cursorSettling || stillMoving) {
         rafId = requestAnimationFrame(tick)
       } else {
@@ -203,7 +235,7 @@ export function BackgroundDotGrid() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10"
+      className="pointer-events-none fixed inset-0 z-50"
     />
   )
 }
