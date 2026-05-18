@@ -19,10 +19,18 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
   useEffect(() => {
     const onScroll = () => {
       const heroBottom = window.innerHeight
-      if (window.scrollY > heroBottom && !dismissed) {
+      const docHeight = document.documentElement.scrollHeight
+      const scrolledTo = window.scrollY + window.innerHeight
+      const nearBottom = scrolledTo >= docHeight - 240
+      const past = window.scrollY > heroBottom
+
+      if (past && !nearBottom && !dismissed) {
         setVisible(true)
+      } else if (nearBottom) {
+        setVisible(false)
       }
     }
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [dismissed])
