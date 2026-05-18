@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "github": "GitHub",
+    "stars": "stars"
+  },
+  "hero": {
+    "eyebrow": "For Windows",
+    "title": "Scroll that feels",
+    "titleAccent": "natural",
+    "subtitle": "SmoothScroll makes every mouse wheel movement feel silky — like you're using a premium trackpad. No learning curve. No bloat. Just smooth.",
+    "cta": "Download for Windows",
+    "ctaFallback": "Download",
+    "trustLine": "Free, no telemetry. MIT license.",
+    "seeHow": "See how it works",
+    "demoPrompt": "Scroll the card. Then flip the switch.",
+    "demoToast": "Want to feel it for real? — Download."
+  },
+  "painPoints": {
+    "title": "The scroll is broken",
+    "points": [
+      {
+        "title": "Jerky, stuttering motion",
+        "description": "Every scroll tick lurches. Your hand expects smooth — your screen delivers chop."
+      },
+      {
+        "title": "Exhausting for long sessions",
+        "description": "Reading, coding, browsing — hours of tiny micro-adjustments that add up."
+      },
+      {
+        "title": "Third-party mice feel worse",
+        "description": "Good scroll is a premium feature. Everything else is a compromise."
+      }
+    ]
+  },
+  "solutionBridge": {
+    "line": "SmoothScroll fixes that."
+  },
+  "features": {
+    "title": "Everything you need, nothing you don't",
+    "items": [
+      { "title": "Zero configuration", "description": "Install and feel the difference immediately. No settings to tweak." },
+      { "title": "Native feel", "description": "Uses the same physics curve as premium trackpads. Scroll feels inevitable." },
+      { "title": "Per-app profiles", "description": "Different smoothing for Chrome vs VS Code vs Adobe apps." },
+      { "title": "Battery friendly", "description": "Runs at near-zero CPU when idle. Your battery won't notice it." },
+      { "title": "Privacy-first", "description": "No telemetry, no network calls, no data collection. Ever." },
+      { "title": "Instant on/off", "description": "Toggle from the system tray. No restart required." }
+    ]
+  },
+  "useCases": {
+    "title": "Built for how you actually work",
+    "tabs": {
+      "reading": { "label": "Reading", "description": "Long-form articles, documentation, PDFs. Smooth scrolling keeps you in flow." },
+      "coding": { "label": "Coding", "description": "Navigate codebases, scroll through logs, review diffs — without losing your place." },
+      "designing": { "label": "Designing", "description": "Artboards, timelines, layer panels. Scroll should feel as precise as your stylus." }
+    }
+  },
+  "trayPreview": {
+    "title": "It lives in your system tray",
+    "subtitle": "Control everything without opening settings."
+  },
+  "stats": {
+    "title": "Trusted by",
+    "githubStars": "GitHub stars",
+    "downloads": "Downloads",
+    "version": "Version",
+    "fallback": {
+      "stars": "5.2k",
+      "downloads": "50k+",
+      "version": "v1.0.0"
+    }
+  },
+  "indie": {
+    "title": "Made by an indie dev",
+    "subtitle": "Independent, transparent, and community-driven.",
+    "points": [
+      "MIT licensed — audit the code yourself",
+      "Zero telemetry or data collection",
+      "No ads, no premium tier, no upsell",
+      "Built in the open on GitHub"
+    ],
+    "cta": "View on GitHub"
+  },
+  "install": {
+    "title": "Get started in 60 seconds",
+    "subtitle": "Download, run, feel the difference.",
+    "tabs": {
+      "windows": { "label": "Windows", "steps": ["Download the installer below", "Run the .exe — no install wizard, no admin required", "SmoothScroll starts automatically. You're done."] },
+      "macos": { "label": "macOS", "steps": ["Download the DMG below", "Drag SmoothScroll to Applications", "Grant Accessibility permission in System Settings → Privacy → Accessibility", "Done."] }
+    },
+    "filename": "SmoothScrollSetup.exe",
+    "note": {
+      "windows": "Saved to %LOCALAPPDATA% by default",
+      "macos": "Accessibility permission is required for global input interception"
+    },
+    "cta": "Download for {os}"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "questions": [
+      { "q": "Does this work with all apps?", "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything — Chrome, VS Code, File Explorer, Adobe apps, and more." },
+      { "q": "Will it drain my battery?", "a": "No. SmoothScroll runs at near-zero CPU when idle and only processes input during scroll events. Most users see no measurable battery impact." },
+      { "q": "Is it safe? What does it install?", "a": "SmoothScroll is a standalone executable. No service, no daemon, no system driver. It doesn't install any network listeners or telemetry. You can verify this by reading the MIT-licensed source on GitHub." },
+      { "q": "How is this different from Windows' built-in smooth scrolling?", "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll provides a unified, configurable curve applied globally — with per-app profiles, adjustable strength, and instant toggle." },
+      { "q": "Does it work with gaming mice or high-DPI devices?", "a": "Yes. SmoothScroll respects the actual scroll delta from your hardware and applies smoothing on top. Works with all mice tested so far, including high-refresh and gaming mice." },
+      { "q": "Can I disable it for specific apps?", "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list." },
+      { "q": "What Windows versions are supported?", "a": "Windows 10 and Windows 11 are fully supported." },
+      { "q": "How do I uninstall?", "a": "Just delete the executable. No uninstaller needed — there is nothing else on your system." }
+    ]
+  },
+  "finalCta": {
+    "title": "Ready to feel the difference?",
+    "subtitle": "Join thousands of developers and designers who scroll better.",
+    "cta": "Download SmoothScroll",
+    "ctaSub": "Free forever. MIT license."
+  },
+  "footer": {
+    "tagline": "Smooth scroll for Windows.",
+    "links": {
+      "github": "GitHub",
+      "license": "MIT License"
+    }
+  },
+  "exitIntent": {
+    "title": "Wait — before you go!",
+    "message": "Get SmoothScroll and make every scroll feel natural.",
+    "cta": "Download free"
+  },
+  "langSwitcher": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  }
+}

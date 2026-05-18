@@ -1,0 +1,318 @@
+{
+  "app": {
+    "title": "SmoothScroll",
+    "tagline_on": "स्मूथ स्क्रॉलिंग सक्रिय है",
+    "tagline_off": "नेटिव स्क्रॉलिंग सक्रिय है"
+  },
+  "section": {
+    "scrolling": "स्क्रॉलिंग",
+    "animation": "एनिमेशन",
+    "direction": "दिशा",
+    "behavior": "व्यवहार",
+    "excluded_apps": "अपवर्जित ऐप्स",
+    "profiles": "स्क्रॉल प्रोफ़ाइल",
+    "app_profiles": "प्रति-ऐप असाइनमेंट",
+    "language": "भाषा",
+    "theme": "रूप",
+    "test_scroll": "स्क्रॉलिंग परीक्षण",
+    "touchpad": "प्रिसिजन टचपैड",
+    "keyboard_scroll": "कीबोर्ड स्क्रॉल स्मूथिंग",
+    "game_mode": "गेम मोड",
+    "about": "जानकारी"
+  },
+  "tabs": {
+    "general": {
+      "label": "सामान्य",
+      "title": "सामान्य",
+      "description": "क्विक टॉगल और लाइव परीक्षण।"
+    },
+    "scroll": {
+      "label": "स्क्रॉल",
+      "title": "स्क्रॉल",
+      "description": "स्टेप साइज़, ईज़िंग, दिशा और इनपुट स्रोत समायोजित करें।"
+    },
+    "apps": {
+      "label": "ऐप्स",
+      "title": "प्रति-ऐप",
+      "description": "विशिष्ट ऐप्लिकेशन के लिए प्रोफ़ाइल और अपवर्जन।"
+    },
+    "preferences": {
+      "label": "प्राथमिकताएँ",
+      "title": "प्राथमिकताएँ",
+      "description": "व्यवहार, हॉटकी और गेम मोड।"
+    },
+    "about": {
+      "label": "जानकारी",
+      "title": "जानकारी",
+      "description": "संस्करण, अपडेट और लॉग।"
+    }
+  },
+  "presets": {
+    "slow": "धीमा",
+    "default": "डिफ़ॉल्ट",
+    "fast": "तेज़",
+    "snappy": "तीव्र",
+    "mac_like": "Mac-शैली",
+    "linear": "रेखीय"
+  },
+  "test_scroll": {
+    "description": "वर्तमान सेटिंग्स महसूस करने के लिए बॉक्स के अंदर स्क्रॉल करें।",
+    "line": "पंक्ति {{n}} — यहाँ व्हील आज़माएँ"
+  },
+  "settings": {
+    "step_size": {
+      "title": "स्टेप साइज़",
+      "desc": "प्रति व्हील नॉच स्क्रॉल किए गए पिक्सेल"
+    },
+    "anim_time": {
+      "title": "एनिमेशन समय",
+      "desc": "प्रत्येक स्क्रॉल मूवमेंट कितनी देर चलता है"
+    },
+    "accel_window": {
+      "title": "त्वरण विंडो",
+      "desc": "इस विंडो के भीतर के नॉच गति जोड़ते हैं"
+    },
+    "accel_max": {
+      "title": "अधिकतम त्वरण",
+      "desc": "त्वरण गुणक की सीमा"
+    },
+    "tail_ratio": {
+      "title": "टेल/हेड अनुपात",
+      "desc": "उच्च मान तीखी ईज़-आउट कर्व देते हैं"
+    },
+    "easing_toggle": {
+      "title": "स्मूथ ईज़िंग",
+      "desc": "प्रत्येक स्क्रॉल मूवमेंट पर ईज़िंग कर्व लागू करें"
+    },
+    "easing_curve": {
+      "title": "ईज़िंग कर्व",
+      "desc": "मंदन कर्व का आकार",
+      "preview": "पूर्वावलोकन",
+      "ExponentialOut": "Exponential Out (डिफ़ॉल्ट)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Linear"
+    },
+    "reverse_wheel": {
+      "title": "दिशा उलटें",
+      "desc": "स्क्रॉल दिशा उलटें (नेचुरल-स्टाइल)"
+    },
+    "horizontal_smoothness": {
+      "title": "क्षैतिज स्क्रॉलिंग स्मूथ करें",
+      "desc": "टिल्ट-व्हील और Shift+व्हील स्क्रॉल पर स्मूथिंग लागू करें"
+    },
+    "shift_horizontal": {
+      "title": "Shift क्षैतिज में बदलता है",
+      "desc": "स्क्रॉल करते समय Shift दबाने पर क्षैतिज स्क्रॉल"
+    },
+    "global_hotkey": {
+      "title": "ग्लोबल हॉटकी",
+      "desc": "स्मूथ स्क्रॉलिंग टॉगल करने के लिए कहीं भी चयनित संयोजन दबाएँ"
+    },
+    "hotkey_accelerator": {
+      "title": "हॉटकी संयोजन",
+      "desc": "क्लिक करें और इच्छित कुंजियाँ दबाएँ",
+      "press": "कुंजी संयोजन दबाएँ…",
+      "empty": "रिकॉर्ड करने हेतु क्लिक करें",
+      "aria": "हॉटकी संयोजन इनपुट"
+    },
+    "start_with_os": {
+      "title": "Windows के साथ शुरू करें",
+      "desc": "लॉगिन पर SmoothScroll लॉन्च करें"
+    },
+    "start_minimized": {
+      "title": "ट्रे में मिनिमाइज़ शुरू करें",
+      "desc": "लॉन्च पर सेटिंग विंडो छिपाएँ"
+    },
+    "theme": {
+      "title": "थीम",
+      "desc": "लाइट, डार्क, या सिस्टम का अनुसरण करें",
+      "Light": "लाइट",
+      "Dark": "डार्क",
+      "System": "सिस्टम"
+    },
+    "reset_to_default": "डिफ़ॉल्ट पर रीसेट करें",
+    "touchpad": {
+      "detected": "पहचाना गया",
+      "source": {
+        "Wheel": "माउस व्हील",
+        "HighResWheel": "हाई-रिज़ॉल्यूशन व्हील",
+        "Touchpad": "प्रिसिजन टचपैड"
+      },
+      "enable": {
+        "title": "स्मूथ टचपैड स्क्रॉलिंग",
+        "desc": "हाई-रिज़ॉल्यूशन टचपैड इनपुट पर ईज़िंग लागू करें"
+      },
+      "pixel_multiplier": {
+        "title": "पिक्सेल गुणक",
+        "desc": "टचपैड से कच्चे पिक्सेल डेल्टा को स्केल करें"
+      },
+      "acceleration": {
+        "title": "त्वरण कारक",
+        "desc": "बड़े फ्लिक्स बढ़ाएँ। 0 त्वरण को निष्क्रिय करता है।"
+      }
+    }
+  },
+  "excluded": {
+    "empty": "कोई ऐप अपवर्जित नहीं। स्मूथ स्क्रॉलिंग सर्वत्र सक्रिय है।",
+    "add": "ऐप जोड़ें",
+    "remove_aria": "{{name}} हटाएँ",
+    "added": "{{name}} अपवर्जित ऐप्स में जोड़ा गया",
+    "removed": "{{name}} अपवर्जित ऐप्स से हटाया गया",
+    "dialog": {
+      "title": "एक ऐप अपवर्जित करें",
+      "desc": "एक चालू ऐप चुनें या उसका प्रोसेस नाम लिखें (.exe के बिना)।",
+      "filter": "फ़िल्टर…",
+      "manual": "या प्रोसेस नाम लिखें…",
+      "manual_button": "जोड़ें",
+      "cancel": "रद्द करें",
+      "scanning": "प्रक्रियाओं की स्कैनिंग…",
+      "no_match": "कोई मेल खाने वाली प्रक्रिया नहीं।"
+    }
+  },
+  "profiles": {
+    "description": "विशिष्ट ऐप्स को असाइन करने योग्य कस्टम स्क्रॉल सेटिंग्स।",
+    "empty": "अभी तक कोई कस्टम प्रोफ़ाइल नहीं। प्रति-ऐप स्क्रॉल व्यवहार ट्यून करने के लिए एक बनाएँ।",
+    "create": "प्रोफ़ाइल बनाएँ",
+    "created": "प्रोफ़ाइल \"{{name}}\" बनाई गई",
+    "deleted": "प्रोफ़ाइल \"{{name}}\" हटाई गई",
+    "saved": "प्रोफ़ाइल \"{{name}}\" सहेजी गई",
+    "delete_confirm": "प्रोफ़ाइल \"{{name}}\" हटाएँ?",
+    "delete_confirm_desc": "यह प्रोफ़ाइल स्थायी रूप से हट जाएगी। इसे असाइन की गई ऐप्स को पहले अनसाइन करना होगा।",
+    "delete": "हटाएँ",
+    "name_required": "प्रोफ़ाइल नाम आवश्यक है",
+    "edit_aria": "{{name}} संपादित करें",
+    "delete_aria": "{{name}} हटाएँ",
+    "edit_title": "प्रोफ़ाइल संपादन: {{name}}",
+    "assigned_to": "{{count}} ऐप को असाइन",
+    "assigned_to_plural": "{{count}} ऐप्स को असाइन",
+    "unassigned": "किसी ऐप को असाइन नहीं",
+    "create_dialog": {
+      "title": "प्रोफ़ाइल बनाएँ",
+      "desc": "अपनी नई प्रोफ़ाइल को नाम दें। अगले चरण में सेटिंग्स संपादित करें।",
+      "placeholder": "उदा. तेज़, Mac-शैली, धीमा पठन"
+    },
+    "field": {
+      "name": "प्रोफ़ाइल नाम",
+      "name_desc": "ऐप सूची में दिखने वाला लेबल"
+    },
+    "suggest": {
+      "title": "{{category}} के लिए सुझाया गया",
+      "disable": "स्मूथिंग निष्क्रिय करें",
+      "custom_preset": "कस्टम प्रीसेट ({{step}}px, {{ms}}ms)",
+      "use": "सुझाव का उपयोग करें",
+      "pick_manually": "मैन्युअल रूप से चुनें"
+    }
+  },
+  "app_profiles": {
+    "description": "चुनें कि SmoothScroll विशिष्ट ऐप्स में कैसे व्यवहार करे।",
+    "empty": "कोई प्रति-ऐप ओवरराइड नहीं। सभी ऐप्स वैश्विक सेटिंग्स का उपयोग करते हैं।",
+    "assign": "ऐप असाइन करें",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "{{name}} के लिए ओवरराइड हटाया गया",
+    "remove_aria": "{{name}} के लिए ओवरराइड हटाएँ",
+    "disabled": "निष्क्रिय (पास-थ्रू)",
+    "unknown_profile": "अज्ञात प्रोफ़ाइल",
+    "dialog": {
+      "title": "ऐप को प्रोफ़ाइल असाइन करें",
+      "desc": "उपयोग करने वाली प्रोफ़ाइल चुनें, फिर असाइन करने के लिए ऐप चुनें।",
+      "select_profile": "असाइन करने हेतु प्रोफ़ाइल"
+    }
+  },
+  "keyboard_scroll": {
+    "windows_only": "(केवल Windows)",
+    "enable_smoothing": "कीबोर्ड स्मूथिंग सक्षम करें",
+    "active_keys": "सक्रिय कुंजियाँ",
+    "pgdn_step": "PageUp/PageDown स्टेप: {{value}} नॉच",
+    "arrow_step": "एरो स्टेप: {{value}} नॉच",
+    "skip_in_text_inputs": "टेक्स्ट इनपुट में छोड़ें"
+  },
+  "game_mode": {
+    "auto_disable": "गेम्स में स्वतः निष्क्रिय करें",
+    "status_label": "स्थिति",
+    "status_active": "🎮 सक्रिय — स्मूथ स्क्रॉलिंग रुकी हुई",
+    "status_inactive": "निष्क्रिय",
+    "known_games": "ज्ञात गेम्स",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "ऑटोस्टार्ट सेटिंग बदलने में विफल",
+    "hotkey_toggle_failed": "हॉटकी टॉगल करने में विफल",
+    "hotkey_save_failed": "हॉटकी संयोजन सहेजने में विफल",
+    "excluded_add_failed": "अपवर्जन सूची में ऐप जोड़ने में विफल",
+    "excluded_remove_failed": "अपवर्जन सूची से ऐप हटाने में विफल",
+    "profile_create_failed": "प्रोफ़ाइल बनाने में विफल",
+    "profile_in_use": "हटाया नहीं जा सकता: प्रोफ़ाइल {{count}} ऐप को असाइन है",
+    "profile_in_use_plural": "हटाया नहीं जा सकता: प्रोफ़ाइल {{count}} ऐप्स को असाइन है",
+    "app_profile_assign_failed": "ऐप को प्रोफ़ाइल असाइन करने में विफल",
+    "app_profile_remove_failed": "ऐप ओवरराइड हटाने में विफल",
+    "save_failed": "सेटिंग्स सहेजने में विफल। परिवर्तन मेमोरी में रखे जाएँगे लेकिन स्थायी नहीं होंगे।"
+  },
+  "language": {
+    "select_label": "प्रदर्शन भाषा",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "सेटिंग्स लोड हो रही हैं…",
+    "load_failed": "सेटिंग्स लोड करने में विफल: {{error}}",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "add": "जोड़ें"
+  },
+  "about": {
+    "version": "संस्करण",
+    "author": "लेखक",
+    "open_logs": "लॉग फ़ोल्डर खोलें",
+    "homepage": "होमपेज",
+    "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
+    "updates": "अपडेट",
+    "check_now": "अभी जाँचें",
+    "checking": "जाँच हो रही है…",
+    "up_to_date": "आप नवीनतम संस्करण चला रहे हैं।",
+    "update_available": "अपडेट उपलब्ध: v{{version}}",
+    "install_now": "अभी इंस्टॉल करें",
+    "downloading": "डाउनलोड हो रहा है… {{pct}}%",
+    "ready_to_restart": "अपडेट इंस्टॉल हो गया। लागू करने के लिए पुनरारंभ करें।",
+    "restart_now": "अभी पुनरारंभ करें"
+  },
+  "forced_update": {
+    "title": "अपडेट आवश्यक",
+    "description": "नया संस्करण उपलब्ध है। SmoothScroll का उपयोग जारी रखने के लिए आपको अपडेट करना होगा। (वर्तमान: v{{current}} → नया: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "नया क्या है",
+    "install": "डाउनलोड और इंस्टॉल",
+    "downloading": "डाउनलोड हो रहा है… {{pct}}%",
+    "downloading_btn": "डाउनलोड हो रहा है…",
+    "installed_btn": "इंस्टॉल हो गया",
+    "restarting": "अपडेट इंस्टॉल हुआ। पुनरारंभ हो रहा है…",
+    "quit": "ऐप छोड़ें",
+    "skip": "छोड़ें (विश्वसनीय डिवाइस)",
+    "error": "अपडेट विफल: {{message}}"
+  },
+  "tray": {
+    "quick_access": "त्वरित पहुँच",
+    "smooth_scrolling": "स्मूथ स्क्रॉलिंग",
+    "start_with_windows": "Windows के साथ शुरू करें",
+    "start_minimized": "मिनिमाइज़ शुरू करें",
+    "actions": "क्रियाएँ",
+    "open_settings": "सेटिंग्स खोलें",
+    "excluded_apps": "अपवर्जित ऐप्स",
+    "open_log": "लॉग फ़ाइल खोलें",
+    "quit": "SmoothScroll छोड़ें",
+    "status_on": "ON",
+    "status_off": "OFF"
+  }
+}

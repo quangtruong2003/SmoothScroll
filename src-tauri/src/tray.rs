@@ -54,47 +54,35 @@ fn cursor_position() -> PhysicalPosition<i32> {
     }
 }
 
-/// Position the panel window near the cursor, clamped to the primary monitor.
+/// Position the panel window near the cursor, anchored to the taskbar edge
+/// (the boundary of the primary monitor's work area).
 fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
     let cursor = cursor_position();
-    let panel_w = 300;
-    let panel_h = 440;
+    let panel_w = 260;
+    let panel_h = 400;
+    let edge_gap = 2;
 
-    let screen_w = app
-        .primary_monitor()
-        .ok()
-        .flatten()
-        .map(|m| m.work_area().size.width as i32)
-        .unwrap_or(1920);
-    let screen_h = app
-        .primary_monitor()
-        .ok()
-        .flatten()
-        .map(|m| m.work_area().size.height as i32)
-        .unwrap_or(1080);
-    let work_y = app
-        .primary_monitor()
-        .ok()
-        .flatten()
-        .map(|m| m.work_area().position.y)
-        .unwrap_or(0);
+    let monitor = app.primary_monitor().ok().flatten();
+    let work_area = monitor.as_ref().map(|m| m.work_area());
 
-    // Position: center horizontally at cursor, offset slightly upward
+    let work_x = work_area.as_ref().map(|w| w.position.x).unwrap_or(0);
+    let work_y = work_area.as_ref().map(|w| w.position.y).unwrap_or(0);
+    let work_w = work_area.as_ref().map(|w| w.size.width as i32).unwrap_or(1920);
+    let work_h = work_area.as_ref().map(|w| w.size.height as i32).unwrap_or(1080);
+
+    // Anchor vertically to the bottom edge of the work area (just above taskbar).
+    let mut y = work_y + work_h - panel_h - edge_gap;
+
+    // Center horizontally at cursor, then clamp to the work area.
     let mut x = cursor.x - panel_w / 2;
-    let mut y = cursor.y - 20;
-
-    // Clamp to screen bounds
-    if x + panel_w > screen_w {
-        x = screen_w - panel_w - 8;
+    if x + panel_w > work_x + work_w {
+        x = work_x + work_w - panel_w - edge_gap;
     }
-    if x < 0 {
-        x = 8;
-    }
-    if y + panel_h > screen_h + work_y {
-        y = screen_h + work_y - panel_h - 8;
+    if x < work_x {
+        x = work_x + edge_gap;
     }
     if y < work_y {
-        y = work_y + 8;
+        y = work_y + edge_gap;
     }
 
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition { x, y }));

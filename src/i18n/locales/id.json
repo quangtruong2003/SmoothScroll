@@ -1,0 +1,318 @@
+{
+  "app": {
+    "title": "SmoothScroll",
+    "tagline_on": "Smooth scrolling sedang aktif",
+    "tagline_off": "Scrolling native sedang aktif"
+  },
+  "section": {
+    "scrolling": "Scrolling",
+    "animation": "Animasi",
+    "direction": "Arah",
+    "behavior": "Perilaku",
+    "excluded_apps": "Aplikasi dikecualikan",
+    "profiles": "Profil scroll",
+    "app_profiles": "Penugasan per aplikasi",
+    "language": "Bahasa",
+    "theme": "Tampilan",
+    "test_scroll": "Uji scrolling",
+    "touchpad": "Touchpad presisi",
+    "keyboard_scroll": "Penghalusan scroll keyboard",
+    "game_mode": "Mode game",
+    "about": "Tentang"
+  },
+  "tabs": {
+    "general": {
+      "label": "Umum",
+      "title": "Umum",
+      "description": "Tombol cepat dan uji langsung."
+    },
+    "scroll": {
+      "label": "Scroll",
+      "title": "Scroll",
+      "description": "Atur ukuran langkah, easing, arah, dan sumber input."
+    },
+    "apps": {
+      "label": "Aplikasi",
+      "title": "Per aplikasi",
+      "description": "Profil dan pengecualian khusus untuk aplikasi tertentu."
+    },
+    "preferences": {
+      "label": "Preferensi",
+      "title": "Preferensi",
+      "description": "Perilaku, hotkey, dan mode game."
+    },
+    "about": {
+      "label": "Tentang",
+      "title": "Tentang",
+      "description": "Versi, pembaruan, dan log."
+    }
+  },
+  "presets": {
+    "slow": "Lambat",
+    "default": "Default",
+    "fast": "Cepat",
+    "snappy": "Tegas",
+    "mac_like": "Gaya Mac",
+    "linear": "Linear"
+  },
+  "test_scroll": {
+    "description": "Scroll di dalam kotak untuk merasakan pengaturan saat ini.",
+    "line": "Baris {{n}} — coba roda di sini"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Ukuran langkah",
+      "desc": "Piksel di-scroll per detent roda"
+    },
+    "anim_time": {
+      "title": "Waktu animasi",
+      "desc": "Berapa lama setiap gerakan scroll berlangsung"
+    },
+    "accel_window": {
+      "title": "Jendela akselerasi",
+      "desc": "Detent dalam jendela ini menumpuk momentum"
+    },
+    "accel_max": {
+      "title": "Akselerasi maksimum",
+      "desc": "Batas pengganda akselerasi"
+    },
+    "tail_ratio": {
+      "title": "Rasio ekor terhadap kepala",
+      "desc": "Nilai lebih tinggi memberi kurva ease-out lebih tajam"
+    },
+    "easing_toggle": {
+      "title": "Easing halus",
+      "desc": "Terapkan kurva easing pada setiap gerakan scroll"
+    },
+    "easing_curve": {
+      "title": "Kurva easing",
+      "desc": "Bentuk kurva deselerasi",
+      "preview": "Pratinjau",
+      "ExponentialOut": "Exponential Out (default)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Linear"
+    },
+    "reverse_wheel": {
+      "title": "Balik arah",
+      "desc": "Balikkan arah scroll (gaya alami)"
+    },
+    "horizontal_smoothness": {
+      "title": "Scroll horizontal halus",
+      "desc": "Terapkan penghalusan pada tilt-wheel dan Shift+wheel"
+    },
+    "shift_horizontal": {
+      "title": "Shift mengubah ke horizontal",
+      "desc": "Menahan Shift saat scroll menjadi scroll horizontal"
+    },
+    "global_hotkey": {
+      "title": "Hotkey global",
+      "desc": "Tekan kombinasi yang dipilih di mana saja untuk mengaktifkan smooth scrolling"
+    },
+    "hotkey_accelerator": {
+      "title": "Kombinasi hotkey",
+      "desc": "Klik dan tekan tombol yang ingin digunakan",
+      "press": "Tekan kombinasi tombol…",
+      "empty": "Klik untuk merekam",
+      "aria": "Input kombinasi hotkey"
+    },
+    "start_with_os": {
+      "title": "Mulai bersama Windows",
+      "desc": "Jalankan SmoothScroll saat login"
+    },
+    "start_minimized": {
+      "title": "Mulai terminimalisasi ke tray",
+      "desc": "Sembunyikan jendela pengaturan saat dijalankan"
+    },
+    "theme": {
+      "title": "Tema",
+      "desc": "Terang, gelap, atau ikuti sistem",
+      "Light": "Terang",
+      "Dark": "Gelap",
+      "System": "Sistem"
+    },
+    "reset_to_default": "Reset ke default",
+    "touchpad": {
+      "detected": "Terdeteksi",
+      "source": {
+        "Wheel": "Roda mouse",
+        "HighResWheel": "Roda resolusi tinggi",
+        "Touchpad": "Touchpad presisi"
+      },
+      "enable": {
+        "title": "Smooth scrolling touchpad",
+        "desc": "Terapkan easing pada input touchpad resolusi tinggi"
+      },
+      "pixel_multiplier": {
+        "title": "Pengganda piksel",
+        "desc": "Skala delta piksel mentah dari touchpad"
+      },
+      "acceleration": {
+        "title": "Faktor akselerasi",
+        "desc": "Tingkatkan flick besar. 0 menonaktifkan akselerasi."
+      }
+    }
+  },
+  "excluded": {
+    "empty": "Tidak ada aplikasi yang dikecualikan. Smooth scrolling aktif di mana-mana.",
+    "add": "Tambah aplikasi",
+    "remove_aria": "Hapus {{name}}",
+    "added": "{{name}} ditambahkan ke daftar pengecualian",
+    "removed": "{{name}} dihapus dari daftar pengecualian",
+    "dialog": {
+      "title": "Kecualikan aplikasi",
+      "desc": "Pilih aplikasi yang berjalan atau ketik nama prosesnya (tanpa .exe).",
+      "filter": "Saring…",
+      "manual": "Atau ketik nama proses…",
+      "manual_button": "Tambah",
+      "cancel": "Batal",
+      "scanning": "Memindai proses…",
+      "no_match": "Tidak ada proses yang cocok."
+    }
+  },
+  "profiles": {
+    "description": "Pengaturan scroll khusus yang dapat ditugaskan ke aplikasi tertentu.",
+    "empty": "Belum ada profil khusus. Buat satu untuk menyetel perilaku scroll per aplikasi.",
+    "create": "Buat profil",
+    "created": "Profil \"{{name}}\" dibuat",
+    "deleted": "Profil \"{{name}}\" dihapus",
+    "saved": "Profil \"{{name}}\" disimpan",
+    "delete_confirm": "Hapus profil \"{{name}}\"?",
+    "delete_confirm_desc": "Profil ini akan dihapus permanen. Aplikasi yang ditugaskan harus dilepas terlebih dahulu.",
+    "delete": "Hapus",
+    "name_required": "Nama profil wajib diisi",
+    "edit_aria": "Edit {{name}}",
+    "delete_aria": "Hapus {{name}}",
+    "edit_title": "Edit profil: {{name}}",
+    "assigned_to": "Ditugaskan ke {{count}} aplikasi",
+    "assigned_to_plural": "Ditugaskan ke {{count}} aplikasi",
+    "unassigned": "Tidak ditugaskan ke aplikasi apa pun",
+    "create_dialog": {
+      "title": "Buat profil",
+      "desc": "Beri nama profil baru. Anda dapat mengedit pengaturannya berikutnya.",
+      "placeholder": "mis. Cepat, Gaya Mac, Bacaan Lambat"
+    },
+    "field": {
+      "name": "Nama profil",
+      "name_desc": "Label ramah yang ditampilkan di daftar aplikasi"
+    },
+    "suggest": {
+      "title": "Disarankan untuk {{category}}",
+      "disable": "Nonaktifkan penghalusan",
+      "custom_preset": "Preset khusus ({{step}}px, {{ms}}ms)",
+      "use": "Gunakan saran",
+      "pick_manually": "Pilih manual"
+    }
+  },
+  "app_profiles": {
+    "description": "Pilih bagaimana SmoothScroll berperilaku di aplikasi tertentu.",
+    "empty": "Tidak ada penggantian per aplikasi. Semua aplikasi menggunakan pengaturan global Anda.",
+    "assign": "Tugaskan aplikasi",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "Penggantian untuk {{name}} dihapus",
+    "remove_aria": "Hapus penggantian untuk {{name}}",
+    "disabled": "Dinonaktifkan (pass-through)",
+    "unknown_profile": "Profil tidak dikenal",
+    "dialog": {
+      "title": "Tugaskan profil ke aplikasi",
+      "desc": "Pilih profil yang akan digunakan, lalu pilih aplikasi yang akan ditugaskan.",
+      "select_profile": "Profil yang akan ditugaskan"
+    }
+  },
+  "keyboard_scroll": {
+    "windows_only": "(Hanya Windows)",
+    "enable_smoothing": "Aktifkan penghalusan keyboard",
+    "active_keys": "Tombol aktif",
+    "pgdn_step": "Langkah PageUp/PageDown: {{value}} detent",
+    "arrow_step": "Langkah panah: {{value}} detent",
+    "skip_in_text_inputs": "Lewati di input teks"
+  },
+  "game_mode": {
+    "auto_disable": "Nonaktifkan otomatis di game",
+    "status_label": "Status",
+    "status_active": "🎮 Aktif — smooth scrolling dijeda",
+    "status_inactive": "Nonaktif",
+    "known_games": "Game yang dikenal",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "Gagal mengubah pengaturan autostart",
+    "hotkey_toggle_failed": "Gagal mengaktifkan hotkey",
+    "hotkey_save_failed": "Gagal menyimpan kombinasi hotkey",
+    "excluded_add_failed": "Gagal menambahkan aplikasi ke daftar pengecualian",
+    "excluded_remove_failed": "Gagal menghapus aplikasi dari daftar pengecualian",
+    "profile_create_failed": "Gagal membuat profil",
+    "profile_in_use": "Tidak dapat menghapus: profil ditugaskan ke {{count}} aplikasi",
+    "profile_in_use_plural": "Tidak dapat menghapus: profil ditugaskan ke {{count}} aplikasi",
+    "app_profile_assign_failed": "Gagal menugaskan profil ke aplikasi",
+    "app_profile_remove_failed": "Gagal menghapus penggantian aplikasi",
+    "save_failed": "Gagal menyimpan pengaturan. Perubahan disimpan di memori tetapi tidak akan persisten."
+  },
+  "language": {
+    "select_label": "Bahasa tampilan",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "Memuat pengaturan…",
+    "load_failed": "Gagal memuat pengaturan: {{error}}",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "add": "Tambah"
+  },
+  "about": {
+    "version": "Versi",
+    "author": "Pembuat",
+    "open_logs": "Buka folder log",
+    "homepage": "Beranda",
+    "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
+    "updates": "Pembaruan",
+    "check_now": "Periksa sekarang",
+    "checking": "Memeriksa…",
+    "up_to_date": "Anda menjalankan versi terbaru.",
+    "update_available": "Pembaruan tersedia: v{{version}}",
+    "install_now": "Pasang sekarang",
+    "downloading": "Mengunduh… {{pct}}%",
+    "ready_to_restart": "Pembaruan dipasang. Mulai ulang untuk menerapkan.",
+    "restart_now": "Mulai ulang"
+  },
+  "forced_update": {
+    "title": "Pembaruan diperlukan",
+    "description": "Versi baru tersedia. Anda harus memperbarui SmoothScroll untuk terus menggunakannya. (Sekarang: v{{current}} → Baru: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "Apa yang baru",
+    "install": "Unduh & pasang",
+    "downloading": "Mengunduh… {{pct}}%",
+    "downloading_btn": "Mengunduh…",
+    "installed_btn": "Terpasang",
+    "restarting": "Pembaruan dipasang. Memulai ulang…",
+    "quit": "Keluar",
+    "skip": "Lewati (perangkat tepercaya)",
+    "error": "Pembaruan gagal: {{message}}"
+  },
+  "tray": {
+    "quick_access": "Akses Cepat",
+    "smooth_scrolling": "Smooth Scrolling",
+    "start_with_windows": "Mulai bersama Windows",
+    "start_minimized": "Mulai terminimalisasi",
+    "actions": "Aksi",
+    "open_settings": "Buka Pengaturan",
+    "excluded_apps": "Aplikasi Dikecualikan",
+    "open_log": "Buka File Log",
+    "quit": "Keluar SmoothScroll",
+    "status_on": "ON",
+    "status_off": "OFF"
+  }
+}
