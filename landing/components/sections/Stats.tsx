@@ -48,7 +48,7 @@ export function Stats({ dict }: StatsProps) {
     fetchLatestRelease()
       .then((releaseData) => {
         if (!releaseData) return
-        fetch('https://api.github.com/repos/grayscut/SmoothScroll')
+        fetch('https://api.github.com/repos/quangtruong2003/SmoothScroll')
           .then((r) => r.json())
           .then((ghData) => {
             setStars(ghData.stargazers_count?.toLocaleString() ?? fallbackStars)

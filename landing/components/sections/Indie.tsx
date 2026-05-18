@@ -38,7 +38,7 @@ export function Indie({ dict }: IndieProps) {
           <FadeUp delay={0.2}>
             <div className="text-center">
               <Button variant="outline" size="lg" asChild>
-                <a href="https://github.com/grayscut/SmoothScroll" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4 mr-2" />
                   {i.cta}
                 </a>

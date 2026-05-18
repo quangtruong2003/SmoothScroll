@@ -9,7 +9,7 @@ export interface Release {
   assets: ReleaseAsset[]
 }
 
-const REPO = 'grayscut/SmoothScroll'
+const REPO = 'quangtruong2003/SmoothScroll'
 
 export const FALLBACK_RELEASE = {
   tag_name: 'v1.0.0',

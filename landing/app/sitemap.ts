@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { locales } from '@/lib/i18n/dict'
 
-const BASE = 'https://grayscut.github.io/SmoothScroll'
+const BASE = 'https://quangtruong2003.github.io/SmoothScroll'
 
 export const dynamic = 'force-static'
 

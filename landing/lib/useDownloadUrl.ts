@@ -14,7 +14,7 @@ export interface DownloadInfo {
   release: Release | null
 }
 
-const FALLBACK_URL = 'https://github.com/grayscut/SmoothScroll/releases/latest'
+const FALLBACK_URL = 'https://github.com/quangtruong2003/SmoothScroll/releases/latest'
 
 export function useDownloadUrl(): DownloadInfo {
   const [data, setData] = useState<DownloadInfo>({

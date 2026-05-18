@@ -14,6 +14,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { workspace = true }
+hostname = "0.4"
 
 [dependencies]
 smoothscroll_core = { workspace = true }

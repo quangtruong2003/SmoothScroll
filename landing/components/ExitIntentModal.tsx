@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -24,9 +25,14 @@ interface ExitIntentModalProps {
 export function ExitIntentModal({ dict }: ExitIntentModalProps) {
   const triggered = useExitIntent()
   const { url } = useDownloadUrl()
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (triggered) setOpen(true)
+  }, [triggered])
 
   return (
-    <Dialog open={triggered}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{dict.title}</DialogTitle>
@@ -37,7 +43,10 @@ export function ExitIntentModal({ dict }: ExitIntentModalProps) {
             variant="brand"
             size="lg"
             className="w-full sm:w-auto"
-            onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
+            onClick={() => {
+              window.open(url, '_blank', 'noopener,noreferrer')
+              setOpen(false)
+            }}
           >
             <Download className="h-4 w-4 mr-2" />
             {dict.cta}

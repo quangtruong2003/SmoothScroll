@@ -30,7 +30,7 @@
 | Spring | damping 25, stiffness 300 |
 | Section rhythm | 80–96px desktop, 48–64px mobile |
 | Border radius | `--radius: 0.5rem` |
-| GitHub repo | `grayscut/SmoothScroll` |
+| GitHub repo | `quangtruong2003/SmoothScroll` |
 | Fallback release | `v1.0.0` with hardcoded asset names |
 
 ---
@@ -493,7 +493,7 @@ import { Toaster } from 'sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://grayscut.github.io/SmoothScroll'),
+  metadataBase: new URL('https://quangtruong2003.github.io/SmoothScroll'),
   title: {
     template: '%s | SmoothScroll',
     default: 'SmoothScroll — Natural Scroll Feel on Windows',
@@ -1460,7 +1460,7 @@ export interface Release {
   assets: ReleaseAsset[]
 }
 
-const REPO = 'grayscut/SmoothScroll'
+const REPO = 'quangtruong2003/SmoothScroll'
 
 export const FALLBACK_RELEASE = {
   tag_name: 'v1.0.0',
@@ -1527,7 +1527,7 @@ export interface DownloadInfo {
   release: Release | null
 }
 
-const FALLBACK_URL = 'https://github.com/grayscut/SmoothScroll/releases/latest'
+const FALLBACK_URL = 'https://github.com/quangtruong2003/SmoothScroll/releases/latest'
 
 export function useDownloadUrl(): DownloadInfo {
   const [data, setData] = useState<DownloadInfo>({
@@ -1826,7 +1826,7 @@ export function Navigation({ locale, langSwitcherDict }: NavigationProps) {
   }, [])
 
   useEffect(() => {
-    fetch('https://api.github.com/repos/grayscut/SmoothScroll')
+    fetch('https://api.github.com/repos/quangtruong2003/SmoothScroll')
       .then((r) => r.json())
       .then((d) => setStars(d.stargazers_count?.toLocaleString() ?? null))
       .catch(() => {})
@@ -1852,7 +1852,7 @@ export function Navigation({ locale, langSwitcherDict }: NavigationProps) {
         <div className="flex items-center gap-4">
           {stars && (
             <a
-              href="https://github.com/grayscut/SmoothScroll"
+              href="https://github.com/quangtruong2003/SmoothScroll"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -1862,7 +1862,7 @@ export function Navigation({ locale, langSwitcherDict }: NavigationProps) {
             </a>
           )}
           <a
-            href="https://github.com/grayscut/SmoothScroll"
+            href="https://github.com/quangtruong2003/SmoothScroll"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:flex"
@@ -1902,10 +1902,10 @@ export function Footer({ locale, dict }: FooterProps) {
       <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">{f.tagline}</p>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
-          <Link href="https://github.com/grayscut/SmoothScroll" className="hover:text-foreground transition-colors">
+          <Link href="https://github.com/quangtruong2003/SmoothScroll" className="hover:text-foreground transition-colors">
             {f.links.github}
           </Link>
-          <Link href="https://github.com/grayscut/SmoothScroll/blob/main/LICENSE" className="hover:text-foreground transition-colors">
+          <Link href="https://github.com/quangtruong2003/SmoothScroll/blob/main/LICENSE" className="hover:text-foreground transition-colors">
             {f.links.license}
           </Link>
         </div>
@@ -2833,7 +2833,7 @@ git commit -m "feat(landing): add FinalCTA section"
 import type { MetadataRoute } from 'next'
 import { locales } from '@/lib/i18n/dict'
 
-const BASE = 'https://grayscut.github.io/SmoothScroll'
+const BASE = 'https://quangtruong2003.github.io/SmoothScroll'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -2852,7 +2852,7 @@ import type { MetadataRoute } from 'next'
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: '*', allow: '/' },
-    sitemap: 'https://grayscut.github.io/SmoothScroll/sitemap.xml',
+    sitemap: 'https://quangtruong2003.github.io/SmoothScroll/sitemap.xml',
   }
 }
 ```
@@ -3373,7 +3373,7 @@ export async function Stats({ dict }: StatsProps) {
 
   const { stats: s, fallback } = dict
   const stars = releaseData
-    ? (await fetch(`https://api.github.com/repos/grayscut/SmoothScroll`).then((r) => r.json()).catch(() => null))?.stargazers_count?.toLocaleString() ?? fallback.stars
+    ? (await fetch(`https://api.github.com/repos/quangtruong2003/SmoothScroll`).then((r) => r.json()).catch(() => null))?.stargazers_count?.toLocaleString() ?? fallback.stars
     : fallback.stars
   const downloads = releaseData
     ? formatDownloadCount(releaseData.assets.reduce((sum, a) => sum + (a.download_count ?? 0), 0))
@@ -3468,7 +3468,7 @@ export function Indie({ dict }: IndieProps) {
           <FadeUp delay={0.2}>
             <div className="text-center">
               <Button variant="outline" size="lg" asChild>
-                <a href="https://github.com/grayscut/SmoothScroll" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4 mr-2" />
                   {i.cta}
                 </a>

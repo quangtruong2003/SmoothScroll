@@ -23,7 +23,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
   }, [])
 
   useEffect(() => {
-    fetch('https://api.github.com/repos/grayscut/SmoothScroll')
+    fetch('https://api.github.com/repos/quangtruong2003/SmoothScroll')
       .then((r) => r.json())
       .then((d) => setStars(d.stargazers_count?.toLocaleString() ?? null))
       .catch(() => {})
@@ -49,7 +49,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
         <div className="flex items-center gap-4">
           {stars && (
             <a
-              href="https://github.com/grayscut/SmoothScroll"
+              href="https://github.com/quangtruong2003/SmoothScroll"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -59,7 +59,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
             </a>
           )}
           <a
-            href="https://github.com/grayscut/SmoothScroll"
+            href="https://github.com/quangtruong2003/SmoothScroll"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:flex"
