@@ -42,8 +42,13 @@ export function TrayPreview() {
       <div className="p-4 space-y-5">
         {/* Toggle */}
         <div className="flex items-center justify-between">
-          <span className="text-sm">Enable smoothing</span>
-          <Switch checked={enabled} onCheckedChange={setEnabled} />
+          <label htmlFor="tray-enable-switch" className="text-sm cursor-pointer">Enable smoothing</label>
+          <Switch
+            id="tray-enable-switch"
+            checked={enabled}
+            onCheckedChange={setEnabled}
+            aria-label="Enable smoothing"
+          />
         </div>
 
         <Separator />
@@ -85,7 +90,10 @@ export function TrayPreview() {
             {THEMES.map((t) => (
               <button
                 key={t}
+                type="button"
                 onClick={() => setTheme(t)}
+                aria-pressed={theme === t}
+                aria-label={`Set theme to ${t}`}
                 className={`px-3 py-2 rounded-md text-xs font-medium border transition-all ${
                   theme === t
                     ? 'border-primary bg-primary/10'
@@ -109,8 +117,8 @@ export function TrayPreview() {
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-inherit flex items-center justify-between">
-        <button className="text-xs opacity-60 hover:opacity-100 transition-opacity">Settings…</button>
-        <button className="text-xs opacity-60 hover:opacity-100 transition-opacity">Quit</button>
+        <button type="button" aria-label="Open settings" className="text-xs opacity-60 hover:opacity-100 transition-opacity">Settings…</button>
+        <button type="button" aria-label="Quit application" className="text-xs opacity-60 hover:opacity-100 transition-opacity">Quit</button>
       </div>
     </div>
   )

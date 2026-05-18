@@ -3,7 +3,7 @@ import { Toaster } from 'sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://grayscut.github.io/SmoothScroll'),
+  metadataBase: new URL('https://quangtruong2003.github.io/SmoothScroll'),
   title: {
     template: '%s | SmoothScroll',
     default: 'SmoothScroll — Natural Scroll Feel on Windows',
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body>
         {children}
         <Toaster position="bottom-right" richColors closeButton />

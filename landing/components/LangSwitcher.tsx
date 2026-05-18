@@ -32,9 +32,10 @@ export function LangSwitcher({ locale, dict }: LangSwitcherProps) {
     <div className="relative group">
       <button
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        aria-label="Switch language"
+        aria-label={`Current language: ${localeLabels[locale]}. Click to switch language.`}
+        aria-haspopup="menu"
       >
-        <Globe className="h-4 w-4" />
+        <Globe className="h-4 w-4" aria-hidden="true" />
         <span>{localeLabels[locale]}</span>
       </button>
       <div className="absolute right-0 mt-1 w-28 rounded-md border bg-popover py-1 shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
