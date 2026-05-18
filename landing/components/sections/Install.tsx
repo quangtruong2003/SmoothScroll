@@ -58,7 +58,7 @@ export function Install({ dict }: InstallProps) {
             <ol className="space-y-4">
               {(i.tabs?.windows?.steps ?? []).map((step, idx) => (
                 <li key={idx} className="flex gap-4">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-brand-from to-brand-to text-white text-sm font-bold flex items-center justify-center">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
                     {idx + 1}
                   </span>
                   <span className="pt-1 text-foreground">{step}</span>
@@ -81,7 +81,7 @@ export function Install({ dict }: InstallProps) {
             <ol className="space-y-4">
               {(i.tabs?.macos?.steps ?? []).map((step, idx) => (
                 <li key={idx} className="flex gap-4">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-brand-from to-brand-to text-white text-sm font-bold flex items-center justify-center">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
                     {idx + 1}
                   </span>
                   <span className="pt-1 text-foreground">{step}</span>

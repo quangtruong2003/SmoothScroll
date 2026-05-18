@@ -21,7 +21,7 @@ export function Hero({ dict }: HeroProps) {
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
               {h.title}{' '}
-              <span className="bg-gradient-to-br from-brand-from to-brand-to bg-clip-text text-transparent">
+              <span className="text-primary">
                 {h.titleAccent}
               </span>
             </h1>

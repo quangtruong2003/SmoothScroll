@@ -37,6 +37,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          NEXT_PUBLIC_BASE_PATH: /SmoothScroll
 
       - name: Add .nojekyll
         run: touch out/.nojekyll

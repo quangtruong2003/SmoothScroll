@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { FadeUp } from '@/components/motion/FadeUp'
 import type { Dictionary } from '@/lib/i18n/dict'
 
-const BASE_PATH = process.env.NODE_ENV === 'production' ? '/SmoothScroll' : ''
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 interface TrayPreviewSectionProps {
   dict: { trayPreview?: Dictionary['trayPreview'] }

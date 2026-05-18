@@ -31,7 +31,9 @@ function writeCache(value: number) {
 }
 
 export function useGitHubStars(): number | null {
-  const [stars, setStars] = useState<number | null>(() => readCache()?.value ?? null)
+  // Always start null on both server and client to avoid hydration mismatch.
+  // The cache is read in useEffect, after hydration completes.
+  const [stars, setStars] = useState<number | null>(null)
 
   useEffect(() => {
     const cached = readCache()

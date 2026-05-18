@@ -10,7 +10,6 @@ import { Install } from '@/components/sections/Install'
 import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
 import { StickyDownloadBar } from '@/components/StickyDownloadBar'
-import { ExitIntentModal } from '@/components/ExitIntentModal'
 import { getDictionary, type Locale } from '@/lib/i18n/dict'
 
 export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -31,13 +30,6 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
       <StickyDownloadBar
         ctaLabel={dict.hero?.cta ?? 'Download'}
         fallbackCta={dict.hero?.ctaFallback ?? 'Download'}
-      />
-      <ExitIntentModal
-        dict={{
-          title: dict.exitIntent?.title ?? '',
-          message: dict.exitIntent?.message ?? '',
-          cta: dict.exitIntent?.cta ?? '',
-        }}
       />
       <Install dict={{ install: dict.install }} />
       <FAQ dict={{ faq: dict.faq }} />
