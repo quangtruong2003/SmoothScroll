@@ -98,9 +98,3 @@
   animation: brand-marquee-slide 40s linear infinite;
   will-change: transform;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .brand-marquee-track {
-    animation: none;
-  }
-}

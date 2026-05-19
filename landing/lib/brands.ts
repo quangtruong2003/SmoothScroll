@@ -14,7 +14,7 @@ export const BRANDS: Brand[] = [
   { name: 'Edge',          slug: 'edge',         src: ICONIFY('logos:microsoft-edge') },
   { name: 'Firefox',       slug: 'firefox',      src: ICONIFY('logos:firefox') },
   { name: 'VS Code',       slug: 'vscode',       src: ICONIFY('logos:visual-studio-code') },
-  { name: 'Cursor',        slug: 'cursor',       src: ICONIFY('logos:cursor'),             invertOnDark: true },
+  { name: 'Cursor',        slug: 'cursor',       src: ICONIFY('simple-icons:cursor'),       invertOnDark: true },
   { name: 'IntelliJ IDEA', slug: 'intellijidea', src: ICONIFY('logos:intellij-idea') },
   { name: 'WebStorm',      slug: 'webstorm',     src: ICONIFY('logos:webstorm') },
   { name: 'PyCharm',       slug: 'pycharm',      src: ICONIFY('logos:pycharm') },
