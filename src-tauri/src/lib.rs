@@ -97,6 +97,7 @@ pub fn run() {
         reduce_motion: Arc::new(AtomicBool::new(initial_rm)),
         accessibility: platform.accessibility.clone(),
         rm_watch_handle: Arc::new(Mutex::new(None)),
+        last_foreground_at_tray_open: Arc::new(Mutex::new(None)),
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());

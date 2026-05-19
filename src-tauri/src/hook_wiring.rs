@@ -391,6 +391,7 @@ mod tests {
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
+            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
         })
     }
 
@@ -436,6 +437,7 @@ mod tests {
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
+            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
         })
     }
 

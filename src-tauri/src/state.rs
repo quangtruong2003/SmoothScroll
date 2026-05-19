@@ -55,6 +55,11 @@ pub struct AppState {
     pub reduce_motion: Arc<AtomicBool>,
     pub accessibility: Arc<dyn smoothscroll_platform::traits::AccessibilitySignals>,
     pub rm_watch_handle: Arc<parking_lot::Mutex<Option<smoothscroll_platform::traits::HookHandle>>>,
+    /// Foreground process snapshot taken right before the tray panel is shown,
+    /// so the panel itself does not register as the foreground window. Consumed
+    /// (taken) by `get_foreground_app_context` so a stale value does not leak
+    /// between tray opens.
+    pub last_foreground_at_tray_open: Arc<Mutex<Option<String>>>,
 }
 
 impl AppState {
