@@ -32,19 +32,37 @@ const ripplePulse: Effect = {
   update(p, _i, t, ctx) {
     const cx = ctx.vw / 2
     const cy = ctx.vh / 2
-    const dx = p.x - cx
-    const dy = p.y - cy
-    const dist = Math.sqrt(dx * dx + dy * dy)
-    const cycle = 3.0
+    const cycle = 6.0
     const speed = Math.max(ctx.vw, ctx.vh) / cycle * 0.6
     const phase = (t % cycle) * speed
     const sigma = 80
-    const env = Math.exp(-((dist - phase) ** 2) / (2 * sigma * sigma))
-    const safe = Math.max(dist, 0.001)
-    const amp = 8 * reducedScale(ctx) * env
-    const ux = dx / safe
-    const uy = dy / safe
-    return { ox: ux * amp, oy: uy * amp, f: env * 0.5 }
+    // 4 image sources mirrored across each wall produce reflection rings.
+    const sources: Array<[number, number, number]> = [
+      [cx, cy, 1.0],
+      [-cx, cy, 0.5],
+      [2 * ctx.vw - cx, cy, 0.5],
+      [cx, -cy, 0.5],
+      [cx, 2 * ctx.vh - cy, 0.5],
+    ]
+    let totalEnv = 0
+    let ax = 0
+    let ay = 0
+    for (let s = 0; s < sources.length; s++) {
+      const sx = sources[s][0]
+      const sy = sources[s][1]
+      const w = sources[s][2]
+      const dx = p.x - sx
+      const dy = p.y - sy
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const env = Math.exp(-((dist - phase) ** 2) / (2 * sigma * sigma)) * w
+      if (env < 0.001) continue
+      const safe = Math.max(dist, 0.001)
+      totalEnv += env
+      ax += (dx / safe) * env
+      ay += (dy / safe) * env
+    }
+    const amp = 8 * reducedScale(ctx)
+    return { ox: ax * amp, oy: ay * amp, f: clamp01(totalEnv * 0.5) }
   },
 }
 
@@ -52,11 +70,12 @@ const waveLR: Effect = {
   name: 'wave-lr',
   update(p, _i, t, ctx) {
     const lambda = 220
-    const speed = 180
+    const speed = 90
     const amp = 6 * reducedScale(ctx)
-    const phase = (p.x - speed * t) / lambda * TAU
-    const s = Math.sin(phase)
-    return { ox: 0, oy: s * amp, f: clamp01((s + 1) * 0.2) }
+    const fwd = Math.sin((p.x - speed * t) / lambda * TAU)
+    const back = Math.sin((2 * ctx.vw - p.x - speed * t) / lambda * TAU) * 0.7
+    const sum = (fwd + back) / 1.7
+    return { ox: 0, oy: sum * amp, f: clamp01((sum + 1) * 0.2) }
   },
 }
 
@@ -64,11 +83,12 @@ const waveTB: Effect = {
   name: 'wave-tb',
   update(p, _i, t, ctx) {
     const lambda = 220
-    const speed = 180
+    const speed = 90
     const amp = 6 * reducedScale(ctx)
-    const phase = (p.y - speed * t) / lambda * TAU
-    const s = Math.sin(phase)
-    return { ox: s * amp, oy: 0, f: clamp01((s + 1) * 0.2) }
+    const fwd = Math.sin((p.y - speed * t) / lambda * TAU)
+    const back = Math.sin((2 * ctx.vh - p.y - speed * t) / lambda * TAU) * 0.7
+    const sum = (fwd + back) / 1.7
+    return { ox: sum * amp, oy: 0, f: clamp01((sum + 1) * 0.2) }
   },
 }
 
@@ -76,11 +96,12 @@ const diagonalWave: Effect = {
   name: 'diagonal-wave',
   update(p, _i, t, ctx) {
     const lambda = 260
-    const speed = 200
+    const speed = 100
     const amp = 5 * reducedScale(ctx)
-    const phase = (p.x + p.y - speed * t) / lambda * TAU
-    const s = Math.sin(phase)
-    const c = Math.cos(phase)
+    const phaseFwd = (p.x + p.y - speed * t) / lambda * TAU
+    const phaseBack = (2 * (ctx.vw + ctx.vh) - p.x - p.y - speed * t) / lambda * TAU
+    const s = (Math.sin(phaseFwd) + Math.sin(phaseBack) * 0.7) / 1.7
+    const c = (Math.cos(phaseFwd) + Math.cos(phaseBack) * 0.7) / 1.7
     return { ox: s * amp, oy: c * amp, f: clamp01((s + 1) * 0.2) }
   },
 }
