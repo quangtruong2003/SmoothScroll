@@ -8,6 +8,8 @@ export type EasingMode =
 
 export type ThemeMode = "Light" | "Dark" | "System";
 
+export type RespectReduceMotion = "Auto" | "Always" | "Never";
+
 export type InputSourceLabel = "Wheel" | "HighResWheel" | "Touchpad";
 
 export interface ScrollProfile {
@@ -61,6 +63,7 @@ export interface AppSettings {
   touchpad_smoothing_enabled: boolean;
   touchpad_pixel_multiplier: number;
   touchpad_acceleration_factor: number;
+  respect_reduce_motion: RespectReduceMotion;
 }
 
 export interface ProcessInfo {
@@ -148,4 +151,6 @@ export const tauri = {
   async getInputSource(): Promise<InputSourceLabel> {
     return invoke<InputSourceLabel>("get_input_source");
   },
+
+  getReduceMotionStatus: () => invoke<boolean>("get_reduce_motion_status"),
 };
