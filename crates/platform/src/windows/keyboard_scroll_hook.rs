@@ -17,8 +17,8 @@ use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     CallNextHookEx, DispatchMessageW, GetMessageW, PostThreadMessageW, SetWindowsHookExW,
-    TranslateMessage, UnhookWindowsHookEx, MSG, WH_KEYBOARD_LL, WM_KEYDOWN, WM_KEYUP,
-    WM_QUIT, WM_SYSKEYDOWN, WM_SYSKEYUP,
+    TranslateMessage, UnhookWindowsHookEx, MSG, WH_KEYBOARD_LL, WM_KEYDOWN, WM_KEYUP, WM_QUIT,
+    WM_SYSKEYDOWN, WM_SYSKEYUP,
 };
 
 #[repr(C)]
@@ -50,8 +50,12 @@ struct InstalledHook {
 
 impl Drop for InstalledHook {
     fn drop(&mut self) {
-        unsafe { PostThreadMessageW(self.thread_id, WM_QUIT, 0, 0); }
-        if let Some(h) = self.join.take() { let _ = h.join(); }
+        unsafe {
+            PostThreadMessageW(self.thread_id, WM_QUIT, 0, 0);
+        }
+        if let Some(h) = self.join.take() {
+            let _ = h.join();
+        }
     }
 }
 
@@ -68,7 +72,8 @@ impl KeyboardScrollHook for WindowsKeyboardScrollHook {
             .spawn(move || pump(tx))
             .map_err(|e| PlatformError::Os(format!("spawn keyboard thread: {e}")))?;
 
-        let thread_id = rx.recv()
+        let thread_id = rx
+            .recv()
             .map_err(|_| PlatformError::Os("keyboard thread crashed".into()))??;
 
         Ok(HookHandle::new(Box::new(InstalledHook {
@@ -109,9 +114,11 @@ fn vk_to_key(vk: u32, shift: bool) -> Option<KeyboardScrollKey> {
     match vk {
         x if x == VK_NEXT as u32 => Some(KeyboardScrollKey::PageDown),
         x if x == VK_PRIOR as u32 => Some(KeyboardScrollKey::PageUp),
-        x if x == VK_SPACE as u32 => {
-            Some(if shift { KeyboardScrollKey::ShiftSpace } else { KeyboardScrollKey::Space })
-        }
+        x if x == VK_SPACE as u32 => Some(if shift {
+            KeyboardScrollKey::ShiftSpace
+        } else {
+            KeyboardScrollKey::Space
+        }),
         x if x == VK_DOWN as u32 => Some(KeyboardScrollKey::ArrowDown),
         x if x == VK_UP as u32 => Some(KeyboardScrollKey::ArrowUp),
         _ => None,

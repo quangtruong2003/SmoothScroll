@@ -16,16 +16,38 @@ pub enum ThemeMode {
 
 fn default_games_list() -> Vec<String> {
     [
-        "LeagueOfLegends.exe", "VALORANT.exe", "csgo.exe", "cs2.exe",
-        "dota2.exe", "ApexLegends.exe", "RainbowSix.exe",
-        "FortniteClient-Win64-Shipping.exe", "PUBG.exe",
-        "GTA5.exe", "RDR2.exe", "eldenring.exe", "Cyberpunk2077.exe",
-        "witcher3.exe", "MinecraftLauncher.exe", "javaw.exe",
-        "RocketLeague.exe", "Overwatch.exe", "Overwatch2.exe",
-        "WoW.exe", "ffxiv_dx11.exe", "warframe.exe",
-        "factorio.exe", "Terraria.exe", "StardewValley.exe",
-        "ETS2.exe", "ats.exe", "dishonored2.exe",
-    ].iter().map(|s| s.to_string()).collect()
+        "LeagueOfLegends.exe",
+        "VALORANT.exe",
+        "csgo.exe",
+        "cs2.exe",
+        "dota2.exe",
+        "ApexLegends.exe",
+        "RainbowSix.exe",
+        "FortniteClient-Win64-Shipping.exe",
+        "PUBG.exe",
+        "GTA5.exe",
+        "RDR2.exe",
+        "eldenring.exe",
+        "Cyberpunk2077.exe",
+        "witcher3.exe",
+        "MinecraftLauncher.exe",
+        "javaw.exe",
+        "RocketLeague.exe",
+        "Overwatch.exe",
+        "Overwatch2.exe",
+        "WoW.exe",
+        "ffxiv_dx11.exe",
+        "warframe.exe",
+        "factorio.exe",
+        "Terraria.exe",
+        "StardewValley.exe",
+        "ETS2.exe",
+        "ats.exe",
+        "dishonored2.exe",
+    ]
+    .iter()
+    .map(|s| s.to_string())
+    .collect()
 }
 
 /// A named scroll profile with customizable settings.
@@ -112,7 +134,7 @@ pub struct AppSettings {
 
     // Per-app profiles
     pub profiles: Vec<ScrollProfile>,
-    pub app_profiles: HashMap<String, String>,  // process_name -> profile_id
+    pub app_profiles: HashMap<String, String>, // process_name -> profile_id
 
     // Game mode
     pub game_mode_enabled: bool,
@@ -171,9 +193,12 @@ impl Default for AppSettings {
             edge_scroll_modifier: "Alt".to_string(),
             keyboard_scroll_enabled: false,
             keyboard_scroll_keys: vec![
-                "PageUp".to_string(), "PageDown".to_string(),
-                "Space".to_string(), "ShiftSpace".to_string(),
-                "ArrowUp".to_string(), "ArrowDown".to_string(),
+                "PageUp".to_string(),
+                "PageDown".to_string(),
+                "Space".to_string(),
+                "ShiftSpace".to_string(),
+                "ArrowUp".to_string(),
+                "ArrowDown".to_string(),
             ],
             keyboard_smart_text_skip: true,
             keyboard_pgdn_step_notches: 5,
@@ -216,7 +241,8 @@ impl AppSettings {
         }
 
         self.edge_scroll_zone_px = self.edge_scroll_zone_px.clamp(10, 200);
-        self.edge_scroll_max_notches_per_sec = self.edge_scroll_max_notches_per_sec.clamp(0.5, 20.0);
+        self.edge_scroll_max_notches_per_sec =
+            self.edge_scroll_max_notches_per_sec.clamp(0.5, 20.0);
         if !["Alt", "Shift", "Ctrl"].contains(&self.edge_scroll_modifier.as_str()) {
             self.edge_scroll_modifier = "Alt".to_string();
         }
@@ -227,7 +253,8 @@ impl AppSettings {
     pub fn migrate_from_v1(&mut self) {
         if !self.excluded_apps.is_empty() && self.app_profiles.is_empty() {
             for app in self.excluded_apps.drain(..) {
-                self.app_profiles.insert(app, Self::DISABLED_PROFILE_ID.to_string());
+                self.app_profiles
+                    .insert(app, Self::DISABLED_PROFILE_ID.to_string());
             }
         }
     }
@@ -275,6 +302,65 @@ impl AppSettings {
             None => {
                 self.app_profiles.remove(&process_name);
             }
+        }
+    }
+}
+
+/// Hot-path subset of AppSettings — only fields the engine needs per event.
+/// No Vec, no HashMap. Cheap to clone, cheap to swap.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EffectiveSettings {
+    pub step_size_px: i32,
+    pub animation_time_ms: i32,
+    pub acceleration_delta_ms: i32,
+    pub acceleration_max: i32,
+    pub tail_to_head_ratio: i32,
+    pub animation_easing: bool,
+    pub easing_mode: EasingMode,
+    pub reverse_wheel_direction: bool,
+    pub horizontal_smoothness: bool,
+    pub shift_key_horizontal: bool,
+    pub touchpad_smoothing_enabled: bool,
+    pub touchpad_pixel_multiplier: f64,
+    pub touchpad_acceleration_factor: f64,
+}
+
+impl EffectiveSettings {
+    /// Build from the global (default) settings.
+    pub fn from_settings(s: &AppSettings) -> Self {
+        Self {
+            step_size_px: s.step_size_px,
+            animation_time_ms: s.animation_time_ms,
+            acceleration_delta_ms: s.acceleration_delta_ms,
+            acceleration_max: s.acceleration_max,
+            tail_to_head_ratio: s.tail_to_head_ratio,
+            animation_easing: s.animation_easing,
+            easing_mode: s.easing_mode,
+            reverse_wheel_direction: s.reverse_wheel_direction,
+            horizontal_smoothness: s.horizontal_smoothness,
+            shift_key_horizontal: s.shift_key_horizontal,
+            touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
+            touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
+            touchpad_acceleration_factor: s.touchpad_acceleration_factor,
+        }
+    }
+
+    /// Build from a base settings + profile, merging profile overrides.
+    pub fn with_profile(base: &AppSettings, profile: &ScrollProfile) -> Self {
+        Self {
+            step_size_px: profile.step_size_px,
+            animation_time_ms: profile.animation_time_ms,
+            acceleration_delta_ms: profile.acceleration_delta_ms,
+            acceleration_max: profile.acceleration_max,
+            tail_to_head_ratio: profile.tail_to_head_ratio,
+            animation_easing: profile.animation_easing,
+            easing_mode: profile.easing_mode,
+            reverse_wheel_direction: profile.reverse_wheel_direction,
+            horizontal_smoothness: profile.horizontal_smoothness,
+            shift_key_horizontal: base.shift_key_horizontal,
+            touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
+            touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
+            touchpad_acceleration_factor: base.touchpad_acceleration_factor,
         }
     }
 }

@@ -10,7 +10,7 @@ use std::sync::Arc;
 use tauri::{
     image::Image,
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Listener, Manager, Runtime, PhysicalPosition,
+    AppHandle, Listener, Manager, PhysicalPosition, Runtime,
 };
 
 const TRAY_ID: &str = "main";
@@ -38,8 +38,8 @@ fn icon_for<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Image<'static> {
 fn cursor_position() -> PhysicalPosition<i32> {
     #[cfg(windows)]
     {
-        use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
         use windows::Win32::Foundation::POINT;
+        use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
         let mut point = POINT::default();
         unsafe {
             if GetCursorPos(&mut point).is_ok() {
@@ -67,8 +67,14 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
 
     let work_x = work_area.as_ref().map(|w| w.position.x).unwrap_or(0);
     let work_y = work_area.as_ref().map(|w| w.position.y).unwrap_or(0);
-    let work_w = work_area.as_ref().map(|w| w.size.width as i32).unwrap_or(1920);
-    let work_h = work_area.as_ref().map(|w| w.size.height as i32).unwrap_or(1080);
+    let work_w = work_area
+        .as_ref()
+        .map(|w| w.size.width as i32)
+        .unwrap_or(1920);
+    let work_h = work_area
+        .as_ref()
+        .map(|w| w.size.height as i32)
+        .unwrap_or(1080);
 
     // Anchor vertically to the bottom edge of the work area (just above taskbar).
     let mut y = work_y + work_h - panel_h - edge_gap;
@@ -122,7 +128,9 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                     } => {
                         // Left-click: toggle enabled
                         let new_enabled = !state.enabled.load(std::sync::atomic::Ordering::Relaxed);
-                        state.enabled.store(new_enabled, std::sync::atomic::Ordering::Relaxed);
+                        state
+                            .enabled
+                            .store(new_enabled, std::sync::atomic::Ordering::Relaxed);
                         state.engine_signal.signal();
                         crate::commands::emit_enabled_changed(&app, new_enabled);
 

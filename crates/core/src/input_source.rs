@@ -20,12 +20,16 @@ pub struct InputClassifier {
 }
 
 impl Default for InputClassifier {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl InputClassifier {
     pub fn new() -> Self {
-        Self { recent: VecDeque::with_capacity(32) }
+        Self {
+            recent: VecDeque::with_capacity(32),
+        }
     }
 
     pub fn classify(&mut self, delta: i32, now_ms: u64) -> InputSource {

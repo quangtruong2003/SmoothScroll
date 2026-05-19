@@ -2,9 +2,12 @@
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KeyboardScrollKey {
-    PageUp, PageDown,
-    Space, ShiftSpace,
-    ArrowUp, ArrowDown,
+    PageUp,
+    PageDown,
+    Space,
+    ShiftSpace,
+    ArrowUp,
+    ArrowDown,
 }
 
 impl KeyboardScrollKey {

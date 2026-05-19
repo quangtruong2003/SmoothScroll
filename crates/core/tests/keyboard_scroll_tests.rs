@@ -1,4 +1,4 @@
-use smoothscroll_core::keyboard_scroll::{KeyboardScrollKey, parse_key};
+use smoothscroll_core::keyboard_scroll::{parse_key, KeyboardScrollKey};
 
 #[test]
 fn parse_known_keys() {

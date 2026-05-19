@@ -3,13 +3,13 @@
 #![cfg(target_os = "macos")]
 
 mod autostart;
+pub mod fullscreen;
 mod hotkey;
 pub mod keyboard_scroll_hook;
 mod mouse_hook;
 mod permissions;
 mod process_query;
 mod wheel_emitter;
-pub mod fullscreen;
 pub mod window_geom;
 
 pub use autostart::MacosAutostart;
