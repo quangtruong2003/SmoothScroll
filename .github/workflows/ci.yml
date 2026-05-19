@@ -1,0 +1,94 @@
+name: CI Build (feature branches)
+
+# Dry-run release builds for feature branches without bumping version or
+# publishing artifacts. Push to ci/** to validate macOS + Windows compile
+# before merging to master (which auto-releases).
+
+on:
+  push:
+    branches:
+      - 'ci/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: ci-windows
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Build WASM engine bundle
+        run: npm run build:wasm
+
+      - name: Build Tauri app (no signing)
+        run: npx tauri build --no-bundle
+        working-directory: src-tauri
+
+  build-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}, wasm32-unknown-unknown
+
+      - name: Cache cargo + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: ci-macos-${{ matrix.target }}
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Build WASM engine bundle
+        run: npm run build:wasm
+
+      - name: Build Tauri app (no signing)
+        run: npx tauri build --target ${{ matrix.target }} --no-bundle
+        working-directory: src-tauri

@@ -32,22 +32,23 @@ impl ProcessQuery for MacosProcessQuery {
     }
 
     fn foreground_process_name(&self) -> Option<String> {
-        use objc2::msg_send;
+        use objc2::msg_send_id;
         use objc2::rc::Retained;
         use objc2_app_kit::{NSRunningApplication, NSWorkspace};
+        use objc2_foundation::NSString;
         // SAFETY: `sharedWorkspace` returns the process-wide singleton.
-        // `frontmostApplication` is read via msg_send! to avoid
-        // feature-gating surprises across objc2-app-kit 0.2.x; it returns
-        // an optional NSRunningApplication. `localizedName` is similarly
-        // read via msg_send! returning an optional NSString. Both selectors
-        // are stable across all supported macOS versions.
+        // Use msg_send_id! (not msg_send!) for ARC-managed returns: in
+        // objc2 0.5, msg_send! requires Encode-implementing types and
+        // doesn't accept Retained<T>; msg_send_id! handles the retain/
+        // release dance and yields Retained<T> or Option<Retained<T>>.
+        // Selectors `frontmostApplication` and `localizedName` are stable
+        // across all supported macOS versions.
         unsafe {
             let workspace = NSWorkspace::sharedWorkspace();
             let app: Option<Retained<NSRunningApplication>> =
-                msg_send![&*workspace, frontmostApplication];
+                msg_send_id![&*workspace, frontmostApplication];
             let app = app?;
-            let name: Option<Retained<objc2_foundation::NSString>> =
-                msg_send![&*app, localizedName];
+            let name: Option<Retained<NSString>> = msg_send_id![&*app, localizedName];
             name.map(|n| n.to_string())
         }
     }
