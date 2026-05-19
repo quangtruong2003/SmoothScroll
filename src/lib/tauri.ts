@@ -86,6 +86,14 @@ export interface ProfileSuggestion {
   preset: SuggestedPreset;
 }
 
+export interface ForegroundAppContext {
+  process_name: string | null;
+  suggested_category: AppCategory | null;
+  suggested_category_label: string | null;
+  current_profile_id: string | null;
+  is_excluded: boolean;
+}
+
 export const tauri = {
   ping: () => invoke<string>("ping"),
 
@@ -153,4 +161,6 @@ export const tauri = {
   },
 
   getReduceMotionStatus: () => invoke<boolean>("get_reduce_motion_status"),
+
+  getForegroundAppContext: () => invoke<ForegroundAppContext>("get_foreground_app_context"),
 };
