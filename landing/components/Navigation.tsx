@@ -42,7 +42,6 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
             alt="SmoothScroll logo"
             width={28}
             height={28}
-            priority
             className="rounded-md"
           />
           SmoothScroll
