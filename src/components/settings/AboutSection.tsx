@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { tauri } from "@/lib/tauri";
+import { useSettingsStore } from "@/stores/settingsStore";
 import {
   checkForUpdate,
   downloadAndInstall,
@@ -22,6 +23,7 @@ type UiState =
 
 export function AboutSection() {
   const { t } = useTranslation();
+  const reload = useSettingsStore((s) => s.load);
   const [version, setVersion] = useState<string>("");
   const [ui, setUi] = useState<UiState>({ kind: "idle" });
 
@@ -148,6 +150,16 @@ export function AboutSection() {
         </div>
         <Button variant="outline" size="sm" onClick={() => tauri.openLogDir()}>
           {t("about.open_logs")}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await tauri.resetOnboarding();
+            await reload();
+          }}
+        >
+          {t("about.rerun_setup")}
         </Button>
       </CardContent>
     </Card>

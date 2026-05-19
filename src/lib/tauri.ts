@@ -16,6 +16,9 @@ export interface ModifierPassthrough {
   clear_inertia_on_press: boolean;
 }
 
+export type OnboardingUseCase = "Reader" | "Coder" | "Designer" | "General";
+export type OnboardingFeel = "Glide" | "Balanced" | "Snappy";
+
 export type InputSourceLabel = "Wheel" | "HighResWheel" | "Touchpad";
 
 export interface ScrollProfile {
@@ -71,6 +74,7 @@ export interface AppSettings {
   touchpad_acceleration_factor: number;
   respect_reduce_motion: RespectReduceMotion;
   modifier_passthrough: ModifierPassthrough;
+  onboarding_completed_at: number | null;
 }
 
 export interface ProcessInfo {
@@ -170,4 +174,9 @@ export const tauri = {
   getReduceMotionStatus: () => invoke<boolean>("get_reduce_motion_status"),
 
   getForegroundAppContext: () => invoke<ForegroundAppContext>("get_foreground_app_context"),
+
+  applyOnboardingPreset: (useCase: OnboardingUseCase, feel: OnboardingFeel) =>
+    invoke<void>("apply_onboarding_preset", { useCase, feel }),
+  skipOnboarding: () => invoke<void>("skip_onboarding"),
+  resetOnboarding: () => invoke<void>("reset_onboarding"),
 };

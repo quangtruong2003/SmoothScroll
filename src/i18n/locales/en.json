@@ -286,6 +286,7 @@
     "version": "Version",
     "author": "Author",
     "open_logs": "Open log folder",
+    "rerun_setup": "Re-run setup wizard",
     "homepage": "Homepage",
     "homepage_url": "https://github.com/quangtruong2003/smoothscroll",
     "updates": "Updates",
@@ -348,5 +349,34 @@
     "b_label": "B — Editing",
     "swap": "Swap A ↔ B",
     "apply_b": "Apply B as new default"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Looks good — finish",
+    "step1": {
+      "title": "What do you mostly do?",
+      "subtitle": "We'll pick smart defaults for your work."
+    },
+    "step2": {
+      "title": "How should it feel?",
+      "subtitle": "Pick a starting feel. You can fine-tune later."
+    },
+    "step3": {
+      "title": "Try it out",
+      "subtitle": "Scroll the area below. If it feels right, finish."
+    },
+    "use_case": {
+      "Reader":   { "label": "Reader",   "help": "Articles, PDFs, long pages." },
+      "Coder":    { "label": "Coder",    "help": "VS Code, JetBrains, terminals." },
+      "Designer": { "label": "Designer", "help": "Photoshop, Figma, video editors." },
+      "General":  { "label": "General",  "help": "A mix of everything." }
+    },
+    "feel": {
+      "Glide":    { "label": "Glide",    "help": "Slow, mac-like, smooth." },
+      "Balanced": { "label": "Balanced", "help": "Recommended default." },
+      "Snappy":   { "label": "Snappy",   "help": "Fast with little inertia." }
+    }
   }
 }
