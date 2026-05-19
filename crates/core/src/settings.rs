@@ -306,6 +306,65 @@ impl AppSettings {
     }
 }
 
+/// Hot-path subset of AppSettings — only fields the engine needs per event.
+/// No Vec, no HashMap. Cheap to clone, cheap to swap.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EffectiveSettings {
+    pub step_size_px: i32,
+    pub animation_time_ms: i32,
+    pub acceleration_delta_ms: i32,
+    pub acceleration_max: i32,
+    pub tail_to_head_ratio: i32,
+    pub animation_easing: bool,
+    pub easing_mode: EasingMode,
+    pub reverse_wheel_direction: bool,
+    pub horizontal_smoothness: bool,
+    pub shift_key_horizontal: bool,
+    pub touchpad_smoothing_enabled: bool,
+    pub touchpad_pixel_multiplier: f64,
+    pub touchpad_acceleration_factor: f64,
+}
+
+impl EffectiveSettings {
+    /// Build from the global (default) settings.
+    pub fn from_settings(s: &AppSettings) -> Self {
+        Self {
+            step_size_px: s.step_size_px,
+            animation_time_ms: s.animation_time_ms,
+            acceleration_delta_ms: s.acceleration_delta_ms,
+            acceleration_max: s.acceleration_max,
+            tail_to_head_ratio: s.tail_to_head_ratio,
+            animation_easing: s.animation_easing,
+            easing_mode: s.easing_mode,
+            reverse_wheel_direction: s.reverse_wheel_direction,
+            horizontal_smoothness: s.horizontal_smoothness,
+            shift_key_horizontal: s.shift_key_horizontal,
+            touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
+            touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
+            touchpad_acceleration_factor: s.touchpad_acceleration_factor,
+        }
+    }
+
+    /// Build from a base settings + profile, merging profile overrides.
+    pub fn with_profile(base: &AppSettings, profile: &ScrollProfile) -> Self {
+        Self {
+            step_size_px: profile.step_size_px,
+            animation_time_ms: profile.animation_time_ms,
+            acceleration_delta_ms: profile.acceleration_delta_ms,
+            acceleration_max: profile.acceleration_max,
+            tail_to_head_ratio: profile.tail_to_head_ratio,
+            animation_easing: profile.animation_easing,
+            easing_mode: profile.easing_mode,
+            reverse_wheel_direction: profile.reverse_wheel_direction,
+            horizontal_smoothness: profile.horizontal_smoothness,
+            shift_key_horizontal: base.shift_key_horizontal,
+            touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
+            touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
+            touchpad_acceleration_factor: base.touchpad_acceleration_factor,
+        }
+    }
+}
+
 /// Validates an accelerator string of the form `Mod[+Mod...]+Key`.
 ///
 /// Rules:

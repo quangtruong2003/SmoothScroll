@@ -189,3 +189,66 @@ fn touchpad_clamp_bounds() {
     assert!(s.touchpad_pixel_multiplier >= 0.1);
     assert!(s.touchpad_acceleration_factor >= 0.0);
 }
+
+// EffectiveSettings tests
+
+use smoothscroll_core::settings::{EffectiveSettings, ScrollProfile};
+
+#[test]
+fn effective_settings_from_settings_copies_all_fields() {
+    let mut s = AppSettings::default();
+    s.step_size_px = 240;
+    s.animation_time_ms = 500;
+    s.acceleration_delta_ms = 100;
+    s.acceleration_max = 10;
+    s.tail_to_head_ratio = 5;
+    s.animation_easing = false;
+    s.easing_mode = EasingMode::CubicOut;
+    s.reverse_wheel_direction = true;
+    s.horizontal_smoothness = false;
+    s.shift_key_horizontal = false;
+    s.touchpad_smoothing_enabled = false;
+    s.touchpad_pixel_multiplier = 1.5;
+    s.touchpad_acceleration_factor = 2.0;
+
+    let eff = EffectiveSettings::from_settings(&s);
+
+    assert_eq!(eff.step_size_px, 240);
+    assert_eq!(eff.animation_time_ms, 500);
+    assert_eq!(eff.acceleration_delta_ms, 100);
+    assert_eq!(eff.acceleration_max, 10);
+    assert_eq!(eff.tail_to_head_ratio, 5);
+    assert!(!eff.animation_easing);
+    assert_eq!(eff.easing_mode, EasingMode::CubicOut);
+    assert!(eff.reverse_wheel_direction);
+    assert!(!eff.horizontal_smoothness);
+    assert!(!eff.shift_key_horizontal);
+    assert!(!eff.touchpad_smoothing_enabled);
+    assert_eq!(eff.touchpad_pixel_multiplier, 1.5);
+    assert_eq!(eff.touchpad_acceleration_factor, 2.0);
+}
+
+#[test]
+fn effective_settings_with_profile_uses_profile_overrides() {
+    let s = AppSettings::default();
+    let mut profile = ScrollProfile::new("test", "Test");
+    profile.step_size_px = 300;
+    profile.animation_time_ms = 800;
+    profile.easing_mode = EasingMode::Linear;
+
+    let eff = EffectiveSettings::with_profile(&s, &profile);
+
+    assert_eq!(eff.step_size_px, 300);
+    assert_eq!(eff.animation_time_ms, 800);
+    assert_eq!(eff.easing_mode, EasingMode::Linear);
+    assert_eq!(eff.shift_key_horizontal, s.shift_key_horizontal);
+    assert_eq!(eff.touchpad_smoothing_enabled, s.touchpad_smoothing_enabled);
+}
+
+#[test]
+fn effective_settings_is_copy() {
+    let s = AppSettings::default();
+    let eff = EffectiveSettings::from_settings(&s);
+    let eff2 = eff;
+    assert_eq!(eff, eff2);
+}

@@ -2,10 +2,15 @@
 //!
 //! **Threading:** the engine is *not* thread-safe internally. The caller
 //! (the app crate) wraps it in `parking_lot::Mutex<SmoothScrollEngine>`.
+//!
+//! **Statelessness w.r.t. settings:** the engine owns only the rolling
+//! per-axis state (`remaining_px`, `accel_factor`, etc.). Settings are
+//! passed by reference into every hot-path call so the caller can swap
+//! them atomically without locking the engine.
 
 use crate::constants::{BASE_STEP_PX, EMIT_UNIT, PULSE_CLAMP_MAX, PULSE_CLAMP_MIN, WHEEL_DELTA};
 use crate::easing::compute_easing_fraction;
-use crate::settings::AppSettings;
+use crate::settings::EffectiveSettings;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct EngineOutput {
@@ -22,7 +27,7 @@ struct Axis {
 }
 
 impl Axis {
-    fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &AppSettings) {
+    fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
         let elapsed = now_ms.saturating_sub(self.last_notch_ms);
         if (elapsed as i64) <= settings.acceleration_delta_ms as i64 {
             self.accel_factor = (self.accel_factor + 1)
@@ -44,7 +49,7 @@ impl Axis {
         self.remaining_px += px * multiplier;
     }
 
-    fn step(&mut self, dt_ms: f64, settings: &AppSettings) -> i32 {
+    fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> i32 {
         if self.remaining_px.abs() < 0.1 {
             self.remaining_px = 0.0;
             self.unit_accum = 0.0;
@@ -82,34 +87,16 @@ impl Axis {
 
 #[derive(Debug)]
 pub struct SmoothScrollEngine {
-    settings: AppSettings,
     v: Axis,
     h: Axis,
 }
 
 impl SmoothScrollEngine {
-    pub fn new(settings: AppSettings) -> Self {
+    pub fn new() -> Self {
         Self {
-            settings,
             v: Axis::default(),
             h: Axis::default(),
         }
-    }
-
-    pub fn apply_settings(&mut self, settings: AppSettings) {
-        self.settings = settings;
-    }
-
-    pub fn settings(&self) -> &AppSettings {
-        &self.settings
-    }
-
-    pub fn on_wheel(&mut self, delta: i32, now_ms: u64) {
-        self.on_wheel_with_source(delta, now_ms, crate::input_source::InputSource::Wheel);
-    }
-
-    pub fn on_hwheel(&mut self, delta: i32, now_ms: u64) {
-        self.on_hwheel_with_source(delta, now_ms, crate::input_source::InputSource::Wheel);
     }
 
     pub fn on_wheel_with_source(
@@ -117,27 +104,26 @@ impl SmoothScrollEngine {
         delta: i32,
         now_ms: u64,
         source: crate::input_source::InputSource,
+        settings: &EffectiveSettings,
     ) {
         use crate::input_source::InputSource;
-        let dir = if self.settings.reverse_wheel_direction {
+        let dir = if settings.reverse_wheel_direction {
             -1
         } else {
             1
         };
         match source {
             InputSource::Wheel | InputSource::HighResWheel => {
-                self.v.register_notch(now_ms, delta * dir, &self.settings);
+                self.v.register_notch(now_ms, delta * dir, settings);
             }
             InputSource::Touchpad => {
-                if !self.settings.touchpad_smoothing_enabled {
-                    self.v.register_notch(now_ms, delta * dir, &self.settings);
+                if !settings.touchpad_smoothing_enabled {
+                    self.v.register_notch(now_ms, delta * dir, settings);
                     return;
                 }
-                let px = (delta as f64 / crate::constants::WHEEL_DELTA as f64)
-                    * crate::constants::BASE_STEP_PX
-                    * dir as f64;
+                let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.v
-                    .register_pixels(px, now_ms, self.settings.touchpad_pixel_multiplier);
+                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
             }
         }
     }
@@ -147,35 +133,34 @@ impl SmoothScrollEngine {
         delta: i32,
         now_ms: u64,
         source: crate::input_source::InputSource,
+        settings: &EffectiveSettings,
     ) {
         use crate::input_source::InputSource;
-        let dir = if self.settings.reverse_wheel_direction {
+        let dir = if settings.reverse_wheel_direction {
             -1
         } else {
             1
         };
         match source {
             InputSource::Wheel | InputSource::HighResWheel => {
-                self.h.register_notch(now_ms, delta * dir, &self.settings);
+                self.h.register_notch(now_ms, delta * dir, settings);
             }
             InputSource::Touchpad => {
-                if !self.settings.touchpad_smoothing_enabled {
-                    self.h.register_notch(now_ms, delta * dir, &self.settings);
+                if !settings.touchpad_smoothing_enabled {
+                    self.h.register_notch(now_ms, delta * dir, settings);
                     return;
                 }
-                let px = (delta as f64 / crate::constants::WHEEL_DELTA as f64)
-                    * crate::constants::BASE_STEP_PX
-                    * dir as f64;
+                let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.h
-                    .register_pixels(px, now_ms, self.settings.touchpad_pixel_multiplier);
+                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
             }
         }
     }
 
-    pub fn step(&mut self, dt_ms: f64) -> EngineOutput {
-        let v = self.v.step(dt_ms, &self.settings);
-        let h = if self.settings.horizontal_smoothness {
-            self.h.step(dt_ms, &self.settings)
+    pub fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> EngineOutput {
+        let v = self.v.step(dt_ms, settings);
+        let h = if settings.horizontal_smoothness {
+            self.h.step(dt_ms, settings)
         } else {
             0
         };
@@ -187,5 +172,11 @@ impl SmoothScrollEngine {
 
     pub fn has_pending_work(&self) -> bool {
         self.v.remaining_px.abs() >= 0.1 || self.h.remaining_px.abs() >= 0.1
+    }
+}
+
+impl Default for SmoothScrollEngine {
+    fn default() -> Self {
+        Self::new()
     }
 }
