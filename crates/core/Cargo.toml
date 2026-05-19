@@ -10,6 +10,16 @@ description = "Pure scroll engine logic for SmoothScroll"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+# wasm-pack: disable wasm-opt entirely. The bundled wasm-opt on CI runners
+# rejects bulk-memory ops emitted by recent wasm-bindgen, and the engine
+# bundle is small enough (~30KB) that the extra optimization isn't worth
+# the toolchain headache. Rust release codegen still applies.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
+
 [features]
 default = []
 wasm = ["dep:wasm-bindgen"]
