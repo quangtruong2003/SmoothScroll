@@ -30,4 +30,17 @@ impl ProcessQuery for MacosProcessQuery {
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
         Vec::new()
     }
+
+    fn foreground_process_name(&self) -> Option<String> {
+        use objc2_app_kit::NSWorkspace;
+        // SAFETY: `sharedWorkspace` returns the process-wide singleton;
+        // `frontmostApplication` is a thread-safe read of NSWorkspace state;
+        // `localizedName` returns an autoreleased NSString we copy via to_string.
+        unsafe {
+            let workspace = NSWorkspace::sharedWorkspace();
+            let app = workspace.frontmostApplication()?;
+            let name = app.localizedName()?;
+            Some(name.to_string())
+        }
+    }
 }
