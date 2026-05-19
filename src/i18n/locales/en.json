@@ -322,6 +322,14 @@
     "open_log": "Open Log File",
     "quit": "Quit SmoothScroll",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Current app",
+      "category": "Category: {{category}}",
+      "profile": "Profile",
+      "default": "Default",
+      "disabled": "Disabled (pass-through)",
+      "disable_for_this_app": "Disable smoothing for this app"
+    }
   }
 }
