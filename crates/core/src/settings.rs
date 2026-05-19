@@ -339,6 +339,7 @@ pub struct EffectiveSettings {
     pub touchpad_smoothing_enabled: bool,
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
+    pub instant_mode: bool,
 }
 
 impl EffectiveSettings {
@@ -358,6 +359,7 @@ impl EffectiveSettings {
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: s.touchpad_acceleration_factor,
+            instant_mode: false,
         }
     }
 
@@ -377,6 +379,7 @@ impl EffectiveSettings {
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: base.touchpad_acceleration_factor,
+            instant_mode: false,
         }
     }
 }

@@ -283,3 +283,11 @@ fn old_settings_without_respect_field_load_with_auto_default() {
         smoothscroll_core::settings::RespectReduceMotion::Auto
     );
 }
+
+#[test]
+fn effective_settings_default_instant_mode_false() {
+    use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+    let s = AppSettings::default();
+    let eff = EffectiveSettings::from_settings(&s);
+    assert!(!eff.instant_mode);
+}
