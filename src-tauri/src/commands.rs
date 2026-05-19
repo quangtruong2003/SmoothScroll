@@ -581,6 +581,62 @@ pub fn get_default_settings() -> AppSettings {
     AppSettings::default()
 }
 
+#[tauri::command]
+pub fn apply_onboarding_preset(
+    state: State<'_, Arc<AppState>>,
+    use_case: String,
+    feel: String,
+) -> Result<(), String> {
+    use smoothscroll_core::onboarding::{apply_preset, Feel, UseCase};
+    let uc = match use_case.as_str() {
+        "Reader" => UseCase::Reader,
+        "Coder" => UseCase::Coder,
+        "Designer" => UseCase::Designer,
+        "General" => UseCase::General,
+        _ => return Err(format!("invalid use_case '{use_case}'")),
+    };
+    let f = match feel.as_str() {
+        "Glide" => Feel::Glide,
+        "Balanced" => Feel::Balanced,
+        "Snappy" => Feel::Snappy,
+        _ => return Err(format!("invalid feel '{feel}'")),
+    };
+
+    let mut snapshot = state.settings.read().clone();
+    apply_preset(&mut snapshot, uc, f);
+    snapshot.onboarding_completed_at = Some(now_unix());
+    snapshot.clamp();
+
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn skip_onboarding(state: State<'_, Arc<AppState>>) -> Result<(), String> {
+    let mut snapshot = state.settings.read().clone();
+    snapshot.onboarding_completed_at = Some(now_unix());
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn reset_onboarding(state: State<'_, Arc<AppState>>) -> Result<(), String> {
+    let mut snapshot = state.settings.read().clone();
+    snapshot.onboarding_completed_at = None;
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
+    Ok(())
+}
+
+fn now_unix() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
+
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ForegroundAppContext {
     pub process_name: Option<String>,

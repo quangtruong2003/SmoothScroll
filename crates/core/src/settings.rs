@@ -198,6 +198,9 @@ pub struct AppSettings {
 
     // Precision actions (modifier passthrough)
     pub modifier_passthrough: ModifierPassthrough,
+
+    // Onboarding
+    pub onboarding_completed_at: Option<u64>,
 }
 
 impl Default for AppSettings {
@@ -248,6 +251,7 @@ impl Default for AppSettings {
             touchpad_acceleration_factor: 1.0,
             respect_reduce_motion: RespectReduceMotion::default(),
             modifier_passthrough: ModifierPassthrough::default(),
+            onboarding_completed_at: None,
         }
     }
 }
