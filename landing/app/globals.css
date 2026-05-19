@@ -88,3 +88,19 @@
     );
   }
 }
+
+@keyframes brand-marquee-slide {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.brand-marquee-track {
+  animation: brand-marquee-slide 40s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track {
+    animation: none;
+  }
+}

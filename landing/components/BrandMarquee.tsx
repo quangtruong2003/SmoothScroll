@@ -50,7 +50,7 @@ export function BrandMarquee() {
       role="region"
       aria-label="Compatible apps and operating systems"
     >
-      <div className="brand-marquee-track flex w-max items-center animate-brand-marquee-slide motion-reduce:animate-none">
+      <div className="brand-marquee-track flex w-max items-center">
         <BrandRow ariaHidden={false} />
         <BrandRow ariaHidden />
       </div>

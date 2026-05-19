@@ -86,15 +86,10 @@ const config: Config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
-        'brand-marquee-slide': {
-          from: { transform: 'translate3d(0, 0, 0)' },
-          to: { transform: 'translate3d(-50%, 0, 0)' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 200ms cubic-bezier(0.16, 1, 0.3, 1)',
         'accordion-up': 'accordion-up 200ms cubic-bezier(0.16, 1, 0.3, 1)',
-        'brand-marquee-slide': 'brand-marquee-slide 40s linear infinite',
       },
     },
   },
