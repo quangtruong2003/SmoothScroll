@@ -605,4 +605,92 @@ mod tests {
         assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
+
+    #[test]
+    fn commit_settings_auto_follows_os_reduce_motion() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let mut s = AppSettings::default();
+        s.respect_reduce_motion = RespectReduceMotion::Auto;
+        let state = make_state(s.clone());
+        // OS RM off → instant_mode false
+        state.reduce_motion.store(false, Ordering::Relaxed);
+        state.commit_settings(s.clone());
+        assert!(!state.effective.load_full().instant_mode);
+        // OS RM on → instant_mode true
+        state.reduce_motion.store(true, Ordering::Relaxed);
+        state.commit_settings(s.clone());
+        assert!(state.effective.load_full().instant_mode);
+    }
+
+    #[test]
+    fn commit_settings_always_overrides_os_off() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let mut s = AppSettings::default();
+        s.respect_reduce_motion = RespectReduceMotion::Always;
+        let state = make_state(s.clone());
+        state.reduce_motion.store(false, Ordering::Relaxed);
+        state.commit_settings(s);
+        assert!(state.effective.load_full().instant_mode);
+    }
+
+    #[test]
+    fn commit_settings_never_ignores_os_on() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let mut s = AppSettings::default();
+        s.respect_reduce_motion = RespectReduceMotion::Never;
+        let state = make_state(s.clone());
+        state.reduce_motion.store(true, Ordering::Relaxed);
+        state.commit_settings(s);
+        assert!(!state.effective.load_full().instant_mode);
+    }
+
+    #[test]
+    fn ctrl_wheel_passes_through_when_passthrough_enabled() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn ctrl_wheel_smooths_when_passthrough_disabled() {
+        let mut s = AppSettings::default();
+        s.modifier_passthrough.ctrl = false;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+    }
+
+    #[test]
+    fn ctrl_press_clears_inertia() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        sink.on_wheel(120, no_mods());
+        assert!(state.engine.lock().has_pending_work());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        let _ = sink.on_wheel(120, mods);
+        assert!(
+            !state.engine.lock().has_pending_work(),
+            "inertia should clear on ctrl press"
+        );
+    }
 }

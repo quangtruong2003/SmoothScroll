@@ -114,9 +114,16 @@ impl ScrollProfile {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ModifierPassthrough {
+    #[serde(default = "default_true")]
     pub ctrl: bool,
+    #[serde(default = "default_true")]
     pub alt: bool,
+    #[serde(default = "default_true")]
     pub clear_inertia_on_press: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 impl Default for ModifierPassthrough {

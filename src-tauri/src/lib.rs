@@ -100,6 +100,11 @@ pub fn run() {
         last_foreground_at_tray_open: Arc::new(Mutex::new(None)),
     });
 
+    // Apply the OS Reduce Motion signal to the initial effective snapshot.
+    // Without this, the engine smooths everything until the user first saves
+    // settings or the RM watcher fires.
+    app_state.commit_settings(loaded_settings.clone());
+
     let engine_thread = EngineThread::spawn(app_state.clone());
     edge_scroll_thread::spawn(app_state.clone());
 
