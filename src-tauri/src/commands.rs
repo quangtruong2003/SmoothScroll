@@ -569,6 +569,11 @@ pub fn get_input_source(state: State<'_, Arc<AppState>>) -> &'static str {
     }
 }
 
+#[tauri::command]
+pub fn get_reduce_motion_status(state: State<'_, Arc<AppState>>) -> bool {
+    state.reduce_motion.load(Ordering::Relaxed)
+}
+
 /// Returns the canonical default settings from `smoothscroll_core`.
 /// Single source of truth for "Reset to default" actions in the UI.
 #[tauri::command]

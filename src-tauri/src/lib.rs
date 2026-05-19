@@ -242,6 +242,7 @@ pub fn run() {
             commands::remove_known_game,
             commands::get_game_mode_status,
             commands::get_input_source,
+            commands::get_reduce_motion_status,
             commands::get_default_settings,
         ])
         .run(tauri::generate_context!())
