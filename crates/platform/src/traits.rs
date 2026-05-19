@@ -101,3 +101,17 @@ pub trait KeyboardScrollSink: Send + Sync {
 pub trait KeyboardScrollHook: Send + Sync {
     fn install(&self, sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle>;
 }
+
+/// OS-level accessibility signals that influence engine behaviour.
+pub trait AccessibilitySignals: Send + Sync {
+    /// Returns true when the OS reports "Reduce Motion" / "Disable animations".
+    fn reduce_motion_enabled(&self) -> bool;
+
+    /// Subscribe to changes. The callback is invoked on a platform-owned
+    /// thread whenever the OS toggles the signal. Dropping the returned handle
+    /// stops the subscription.
+    fn watch(
+        &self,
+        on_change: Box<dyn Fn(bool) + Send + Sync>,
+    ) -> Result<HookHandle>;
+}
