@@ -245,6 +245,7 @@ pub fn run() {
             commands::get_input_source,
             commands::get_reduce_motion_status,
             commands::get_default_settings,
+            commands::get_foreground_app_context,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");

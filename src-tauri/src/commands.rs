@@ -580,3 +580,49 @@ pub fn get_reduce_motion_status(state: State<'_, Arc<AppState>>) -> bool {
 pub fn get_default_settings() -> AppSettings {
     AppSettings::default()
 }
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ForegroundAppContext {
+    pub process_name: Option<String>,
+    pub suggested_category: Option<smoothscroll_core::app_categories::AppCategory>,
+    pub suggested_category_label: Option<String>,
+    pub current_profile_id: Option<String>,
+    pub is_excluded: bool,
+}
+
+/// Returns context about the foreground app at the moment the tray panel was
+/// shown (or a live query as fallback). Consumes the snapshot so a stale value
+/// does not leak between tray opens.
+#[tauri::command]
+pub fn get_foreground_app_context(
+    state: State<'_, Arc<AppState>>,
+) -> ForegroundAppContext {
+    let process_name = {
+        let mut guard = state.last_foreground_at_tray_open.lock();
+        guard.take()
+    }
+    .or_else(|| state.processes.foreground_process_name());
+
+    let Some(name) = process_name else {
+        return ForegroundAppContext {
+            process_name: None,
+            suggested_category: None,
+            suggested_category_label: None,
+            current_profile_id: None,
+            is_excluded: false,
+        };
+    };
+
+    let category = classify_app(&name);
+    let s = state.settings.read();
+    let is_excluded = s.is_excluded(&name);
+    let current_profile_id = s.app_profiles.get(&name).cloned();
+
+    ForegroundAppContext {
+        process_name: Some(name),
+        suggested_category: Some(category),
+        suggested_category_label: Some(category.label().to_string()),
+        current_profile_id,
+        is_excluded,
+    }
+}
