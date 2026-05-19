@@ -1,73 +1,34 @@
 'use client'
 
-import type { CSSProperties } from 'react'
 import { BRANDS, type Brand } from '@/lib/brands'
 
-import {
-  siApple,
-  siGooglechrome,
-  siFirefoxbrowser,
-  siCursor,
-  siIntellijidea,
-  siWebstorm,
-  siPycharm,
-  siNotion,
-  siFigma,
-  siDiscord,
-} from 'simple-icons'
-
-interface SimpleIcon {
-  title: string
-  slug: string
-  path: string
-  hex: string
-}
-
-const ICON_BY_SLUG: Record<string, SimpleIcon> = {
-  apple: siApple,
-  googlechrome: siGooglechrome,
-  firefoxbrowser: siFirefoxbrowser,
-  cursor: siCursor,
-  intellijidea: siIntellijidea,
-  webstorm: siWebstorm,
-  pycharm: siPycharm,
-  notion: siNotion,
-  figma: siFigma,
-  discord: siDiscord,
-}
-
-function pathFor(brand: Brand): string | null {
-  if (brand.customPath) return brand.customPath
-  const icon = ICON_BY_SLUG[brand.slug]
-  return icon ? icon.path : null
-}
-
 function BrandItem({ brand }: { brand: Brand }) {
-  const path = pathFor(brand)
-  const style = {
-    '--brand-light': brand.hexLight,
-    '--brand-dark': brand.hexDark,
-  } as CSSProperties
-
   return (
     <li
       data-brand-item
       role="listitem"
       aria-label={brand.name}
-      style={style}
       className="inline-flex items-center gap-2 shrink-0"
     >
-      <span className="inline-flex items-center justify-center brand-marquee-glyph">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          {path ? <path d={path} /> : <rect width="24" height="24" rx="4" />}
-        </svg>
+      <span className="inline-flex items-center justify-center h-6 w-6">
+        <img
+          src={brand.srcLight}
+          alt=""
+          width={24}
+          height={24}
+          decoding="async"
+          loading="lazy"
+          className="h-6 w-6 dark:hidden"
+        />
+        <img
+          src={brand.srcDark}
+          alt=""
+          width={24}
+          height={24}
+          decoding="async"
+          loading="lazy"
+          className="h-6 w-6 hidden dark:block"
+        />
       </span>
       <span className="text-sm font-medium text-muted-foreground/85">
         {brand.name}

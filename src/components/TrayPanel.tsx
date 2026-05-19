@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
@@ -112,6 +112,34 @@ export function TrayPanel() {
     };
   }, []);
 
+  // Auto-resize the tray window to fit content. The window is created with
+  // a fixed height in tauri.conf.json; we shrink (or grow) it to match the
+  // panel's natural height so adding/removing rows doesn't leave dead space
+  // or clip content.
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    let lastSent = 0;
+    const sync = (h: number) => {
+      const rounded = Math.round(h);
+      if (rounded === lastSent || rounded < 50) return;
+      lastSent = rounded;
+      void invoke('resize_tray_panel', {
+        height: Math.round(rounded * window.devicePixelRatio),
+      }).catch(() => {});
+    };
+    const obs = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        sync(entry.contentRect.height);
+      }
+    });
+    obs.observe(el);
+    // Initial sync after layout settles.
+    requestAnimationFrame(() => sync(el.getBoundingClientRect().height));
+    return () => obs.disconnect();
+  }, []);
+
   useEffect(() => {
     if (settings?.start_with_os !== undefined) {
       setAutostartState(Boolean(settings.start_with_os));
@@ -158,7 +186,10 @@ export function TrayPanel() {
   }, []);
 
   return (
-    <div className="tray-panel-root flex flex-col h-screen select-none overflow-hidden rounded-xl border bg-background/95 text-foreground shadow-2xl backdrop-blur">
+    <div
+      ref={rootRef}
+      className="tray-panel-root flex flex-col select-none overflow-hidden rounded-xl border bg-background/95 text-foreground shadow-2xl backdrop-blur"
+    >
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
         <span className="text-sm font-semibold leading-none">SmoothScroll</span>
@@ -179,7 +210,7 @@ export function TrayPanel() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="overflow-y-auto">
 
         {/* Current foreground app */}
         <CurrentAppCard />

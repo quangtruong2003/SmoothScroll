@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { tauri } from "@/lib/tauri";
@@ -70,9 +71,11 @@ export function AboutSection() {
           <span className="text-muted-foreground">{t("about.author")}</span>
           <a
             href="https://github.com/quangtruong2003"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-primary hover:underline"
+            onClick={(e) => {
+              e.preventDefault();
+              void open("https://github.com/quangtruong2003");
+            }}
+            className="font-medium text-primary hover:underline cursor-pointer"
           >
             Nguyễn Quang Trường
           </a>
@@ -81,9 +84,11 @@ export function AboutSection() {
           <span className="text-muted-foreground">{t("about.homepage")}</span>
           <a
             href={t("about.homepage_url")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-primary hover:underline"
+            onClick={(e) => {
+              e.preventDefault();
+              void open(t("about.homepage_url"));
+            }}
+            className="font-medium text-primary hover:underline cursor-pointer"
           >
             github.com/…
           </a>

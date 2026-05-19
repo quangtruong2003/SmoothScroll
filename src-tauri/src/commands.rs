@@ -327,6 +327,11 @@ pub fn close_tray_panel<R: tauri::Runtime>(app: AppHandle<R>) {
 }
 
 #[tauri::command]
+pub fn resize_tray_panel<R: tauri::Runtime>(app: AppHandle<R>, height: u32) {
+    crate::tray::resize_panel(&app, height);
+}
+
+#[tauri::command]
 pub fn show_main_window<R: tauri::Runtime>(app: AppHandle<R>) {
     if let Some(win) = app.get_webview_window("main") {
         let _ = win.show();

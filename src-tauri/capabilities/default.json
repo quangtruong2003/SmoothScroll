@@ -6,6 +6,14 @@
   "permissions": [
     "core:default",
     "updater:default",
-    "process:default"
+    "process:default",
+    {
+      "identifier": "shell:allow-open",
+      "allow": [
+        { "url": "https://github.com/*" },
+        { "url": "https://*.github.io/*" },
+        { "url": "https://*.github.com/*" }
+      ]
+    }
   ]
 }

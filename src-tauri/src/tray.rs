@@ -55,11 +55,16 @@ fn cursor_position() -> PhysicalPosition<i32> {
 }
 
 /// Position the panel window near the cursor, anchored to the taskbar edge
-/// (the boundary of the primary monitor's work area).
+/// (the boundary of the primary monitor's work area). Uses the panel's
+/// actual current height (which the frontend resizes to fit content) so
+/// the bottom edge stays glued to the taskbar regardless of content size.
 fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
     let cursor = cursor_position();
     let panel_w = 260;
-    let panel_h = 400;
+    let panel_h = win
+        .outer_size()
+        .map(|s| s.height as i32)
+        .unwrap_or(480);
     let edge_gap = 2;
 
     let monitor = app.primary_monitor().ok().flatten();
@@ -92,6 +97,44 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
     }
 
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition { x, y }));
+}
+
+/// Resize the tray panel to match content height, keeping the bottom edge
+/// pinned to the taskbar. Frontend invokes this through ResizeObserver.
+pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, height: u32) {
+    let Some(win) = app.get_webview_window(PANEL_LABEL) else {
+        return;
+    };
+
+    // Clamp to a sane range so a measurement glitch can't shrink the panel
+    // to nothing or push it off-screen.
+    let monitor = app.primary_monitor().ok().flatten();
+    let work_h = monitor
+        .as_ref()
+        .map(|m| m.work_area().size.height as u32)
+        .unwrap_or(1080);
+    let max_h = work_h.saturating_sub(40);
+    let height = height.clamp(120, max_h);
+
+    let Ok(cur_pos) = win.outer_position() else {
+        return;
+    };
+    let Ok(cur_size) = win.outer_size() else {
+        return;
+    };
+
+    // Pin the bottom edge: new top = previous bottom - new height.
+    let bottom = cur_pos.y + cur_size.height as i32;
+    let new_y = bottom - height as i32;
+
+    let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+        width: cur_size.width,
+        height,
+    }));
+    let _ = win.set_position(tauri::Position::Physical(PhysicalPosition {
+        x: cur_pos.x,
+        y: new_y,
+    }));
 }
 
 /// Show the tray panel window at the cursor position.
