@@ -13,12 +13,11 @@ import { EFFECTS, pickEffect } from '@/lib/ambientEffects'
 
 const GAP = 22
 const DOT_RADIUS = 1.0
-const MAX_DOT_RADIUS = 2.6
+const MAX_DOT_RADIUS = 1.8
 const INFLUENCE_RADIUS = 200
 const INNER_RADIUS = 120
 const MAX_PUSH = 15
 const MAX_PULL = 8
-const MAX_SHADOW_BLUR = 10
 const CURSOR_LERP = 0.10
 const DOT_LERP = 0.10
 const INTENSITY_LERP = 0.08
@@ -27,6 +26,9 @@ const F_THRESHOLD = 0.005
 const SETTLE_THRESHOLD = 0.05
 const STATIC_ALPHA = 0.1
 const OFFSCREEN = -10000
+const SPRITE_SIZE = 32
+const SPRITE_HALF = SPRITE_SIZE / 2
+const PIXEL_BUDGET = 6_000_000
 
 interface ThemeColors {
   staticColor: Rgba
@@ -49,6 +51,25 @@ function readThemeColors(): ThemeColors {
 
 function rgbaToFillStyle(c: Rgba): string {
   return `rgba(${c.r},${c.g},${c.b},${c.a})`
+}
+
+function buildSprite(brand: Rgba): HTMLCanvasElement {
+  const c = document.createElement('canvas')
+  c.width = SPRITE_SIZE
+  c.height = SPRITE_SIZE
+  const sctx = c.getContext('2d')
+  if (!sctx) return c
+  const grad = sctx.createRadialGradient(
+    SPRITE_HALF, SPRITE_HALF, 0,
+    SPRITE_HALF, SPRITE_HALF, SPRITE_HALF,
+  )
+  grad.addColorStop(0,    `rgba(${brand.r},${brand.g},${brand.b},1.0)`)
+  grad.addColorStop(0.25, `rgba(${brand.r},${brand.g},${brand.b},0.55)`)
+  grad.addColorStop(0.6,  `rgba(${brand.r},${brand.g},${brand.b},0.18)`)
+  grad.addColorStop(1,    `rgba(${brand.r},${brand.g},${brand.b},0)`)
+  sctx.fillStyle = grad
+  sctx.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE)
+  return c
 }
 
 const CONTENT_TAGS = new Set([
@@ -89,12 +110,12 @@ export function BackgroundDotGrid() {
     const effectCtx = { vw: 0, vh: 0, reduced }
 
     let grid: Point[] = []
-    // Per-dot state, packed as [ox, oy, f, ox, oy, f, ...].
     let dotState = new Float32Array(0)
     let viewW = 0
     let viewH = 0
     let dpr = 1
     let theme = readThemeColors()
+    let sprite = buildSprite(theme.brandColor)
 
     let targetX = OFFSCREEN
     let targetY = OFFSCREEN
@@ -103,12 +124,20 @@ export function BackgroundDotGrid() {
     let targetIntensity = 0
     let intensity = 0
     let rafId = 0
+    let pendingX = OFFSCREEN
+    let pendingY = OFFSCREEN
+    let pendingDirty = false
+    let pendingLeave = false
 
     function resize() {
       if (!canvas || !ctx) return
       viewW = window.innerWidth
       viewH = window.innerHeight
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const rawDpr = Math.min(window.devicePixelRatio || 1, 2)
+      const wouldBe = viewW * viewH * rawDpr * rawDpr
+      dpr = wouldBe > PIXEL_BUDGET && viewW * viewH > 0
+        ? Math.max(1, Math.sqrt(PIXEL_BUDGET / (viewW * viewH)))
+        : rawDpr
       canvas.width = Math.floor(viewW * dpr)
       canvas.height = Math.floor(viewH * dpr)
       canvas.style.width = `${viewW}px`
@@ -124,25 +153,22 @@ export function BackgroundDotGrid() {
       if (!ctx) return
       ctx.clearRect(0, 0, viewW, viewH)
       ctx.fillStyle = rgbaToFillStyle(theme.staticColor)
+      const path = new Path2D()
       for (const p of grid) {
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2)
-        ctx.fill()
+        path.moveTo(p.x + DOT_RADIUS, p.y)
+        path.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2)
       }
+      ctx.fill(path)
     }
 
-    function drawFrame(): boolean {
-      if (!ctx) return false
+    interface LitDot { x: number; y: number; f: number; radius: number; coreColor: Rgba }
+
+    function drawFrame(): void {
+      if (!ctx) return
       ctx.clearRect(0, 0, viewW, viewH)
       const staticStyle = rgbaToFillStyle(theme.staticColor)
-      const brand = theme.brandColor
-      const shadowColor = `rgba(${brand.r},${brand.g},${brand.b},0.9)`
-      let stillMoving = false
-      let shadowOn = false
-
-      ctx.fillStyle = staticStyle
-      ctx.shadowBlur = 0
-      ctx.shadowColor = 'transparent'
+      const staticPath = new Path2D()
+      const lit: LitDot[] = []
 
       const t = (performance.now() - startTime) / 1000
 
@@ -152,7 +178,6 @@ export function BackgroundDotGrid() {
         const dy = p.y - currentY
         const dist = Math.sqrt(dx * dx + dy * dy)
 
-        // Magnet target offset and lit factor.
         let tOffX = 0
         let tOffY = 0
         let tF = 0
@@ -184,48 +209,58 @@ export function BackgroundDotGrid() {
         const fMagnet = dotState[idx + 2]
         const f = Math.max(fMagnet, ambient.f)
 
-        if (
-          Math.abs(tOffX - dotState[idx]) > SETTLE_THRESHOLD ||
-          Math.abs(tOffY - dotState[idx + 1]) > SETTLE_THRESHOLD ||
-          Math.abs(tF - fMagnet) > F_THRESHOLD
-        ) {
-          stillMoving = true
-        }
+        const drawX = p.x + ox
+        const drawY = p.y + oy
 
         if (f < F_THRESHOLD) {
-          if (shadowOn) {
-            ctx.shadowBlur = 0
-            ctx.shadowColor = 'transparent'
-            ctx.fillStyle = staticStyle
-            shadowOn = false
-          }
-          ctx.beginPath()
-          ctx.arc(p.x + ox, p.y + oy, DOT_RADIUS, 0, Math.PI * 2)
-          ctx.fill()
+          staticPath.moveTo(drawX + DOT_RADIUS, drawY)
+          staticPath.arc(drawX, drawY, DOT_RADIUS, 0, Math.PI * 2)
           continue
         }
 
         const radius = DOT_RADIUS + (MAX_DOT_RADIUS - DOT_RADIUS) * f
-        const color = lerpRgba(theme.staticColor, theme.brandColor, f)
-        ctx.shadowBlur = MAX_SHADOW_BLUR * f
-        ctx.shadowColor = shadowColor
-        ctx.fillStyle = rgbaToFillStyle(color)
-        shadowOn = true
+        const coreColor = lerpRgba(theme.staticColor, theme.brandColor, f)
+        lit.push({ x: drawX, y: drawY, f, radius, coreColor })
+      }
 
+      ctx.fillStyle = staticStyle
+      ctx.fill(staticPath)
+
+      for (const d of lit) {
+        const spriteScale = 1.6 + d.f * 1.8
+        const half = SPRITE_HALF * spriteScale
+        ctx.globalAlpha = d.f
+        ctx.drawImage(
+          sprite,
+          d.x - half,
+          d.y - half,
+          SPRITE_SIZE * spriteScale,
+          SPRITE_SIZE * spriteScale,
+        )
+        ctx.globalAlpha = 1
+        ctx.fillStyle = rgbaToFillStyle(d.coreColor)
         ctx.beginPath()
-        ctx.arc(p.x + ox, p.y + oy, radius, 0, Math.PI * 2)
+        ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2)
         ctx.fill()
       }
-
-      if (shadowOn) {
-        ctx.shadowBlur = 0
-        ctx.shadowColor = 'transparent'
-      }
-
-      return stillMoving
     }
 
     function tick() {
+      if (pendingLeave) {
+        targetIntensity = 0
+        pendingLeave = false
+      }
+      if (pendingDirty) {
+        const overContent = isOverContent(pendingX, pendingY)
+        targetX = pendingX
+        targetY = pendingY
+        if (currentX === OFFSCREEN) {
+          currentX = targetX
+          currentY = targetY
+        }
+        targetIntensity = overContent ? 0 : 1
+        pendingDirty = false
+      }
       currentX += (targetX - currentX) * CURSOR_LERP
       currentY += (targetY - currentY) * CURSOR_LERP
       intensity += (targetIntensity - intensity) * INTENSITY_LERP
@@ -233,7 +268,6 @@ export function BackgroundDotGrid() {
         intensity = targetIntensity
       }
       drawFrame()
-      // Ambient is always animating; never park rAF.
       rafId = requestAnimationFrame(tick)
     }
 
@@ -242,19 +276,14 @@ export function BackgroundDotGrid() {
     }
 
     function onMove(e: MouseEvent) {
-      const overContent = isOverContent(e.clientX, e.clientY)
-      targetX = e.clientX
-      targetY = e.clientY
-      if (currentX === OFFSCREEN) {
-        currentX = targetX
-        currentY = targetY
-      }
-      targetIntensity = overContent ? 0 : 1
+      pendingX = e.clientX
+      pendingY = e.clientY
+      pendingDirty = true
       kick()
     }
 
     function onLeave() {
-      targetIntensity = 0
+      pendingLeave = true
       kick()
     }
 
@@ -265,6 +294,7 @@ export function BackgroundDotGrid() {
 
     function onThemeChange() {
       theme = readThemeColors()
+      sprite = buildSprite(theme.brandColor)
       if (!animate || rafId === 0) drawStatic()
     }
 
