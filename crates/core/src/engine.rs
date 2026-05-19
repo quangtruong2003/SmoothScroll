@@ -112,9 +112,18 @@ impl SmoothScrollEngine {
         self.on_hwheel_with_source(delta, now_ms, crate::input_source::InputSource::Wheel);
     }
 
-    pub fn on_wheel_with_source(&mut self, delta: i32, now_ms: u64, source: crate::input_source::InputSource) {
+    pub fn on_wheel_with_source(
+        &mut self,
+        delta: i32,
+        now_ms: u64,
+        source: crate::input_source::InputSource,
+    ) {
         use crate::input_source::InputSource;
-        let dir = if self.settings.reverse_wheel_direction { -1 } else { 1 };
+        let dir = if self.settings.reverse_wheel_direction {
+            -1
+        } else {
+            1
+        };
         match source {
             InputSource::Wheel | InputSource::HighResWheel => {
                 self.v.register_notch(now_ms, delta * dir, &self.settings);
@@ -127,14 +136,24 @@ impl SmoothScrollEngine {
                 let px = (delta as f64 / crate::constants::WHEEL_DELTA as f64)
                     * crate::constants::BASE_STEP_PX
                     * dir as f64;
-                self.v.register_pixels(px, now_ms, self.settings.touchpad_pixel_multiplier);
+                self.v
+                    .register_pixels(px, now_ms, self.settings.touchpad_pixel_multiplier);
             }
         }
     }
 
-    pub fn on_hwheel_with_source(&mut self, delta: i32, now_ms: u64, source: crate::input_source::InputSource) {
+    pub fn on_hwheel_with_source(
+        &mut self,
+        delta: i32,
+        now_ms: u64,
+        source: crate::input_source::InputSource,
+    ) {
         use crate::input_source::InputSource;
-        let dir = if self.settings.reverse_wheel_direction { -1 } else { 1 };
+        let dir = if self.settings.reverse_wheel_direction {
+            -1
+        } else {
+            1
+        };
         match source {
             InputSource::Wheel | InputSource::HighResWheel => {
                 self.h.register_notch(now_ms, delta * dir, &self.settings);
@@ -147,7 +166,8 @@ impl SmoothScrollEngine {
                 let px = (delta as f64 / crate::constants::WHEEL_DELTA as f64)
                     * crate::constants::BASE_STEP_PX
                     * dir as f64;
-                self.h.register_pixels(px, now_ms, self.settings.touchpad_pixel_multiplier);
+                self.h
+                    .register_pixels(px, now_ms, self.settings.touchpad_pixel_multiplier);
             }
         }
     }

@@ -176,7 +176,9 @@ fn touchpad_input_skips_acceleration() {
     for _ in 0..200 {
         let out = e.step(8.33);
         total += out.vertical;
-        if !e.has_pending_work() { break; }
+        if !e.has_pending_work() {
+            break;
+        }
     }
     assert!(total.abs() < 600, "touchpad output too large: {}", total);
 }
@@ -192,7 +194,9 @@ fn touchpad_pixel_multiplier_scales_output() {
     let mut total = 0;
     for _ in 0..200 {
         total += e.step(8.33).vertical;
-        if !e.has_pending_work() { break; }
+        if !e.has_pending_work() {
+            break;
+        }
     }
     assert!(total > 0, "expected positive output");
 }

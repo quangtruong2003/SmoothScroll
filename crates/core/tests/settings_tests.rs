@@ -135,7 +135,10 @@ fn is_excluded_is_case_insensitive() {
 fn game_mode_defaults() {
     let s = AppSettings::default();
     assert!(s.game_mode_enabled);
-    assert!(s.game_mode_known_apps.iter().any(|g| g.eq_ignore_ascii_case("VALORANT.exe")));
+    assert!(s
+        .game_mode_known_apps
+        .iter()
+        .any(|g| g.eq_ignore_ascii_case("VALORANT.exe")));
     assert!(s.game_mode_known_apps.len() >= 20);
 }
 

@@ -56,7 +56,10 @@ fn ide_preset_is_snappy() {
 
 #[test]
 fn game_preset_is_disabled() {
-    assert!(matches!(preset_for_category(AppCategory::Game), SuggestedPreset::Disabled));
+    assert!(matches!(
+        preset_for_category(AppCategory::Game),
+        SuggestedPreset::Disabled
+    ));
 }
 
 #[test]
@@ -64,7 +67,9 @@ fn pdf_preset_is_mac_like() {
     if let SuggestedPreset::Profile(p) = preset_for_category(AppCategory::Pdf) {
         assert_eq!(p.step_size_px, 140);
         assert_eq!(p.animation_time_ms, 500);
-    } else { panic!("expected Profile"); }
+    } else {
+        panic!("expected Profile");
+    }
 }
 
 #[test]
@@ -72,5 +77,7 @@ fn unknown_preset_matches_global_default() {
     if let SuggestedPreset::Profile(p) = preset_for_category(AppCategory::Unknown) {
         assert_eq!(p.step_size_px, 120);
         assert_eq!(p.animation_time_ms, 360);
-    } else { panic!("expected Profile"); }
+    } else {
+        panic!("expected Profile");
+    }
 }

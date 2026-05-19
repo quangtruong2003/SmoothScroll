@@ -1,7 +1,9 @@
 //! Trait definitions for OS-specific subsystems. Implementations live in
 //! `windows/` and `macos/` modules (cfg-gated).
 
-use crate::types::{Accelerator, HookDecision, KeyboardKeyEvent, ModifierKeys, Point, Result, WindowRect};
+use crate::types::{
+    Accelerator, HookDecision, KeyboardKeyEvent, ModifierKeys, Point, Result, WindowRect,
+};
 use std::sync::Arc;
 
 /// Receives parsed hook events. Implementation lives in the app crate.
@@ -9,10 +11,19 @@ pub trait HookEventSink: Send + Sync {
     fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision;
     fn on_hwheel(&self, delta: i32) -> HookDecision;
 
-    fn on_wheel_ext(&self, delta: i32, mods: ModifierKeys, _source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+    fn on_wheel_ext(
+        &self,
+        delta: i32,
+        mods: ModifierKeys,
+        _source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
         self.on_wheel(delta, mods)
     }
-    fn on_hwheel_ext(&self, delta: i32, _source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+    fn on_hwheel_ext(
+        &self,
+        delta: i32,
+        _source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
         self.on_hwheel(delta)
     }
 }
@@ -75,7 +86,9 @@ pub trait Hotkey: Send + Sync {
     ) -> Result<HotkeyHandle>;
 }
 
-pub trait FullscreenDetector: Send + Sync { fn is_foreground_fullscreen(&self) -> bool; }
+pub trait FullscreenDetector: Send + Sync {
+    fn is_foreground_fullscreen(&self) -> bool;
+}
 
 pub trait WindowGeometry: Send + Sync {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)>;

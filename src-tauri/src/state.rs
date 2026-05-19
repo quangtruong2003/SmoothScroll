@@ -4,8 +4,8 @@ use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::AppSettings;
 use smoothscroll_platform::traits::{
-    Autostart, FullscreenDetector, HookHandle, Hotkey, HotkeyHandle, KeyboardScrollHook,
-    MouseHook, ProcessQuery, WheelEmitter, WindowGeometry,
+    Autostart, FullscreenDetector, HookHandle, Hotkey, HotkeyHandle, KeyboardScrollHook, MouseHook,
+    ProcessQuery, WheelEmitter, WindowGeometry,
 };
 use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::Arc;

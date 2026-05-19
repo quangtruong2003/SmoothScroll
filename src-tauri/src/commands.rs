@@ -40,7 +40,10 @@ pub(crate) fn refresh_keyboard_hook(state: &Arc<AppState>) -> Result<(), String>
             return Ok(());
         }
         let sink = crate::keyboard_sink::KeyboardEngineSink::new(state.clone());
-        let handle = state.keyboard_hook.install(sink).map_err(|e| e.to_string())?;
+        let handle = state
+            .keyboard_hook
+            .install(sink)
+            .map_err(|e| e.to_string())?;
         *state.keyboard_handle.lock() = Some(handle);
     } else {
         *state.keyboard_handle.lock() = None;
@@ -51,10 +54,7 @@ pub(crate) fn refresh_keyboard_hook(state: &Arc<AppState>) -> Result<(), String>
 /// Re-register the global hotkey using the current settings. Returns the
 /// platform error string on failure. Safe to call repeatedly: any previous
 /// handle is dropped first so the OS slot is freed before re-registering.
-pub(crate) fn register_hotkey_internal(
-    state: &Arc<AppState>,
-    accel: &str,
-) -> Result<(), String> {
+pub(crate) fn register_hotkey_internal(state: &Arc<AppState>, accel: &str) -> Result<(), String> {
     if !is_valid_accelerator(accel) {
         return Err(format!("invalid accelerator '{accel}'"));
     }
@@ -148,10 +148,7 @@ pub fn save_settings<R: tauri::Runtime>(
 
 /// Toggle the global hotkey on/off without restarting. Persists to settings.
 #[tauri::command]
-pub fn set_hotkey_enabled(
-    state: State<'_, Arc<AppState>>,
-    enabled: bool,
-) -> Result<(), String> {
+pub fn set_hotkey_enabled(state: State<'_, Arc<AppState>>, enabled: bool) -> Result<(), String> {
     {
         let mut s = state.settings.write();
         s.enable_global_hotkey = enabled;
@@ -307,7 +304,9 @@ pub fn app_version() -> &'static str {
 pub fn is_trusted_device() -> bool {
     const TRUSTED: Option<&str> = option_env!("SMOOTHSCROLL_TRUSTED_HOSTS");
     let Some(list) = TRUSTED else { return false };
-    let Ok(host) = hostname::get() else { return false };
+    let Ok(host) = hostname::get() else {
+        return false;
+    };
     let host = host.to_string_lossy().to_lowercase();
     list.split(',')
         .map(|s| s.trim().to_lowercase())
@@ -433,10 +432,7 @@ pub fn update_profile(
 
 /// Delete a profile. Returns error if apps are assigned to it.
 #[tauri::command]
-pub fn delete_profile(
-    state: State<'_, Arc<AppState>>,
-    profile_id: String,
-) -> Result<(), String> {
+pub fn delete_profile(state: State<'_, Arc<AppState>>, profile_id: String) -> Result<(), String> {
     {
         let mut s = state.settings.write();
 
@@ -481,9 +477,7 @@ pub fn assign_app_profile(
 
         // Validate profile exists (unless it's the special disabled ID)
         if let Some(ref id) = profile_id {
-            if id != AppSettings::DISABLED_PROFILE_ID
-                && !s.profiles.iter().any(|p| &p.id == id)
-            {
+            if id != AppSettings::DISABLED_PROFILE_ID && !s.profiles.iter().any(|p| &p.id == id) {
                 return Err(format!("profile '{id}' not found"));
             }
         }

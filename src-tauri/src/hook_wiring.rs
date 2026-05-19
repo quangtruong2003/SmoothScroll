@@ -141,7 +141,12 @@ impl EngineSink {
         }
     }
 
-    fn apply_profile_if_changed(&self, profile_id: String, profile_name: String, merged: AppSettings) {
+    fn apply_profile_if_changed(
+        &self,
+        profile_id: String,
+        profile_name: String,
+        merged: AppSettings,
+    ) {
         let mut last = self.last_applied_profile.lock();
         if last.as_deref() == Some(profile_id.as_str()) {
             return;
@@ -214,7 +219,12 @@ impl EngineSink {
         HookDecision::Swallow
     }
 
-    fn route_vertical_with_source(&self, delta: i32, mods: ModifierKeys, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+    fn route_vertical_with_source(
+        &self,
+        delta: i32,
+        mods: ModifierKeys,
+        source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
@@ -232,20 +242,30 @@ impl EngineSink {
 
         if mods.shift && shift_to_horizontal {
             if horizontal_smoothness {
-                self.state.engine.lock().on_hwheel_with_source(delta, now, source);
+                self.state
+                    .engine
+                    .lock()
+                    .on_hwheel_with_source(delta, now, source);
                 self.state.engine_signal.signal();
                 HookDecision::Swallow
             } else {
                 HookDecision::Pass
             }
         } else {
-            self.state.engine.lock().on_wheel_with_source(delta, now, source);
+            self.state
+                .engine
+                .lock()
+                .on_wheel_with_source(delta, now, source);
             self.state.engine_signal.signal();
             HookDecision::Swallow
         }
     }
 
-    fn route_horizontal_with_source(&self, delta: i32, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+    fn route_horizontal_with_source(
+        &self,
+        delta: i32,
+        source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
@@ -258,7 +278,10 @@ impl EngineSink {
         }
         self.update_last_source(source);
         let now = self.now_ms();
-        self.state.engine.lock().on_hwheel_with_source(delta, now, source);
+        self.state
+            .engine
+            .lock()
+            .on_hwheel_with_source(delta, now, source);
         self.state.engine_signal.signal();
         HookDecision::Swallow
     }
@@ -293,11 +316,20 @@ impl HookEventSink for EngineSink {
         self.route_horizontal(delta)
     }
 
-    fn on_wheel_ext(&self, delta: i32, mods: ModifierKeys, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+    fn on_wheel_ext(
+        &self,
+        delta: i32,
+        mods: ModifierKeys,
+        source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
         self.route_vertical_with_source(delta, mods, source)
     }
 
-    fn on_hwheel_ext(&self, delta: i32, source: smoothscroll_core::input_source::InputSource) -> HookDecision {
+    fn on_hwheel_ext(
+        &self,
+        delta: i32,
+        source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
         self.route_horizontal_with_source(delta, source)
     }
 }
@@ -312,8 +344,8 @@ mod tests {
     use smoothscroll_core::settings::AppSettings;
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
-        KeyboardScrollHook, KeyboardScrollSink, MouseHook, ProcessInfo, ProcessQuery,
-        WheelEmitter, WindowGeometry,
+        KeyboardScrollHook, KeyboardScrollSink, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
+        WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::sync::atomic::AtomicBool;
