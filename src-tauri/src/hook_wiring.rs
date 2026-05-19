@@ -290,9 +290,7 @@ mod tests {
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
     use std::sync::atomic::AtomicBool;
-    use std::sync::Arc;
-
-    struct StubHook;
+    use std::sync::Arc;    struct StubHook;
     impl MouseHook for StubHook {
         fn install(&self, _sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
             Ok(HookHandle::new(Box::new(())))
@@ -353,6 +351,18 @@ mod tests {
             None
         }
     }
+    struct StubAccessibility;
+    impl smoothscroll_platform::traits::AccessibilitySignals for StubAccessibility {
+        fn reduce_motion_enabled(&self) -> bool {
+            false
+        }
+        fn watch(
+            &self,
+            _on_change: Box<dyn Fn(bool) + Send + Sync>,
+        ) -> smoothscroll_platform::types::Result<smoothscroll_platform::traits::HookHandle> {
+            Ok(smoothscroll_platform::traits::HookHandle::new(Box::new(())))
+        }
+    }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
@@ -376,6 +386,9 @@ mod tests {
             window_geom: Arc::new(StubWindowGeom),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
+            reduce_motion: Arc::new(AtomicBool::new(false)),
+            accessibility: Arc::new(StubAccessibility),
+            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
         })
     }
 
@@ -418,6 +431,9 @@ mod tests {
             window_geom: Arc::new(StubWindowGeom),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
+            reduce_motion: Arc::new(AtomicBool::new(false)),
+            accessibility: Arc::new(StubAccessibility),
+            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
         })
     }
 

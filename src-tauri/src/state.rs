@@ -9,7 +9,7 @@ use smoothscroll_platform::traits::{
     ProcessQuery, WheelEmitter, WindowGeometry,
 };
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicU8};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 
 #[derive(Default)]
@@ -51,6 +51,10 @@ pub struct AppState {
     pub window_geom: Arc<dyn WindowGeometry>,
     pub last_input_source: Arc<AtomicU8>,
     pub persistor: Arc<crate::settings_persistor::SettingsPersistor>,
+    // Accessibility
+    pub reduce_motion: Arc<AtomicBool>,
+    pub accessibility: Arc<dyn smoothscroll_platform::traits::AccessibilitySignals>,
+    pub rm_watch_handle: Arc<parking_lot::Mutex<Option<smoothscroll_platform::traits::HookHandle>>>,
 }
 
 impl AppState {
@@ -58,15 +62,24 @@ impl AppState {
     /// effective snapshot, rebuild the per-profile cache, and queue a debounced
     /// disk write. This is the ONLY path that should mutate settings.
     pub fn commit_settings(&self, new: AppSettings) {
-        let new_eff = EffectiveSettings::from_settings(&new);
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let os_rm = self.reduce_motion.load(Ordering::Relaxed);
+        let instant = match new.respect_reduce_motion {
+            RespectReduceMotion::Always => true,
+            RespectReduceMotion::Never => false,
+            RespectReduceMotion::Auto => os_rm,
+        };
+
+        let mut new_eff = EffectiveSettings::from_settings(&new);
+        new_eff.instant_mode = instant;
+
         let new_per_profile: HashMap<String, Arc<EffectiveSettings>> = new
             .profiles
             .iter()
             .map(|p| {
-                (
-                    p.id.clone(),
-                    Arc::new(EffectiveSettings::with_profile(&new, p)),
-                )
+                let mut eff = EffectiveSettings::with_profile(&new, p);
+                eff.instant_mode = instant;
+                (p.id.clone(), Arc::new(eff))
             })
             .collect();
         {

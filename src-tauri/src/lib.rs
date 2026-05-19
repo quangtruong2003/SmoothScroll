@@ -93,6 +93,9 @@ pub fn run() {
         window_geom,
         last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
         persistor,
+        reduce_motion: Arc::new(AtomicBool::new(false)),
+        accessibility: platform.accessibility.clone(),
+        rm_watch_handle: Arc::new(Mutex::new(None)),
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());
