@@ -8,6 +8,7 @@ const DEBOUNCE_MS: u64 = 300;
 
 /// Message sent from command threads to the persistor worker.
 #[derive(Debug)]
+#[allow(clippy::large_enum_variant)]
 enum Message {
     Save(smoothscroll_core::settings::AppSettings),
     Shutdown,
