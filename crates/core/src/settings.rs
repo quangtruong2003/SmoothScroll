@@ -107,6 +107,27 @@ impl ScrollProfile {
     }
 }
 
+/// Whether to pass wheel events through raw (no smoothing) when a precision
+/// modifier is held. Defaults are ON because Ctrl/Alt+Wheel almost always
+/// drives precision actions like zoom or font-size in modern apps.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ModifierPassthrough {
+    pub ctrl: bool,
+    pub alt: bool,
+    pub clear_inertia_on_press: bool,
+}
+
+impl Default for ModifierPassthrough {
+    fn default() -> Self {
+        Self {
+            ctrl: true,
+            alt: true,
+            clear_inertia_on_press: true,
+        }
+    }
+}
+
 /// Persisted user settings.
 ///
 /// Field defaults are produced via `Default::default()` and apply when
@@ -173,6 +194,9 @@ pub struct AppSettings {
 
     // Accessibility
     pub respect_reduce_motion: RespectReduceMotion,
+
+    // Precision actions (modifier passthrough)
+    pub modifier_passthrough: ModifierPassthrough,
 }
 
 impl Default for AppSettings {
@@ -222,6 +246,7 @@ impl Default for AppSettings {
             touchpad_pixel_multiplier: 1.0,
             touchpad_acceleration_factor: 1.0,
             respect_reduce_motion: RespectReduceMotion::default(),
+            modifier_passthrough: ModifierPassthrough::default(),
         }
     }
 }
@@ -340,6 +365,9 @@ pub struct EffectiveSettings {
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
     pub instant_mode: bool,
+    pub modifier_ctrl_passthrough: bool,
+    pub modifier_alt_passthrough: bool,
+    pub modifier_clear_inertia: bool,
 }
 
 impl EffectiveSettings {
@@ -360,6 +388,9 @@ impl EffectiveSettings {
             touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: s.touchpad_acceleration_factor,
             instant_mode: false,
+            modifier_ctrl_passthrough: s.modifier_passthrough.ctrl,
+            modifier_alt_passthrough: s.modifier_passthrough.alt,
+            modifier_clear_inertia: s.modifier_passthrough.clear_inertia_on_press,
         }
     }
 
@@ -380,6 +411,9 @@ impl EffectiveSettings {
             touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: base.touchpad_acceleration_factor,
             instant_mode: false,
+            modifier_ctrl_passthrough: base.modifier_passthrough.ctrl,
+            modifier_alt_passthrough: base.modifier_passthrough.alt,
+            modifier_clear_inertia: base.modifier_passthrough.clear_inertia_on_press,
         }
     }
 }
