@@ -35,5 +35,6 @@ pub fn build() -> Result<Platform> {
         process_query: Arc::new(MacosProcessQuery::new()),
         autostart: Arc::new(MacosAutostart),
         hotkey: Arc::new(MacosHotkey),
+        accessibility: Arc::new(MacosAccessibilitySignals),
     })
 }

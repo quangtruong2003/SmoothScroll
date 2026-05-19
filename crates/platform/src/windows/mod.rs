@@ -38,5 +38,6 @@ pub fn build() -> Result<Platform> {
         process_query: Arc::new(WindowsProcessQuery::new()),
         autostart: Arc::new(WindowsAutostart),
         hotkey: Arc::new(WindowsHotkey),
+        accessibility: Arc::new(WindowsAccessibilitySignals),
     })
 }
