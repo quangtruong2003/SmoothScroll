@@ -1,3 +1,5 @@
+#![allow(clippy::field_reassign_with_default)]
+
 use smoothscroll_core::engine::{EngineOutput, SmoothScrollEngine};
 use smoothscroll_core::input_source::InputSource;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
@@ -225,4 +227,37 @@ fn drain_vertical(e: &mut SmoothScrollEngine, eff: &EffectiveSettings) -> i32 {
         }
     }
     total
+}
+
+#[test]
+fn instant_mode_flushes_pending_pixels_in_one_step() {
+    let mut s = AppSettings::default();
+    s.animation_time_ms = 360;
+    let mut eff = EffectiveSettings::from_settings(&s);
+    let mut engine = SmoothScrollEngine::new();
+
+    // Inject pending work via a normal wheel event in non-instant mode.
+    eff.instant_mode = false;
+    engine.on_wheel_with_source(120, 0, InputSource::Wheel, &eff);
+    assert!(engine.has_pending_work());
+
+    // Switch to instant — one step should drain everything.
+    eff.instant_mode = true;
+    let out = engine.step(1000.0 / 120.0, &eff);
+    assert!(out.vertical != 0, "expected pulses on instant flush");
+    assert!(
+        !engine.has_pending_work(),
+        "expected no remaining work after instant step"
+    );
+}
+
+#[test]
+fn instant_mode_no_pending_returns_zero() {
+    let s = AppSettings::default();
+    let mut eff = EffectiveSettings::from_settings(&s);
+    eff.instant_mode = true;
+    let mut engine = SmoothScrollEngine::new();
+    let out = engine.step(8.0, &eff);
+    assert_eq!(out.vertical, 0);
+    assert_eq!(out.horizontal, 0);
 }

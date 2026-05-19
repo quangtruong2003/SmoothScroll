@@ -26,6 +26,21 @@ struct Axis {
     unit_accum: f64,
 }
 
+fn flush_axis_instant(axis: &mut Axis) -> i32 {
+    if axis.remaining_px.abs() < 0.1 {
+        axis.remaining_px = 0.0;
+        axis.unit_accum = 0.0;
+        return 0;
+    }
+    let wheel_units = (axis.remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+    let units = wheel_units / EMIT_UNIT as f64;
+    axis.unit_accum += units;
+    let pulses = axis.unit_accum.trunc() as i32;
+    axis.unit_accum -= pulses as f64;
+    axis.remaining_px = 0.0;
+    pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+}
+
 impl Axis {
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
         let elapsed = now_ms.saturating_sub(self.last_notch_ms);
@@ -158,6 +173,18 @@ impl SmoothScrollEngine {
     }
 
     pub fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> EngineOutput {
+        if settings.instant_mode {
+            let v = flush_axis_instant(&mut self.v);
+            let h = if settings.horizontal_smoothness {
+                flush_axis_instant(&mut self.h)
+            } else {
+                0
+            };
+            return EngineOutput {
+                vertical: v,
+                horizontal: h,
+            };
+        }
         let v = self.v.step(dt_ms, settings);
         let h = if settings.horizontal_smoothness {
             self.h.step(dt_ms, settings)
