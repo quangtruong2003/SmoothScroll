@@ -2,6 +2,7 @@
 
 #![cfg(windows)]
 
+mod accessibility;
 mod autostart;
 pub mod fullscreen;
 mod hotkey;
@@ -18,6 +19,7 @@ use crate::types::Result;
 use crate::Platform;
 use std::sync::Arc;
 
+pub use accessibility::WindowsAccessibilitySignals;
 pub use autostart::WindowsAutostart;
 pub use fullscreen::WindowsFullscreenDetector;
 pub use hotkey::WindowsHotkey;
