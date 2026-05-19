@@ -14,6 +14,7 @@ import {
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Switch } from '@/components/ui/switch';
+import { CurrentAppCard } from './tray/CurrentAppCard';
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -179,6 +180,9 @@ export function TrayPanel() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
+
+        {/* Current foreground app */}
+        <CurrentAppCard />
 
         {/* Quick Access */}
         <SectionLabel>{t('tray.quick_access')}</SectionLabel>
