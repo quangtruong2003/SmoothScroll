@@ -7,6 +7,9 @@ authors.workspace = true
 license.workspace = true
 description = "Pure scroll engine logic for SmoothScroll"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [features]
 default = []
 wasm = ["dep:wasm-bindgen"]
