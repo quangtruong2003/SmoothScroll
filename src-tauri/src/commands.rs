@@ -594,9 +594,7 @@ pub struct ForegroundAppContext {
 /// shown (or a live query as fallback). Consumes the snapshot so a stale value
 /// does not leak between tray opens.
 #[tauri::command]
-pub fn get_foreground_app_context(
-    state: State<'_, Arc<AppState>>,
-) -> ForegroundAppContext {
+pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> ForegroundAppContext {
     let process_name = {
         let mut guard = state.last_foreground_at_tray_open.lock();
         guard.take()
