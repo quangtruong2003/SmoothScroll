@@ -81,7 +81,10 @@ export function BackgroundDotGrid() {
     const noHover = window.matchMedia('(hover: none)').matches
     const animate = !noHover
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const activeEffect = EFFECTS[pickEffect()]
+    const ambientDisabled =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).has('nofx')
+    const activeEffect = ambientDisabled ? null : EFFECTS[pickEffect()]
     const startTime = performance.now()
     const effectCtx = { vw: 0, vh: 0, reduced }
 
@@ -173,7 +176,9 @@ export function BackgroundDotGrid() {
         dotState[idx + 1] += (tOffY - dotState[idx + 1]) * DOT_LERP
         dotState[idx + 2] += (tF    - dotState[idx + 2]) * DOT_LERP
 
-        const ambient = activeEffect.update(p, i, t, effectCtx)
+        const ambient = activeEffect
+          ? activeEffect.update(p, i, t, effectCtx)
+          : { ox: 0, oy: 0, f: 0 }
         const ox = dotState[idx]     + ambient.ox
         const oy = dotState[idx + 1] + ambient.oy
         const fMagnet = dotState[idx + 2]

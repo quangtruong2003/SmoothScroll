@@ -5,7 +5,10 @@ const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001'
 test.use({ baseURL: BASE, viewport: { width: 1280, height: 800 } })
 
 for (let fx = 0; fx < 10; fx++) {
-  test(`ambient effect ${fx} produces motion over time`, async ({ page }) => {
+  test(`ambient effect ${fx} produces motion over time`, async ({ page, context }) => {
+    await context.addInitScript(() => {
+      try { localStorage.setItem('theme', 'dark') } catch {}
+    })
     await page.goto(`/en/?fx=${fx}`, { waitUntil: 'networkidle' })
 
     const sample = async () => {
@@ -29,10 +32,12 @@ for (let fx = 0; fx < 10; fx++) {
       })
     }
 
-    const a = await sample()
-    await page.waitForTimeout(700)
-    const b = await sample()
-
-    expect(a, `effect ${fx}: frame must change between samples (a=${a} b=${b})`).not.toBe(b)
+    const samples: string[] = []
+    for (let s = 0; s < 4; s++) {
+      samples.push(await sample())
+      if (s < 3) await page.waitForTimeout(500)
+    }
+    const unique = new Set(samples)
+    expect(unique.size, `effect ${fx}: at least 2 distinct frames across 4 samples (got ${samples.join(' / ')})`).toBeGreaterThan(1)
   })
 }

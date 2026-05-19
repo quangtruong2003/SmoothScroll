@@ -12,7 +12,7 @@ test('dot grid still reacts to mouse when prefers-reduced-motion is set', async 
     try { localStorage.setItem('theme', 'dark') } catch {}
   })
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/en/', { waitUntil: 'networkidle' })
+  await page.goto('/en/?nofx=1', { waitUntil: 'networkidle' })
 
   const reduced = await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
   expect(reduced).toBe(true)

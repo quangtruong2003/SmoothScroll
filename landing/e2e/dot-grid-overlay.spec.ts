@@ -40,7 +40,7 @@ for (const theme of ['light', 'dark'] as const) {
       } catch {}
     }, theme)
 
-    await page.goto('/en/', { waitUntil: 'networkidle' })
+    await page.goto('/en/?nofx=1', { waitUntil: 'networkidle' })
 
     // Confirm canvas is in DOM and has the overlay z-index.
     const canvasInfo = await page.evaluate(() => {
