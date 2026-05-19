@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { WasmEngine } from "@/lib/engine-wasm";
+import type { WasmEngine } from "@/lib/engineWasm";
 
 interface Props {
   engine: WasmEngine | null;

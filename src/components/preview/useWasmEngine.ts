@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createEngine, type WasmEngine } from "@/lib/engine-wasm";
+import { createEngine, type WasmEngine } from "@/lib/engineWasm";
 import type { AppSettings } from "@/lib/tauri";
 
 /**
@@ -15,7 +15,7 @@ export function useWasmEngine(settings: AppSettings | null): WasmEngine | null {
     if (!settings || !settingsKey) return;
     let cancelled = false;
     if (!ref.current) {
-      void createEngine(settingsKey).then((e) => {
+      void createEngine(settingsKey).then((e: WasmEngine) => {
         if (cancelled) return;
         ref.current = e;
         setEngine(e);
