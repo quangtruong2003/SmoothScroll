@@ -28,6 +28,7 @@ pub fn run() {
     init_logging();
 
     let platform = smoothscroll_platform::current().expect("build platform");
+    let initial_rm = platform.accessibility.reduce_motion_enabled();
 
     #[cfg(windows)]
     let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
@@ -93,7 +94,7 @@ pub fn run() {
         window_geom,
         last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
         persistor,
-        reduce_motion: Arc::new(AtomicBool::new(false)),
+        reduce_motion: Arc::new(AtomicBool::new(initial_rm)),
         accessibility: platform.accessibility.clone(),
         rm_watch_handle: Arc::new(Mutex::new(None)),
     });
@@ -158,6 +159,23 @@ pub fn run() {
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
             tray::init(app.handle(), state_for_setup.clone())?;
+
+            // Reduce-motion watcher: re-commits settings when OS toggles RM
+            // and emits reduce-motion-changed for the UI to update its status line.
+            let app_for_rm = app.handle().clone();
+            let app_state_for_rm = state_for_setup.clone();
+            let rm_handle = state_for_setup
+                .accessibility
+                .watch(Box::new(move |new_value: bool| {
+                    app_state_for_rm
+                        .reduce_motion
+                        .store(new_value, std::sync::atomic::Ordering::Relaxed);
+                    let snapshot = app_state_for_rm.settings.read().clone();
+                    app_state_for_rm.commit_settings(snapshot);
+                    let _ = tauri::Emitter::emit(&app_for_rm, "reduce-motion-changed", new_value);
+                }))
+                .expect("install reduce_motion watcher");
+            *state_for_setup.rm_watch_handle.lock() = Some(rm_handle);
 
             // Bridge classifier transitions to the frontend so it can drop
             // its 1Hz polling and react push-style.
