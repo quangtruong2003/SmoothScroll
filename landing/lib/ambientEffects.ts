@@ -85,11 +85,6 @@ const diagonalWave: Effect = {
   },
 }
 
-function hash01(_i: number): number {
-  return 0
-}
-void hash01
-
 const floatingDrift: Effect = {
   name: 'drift',
   update(p, _i, t, ctx) {
@@ -126,8 +121,6 @@ const galaxySpin: Effect = {
     const dy = p.y - cy
     const r = Math.sqrt(dx * dx + dy * dy)
     if (r < 1) return { ox: 0, oy: 0, f: 0.05 }
-    // Tangential bobble: dot oscillates along its tangent direction.
-    // Amplitude bounded; phase varies with radius for swirl illusion.
     const omega = 0.6
     const phase = omega * t - r * 0.012
     const amp = 6 * reducedScale(ctx)
@@ -143,9 +136,6 @@ export const EFFECTS: Effect[] = [
   waveLR,
   waveTB,
   diagonalWave,
-  twinkleStars,
-  heartbeat,
-  slowBreathing,
   floatingDrift,
   wanderingComet,
   galaxySpin,

@@ -4,7 +4,7 @@ const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001'
 
 test.use({ baseURL: BASE, viewport: { width: 1280, height: 800 } })
 
-for (let fx = 0; fx < 10; fx++) {
+for (let fx = 0; fx < 7; fx++) {
   test(`ambient effect ${fx} produces motion over time`, async ({ page, context }) => {
     await context.addInitScript(() => {
       try { localStorage.setItem('theme', 'dark') } catch {}
