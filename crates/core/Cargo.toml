@@ -7,12 +7,21 @@ authors.workspace = true
 license.workspace = true
 description = "Pure scroll engine logic for SmoothScroll"
 
+[features]
+default = []
+wasm = ["dep:wasm-bindgen"]
+
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 directories = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2", optional = true }
 
 [dev-dependencies]
 approx = "0.5"

@@ -3,6 +3,7 @@
 use crate::easing::EasingMode;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+#[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
 
 /// User-selectable theme mode for the settings UI.
@@ -475,6 +476,7 @@ pub enum SettingsError {
 }
 
 /// Resolve the v1 settings file path.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn settings_path() -> Result<PathBuf, SettingsError> {
     let dirs = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
         .ok_or(SettingsError::NoConfigDir)?;
@@ -484,6 +486,7 @@ pub fn settings_path() -> Result<PathBuf, SettingsError> {
 }
 
 /// Load settings from disk, returning defaults if the file is missing or corrupt.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn load() -> AppSettings {
     match try_load() {
         Ok(s) => s,
@@ -494,6 +497,7 @@ pub fn load() -> AppSettings {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn try_load() -> Result<AppSettings, SettingsError> {
     let path = settings_path()?;
     if !path.exists() {
@@ -507,6 +511,7 @@ fn try_load() -> Result<AppSettings, SettingsError> {
 }
 
 /// Save settings atomically (write to temp, then rename).
+#[cfg(not(target_arch = "wasm32"))]
 pub fn save(settings: &AppSettings) -> Result<(), SettingsError> {
     let path = settings_path()?;
     let tmp = path.with_extension("json.tmp");
