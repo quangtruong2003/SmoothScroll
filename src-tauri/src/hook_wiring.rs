@@ -446,6 +446,7 @@ mod tests {
             shift: true,
             ctrl: false,
             alt: false,
+            cmd: false,
         }
     }
 

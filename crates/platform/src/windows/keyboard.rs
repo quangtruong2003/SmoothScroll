@@ -30,6 +30,7 @@ impl ModifierState {
             shift: self.shift.load(Ordering::Relaxed),
             ctrl: self.ctrl.load(Ordering::Relaxed),
             alt: self.alt.load(Ordering::Relaxed),
+            cmd: false,
         }
     }
 }

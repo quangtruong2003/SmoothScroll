@@ -6,6 +6,7 @@ pub struct ModifierKeys {
     pub shift: bool,
     pub ctrl: bool,
     pub alt: bool,
+    pub cmd: bool,
 }
 
 /// Tells the hook whether to forward the original event or eat it.
