@@ -71,11 +71,6 @@
 }
 
 @layer utilities {
-  .brand-marquee-track {
-    animation: brand-marquee-slide 40s linear infinite;
-    will-change: transform;
-  }
-
   .brand-marquee-mask {
     -webkit-mask-image: linear-gradient(
       to right,
@@ -92,15 +87,4 @@
       transparent 100%
     );
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .brand-marquee-track {
-      animation: none;
-    }
-  }
-}
-
-@keyframes brand-marquee-slide {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
 }

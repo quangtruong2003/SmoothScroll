@@ -3,14 +3,56 @@ import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  AppWindow,
+  Globe,
+  Code2,
+  FileText,
+  Terminal,
+  MessageCircle,
+  Image as ImageIcon,
+  Gamepad2,
+  Briefcase,
+  Ban,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { tauri, type ForegroundAppContext, type AppSettings } from "@/lib/tauri";
+import { tauri, type ForegroundAppContext, type AppSettings, type AppCategory } from "@/lib/tauri";
 import { useSettingsStore } from "@/stores/settingsStore";
 
 const DISABLED_PROFILE_ID = "__disabled__";
 const DEFAULT_VALUE = "__default__";
+
+const CATEGORY_ICON: Record<AppCategory, LucideIcon> = {
+  Browser: Globe,
+  Ide: Code2,
+  Office: Briefcase,
+  Pdf: FileText,
+  Terminal: Terminal,
+  Chat: MessageCircle,
+  Media: ImageIcon,
+  Game: Gamepad2,
+  Unknown: AppWindow,
+};
+
+/** Turn `smoothscroll-app.exe` into `SmoothScroll App`. */
+function prettifyProcessName(raw: string): string {
+  const stem = raw.replace(/\.exe$/i, "");
+  return stem
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => {
+      if (/^[A-Z]/.test(part) && /[a-z]/.test(part)) return part;
+      if (part.length <= 3) return part.toUpperCase();
+      return part.charAt(0).toUpperCase() + part.slice(1);
+    })
+    .join(" ");
+}
 
 export function CurrentAppCard() {
   const { t } = useTranslation();
@@ -44,6 +86,11 @@ export function CurrentAppCard() {
     ? DISABLED_PROFILE_ID
     : (ctx.current_profile_id ?? DEFAULT_VALUE);
 
+  const category = ctx.suggested_category ?? "Unknown";
+  const Icon = CATEGORY_ICON[category];
+  const isDisabled = currentValue === DISABLED_PROFILE_ID;
+  const displayName = prettifyProcessName(ctx.process_name);
+
   const onSelect = async (value: string) => {
     const name = ctx.process_name;
     if (!name) return;
@@ -61,40 +108,35 @@ export function CurrentAppCard() {
     await refresh();
   };
 
-  const onToggleDisable = async (checked: boolean) => {
-    const name = ctx.process_name;
-    if (!name) return;
-    if (checked) {
-      await invoke("assign_app_profile", {
-        processName: name,
-        profileId: DISABLED_PROFILE_ID,
-      });
-    } else {
-      await invoke("unassign_app_profile", { processName: name });
-    }
-    await refresh();
-  };
-
   return (
-    <div className="mx-2 my-2 rounded-lg border border-border bg-accent/30 px-3 py-2.5">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {t("tray.current_app.heading")}
-      </div>
-      <div className="mt-1 truncate text-sm font-medium">{ctx.process_name}</div>
-      {ctx.suggested_category_label && (
-        <div className="text-xs text-muted-foreground">
-          {t("tray.current_app.category", {
-            category: ctx.suggested_category_label,
-          })}
+    <div className="mx-2 my-2 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
+        <div
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+            isDisabled
+              ? "bg-muted text-muted-foreground"
+              : "bg-primary/10 text-primary"
+          }`}
+        >
+          {isDisabled ? <Ban className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
         </div>
-      )}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold leading-tight">
+            {displayName}
+          </div>
+          <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+            {isDisabled
+              ? t("tray.current_app.smoothing_off")
+              : ctx.suggested_category_label && category !== "Unknown"
+                ? ctx.suggested_category_label
+                : t("tray.current_app.smoothing_on")}
+          </div>
+        </div>
+      </div>
 
-      <div className="mt-2 flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">
-          {t("tray.current_app.profile")}
-        </span>
+      <div className="px-3 pb-3">
         <Select value={currentValue} onValueChange={onSelect}>
-          <SelectTrigger className="h-7 flex-1 text-xs">
+          <SelectTrigger className="h-8 w-full text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -104,7 +146,7 @@ export function CurrentAppCard() {
             <SelectItem value={DISABLED_PROFILE_ID}>
               {t("tray.current_app.disabled")}
             </SelectItem>
-            {profiles.map((p) => (
+            {profiles.length > 0 && profiles.map((p) => (
               <SelectItem key={p.id} value={p.id}>
                 {p.name}
               </SelectItem>
@@ -112,11 +154,6 @@ export function CurrentAppCard() {
           </SelectContent>
         </Select>
       </div>
-
-      <label className="mt-2 flex items-center gap-2 text-xs">
-        <Switch checked={ctx.is_excluded} onCheckedChange={onToggleDisable} />
-        <span>{t("tray.current_app.disable_for_this_app")}</span>
-      </label>
     </div>
   );
 }

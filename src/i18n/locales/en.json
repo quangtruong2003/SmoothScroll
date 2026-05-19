@@ -331,7 +331,9 @@
       "profile": "Profile",
       "default": "Default",
       "disabled": "Disabled (pass-through)",
-      "disable_for_this_app": "Disable smoothing for this app"
+      "disable_for_this_app": "Disable smoothing for this app",
+      "smoothing_on": "Smoothing active",
+      "smoothing_off": "Smoothing disabled"
     }
   },
   "precision": {

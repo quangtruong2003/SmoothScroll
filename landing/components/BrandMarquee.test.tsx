@@ -28,12 +28,11 @@ describe('BrandMarquee', () => {
     }
   })
 
-  it('every item contains two img tags (light + dark)', () => {
+  it('every item contains an img tag', () => {
     const { container } = render(<BrandMarquee />)
     const items = container.querySelectorAll('[data-brand-item]')
     for (const el of Array.from(items)) {
-      const imgs = el.querySelectorAll('img')
-      expect(imgs.length).toBe(2)
+      expect(el.querySelector('img')).not.toBeNull()
     }
   })
 

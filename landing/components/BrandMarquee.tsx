@@ -10,26 +10,17 @@ function BrandItem({ brand }: { brand: Brand }) {
       aria-label={brand.name}
       className="inline-flex items-center gap-2 shrink-0"
     >
-      <span className="inline-flex items-center justify-center h-6 w-6">
-        <img
-          src={brand.srcLight}
-          alt=""
-          width={24}
-          height={24}
-          decoding="async"
-          loading="lazy"
-          className="h-6 w-6 dark:hidden"
-        />
-        <img
-          src={brand.srcDark}
-          alt=""
-          width={24}
-          height={24}
-          decoding="async"
-          loading="lazy"
-          className="h-6 w-6 hidden dark:block"
-        />
-      </span>
+      <img
+        src={brand.src}
+        alt=""
+        width={24}
+        height={24}
+        decoding="async"
+        loading="lazy"
+        className={
+          'h-6 w-6 ' + (brand.invertOnDark ? 'dark:invert' : '')
+        }
+      />
       <span className="text-sm font-medium text-muted-foreground/85">
         {brand.name}
       </span>
@@ -59,7 +50,7 @@ export function BrandMarquee() {
       role="region"
       aria-label="Compatible apps and operating systems"
     >
-      <div className="brand-marquee-track flex w-max items-center">
+      <div className="brand-marquee-track flex w-max items-center animate-brand-marquee-slide motion-reduce:animate-none">
         <BrandRow ariaHidden={false} />
         <BrandRow ariaHidden />
       </div>
