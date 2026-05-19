@@ -138,9 +138,9 @@ The engine no longer owns a copy of `AppSettings`. `apply_settings` is removed; 
 | `src-tauri/src/edge_scroll_thread.rs:58` | `state.engine.lock().on_wheel(delta, now_ms)` | `state.engine.lock().on_wheel_with_source(delta, now_ms, InputSource::Wheel, &state.effective.load())` |
 | `src-tauri/src/commands.rs:107` (inside `set_enabled` reset) | `*e = SmoothScrollEngine::new(s)` | `*e = SmoothScrollEngine::default()` |
 | `src-tauri/src/hook_wiring.rs` (route methods) | various — see 4.4 | rewritten per 4.4 |
-| `src-tauri/src/keyboard_sink.rs` | `engine.on_wheel(...)` callsites | take `&state.effective.load()` and pass down |
+| `src-tauri/src/keyboard_sink.rs` | `engine.on_wheel(...)` callsite | take a fresh `state.effective.load_full()` before locking the engine — keyboard events are low-frequency so the existing `state.settings.read()` block stays as-is for the keyboard-specific fields (`keyboard_scroll_enabled`, `keyboard_scroll_keys`, `keyboard_smart_text_skip`, `keyboard_pgdn_step_notches`, `keyboard_arrow_step_notches`); they are out of `EffectiveSettings` scope by design |
 
-The keyboard sink callsites must be enumerated by reading `keyboard_sink.rs` during implementation; they were not visible during spec drafting.
+The keyboard sink is intentionally NOT optimized in this Sprint: keyboard scroll events fire at most a few per second (page-down keypress, etc.), so the `RwLock<AppSettings>` read is not a bottleneck. Only the wheel hot path goes through `EffectiveSettings`.
 
 ### 4.2 Pre-merged profile cache
 

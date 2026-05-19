@@ -85,44 +85,10 @@ const diagonalWave: Effect = {
   },
 }
 
-function hash01(i: number): number {
-  let x = (i + 1) * 374761393
-  x = (x ^ (x >>> 15)) * 1103515245
-  x = (x ^ (x >>> 13)) * 1597334677
-  x = x ^ (x >>> 16)
-  return ((x >>> 0) % 1000) / 1000
+function hash01(_i: number): number {
+  return 0
 }
-
-const twinkleStars: Effect = {
-  name: 'twinkle',
-  update(_p, i, t, _ctx) {
-    const phase = hash01(i) * TAU
-    const s = Math.sin(2 * t + phase)
-    const peak = Math.max(0, s) ** 4
-    return { ox: 0, oy: 0, f: peak * 0.6 }
-  },
-}
-
-const heartbeat: Effect = {
-  name: 'heartbeat',
-  update(_p, _i, t, _ctx) {
-    const cycle = 1.0
-    const x = (t % cycle) / cycle
-    let v = 0
-    if (x < 0.12) v = Math.sin((x / 0.12) * Math.PI)
-    else if (x < 0.18) v = 0
-    else if (x < 0.30) v = Math.sin(((x - 0.18) / 0.12) * Math.PI) * 0.7
-    return { ox: 0, oy: 0, f: v * 0.5 }
-  },
-}
-
-const slowBreathing: Effect = {
-  name: 'breathing',
-  update(_p, _i, t, _ctx) {
-    const v = (Math.sin((TAU * t) / 6) + 1) / 2
-    return { ox: 0, oy: 0, f: v * 0.4 }
-  },
-}
+void hash01
 
 const floatingDrift: Effect = {
   name: 'drift',
