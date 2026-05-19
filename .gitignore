@@ -7,6 +7,7 @@ Cargo.lock.bak
 node_modules/
 dist/
 .vite/
+src/lib/engine-wasm/
 
 # Tauri
 src-tauri/gen/

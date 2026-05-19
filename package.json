@@ -10,7 +10,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run",
     "test:watch": "vitest",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "build:wasm": "node -e \"const{spawnSync}=require('child_process');const isWin=process.platform==='win32';const r=spawnSync(isWin?'powershell':'bash',isWin?['-File','scripts/build-wasm.ps1']:['scripts/build-wasm.sh'],{stdio:'inherit'});process.exit(r.status||0)\""
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
