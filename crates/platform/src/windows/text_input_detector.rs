@@ -40,6 +40,6 @@ pub fn is_focus_in_text_input() -> bool {
         let mut buf = [0u16; 64];
         let n = GetClassNameW(focus, buf.as_mut_ptr(), buf.len() as i32);
         let class = String::from_utf16_lossy(&buf[..n as usize]);
-        TEXT_INPUT_CLASSES.iter().any(|c| *c == class.as_str())
+        TEXT_INPUT_CLASSES.contains(&class.as_str())
     }
 }

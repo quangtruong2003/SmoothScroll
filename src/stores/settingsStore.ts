@@ -14,6 +14,9 @@ interface SettingsStore {
 
   load: () => Promise<void>;
   patch: (patch: Partial<AppSettings>) => void;
+  /** Replace the entire in-memory settings snapshot without persisting.
+   *  Used by Compare mode to swap A/B without going through disk. */
+  setAll: (snapshot: AppSettings) => void;
   saveNow: () => Promise<void>;
   /** Update only the in-memory `enabled` flag without persisting. Used by
    *  the `enabled-changed` event listener so tray/hotkey toggles propagate
@@ -71,6 +74,14 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     }
     set({ settings: next });
     debouncedPersist(next);
+  },
+
+  setAll: (snapshot) => {
+    const current = get().settings;
+    if (current && snapshot.theme !== current.theme) {
+      applyTheme(snapshot.theme);
+    }
+    set({ settings: snapshot });
   },
 
   saveNow: async () => {
@@ -251,6 +262,7 @@ export const useBehaviorFields = () =>
         start_with_os: set.start_with_os,
         start_minimized: set.start_minimized,
         show_tray_icon_state: set.show_tray_icon_state,
+        respect_reduce_motion: set.respect_reduce_motion,
       };
     })
   );

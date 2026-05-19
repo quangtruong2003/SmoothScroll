@@ -61,6 +61,14 @@ pub trait ProcessQuery: Send + Sync {
     fn process_name_under_cursor(&self) -> Option<String>;
     fn foreground_process_id(&self) -> Option<u32>;
     fn list_visible_processes(&self) -> Vec<ProcessInfo>;
+
+    /// Process name (file stem of executable on Windows, or localized app
+    /// name on macOS) of the current foreground window. Returns None when
+    /// there is no foreground window or the query fails. Default returns
+    /// None; Win/Mac implementations override with platform-specific logic.
+    fn foreground_process_name(&self) -> Option<String> {
+        None
+    }
 }
 
 pub trait Autostart: Send + Sync {
@@ -100,4 +108,15 @@ pub trait KeyboardScrollSink: Send + Sync {
 
 pub trait KeyboardScrollHook: Send + Sync {
     fn install(&self, sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle>;
+}
+
+/// OS-level accessibility signals that influence engine behaviour.
+pub trait AccessibilitySignals: Send + Sync {
+    /// Returns true when the OS reports "Reduce Motion" / "Disable animations".
+    fn reduce_motion_enabled(&self) -> bool;
+
+    /// Subscribe to changes. The callback is invoked on a platform-owned
+    /// thread whenever the OS toggles the signal. Dropping the returned handle
+    /// stops the subscription.
+    fn watch(&self, on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle>;
 }

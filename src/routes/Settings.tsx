@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useSettingsStore, useTheme } from "@/stores/settingsStore";
 import { applyTheme, watchSystemTheme } from "@/lib/theme";
+import { tauri } from "@/lib/tauri";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { EnableHeader } from "@/components/settings/EnableHeader";
 import { TestSandboxSection } from "@/components/settings/TestSandboxSection";
 import { ScrollSection } from "@/components/settings/ScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
+import { PrecisionActionsSection } from "@/components/settings/PrecisionActionsSection";
 import { KeyboardScrollSection } from "@/components/settings/KeyboardScrollSection";
 import { TouchpadSection } from "@/components/settings/TouchpadSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
@@ -18,6 +20,7 @@ import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
 import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
 import { TabContent } from "@/components/settings/TabContent";
+import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -28,10 +31,30 @@ export function SettingsPage() {
   const error = useSettingsStore((s) => s.error);
 
   const [tab, setTab] = useState<TabKey>("general");
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const settings = useSettingsStore((s) => s.settings);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Show onboarding wizard on first run, when timestamp is null AND key
+  // settings are still at defaults (so migrated users with custom config
+  // don't get bothered).
+  useEffect(() => {
+    if (loading || !settings) return;
+    if (settings.onboarding_completed_at != null) return;
+    const tweaked =
+      settings.step_size_px !== 120 ||
+      settings.animation_time_ms !== 360 ||
+      settings.acceleration_delta_ms !== 70 ||
+      settings.acceleration_max !== 7;
+    if (tweaked) {
+      void tauri.skipOnboarding();
+      return;
+    }
+    setWizardOpen(true);
+  }, [loading, settings]);
 
   useEffect(() => {
     const unlistenPromise = listen<boolean>("enabled-changed", (event) => {
@@ -101,6 +124,7 @@ export function SettingsPage() {
               <ScrollSection />
               <AppearanceSection />
               <DirectionSection />
+              <PrecisionActionsSection />
               <EdgeScrollSection />
               <KeyboardScrollSection />
               <TouchpadSection />
@@ -138,6 +162,7 @@ export function SettingsPage() {
           )}
         </div>
       </main>
+      {wizardOpen && <OnboardingWizard onClose={() => setWizardOpen(false)} />}
     </div>
   );
 }

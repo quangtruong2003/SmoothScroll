@@ -20,6 +20,7 @@ pub struct Platform {
     pub process_query: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,
+    pub accessibility: Arc<dyn AccessibilitySignals>,
 }
 
 /// Build the platform bundle for the current OS. Real impls land in M2 (Windows)

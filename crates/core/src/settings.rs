@@ -3,6 +3,7 @@
 use crate::easing::EasingMode;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+#[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
 
 /// User-selectable theme mode for the settings UI.
@@ -12,6 +13,18 @@ pub enum ThemeMode {
     Dark,
     #[default]
     System,
+}
+
+/// User control over the OS "Reduce Motion" signal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum RespectReduceMotion {
+    /// Follow the OS signal (default).
+    #[default]
+    Auto,
+    /// Always run engine in instant mode regardless of OS.
+    Always,
+    /// Always smooth, ignore OS.
+    Never,
 }
 
 fn default_games_list() -> Vec<String> {
@@ -95,6 +108,34 @@ impl ScrollProfile {
     }
 }
 
+/// Whether to pass wheel events through raw (no smoothing) when a precision
+/// modifier is held. Defaults are ON because Ctrl/Alt+Wheel almost always
+/// drives precision actions like zoom or font-size in modern apps.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ModifierPassthrough {
+    #[serde(default = "default_true")]
+    pub ctrl: bool,
+    #[serde(default = "default_true")]
+    pub alt: bool,
+    #[serde(default = "default_true")]
+    pub clear_inertia_on_press: bool,
+}
+
+fn default_true() -> bool {
+    true
+}
+
+impl Default for ModifierPassthrough {
+    fn default() -> Self {
+        Self {
+            ctrl: true,
+            alt: true,
+            clear_inertia_on_press: true,
+        }
+    }
+}
+
 /// Persisted user settings.
 ///
 /// Field defaults are produced via `Default::default()` and apply when
@@ -158,6 +199,15 @@ pub struct AppSettings {
     pub touchpad_smoothing_enabled: bool,
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
+
+    // Accessibility
+    pub respect_reduce_motion: RespectReduceMotion,
+
+    // Precision actions (modifier passthrough)
+    pub modifier_passthrough: ModifierPassthrough,
+
+    // Onboarding
+    pub onboarding_completed_at: Option<u64>,
 }
 
 impl Default for AppSettings {
@@ -206,6 +256,9 @@ impl Default for AppSettings {
             touchpad_smoothing_enabled: true,
             touchpad_pixel_multiplier: 1.0,
             touchpad_acceleration_factor: 1.0,
+            respect_reduce_motion: RespectReduceMotion::default(),
+            modifier_passthrough: ModifierPassthrough::default(),
+            onboarding_completed_at: None,
         }
     }
 }
@@ -323,6 +376,10 @@ pub struct EffectiveSettings {
     pub touchpad_smoothing_enabled: bool,
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
+    pub instant_mode: bool,
+    pub modifier_ctrl_passthrough: bool,
+    pub modifier_alt_passthrough: bool,
+    pub modifier_clear_inertia: bool,
 }
 
 impl EffectiveSettings {
@@ -342,6 +399,10 @@ impl EffectiveSettings {
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: s.touchpad_acceleration_factor,
+            instant_mode: false,
+            modifier_ctrl_passthrough: s.modifier_passthrough.ctrl,
+            modifier_alt_passthrough: s.modifier_passthrough.alt,
+            modifier_clear_inertia: s.modifier_passthrough.clear_inertia_on_press,
         }
     }
 
@@ -361,6 +422,10 @@ impl EffectiveSettings {
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: base.touchpad_acceleration_factor,
+            instant_mode: false,
+            modifier_ctrl_passthrough: base.modifier_passthrough.ctrl,
+            modifier_alt_passthrough: base.modifier_passthrough.alt,
+            modifier_clear_inertia: base.modifier_passthrough.clear_inertia_on_press,
         }
     }
 }
@@ -422,6 +487,7 @@ pub enum SettingsError {
 }
 
 /// Resolve the v1 settings file path.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn settings_path() -> Result<PathBuf, SettingsError> {
     let dirs = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
         .ok_or(SettingsError::NoConfigDir)?;
@@ -431,6 +497,7 @@ pub fn settings_path() -> Result<PathBuf, SettingsError> {
 }
 
 /// Load settings from disk, returning defaults if the file is missing or corrupt.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn load() -> AppSettings {
     match try_load() {
         Ok(s) => s,
@@ -441,6 +508,7 @@ pub fn load() -> AppSettings {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn try_load() -> Result<AppSettings, SettingsError> {
     let path = settings_path()?;
     if !path.exists() {
@@ -454,6 +522,7 @@ fn try_load() -> Result<AppSettings, SettingsError> {
 }
 
 /// Save settings atomically (write to temp, then rename).
+#[cfg(not(target_arch = "wasm32"))]
 pub fn save(settings: &AppSettings) -> Result<(), SettingsError> {
     let path = settings_path()?;
     let tmp = path.with_extension("json.tmp");

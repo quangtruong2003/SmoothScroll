@@ -1,8 +1,17 @@
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { listen } from "@tauri-apps/api/event";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { tauri } from "@/lib/tauri";
+import type { RespectReduceMotion } from "@/lib/tauri";
 import { useSettingsStore, useBehaviorFields } from "@/stores/settingsStore";
 import { HotkeyRecorderInput } from "@/components/HotkeyRecorderInput";
 import { SettingRow } from "./SettingRow";
@@ -14,9 +23,20 @@ function BehaviorSectionInner() {
   const patch = useSettingsStore((s) => s.patch);
   const [autostart, setAutostartState] = useState(false);
   const [hotkeyError, setHotkeyError] = useState<string | null>(null);
+  const [osReduceMotion, setOsReduceMotion] = useState<boolean>(false);
 
   useEffect(() => {
     tauri.getAutostart().then(setAutostartState);
+  }, []);
+
+  useEffect(() => {
+    tauri.getReduceMotionStatus().then(setOsReduceMotion).catch(() => {});
+    const un = listen<boolean>("reduce-motion-changed", (e) =>
+      setOsReduceMotion(Boolean(e.payload)),
+    );
+    return () => {
+      un.then((u) => u()).catch(() => {});
+    };
   }, []);
 
   if (!fields) return null;
@@ -114,6 +134,39 @@ function BehaviorSectionInner() {
             onCheckedChange={(v) => patch({ start_minimized: v })}
           />
         </SettingRow>
+
+        <SettingRow
+          htmlFor="reduce-motion"
+          title={t("settings.reduce_motion.title")}
+          description={t("settings.reduce_motion.desc")}
+        >
+          <Select
+            value={fields.respect_reduce_motion ?? "Auto"}
+            onValueChange={(v) =>
+              patch({ respect_reduce_motion: v as RespectReduceMotion })
+            }
+          >
+            <SelectTrigger id="reduce-motion" className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Auto">
+                {t("settings.reduce_motion.auto")}
+              </SelectItem>
+              <SelectItem value="Always">
+                {t("settings.reduce_motion.always")}
+              </SelectItem>
+              <SelectItem value="Never">
+                {t("settings.reduce_motion.never")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingRow>
+        <div className="text-xs text-muted-foreground py-2">
+          {osReduceMotion
+            ? t("settings.reduce_motion.status_on")
+            : t("settings.reduce_motion.status_off")}
+        </div>
       </CardContent>
     </Card>
   );

@@ -27,6 +27,24 @@ struct Axis {
 }
 
 impl Axis {
+    fn flush_instant(&mut self) -> i32 {
+        if self.remaining_px.abs() < 0.1 {
+            self.remaining_px = 0.0;
+            self.unit_accum = 0.0;
+            return 0;
+        }
+        let wheel_units = (self.remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+        let units = wheel_units / EMIT_UNIT as f64;
+        self.unit_accum += units;
+        let pulses = self.unit_accum.trunc() as i32;
+        self.unit_accum -= pulses as f64;
+        self.remaining_px = 0.0;
+        // NOTE: instant-mode pulse clamp drops anything beyond PULSE_CLAMP_MAX.
+        // Intentional: instant means "no carry-over" — flushing in one frame is
+        // the contract, even if it caps very large pending momentum.
+        pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+    }
+
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
         let elapsed = now_ms.saturating_sub(self.last_notch_ms);
         if (elapsed as i64) <= settings.acceleration_delta_ms as i64 {
@@ -158,6 +176,18 @@ impl SmoothScrollEngine {
     }
 
     pub fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> EngineOutput {
+        if settings.instant_mode {
+            let v = self.v.flush_instant();
+            let h = if settings.horizontal_smoothness {
+                self.h.flush_instant()
+            } else {
+                0
+            };
+            return EngineOutput {
+                vertical: v,
+                horizontal: h,
+            };
+        }
         let v = self.v.step(dt_ms, settings);
         let h = if settings.horizontal_smoothness {
             self.h.step(dt_ms, settings)
@@ -172,6 +202,16 @@ impl SmoothScrollEngine {
 
     pub fn has_pending_work(&self) -> bool {
         self.v.remaining_px.abs() >= 0.1 || self.h.remaining_px.abs() >= 0.1
+    }
+
+    /// Discard any pending pixels and unit accumulator on both axes. Used by
+    /// the modifier-passthrough hot path to clear inertia the moment a
+    /// precision modifier (Ctrl/Alt) is pressed, so zoom feels immediate.
+    pub fn reset_axes(&mut self) {
+        self.v.remaining_px = 0.0;
+        self.v.unit_accum = 0.0;
+        self.h.remaining_px = 0.0;
+        self.h.unit_accum = 0.0;
     }
 }
 

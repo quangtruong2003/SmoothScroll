@@ -191,6 +191,21 @@ impl EngineSink {
             return HookDecision::Pass;
         }
 
+        // Precision-modifier passthrough (Ctrl/Alt+Wheel for zoom etc.)
+        #[cfg(target_os = "macos")]
+        let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
+            || (mods.alt && eff.modifier_alt_passthrough);
+        #[cfg(not(target_os = "macos"))]
+        let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
+            || (mods.alt && eff.modifier_alt_passthrough);
+
+        if precision {
+            if eff.modifier_clear_inertia {
+                self.state.engine.lock().reset_axes();
+            }
+            return HookDecision::Pass;
+        }
+
         self.update_last_source(source);
         let now = self.now_ms();
 
@@ -226,6 +241,12 @@ impl EngineSink {
         if !eff.horizontal_smoothness {
             return HookDecision::Pass;
         }
+
+        // Precision-modifier passthrough — note: native horizontal wheel
+        // events don't carry modifier state through this path on Windows
+        // (the hook signature has no `mods`); on macOS we'd need to extend
+        // the trait. For now we leave this path as-is; passthrough applies
+        // to the vertical path which is where Ctrl/Alt+Wheel actually fire.
 
         self.update_last_source(source);
         let now = self.now_ms();
@@ -291,7 +312,6 @@ mod tests {
     use std::collections::HashMap;
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
-
     struct StubHook;
     impl MouseHook for StubHook {
         fn install(&self, _sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
@@ -353,6 +373,19 @@ mod tests {
             None
         }
     }
+    struct StubAccessibility;
+    impl smoothscroll_platform::traits::AccessibilitySignals for StubAccessibility {
+        fn reduce_motion_enabled(&self) -> bool {
+            false
+        }
+        fn watch(
+            &self,
+            _on_change: Box<dyn Fn(bool) + Send + Sync>,
+        ) -> smoothscroll_platform::types::Result<smoothscroll_platform::traits::HookHandle>
+        {
+            Ok(smoothscroll_platform::traits::HookHandle::new(Box::new(())))
+        }
+    }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
@@ -376,6 +409,10 @@ mod tests {
             window_geom: Arc::new(StubWindowGeom),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
+            reduce_motion: Arc::new(AtomicBool::new(false)),
+            accessibility: Arc::new(StubAccessibility),
+            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
+            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
         })
     }
 
@@ -418,6 +455,10 @@ mod tests {
             window_geom: Arc::new(StubWindowGeom),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
+            reduce_motion: Arc::new(AtomicBool::new(false)),
+            accessibility: Arc::new(StubAccessibility),
+            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
+            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
         })
     }
 
@@ -426,6 +467,7 @@ mod tests {
             shift: true,
             ctrl: false,
             alt: false,
+            cmd: false,
         }
     }
 
@@ -562,5 +604,93 @@ mod tests {
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
         assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn commit_settings_auto_follows_os_reduce_motion() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let mut s = AppSettings::default();
+        s.respect_reduce_motion = RespectReduceMotion::Auto;
+        let state = make_state(s.clone());
+        // OS RM off → instant_mode false
+        state.reduce_motion.store(false, Ordering::Relaxed);
+        state.commit_settings(s.clone());
+        assert!(!state.effective.load_full().instant_mode);
+        // OS RM on → instant_mode true
+        state.reduce_motion.store(true, Ordering::Relaxed);
+        state.commit_settings(s.clone());
+        assert!(state.effective.load_full().instant_mode);
+    }
+
+    #[test]
+    fn commit_settings_always_overrides_os_off() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let mut s = AppSettings::default();
+        s.respect_reduce_motion = RespectReduceMotion::Always;
+        let state = make_state(s.clone());
+        state.reduce_motion.store(false, Ordering::Relaxed);
+        state.commit_settings(s);
+        assert!(state.effective.load_full().instant_mode);
+    }
+
+    #[test]
+    fn commit_settings_never_ignores_os_on() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let mut s = AppSettings::default();
+        s.respect_reduce_motion = RespectReduceMotion::Never;
+        let state = make_state(s.clone());
+        state.reduce_motion.store(true, Ordering::Relaxed);
+        state.commit_settings(s);
+        assert!(!state.effective.load_full().instant_mode);
+    }
+
+    #[test]
+    fn ctrl_wheel_passes_through_when_passthrough_enabled() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn ctrl_wheel_smooths_when_passthrough_disabled() {
+        let mut s = AppSettings::default();
+        s.modifier_passthrough.ctrl = false;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+    }
+
+    #[test]
+    fn ctrl_press_clears_inertia() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        sink.on_wheel(120, no_mods());
+        assert!(state.engine.lock().has_pending_work());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        let _ = sink.on_wheel(120, mods);
+        assert!(
+            !state.engine.lock().has_pending_work(),
+            "inertia should clear on ctrl press"
+        );
     }
 }

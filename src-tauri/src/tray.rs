@@ -96,6 +96,14 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
 
 /// Show the tray panel window at the cursor position.
 fn show_tray_panel<R: Runtime>(app: &AppHandle<R>) {
+    // Capture the foreground process BEFORE showing the panel — otherwise
+    // the panel itself becomes the foreground window and the captured name
+    // is wrong. The snapshot is consumed by `get_foreground_app_context`.
+    if let Some(state) = app.try_state::<Arc<AppState>>() {
+        let name = state.processes.foreground_process_name();
+        *state.last_foreground_at_tray_open.lock() = name;
+    }
+
     if let Some(win) = app.get_webview_window(PANEL_LABEL) {
         position_panel_at_cursor(app, &win);
         let _ = win.show();

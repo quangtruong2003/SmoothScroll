@@ -2,6 +2,7 @@
 
 #![cfg(target_os = "macos")]
 
+mod accessibility;
 mod autostart;
 pub mod fullscreen;
 mod hotkey;
@@ -12,6 +13,7 @@ mod process_query;
 mod wheel_emitter;
 pub mod window_geom;
 
+pub use accessibility::MacosAccessibilitySignals;
 pub use autostart::MacosAutostart;
 pub use fullscreen::MacosFullscreenDetector;
 pub use hotkey::MacosHotkey;
@@ -33,5 +35,6 @@ pub fn build() -> Result<Platform> {
         process_query: Arc::new(MacosProcessQuery::new()),
         autostart: Arc::new(MacosAutostart),
         hotkey: Arc::new(MacosHotkey),
+        accessibility: Arc::new(MacosAccessibilitySignals),
     })
 }

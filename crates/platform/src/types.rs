@@ -6,6 +6,10 @@ pub struct ModifierKeys {
     pub shift: bool,
     pub ctrl: bool,
     pub alt: bool,
+    /// macOS-only: the Command key. Always `false` on Windows. Hot-path
+    /// branches that read this MUST be `#[cfg(target_os = "macos")]` so
+    /// Windows doesn't read a never-set field.
+    pub cmd: bool,
 }
 
 /// Tells the hook whether to forward the original event or eat it.

@@ -252,3 +252,42 @@ fn effective_settings_is_copy() {
     let eff2 = eff;
     assert_eq!(eff, eff2);
 }
+
+// QoL Gap #5 — Respect system Reduce Motion
+
+#[test]
+fn respect_reduce_motion_defaults_to_auto() {
+    let s = smoothscroll_core::settings::AppSettings::default();
+    assert_eq!(
+        s.respect_reduce_motion,
+        smoothscroll_core::settings::RespectReduceMotion::Auto
+    );
+}
+
+#[test]
+fn respect_reduce_motion_round_trips_via_json() {
+    use smoothscroll_core::settings::{AppSettings, RespectReduceMotion};
+    let mut s = AppSettings::default();
+    s.respect_reduce_motion = RespectReduceMotion::Always;
+    let json = serde_json::to_string(&s).unwrap();
+    let back: AppSettings = serde_json::from_str(&json).unwrap();
+    assert_eq!(back.respect_reduce_motion, RespectReduceMotion::Always);
+}
+
+#[test]
+fn old_settings_without_respect_field_load_with_auto_default() {
+    let json = r#"{"enabled": true}"#;
+    let s: smoothscroll_core::settings::AppSettings = serde_json::from_str(json).unwrap();
+    assert_eq!(
+        s.respect_reduce_motion,
+        smoothscroll_core::settings::RespectReduceMotion::Auto
+    );
+}
+
+#[test]
+fn effective_settings_default_instant_mode_false() {
+    use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+    let s = AppSettings::default();
+    let eff = EffectiveSettings::from_settings(&s);
+    assert!(!eff.instant_mode);
+}
