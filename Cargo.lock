@@ -3470,7 +3470,9 @@ name = "smoothscroll_platform"
 version = "0.1.27"
 dependencies = [
  "anyhow",
+ "objc2 0.5.2",
  "objc2-app-kit 0.2.2",
+ "objc2-foundation 0.2.2",
  "parking_lot",
  "serde",
  "smoothscroll_core",

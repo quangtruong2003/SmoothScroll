@@ -13,13 +13,17 @@ use std::sync::Arc;
 pub struct MacosAccessibilitySignals;
 
 fn query_reduce_motion() -> bool {
+    use objc2::msg_send;
     use objc2_app_kit::NSWorkspace;
-    // SAFETY: `sharedWorkspace` returns a long-lived process-wide singleton;
-    // calling `accessibilityDisplayShouldReduceMotion` on it is a thread-safe
-    // read of an OS-managed setting and returns a plain BOOL.
+    // SAFETY: `sharedWorkspace` returns the process-wide singleton.
+    // `accessibilityDisplayShouldReduceMotion` is a stable property on
+    // NSWorkspace (since macOS 10.12) returning BOOL; we call it via
+    // msg_send! because the typed binding is gated behind a feature
+    // category that varies across objc2-app-kit 0.2.x patch versions.
     unsafe {
         let workspace = NSWorkspace::sharedWorkspace();
-        workspace.accessibilityDisplayShouldReduceMotion()
+        let result: bool = msg_send![&*workspace, accessibilityDisplayShouldReduceMotion];
+        result
     }
 }
 

@@ -32,15 +32,23 @@ impl ProcessQuery for MacosProcessQuery {
     }
 
     fn foreground_process_name(&self) -> Option<String> {
-        use objc2_app_kit::NSWorkspace;
-        // SAFETY: `sharedWorkspace` returns the process-wide singleton;
-        // `frontmostApplication` is a thread-safe read of NSWorkspace state;
-        // `localizedName` returns an autoreleased NSString we copy via to_string.
+        use objc2::msg_send;
+        use objc2::rc::Retained;
+        use objc2_app_kit::{NSRunningApplication, NSWorkspace};
+        // SAFETY: `sharedWorkspace` returns the process-wide singleton.
+        // `frontmostApplication` is read via msg_send! to avoid
+        // feature-gating surprises across objc2-app-kit 0.2.x; it returns
+        // an optional NSRunningApplication. `localizedName` is similarly
+        // read via msg_send! returning an optional NSString. Both selectors
+        // are stable across all supported macOS versions.
         unsafe {
             let workspace = NSWorkspace::sharedWorkspace();
-            let app = workspace.frontmostApplication()?;
-            let name = app.localizedName()?;
-            Some(name.to_string())
+            let app: Option<Retained<NSRunningApplication>> =
+                msg_send![&*workspace, frontmostApplication];
+            let app = app?;
+            let name: Option<Retained<objc2_foundation::NSString>> =
+                msg_send![&*app, localizedName];
+            name.map(|n| n.to_string())
         }
     }
 }
