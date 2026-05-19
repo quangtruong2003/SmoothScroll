@@ -341,5 +341,12 @@
     "alt_help": "Recommended for editors and timelines (Premiere, DAWs).",
     "clear_inertia_label": "Clear inertia when modifier pressed",
     "clear_inertia_help": "Stop pending smooth scroll the moment a modifier is pressed so zoom feels immediate."
+  },
+  "compare": {
+    "toggle": "Compare",
+    "a_label": "A — Saved",
+    "b_label": "B — Editing",
+    "swap": "Swap A ↔ B",
+    "apply_b": "Apply B as new default"
   }
 }
