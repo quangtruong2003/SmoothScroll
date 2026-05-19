@@ -9,6 +9,7 @@
     "animation": "Animation",
     "direction": "Direction",
     "behavior": "Behavior",
+    "precision": "Precision actions",
     "excluded_apps": "Excluded apps",
     "profiles": "Scroll profiles",
     "app_profiles": "Per-app assignments",
@@ -331,5 +332,14 @@
       "disabled": "Disabled (pass-through)",
       "disable_for_this_app": "Disable smoothing for this app"
     }
+  },
+  "precision": {
+    "ctrl_label": "Pass-through Ctrl + wheel",
+    "cmd_label": "Pass-through Cmd + wheel",
+    "ctrl_help": "Recommended for zoom in Photoshop, Figma, browsers, VS Code.",
+    "alt_label": "Pass-through Alt + wheel",
+    "alt_help": "Recommended for editors and timelines (Premiere, DAWs).",
+    "clear_inertia_label": "Clear inertia when modifier pressed",
+    "clear_inertia_help": "Stop pending smooth scroll the moment a modifier is pressed so zoom feels immediate."
   }
 }

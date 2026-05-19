@@ -10,6 +10,12 @@ export type ThemeMode = "Light" | "Dark" | "System";
 
 export type RespectReduceMotion = "Auto" | "Always" | "Never";
 
+export interface ModifierPassthrough {
+  ctrl: boolean;
+  alt: boolean;
+  clear_inertia_on_press: boolean;
+}
+
 export type InputSourceLabel = "Wheel" | "HighResWheel" | "Touchpad";
 
 export interface ScrollProfile {
@@ -64,6 +70,7 @@ export interface AppSettings {
   touchpad_pixel_multiplier: number;
   touchpad_acceleration_factor: number;
   respect_reduce_motion: RespectReduceMotion;
+  modifier_passthrough: ModifierPassthrough;
 }
 
 export interface ProcessInfo {
