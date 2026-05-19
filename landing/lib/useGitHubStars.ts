@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 
 const REPO = 'quangtruong2003/SmoothScroll'
 const STORAGE_KEY = 'gh-stars-v2'
-const TTL_MS = 5 * 60 * 1000
+const TTL_MS = 60 * 60 * 1000
 
 interface CacheEntry {
-  value: number
+  value: number | null
   ts: number
 }
 
@@ -24,15 +24,13 @@ function readCache(): CacheEntry | null {
   }
 }
 
-function writeCache(value: number) {
+function writeCache(value: number | null) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ value, ts: Date.now() }))
   } catch {}
 }
 
 export function useGitHubStars(): number | null {
-  // Always start null on both server and client to avoid hydration mismatch.
-  // The cache is read in useEffect, after hydration completes.
   const [stars, setStars] = useState<number | null>(null)
 
   useEffect(() => {
@@ -49,11 +47,9 @@ export function useGitHubStars(): number | null {
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        const value = d?.stargazers_count
-        if (typeof value === 'number') {
-          setStars(value)
-          writeCache(value)
-        }
+        const value = typeof d?.stargazers_count === 'number' ? d.stargazers_count : null
+        setStars(value)
+        writeCache(value)
       })
       .catch(() => {})
 
