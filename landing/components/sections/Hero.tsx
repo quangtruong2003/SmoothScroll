@@ -2,6 +2,7 @@
 
 import { DemoScroll } from '@/components/DemoScroll'
 import { DownloadCTA } from '@/components/DownloadCTA'
+import { BrandMarquee } from '@/components/BrandMarquee'
 import { Badge } from '@/components/ui/badge'
 import type { Dictionary } from '@/lib/i18n/dict'
 
@@ -38,6 +39,7 @@ export function Hero({ dict }: HeroProps) {
             </div>
 
             <p className="text-sm text-muted-foreground">{h.trustLine}</p>
+            <BrandMarquee />
           </div>
 
           <div>
