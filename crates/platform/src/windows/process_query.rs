@@ -12,12 +12,13 @@ use std::time::{Duration, Instant};
 use windows_sys::Win32::Foundation::{CloseHandle, BOOL, FALSE, LPARAM, MAX_PATH, POINT, TRUE};
 use windows_sys::Win32::System::ProcessStatus::K32GetProcessImageFileNameW;
 use windows_sys::Win32::System::Threading::{
-    OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ,
+    GetCurrentProcessId, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    EnumWindows, GetAncestor, GetCursorPos, GetForegroundWindow, GetWindow, GetWindowLongW,
-    GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible,
-    WindowFromPoint, GA_ROOT, GWL_EXSTYLE, GW_OWNER, WS_EX_TOOLWINDOW,
+    EnumWindows, GetAncestor, GetCursorPos, GetForegroundWindow, GetTopWindow, GetWindow,
+    GetWindowLongW, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsIconic,
+    IsWindowVisible, WindowFromPoint, GA_ROOT, GWL_EXSTYLE, GW_HWNDNEXT, GW_OWNER,
+    WS_EX_TOOLWINDOW,
 };
 
 const TTL: Duration = Duration::from_millis(100);
