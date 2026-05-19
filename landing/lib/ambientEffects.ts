@@ -124,6 +124,54 @@ const slowBreathing: Effect = {
   },
 }
 
+const floatingDrift: Effect = {
+  name: 'drift',
+  update(p, _i, t, ctx) {
+    const amp = 4 * reducedScale(ctx)
+    const ox = Math.sin(p.x * 0.012 + 0.3 * t) * amp
+    const oy = Math.cos(p.y * 0.012 + 0.4 * t + 0.7) * amp
+    return { ox, oy, f: 0.15 }
+  },
+}
+
+const COMET_RADIUS = 180
+const wanderingComet: Effect = {
+  name: 'comet',
+  update(p, _i, t, ctx) {
+    const cx = ctx.vw / 2 + Math.sin(t * 0.41) * (ctx.vw * 0.4)
+    const cy = ctx.vh / 2 + Math.sin(t * 0.27 + 1.3) * (ctx.vh * 0.4)
+    const dx = p.x - cx
+    const dy = p.y - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    if (dist >= COMET_RADIUS) return { ox: 0, oy: 0, f: 0 }
+    const k = 1 - dist / COMET_RADIUS
+    const safe = Math.max(dist, 0.001)
+    const pull = k * 3 * reducedScale(ctx)
+    return { ox: -(dx / safe) * pull, oy: -(dy / safe) * pull, f: k * 0.7 }
+  },
+}
+
+const galaxySpin: Effect = {
+  name: 'galaxy',
+  update(p, _i, t, ctx) {
+    const cx = ctx.vw / 2
+    const cy = ctx.vh / 2
+    const dx = p.x - cx
+    const dy = p.y - cy
+    const r = Math.sqrt(dx * dx + dy * dy)
+    if (r < 1) return { ox: 0, oy: 0, f: 0.05 }
+    // Tangential bobble: dot oscillates along its tangent direction.
+    // Amplitude bounded; phase varies with radius for swirl illusion.
+    const omega = 0.6
+    const phase = omega * t - r * 0.012
+    const amp = 6 * reducedScale(ctx)
+    const offset = Math.sin(phase) * amp
+    const tx = -dy / r
+    const ty = dx / r
+    return { ox: tx * offset, oy: ty * offset, f: 0.2 }
+  },
+}
+
 export const EFFECTS: Effect[] = [
   ripplePulse,
   waveLR,
@@ -132,6 +180,9 @@ export const EFFECTS: Effect[] = [
   twinkleStars,
   heartbeat,
   slowBreathing,
+  floatingDrift,
+  wanderingComet,
+  galaxySpin,
 ]
 
 export function pickEffect(): number {
