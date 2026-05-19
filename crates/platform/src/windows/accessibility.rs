@@ -1,71 +1,36 @@
-//! Windows accessibility signal access via `SystemParametersInfoW`.
+//! Windows accessibility signals.
 //!
-//! Note: `SPI_GETCLIENTAREAANIMATION` returns the inverse of "Reduce Motion".
-//! Animation enabled => Reduce Motion OFF.
+//! Windows lacks a "Reduce Motion" signal that's specific to motion
+//! sensitivity. The closest API is `SPI_GETCLIENTAREAANIMATION`, but it
+//! covers menu/list/window animations and is commonly disabled by users
+//! for performance reasons unrelated to motion sensitivity. Reading it
+//! caused users who had animations off to lose smooth scrolling entirely
+//! (engine flushed all pixels in one frame).
+//!
+//! Decision: report `false` unconditionally on Windows. Users who want
+//! instant scroll can set `RespectReduceMotion::Always` explicitly.
+//! macOS keeps the OS signal because `accessibilityDisplayShouldReduceMotion`
+//! is a dedicated motion-sensitivity preference.
 
 #![cfg(windows)]
 
 use crate::traits::{AccessibilitySignals, HookHandle};
-use crate::types::{PlatformError, Result};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use windows_sys::Win32::UI::WindowsAndMessaging::{
-    SystemParametersInfoW, SPI_GETCLIENTAREAANIMATION,
-};
+use crate::types::Result;
 
 pub struct WindowsAccessibilitySignals;
 
-fn query_animations_enabled() -> bool {
-    let mut value: i32 = 1; // default to "animations enabled" if query fails
-    unsafe {
-        // SAFETY: SPI_GETCLIENTAREAANIMATION reads a BOOL into the supplied
-        // pointer; we provide a properly aligned i32 (= 4-byte BOOL) and
-        // ignore the success boolean — failure leaves `value` at its
-        // default of 1 (animations enabled, RM off).
-        let _ = SystemParametersInfoW(
-            SPI_GETCLIENTAREAANIMATION,
-            0,
-            &mut value as *mut _ as *mut _,
-            0,
-        );
-    }
-    value != 0
-}
-
 impl AccessibilitySignals for WindowsAccessibilitySignals {
     fn reduce_motion_enabled(&self) -> bool {
-        // Reduce Motion ON when animations are disabled.
-        !query_animations_enabled()
+        // See module doc: Windows lacks a trustworthy RM signal.
+        false
     }
 
-    fn watch(&self, on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle> {
-        // 1 Hz polling thread. One syscall/sec is acceptable and avoids
-        // wiring WM_SETTINGCHANGE into the message loop.
-        let stop = Arc::new(AtomicBool::new(false));
-        let stop_clone = stop.clone();
-        let last = Arc::new(AtomicBool::new(!query_animations_enabled()));
-        let last_clone = last.clone();
-        std::thread::Builder::new()
-            .name("smoothscroll-rm-watch".into())
-            .spawn(move || {
-                while !stop_clone.load(Ordering::Relaxed) {
-                    std::thread::sleep(std::time::Duration::from_secs(1));
-                    let cur = !query_animations_enabled();
-                    let prev = last_clone.swap(cur, Ordering::Relaxed);
-                    if cur != prev {
-                        on_change(cur);
-                    }
-                }
-            })
-            .map_err(|e| PlatformError::Os(e.to_string()))?;
-
-        struct Guard(Arc<AtomicBool>);
-        impl Drop for Guard {
-            fn drop(&mut self) {
-                self.0.store(true, Ordering::Relaxed);
-            }
-        }
-        Ok(HookHandle::new(Box::new(Guard(stop))))
+    fn watch(&self, _on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle> {
+        // No-op: the signal we report is constant `false`, so it never
+        // changes and the callback would never fire. Returning an empty
+        // handle keeps the trait contract intact and avoids spawning a
+        // pointless polling thread.
+        Ok(HookHandle::new(Box::new(())))
     }
 }
 
@@ -74,8 +39,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn query_does_not_panic() {
+    fn always_reports_false() {
         let signals = WindowsAccessibilitySignals;
-        let _ = signals.reduce_motion_enabled();
+        assert!(!signals.reduce_motion_enabled());
     }
 }
