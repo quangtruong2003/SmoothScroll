@@ -203,6 +203,16 @@ impl SmoothScrollEngine {
     pub fn has_pending_work(&self) -> bool {
         self.v.remaining_px.abs() >= 0.1 || self.h.remaining_px.abs() >= 0.1
     }
+
+    /// Discard any pending pixels and unit accumulator on both axes. Used by
+    /// the modifier-passthrough hot path to clear inertia the moment a
+    /// precision modifier (Ctrl/Alt) is pressed, so zoom feels immediate.
+    pub fn reset_axes(&mut self) {
+        self.v.remaining_px = 0.0;
+        self.v.unit_accum = 0.0;
+        self.h.remaining_px = 0.0;
+        self.h.unit_accum = 0.0;
+    }
 }
 
 impl Default for SmoothScrollEngine {
