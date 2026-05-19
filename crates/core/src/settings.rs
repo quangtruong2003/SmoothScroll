@@ -14,6 +14,18 @@ pub enum ThemeMode {
     System,
 }
 
+/// User control over the OS "Reduce Motion" signal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum RespectReduceMotion {
+    /// Follow the OS signal (default).
+    #[default]
+    Auto,
+    /// Always run engine in instant mode regardless of OS.
+    Always,
+    /// Always smooth, ignore OS.
+    Never,
+}
+
 fn default_games_list() -> Vec<String> {
     [
         "LeagueOfLegends.exe",
@@ -158,6 +170,9 @@ pub struct AppSettings {
     pub touchpad_smoothing_enabled: bool,
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
+
+    // Accessibility
+    pub respect_reduce_motion: RespectReduceMotion,
 }
 
 impl Default for AppSettings {
@@ -206,6 +221,7 @@ impl Default for AppSettings {
             touchpad_smoothing_enabled: true,
             touchpad_pixel_multiplier: 1.0,
             touchpad_acceleration_factor: 1.0,
+            respect_reduce_motion: RespectReduceMotion::default(),
         }
     }
 }
