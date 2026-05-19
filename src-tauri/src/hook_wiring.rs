@@ -191,6 +191,21 @@ impl EngineSink {
             return HookDecision::Pass;
         }
 
+        // Precision-modifier passthrough (Ctrl/Alt+Wheel for zoom etc.)
+        #[cfg(target_os = "macos")]
+        let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
+            || (mods.alt && eff.modifier_alt_passthrough);
+        #[cfg(not(target_os = "macos"))]
+        let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
+            || (mods.alt && eff.modifier_alt_passthrough);
+
+        if precision {
+            if eff.modifier_clear_inertia {
+                self.state.engine.lock().reset_axes();
+            }
+            return HookDecision::Pass;
+        }
+
         self.update_last_source(source);
         let now = self.now_ms();
 
@@ -226,6 +241,12 @@ impl EngineSink {
         if !eff.horizontal_smoothness {
             return HookDecision::Pass;
         }
+
+        // Precision-modifier passthrough — note: native horizontal wheel
+        // events don't carry modifier state through this path on Windows
+        // (the hook signature has no `mods`); on macOS we'd need to extend
+        // the trait. For now we leave this path as-is; passthrough applies
+        // to the vertical path which is where Ctrl/Alt+Wheel actually fire.
 
         self.update_last_source(source);
         let now = self.now_ms();
