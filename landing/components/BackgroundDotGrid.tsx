@@ -63,9 +63,9 @@ function buildSprite(brand: Rgba): HTMLCanvasElement {
     SPRITE_HALF, SPRITE_HALF, 0,
     SPRITE_HALF, SPRITE_HALF, SPRITE_HALF,
   )
-  grad.addColorStop(0,    `rgba(${brand.r},${brand.g},${brand.b},1.0)`)
-  grad.addColorStop(0.25, `rgba(${brand.r},${brand.g},${brand.b},0.55)`)
-  grad.addColorStop(0.6,  `rgba(${brand.r},${brand.g},${brand.b},0.18)`)
+  grad.addColorStop(0,    `rgba(${brand.r},${brand.g},${brand.b},0.35)`)
+  grad.addColorStop(0.25, `rgba(${brand.r},${brand.g},${brand.b},0.18)`)
+  grad.addColorStop(0.6,  `rgba(${brand.r},${brand.g},${brand.b},0.04)`)
   grad.addColorStop(1,    `rgba(${brand.r},${brand.g},${brand.b},0)`)
   sctx.fillStyle = grad
   sctx.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE)
@@ -79,12 +79,22 @@ const CONTENT_TAGS = new Set([
   'VIDEO', 'CANVAS', 'SVG', 'DETAILS', 'SUMMARY', 'SPAN',
 ])
 
+function hasOpaqueBackground(el: Element): boolean {
+  const cs = getComputedStyle(el)
+  if (cs.backgroundImage && cs.backgroundImage !== 'none') return true
+  const bg = cs.backgroundColor
+  if (!bg) return false
+  if (bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') return false
+  return true
+}
+
 function isOverContent(x: number, y: number): boolean {
   const el = document.elementFromPoint(x, y)
   if (!el) return false
   let n: Element | null = el
-  while (n && n !== document.body) {
+  while (n && n !== document.body && n !== document.documentElement) {
     if (CONTENT_TAGS.has(n.tagName)) return true
+    if (hasOpaqueBackground(n)) return true
     n = n.parentElement
   }
   return false
@@ -227,7 +237,7 @@ export function BackgroundDotGrid() {
       ctx.fill(staticPath)
 
       for (const d of lit) {
-        const spriteScale = 1.6 + d.f * 1.8
+        const spriteScale = 0.5 + d.f * 0.6
         const half = SPRITE_HALF * spriteScale
         ctx.globalAlpha = d.f
         ctx.drawImage(
