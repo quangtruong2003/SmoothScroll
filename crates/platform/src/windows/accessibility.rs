@@ -38,10 +38,7 @@ impl AccessibilitySignals for WindowsAccessibilitySignals {
         !query_animations_enabled()
     }
 
-    fn watch(
-        &self,
-        on_change: Box<dyn Fn(bool) + Send + Sync>,
-    ) -> Result<HookHandle> {
+    fn watch(&self, on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle> {
         // 1 Hz polling thread. One syscall/sec is acceptable and avoids
         // wiring WM_SETTINGCHANGE into the message loop.
         let stop = Arc::new(AtomicBool::new(false));

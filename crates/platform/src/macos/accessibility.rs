@@ -28,10 +28,7 @@ impl AccessibilitySignals for MacosAccessibilitySignals {
         query_reduce_motion()
     }
 
-    fn watch(
-        &self,
-        on_change: Box<dyn Fn(bool) + Send + Sync>,
-    ) -> Result<HookHandle> {
+    fn watch(&self, on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle> {
         // 1 Hz polling thread mirrors the Windows impl. Avoids wiring an
         // NSDistributedNotificationCenter observer for what is a
         // low-frequency signal.

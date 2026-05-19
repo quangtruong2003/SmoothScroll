@@ -110,8 +110,5 @@ pub trait AccessibilitySignals: Send + Sync {
     /// Subscribe to changes. The callback is invoked on a platform-owned
     /// thread whenever the OS toggles the signal. Dropping the returned handle
     /// stops the subscription.
-    fn watch(
-        &self,
-        on_change: Box<dyn Fn(bool) + Send + Sync>,
-    ) -> Result<HookHandle>;
+    fn watch(&self, on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle>;
 }

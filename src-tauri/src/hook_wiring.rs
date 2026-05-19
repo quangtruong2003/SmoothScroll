@@ -290,7 +290,8 @@ mod tests {
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
     use std::sync::atomic::AtomicBool;
-    use std::sync::Arc;    struct StubHook;
+    use std::sync::Arc;
+    struct StubHook;
     impl MouseHook for StubHook {
         fn install(&self, _sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
             Ok(HookHandle::new(Box::new(())))
@@ -359,7 +360,8 @@ mod tests {
         fn watch(
             &self,
             _on_change: Box<dyn Fn(bool) + Send + Sync>,
-        ) -> smoothscroll_platform::types::Result<smoothscroll_platform::traits::HookHandle> {
+        ) -> smoothscroll_platform::types::Result<smoothscroll_platform::traits::HookHandle>
+        {
             Ok(smoothscroll_platform::traits::HookHandle::new(Box::new(())))
         }
     }
