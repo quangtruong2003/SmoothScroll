@@ -26,22 +26,25 @@ struct Axis {
     unit_accum: f64,
 }
 
-fn flush_axis_instant(axis: &mut Axis) -> i32 {
-    if axis.remaining_px.abs() < 0.1 {
-        axis.remaining_px = 0.0;
-        axis.unit_accum = 0.0;
-        return 0;
-    }
-    let wheel_units = (axis.remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
-    let units = wheel_units / EMIT_UNIT as f64;
-    axis.unit_accum += units;
-    let pulses = axis.unit_accum.trunc() as i32;
-    axis.unit_accum -= pulses as f64;
-    axis.remaining_px = 0.0;
-    pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
-}
-
 impl Axis {
+    fn flush_instant(&mut self) -> i32 {
+        if self.remaining_px.abs() < 0.1 {
+            self.remaining_px = 0.0;
+            self.unit_accum = 0.0;
+            return 0;
+        }
+        let wheel_units = (self.remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+        let units = wheel_units / EMIT_UNIT as f64;
+        self.unit_accum += units;
+        let pulses = self.unit_accum.trunc() as i32;
+        self.unit_accum -= pulses as f64;
+        self.remaining_px = 0.0;
+        // NOTE: instant-mode pulse clamp drops anything beyond PULSE_CLAMP_MAX.
+        // Intentional: instant means "no carry-over" — flushing in one frame is
+        // the contract, even if it caps very large pending momentum.
+        pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+    }
+
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
         let elapsed = now_ms.saturating_sub(self.last_notch_ms);
         if (elapsed as i64) <= settings.acceleration_delta_ms as i64 {
@@ -174,9 +177,9 @@ impl SmoothScrollEngine {
 
     pub fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> EngineOutput {
         if settings.instant_mode {
-            let v = flush_axis_instant(&mut self.v);
+            let v = self.v.flush_instant();
             let h = if settings.horizontal_smoothness {
-                flush_axis_instant(&mut self.h)
+                self.h.flush_instant()
             } else {
                 0
             };
