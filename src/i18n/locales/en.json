@@ -131,6 +131,15 @@
       "Dark": "Dark",
       "System": "System"
     },
+    "reduce_motion": {
+      "title": "Respect system Reduce Motion",
+      "desc": "When the system requests reduced motion, scroll becomes instant instead of smooth",
+      "auto": "Auto (follow system)",
+      "always": "Always instant",
+      "never": "Always smooth",
+      "status_on": "OS Reduce Motion: ON",
+      "status_off": "OS Reduce Motion: OFF"
+    },
     "reset_to_default": "Reset to default",
     "touchpad": {
       "detected": "Detected",
