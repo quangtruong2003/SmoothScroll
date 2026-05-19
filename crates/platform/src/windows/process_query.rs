@@ -103,6 +103,11 @@ impl ProcessQuery for WindowsProcessQuery {
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
         self.enumerate()
     }
+
+    fn foreground_process_name(&self) -> Option<String> {
+        let pid = self.foreground_process_id()?;
+        process_name_for_pid(pid)
+    }
 }
 
 fn process_name_for_hwnd(hwnd: isize) -> Option<String> {
