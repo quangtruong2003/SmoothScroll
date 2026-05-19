@@ -13,11 +13,17 @@ import {
 const GAP = 22
 const DOT_RADIUS = 1.0
 const MAX_DOT_RADIUS = 2.6
-const INFLUENCE_RADIUS = 220
-const MAX_PULL = 7
-const MAX_SHADOW_BLUR = 8
-const LERP_FACTOR = 0.18
-const SETTLE_THRESHOLD = 0.3
+const INFLUENCE_RADIUS = 200
+const INNER_RADIUS = 120
+const MAX_PUSH = 15
+const MAX_PULL = 8
+const MAX_SHADOW_BLUR = 10
+const CURSOR_LERP = 0.10
+const DOT_LERP = 0.10
+const INTENSITY_LERP = 0.08
+const INTENSITY_THRESHOLD = 0.002
+const F_THRESHOLD = 0.005
+const SETTLE_THRESHOLD = 0.05
 const STATIC_ALPHA = 0.1
 const OFFSCREEN = -10000
 
@@ -44,6 +50,24 @@ function rgbaToFillStyle(c: Rgba): string {
   return `rgba(${c.r},${c.g},${c.b},${c.a})`
 }
 
+const CONTENT_TAGS = new Set([
+  'A', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'LABEL',
+  'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+  'IMG', 'CODE', 'PRE', 'LI', 'TABLE', 'TD', 'TH',
+  'VIDEO', 'CANVAS', 'SVG', 'DETAILS', 'SUMMARY', 'SPAN',
+])
+
+function isOverContent(x: number, y: number): boolean {
+  const el = document.elementFromPoint(x, y)
+  if (!el) return false
+  let n: Element | null = el
+  while (n && n !== document.body) {
+    if (CONTENT_TAGS.has(n.tagName)) return true
+    n = n.parentElement
+  }
+  return false
+}
+
 export function BackgroundDotGrid() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -53,12 +77,12 @@ export function BackgroundDotGrid() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const noHover = window.matchMedia('(hover: none)').matches
     const animate = !noHover
-    const motion = animate && !reduced
 
     let grid: Point[] = []
+    // Per-dot state, packed as [ox, oy, f, ox, oy, f, ...].
+    let dotState = new Float32Array(0)
     let viewW = 0
     let viewH = 0
     let dpr = 1
@@ -68,6 +92,8 @@ export function BackgroundDotGrid() {
     let targetY = OFFSCREEN
     let currentX = OFFSCREEN
     let currentY = OFFSCREEN
+    let targetIntensity = 0
+    let intensity = 0
     let rafId = 0
 
     function resize() {
@@ -81,6 +107,7 @@ export function BackgroundDotGrid() {
       canvas.style.height = `${viewH}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       grid = buildGrid(viewW, viewH, GAP)
+      dotState = new Float32Array(grid.length * 3)
     }
 
     function drawStatic() {
@@ -107,12 +134,52 @@ export function BackgroundDotGrid() {
       ctx.shadowBlur = 0
       ctx.shadowColor = 'transparent'
 
-      for (const p of grid) {
+      for (let i = 0; i < grid.length; i++) {
+        const p = grid[i]
         const dx = p.x - currentX
         const dy = p.y - currentY
         const dist = Math.sqrt(dx * dx + dy * dy)
 
-        if (dist >= INFLUENCE_RADIUS) {
+        // Compute target offset and target lit factor for this dot.
+        let tOffX = 0
+        let tOffY = 0
+        let tF = 0
+        if (intensity > INTENSITY_THRESHOLD && dist < INFLUENCE_RADIUS) {
+          tF = falloff(dist, INFLUENCE_RADIUS) * intensity
+          const safeDist = Math.max(dist, 0.001)
+          if (dist < INNER_RADIUS) {
+            // Push outward, strongest at the very center, fades to 0 at INNER_RADIUS.
+            const pushT = (1 - dist / INNER_RADIUS) * intensity
+            const disp = pushT * MAX_PUSH
+            tOffX = (dx / safeDist) * disp
+            tOffY = (dy / safeDist) * disp
+          } else {
+            // Pull inward in the outer ring.
+            const disp = tF * MAX_PULL
+            tOffX = -(dx / safeDist) * disp
+            tOffY = -(dy / safeDist) * disp
+          }
+        }
+
+        // Per-dot inertia: each dot's own state lerps toward its target.
+        const idx = i * 3
+        dotState[idx]     += (tOffX - dotState[idx])     * DOT_LERP
+        dotState[idx + 1] += (tOffY - dotState[idx + 1]) * DOT_LERP
+        dotState[idx + 2] += (tF    - dotState[idx + 2]) * DOT_LERP
+
+        const ox = dotState[idx]
+        const oy = dotState[idx + 1]
+        const f  = dotState[idx + 2]
+
+        if (
+          Math.abs(tOffX - ox) > SETTLE_THRESHOLD ||
+          Math.abs(tOffY - oy) > SETTLE_THRESHOLD ||
+          Math.abs(tF - f) > F_THRESHOLD
+        ) {
+          stillMoving = true
+        }
+
+        if (f < F_THRESHOLD) {
           if (shadowOn) {
             ctx.shadowBlur = 0
             ctx.shadowColor = 'transparent'
@@ -120,30 +187,21 @@ export function BackgroundDotGrid() {
             shadowOn = false
           }
           ctx.beginPath()
-          ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2)
+          ctx.arc(p.x + ox, p.y + oy, DOT_RADIUS, 0, Math.PI * 2)
           ctx.fill()
           continue
         }
 
-        const f = falloff(dist, INFLUENCE_RADIUS)
-        const safeDist = Math.max(dist, 0.001)
-        const pull = f * MAX_PULL
-        // Pull dot toward cursor: subtract the unit vector pointing from cursor to dot.
-        const drawX = motion ? p.x - (dx / safeDist) * pull : p.x
-        const drawY = motion ? p.y - (dy / safeDist) * pull : p.y
         const radius = DOT_RADIUS + (MAX_DOT_RADIUS - DOT_RADIUS) * f
         const color = lerpRgba(theme.staticColor, theme.brandColor, f)
-
         ctx.shadowBlur = MAX_SHADOW_BLUR * f
         ctx.shadowColor = shadowColor
         ctx.fillStyle = rgbaToFillStyle(color)
         shadowOn = true
 
         ctx.beginPath()
-        ctx.arc(drawX, drawY, radius, 0, Math.PI * 2)
+        ctx.arc(p.x + ox, p.y + oy, radius, 0, Math.PI * 2)
         ctx.fill()
-
-        if (motion && pull > SETTLE_THRESHOLD) stillMoving = true
       }
 
       if (shadowOn) {
@@ -155,22 +213,23 @@ export function BackgroundDotGrid() {
     }
 
     function tick() {
-      if (motion) {
-        currentX += (targetX - currentX) * LERP_FACTOR
-        currentY += (targetY - currentY) * LERP_FACTOR
-      } else {
-        currentX = targetX
-        currentY = targetY
+      currentX += (targetX - currentX) * CURSOR_LERP
+      currentY += (targetY - currentY) * CURSOR_LERP
+      intensity += (targetIntensity - intensity) * INTENSITY_LERP
+      if (Math.abs(targetIntensity - intensity) < INTENSITY_THRESHOLD) {
+        intensity = targetIntensity
       }
       const stillMoving = drawFrame()
       const cursorSettling =
-        motion &&
-        (Math.abs(targetX - currentX) > SETTLE_THRESHOLD ||
-          Math.abs(targetY - currentY) > SETTLE_THRESHOLD)
-      if (cursorSettling || stillMoving) {
+        Math.abs(targetX - currentX) > SETTLE_THRESHOLD ||
+        Math.abs(targetY - currentY) > SETTLE_THRESHOLD
+      const intensitySettling =
+        Math.abs(targetIntensity - intensity) >= INTENSITY_THRESHOLD
+      if (cursorSettling || stillMoving || intensitySettling) {
         rafId = requestAnimationFrame(tick)
       } else {
         rafId = 0
+        if (intensity === 0) drawStatic()
       }
     }
 
@@ -179,18 +238,19 @@ export function BackgroundDotGrid() {
     }
 
     function onMove(e: MouseEvent) {
+      const overContent = isOverContent(e.clientX, e.clientY)
       targetX = e.clientX
       targetY = e.clientY
       if (currentX === OFFSCREEN) {
         currentX = targetX
         currentY = targetY
       }
+      targetIntensity = overContent ? 0 : 1
       kick()
     }
 
     function onLeave() {
-      targetX = OFFSCREEN
-      targetY = OFFSCREEN
+      targetIntensity = 0
       kick()
     }
 
