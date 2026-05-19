@@ -217,7 +217,8 @@ export function BackgroundDotGrid() {
         const ox = dotState[idx]     + ambient.ox
         const oy = dotState[idx + 1] + ambient.oy
         const fMagnet = dotState[idx + 2]
-        const f = Math.max(fMagnet, ambient.f)
+        const fAmbient = Math.min(ambient.f, 0.2)
+        const f = Math.max(fMagnet, fAmbient)
 
         const drawX = p.x + ox
         const drawY = p.y + oy
@@ -340,7 +341,7 @@ export function BackgroundDotGrid() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-50"
+      className="pointer-events-none fixed inset-0 -z-10"
     />
   )
 }

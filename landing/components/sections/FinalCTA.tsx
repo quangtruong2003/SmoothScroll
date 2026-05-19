@@ -18,7 +18,7 @@ export function FinalCTA({ dict }: FinalCTAProps) {
         <div className="text-center max-w-xl mx-auto space-y-6">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">{f.title}</h2>
           <p className="text-lg text-muted-foreground">{f.description}</p>
-          <DownloadCTA label={f.cta ?? 'Download'} variant="brand" size="lg" />
+          <DownloadCTA label={f.cta ?? 'Download'} variant="brand" size="xl" />
           <p className="text-sm text-muted-foreground max-w-none">{f.ctaSub}</p>
         </div>
       </div>

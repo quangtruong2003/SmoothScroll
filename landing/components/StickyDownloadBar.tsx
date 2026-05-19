@@ -24,11 +24,7 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
       const nearBottom = scrolledTo >= docHeight - 240
       const past = window.scrollY > heroBottom
 
-      if (past && !nearBottom && !dismissed) {
-        setVisible(true)
-      } else if (nearBottom) {
-        setVisible(false)
-      }
+      setVisible(past && !nearBottom && !dismissed)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })

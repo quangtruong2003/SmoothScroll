@@ -31,8 +31,8 @@ export function Hero({ dict }: HeroProps) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <DownloadCTA label={h.cta ?? 'Download'} variant="brand" size="lg" />
-              <a href="#how-it-works" className="flex items-center justify-center px-6 py-2 text-sm font-medium rounded-md border border-border hover:bg-accent transition-colors">
+              <DownloadCTA label={h.cta ?? 'Download'} variant="brand" size="xl" />
+              <a href="#how-it-works" className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors">
                 {h.seeHow}
               </a>
             </div>

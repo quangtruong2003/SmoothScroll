@@ -32,9 +32,9 @@ export function Features({ dict }: FeaturesProps) {
               <motion.div
                 key={idx}
                 variants={staggerItem}
-                className="p-6 rounded-xl border bg-card hover:border-foreground/20 transition-colors"
+                className="p-6 rounded-xl border bg-card hover:border-foreground/20 transition-colors text-center"
               >
-                <div className="mb-4">
+                <div className="mb-4 flex justify-center">
                   <Icon className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <h3 className="font-semibold mb-2">{item.title}</h3>

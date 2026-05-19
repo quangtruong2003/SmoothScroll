@@ -7,11 +7,11 @@ import { Download } from 'lucide-react'
 interface DownloadCTAProps {
   label: string
   variant?: 'brand' | 'default' | 'outline'
-  size?: 'default' | 'lg'
+  size?: 'default' | 'lg' | 'xl'
   className?: string
 }
 
-export function DownloadCTA({ label, variant = 'brand', size = 'default', className }: DownloadCTAProps) {
+export function DownloadCTA({ label, variant = 'brand', size = 'xl', className }: DownloadCTAProps) {
   const { url } = useDownloadUrl()
 
   return (
@@ -22,7 +22,7 @@ export function DownloadCTA({ label, variant = 'brand', size = 'default', classN
       onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
       aria-label={label}
     >
-      <Download className="h-4 w-4 mr-2" />
+      <Download className="h-5 w-5 mr-2" />
       {label}
     </Button>
   )

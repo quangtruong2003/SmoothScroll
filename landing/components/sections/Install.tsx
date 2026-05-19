@@ -96,7 +96,7 @@ export function Install({ dict }: InstallProps) {
         </Tabs>
 
         <div className="text-center mt-8">
-          <DownloadCTA label={ctaLabel} variant="brand" size="lg" />
+          <DownloadCTA label={ctaLabel} variant="brand" size="xl" />
         </div>
       </div>
     </section>

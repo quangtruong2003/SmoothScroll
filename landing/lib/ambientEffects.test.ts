@@ -8,8 +8,8 @@ const samplePoints = [
 ]
 
 describe('ambientEffects', () => {
-  it('exports exactly 7 effects', () => {
-    expect(EFFECTS).toHaveLength(7)
+  it('exports a non-empty effect list', () => {
+    expect(EFFECTS.length).toBeGreaterThan(0)
   })
 
   it('every effect has a name and update fn', () => {

@@ -30,7 +30,7 @@ export function PainPoints({ dict }: PainPointsProps) {
               <motion.div
                 key={idx}
                 variants={staggerItem}
-                className="flex flex-col gap-4 p-6 rounded-xl border bg-card"
+                className="flex flex-col items-center text-center gap-4 p-6 rounded-xl border bg-card"
               >
                 <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
                   <Icon className="h-5 w-5 text-muted-foreground" />

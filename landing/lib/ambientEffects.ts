@@ -32,36 +32,36 @@ const ripplePulse: Effect = {
   update(p, _i, t, ctx) {
     const cx = ctx.vw / 2
     const cy = ctx.vh / 2
-    const cycle = 6.0
-    const speed = Math.max(ctx.vw, ctx.vh) / cycle * 0.6
-    const phase = (t % cycle) * speed
-    const sigma = 80
-    // 4 image sources mirrored across each wall produce reflection rings.
-    const sources: Array<[number, number, number]> = [
-      [cx, cy, 1.0],
-      [-cx, cy, 0.5],
-      [2 * ctx.vw - cx, cy, 0.5],
-      [cx, -cy, 0.5],
-      [cx, 2 * ctx.vh - cy, 0.5],
-    ]
+    const dx = p.x - cx
+    const dy = p.y - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const safe = Math.max(dist, 0.001)
+    const ux = dx / safe
+    const uy = dy / safe
+
+    const speed = 55             // px/s — ring expansion speed
+    const sigma = 130            // ring thickness (wider band)
+    const emitInterval = 5.0     // new ring every N seconds
+    const decayTime = 9.0        // amplitude e-fold time
+    const ringCount = 5
+
     let totalEnv = 0
     let ax = 0
     let ay = 0
-    for (let s = 0; s < sources.length; s++) {
-      const sx = sources[s][0]
-      const sy = sources[s][1]
-      const w = sources[s][2]
-      const dx = p.x - sx
-      const dy = p.y - sy
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      const env = Math.exp(-((dist - phase) ** 2) / (2 * sigma * sigma)) * w
+    for (let i = 0; i < ringCount; i++) {
+      const emitTime = Math.floor(t / emitInterval) * emitInterval - i * emitInterval
+      const age = t - emitTime
+      if (age < 0) continue
+      const ringR = age * speed
+      const fadeIn = clamp01(age / 1.5)
+      const damp = Math.exp(-age / decayTime) * fadeIn
+      const env = Math.exp(-((dist - ringR) ** 2) / (2 * sigma * sigma)) * damp
       if (env < 0.001) continue
-      const safe = Math.max(dist, 0.001)
       totalEnv += env
-      ax += (dx / safe) * env
-      ay += (dy / safe) * env
+      ax += ux * env
+      ay += uy * env
     }
-    const amp = 8 * reducedScale(ctx)
+    const amp = 12 * reducedScale(ctx)
     return { ox: ax * amp, oy: ay * amp, f: clamp01(totalEnv * 0.5) }
   },
 }
@@ -69,39 +69,47 @@ const ripplePulse: Effect = {
 const waveLR: Effect = {
   name: 'wave-lr',
   update(p, _i, t, ctx) {
-    const lambda = 220
-    const speed = 90
-    const amp = 6 * reducedScale(ctx)
-    const fwd = Math.sin((p.x - speed * t) / lambda * TAU)
-    const back = Math.sin((2 * ctx.vw - p.x - speed * t) / lambda * TAU) * 0.7
-    const sum = (fwd + back) / 1.7
-    return { ox: 0, oy: sum * amp, f: clamp01((sum + 1) * 0.2) }
+    const lambda = 320
+    const speed = 45
+    const amp = 10 * reducedScale(ctx)
+    const period = (2 * ctx.vw) / speed
+    const phaseT = (t % period) / period
+    const fold = phaseT < 0.5 ? phaseT * 2 : 2 - phaseT * 2
+    const travel = fold * ctx.vw
+    const s = Math.sin(((p.x - travel) / lambda) * TAU)
+    return { ox: 0, oy: s * amp, f: clamp01((s + 1) * 0.2) }
   },
 }
 
 const waveTB: Effect = {
   name: 'wave-tb',
   update(p, _i, t, ctx) {
-    const lambda = 220
-    const speed = 90
-    const amp = 6 * reducedScale(ctx)
-    const fwd = Math.sin((p.y - speed * t) / lambda * TAU)
-    const back = Math.sin((2 * ctx.vh - p.y - speed * t) / lambda * TAU) * 0.7
-    const sum = (fwd + back) / 1.7
-    return { ox: sum * amp, oy: 0, f: clamp01((sum + 1) * 0.2) }
+    const lambda = 320
+    const speed = 45
+    const amp = 10 * reducedScale(ctx)
+    const period = (2 * ctx.vh) / speed
+    const phaseT = (t % period) / period
+    const fold = phaseT < 0.5 ? phaseT * 2 : 2 - phaseT * 2
+    const travel = fold * ctx.vh
+    const s = Math.sin(((p.y - travel) / lambda) * TAU)
+    return { ox: s * amp, oy: 0, f: clamp01((s + 1) * 0.2) }
   },
 }
 
 const diagonalWave: Effect = {
   name: 'diagonal-wave',
   update(p, _i, t, ctx) {
-    const lambda = 260
-    const speed = 100
-    const amp = 5 * reducedScale(ctx)
-    const phaseFwd = (p.x + p.y - speed * t) / lambda * TAU
-    const phaseBack = (2 * (ctx.vw + ctx.vh) - p.x - p.y - speed * t) / lambda * TAU
-    const s = (Math.sin(phaseFwd) + Math.sin(phaseBack) * 0.7) / 1.7
-    const c = (Math.cos(phaseFwd) + Math.cos(phaseBack) * 0.7) / 1.7
+    const lambda = 380
+    const speed = 50
+    const amp = 9 * reducedScale(ctx)
+    const diag = ctx.vw + ctx.vh
+    const period = (2 * diag) / speed
+    const phaseT = (t % period) / period
+    const fold = phaseT < 0.5 ? phaseT * 2 : 2 - phaseT * 2
+    const travel = fold * diag
+    const phase = ((p.x + p.y - travel) / lambda) * TAU
+    const s = Math.sin(phase)
+    const c = Math.cos(phase)
     return { ox: s * amp, oy: c * amp, f: clamp01((s + 1) * 0.2) }
   },
 }
@@ -112,7 +120,7 @@ const floatingDrift: Effect = {
     const amp = 4 * reducedScale(ctx)
     const ox = Math.sin(p.x * 0.012 + 0.3 * t) * amp
     const oy = Math.cos(p.y * 0.012 + 0.4 * t + 0.7) * amp
-    return { ox, oy, f: 0.15 }
+    return { ox, oy, f: 0 }
   },
 }
 
@@ -148,16 +156,14 @@ const galaxySpin: Effect = {
     const offset = Math.sin(phase) * amp
     const tx = -dy / r
     const ty = dx / r
-    return { ox: tx * offset, oy: ty * offset, f: 0.2 }
+    return { ox: tx * offset, oy: ty * offset, f: 0 }
   },
 }
 
 export const EFFECTS: Effect[] = [
-  ripplePulse,
   waveLR,
   waveTB,
   diagonalWave,
-  floatingDrift,
   wanderingComet,
   galaxySpin,
 ]
