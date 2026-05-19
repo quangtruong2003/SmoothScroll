@@ -261,3 +261,25 @@ fn instant_mode_no_pending_returns_zero() {
     assert_eq!(out.vertical, 0);
     assert_eq!(out.horizontal, 0);
 }
+
+/// Deterministic fixture so the WASM build can be cross-checked against
+/// native by replaying this sequence in JS — outputs must match.
+#[test]
+fn deterministic_fixture_output() {
+    let s = AppSettings::default();
+    let eff = EffectiveSettings::from_settings(&s);
+    let mut e = SmoothScrollEngine::new();
+    let mut total_v = 0i32;
+    for tick in 0..100u64 {
+        if tick % 10 == 0 {
+            e.on_wheel_with_source(120, tick * 8, InputSource::Wheel, &eff);
+        }
+        let out = e.step(8.0, &eff);
+        total_v += out.vertical;
+    }
+    assert!(total_v != 0, "no output produced from 10 wheel notches");
+    assert!(
+        total_v.abs() > 100,
+        "expected meaningful output, got {total_v}"
+    );
+}
