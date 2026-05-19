@@ -9,6 +9,7 @@ import {
   type Point,
   type Rgba,
 } from '@/lib/dotGrid'
+import { EFFECTS, pickEffect } from '@/lib/ambientEffects'
 
 const GAP = 22
 const DOT_RADIUS = 1.0
@@ -79,6 +80,10 @@ export function BackgroundDotGrid() {
 
     const noHover = window.matchMedia('(hover: none)').matches
     const animate = !noHover
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const activeEffect = EFFECTS[pickEffect()]
+    const startTime = performance.now()
+    const effectCtx = { vw: 0, vh: 0, reduced }
 
     let grid: Point[] = []
     // Per-dot state, packed as [ox, oy, f, ox, oy, f, ...].
@@ -108,6 +113,8 @@ export function BackgroundDotGrid() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       grid = buildGrid(viewW, viewH, GAP)
       dotState = new Float32Array(grid.length * 3)
+      effectCtx.vw = viewW
+      effectCtx.vh = viewH
     }
 
     function drawStatic() {
@@ -134,13 +141,15 @@ export function BackgroundDotGrid() {
       ctx.shadowBlur = 0
       ctx.shadowColor = 'transparent'
 
+      const t = (performance.now() - startTime) / 1000
+
       for (let i = 0; i < grid.length; i++) {
         const p = grid[i]
         const dx = p.x - currentX
         const dy = p.y - currentY
         const dist = Math.sqrt(dx * dx + dy * dy)
 
-        // Compute target offset and target lit factor for this dot.
+        // Magnet target offset and lit factor.
         let tOffX = 0
         let tOffY = 0
         let tF = 0
@@ -148,33 +157,32 @@ export function BackgroundDotGrid() {
           tF = falloff(dist, INFLUENCE_RADIUS) * intensity
           const safeDist = Math.max(dist, 0.001)
           if (dist < INNER_RADIUS) {
-            // Push outward, strongest at the very center, fades to 0 at INNER_RADIUS.
             const pushT = (1 - dist / INNER_RADIUS) * intensity
             const disp = pushT * MAX_PUSH
             tOffX = (dx / safeDist) * disp
             tOffY = (dy / safeDist) * disp
           } else {
-            // Pull inward in the outer ring.
             const disp = tF * MAX_PULL
             tOffX = -(dx / safeDist) * disp
             tOffY = -(dy / safeDist) * disp
           }
         }
 
-        // Per-dot inertia: each dot's own state lerps toward its target.
         const idx = i * 3
         dotState[idx]     += (tOffX - dotState[idx])     * DOT_LERP
         dotState[idx + 1] += (tOffY - dotState[idx + 1]) * DOT_LERP
         dotState[idx + 2] += (tF    - dotState[idx + 2]) * DOT_LERP
 
-        const ox = dotState[idx]
-        const oy = dotState[idx + 1]
-        const f  = dotState[idx + 2]
+        const ambient = activeEffect.update(p, i, t, effectCtx)
+        const ox = dotState[idx]     + ambient.ox
+        const oy = dotState[idx + 1] + ambient.oy
+        const fMagnet = dotState[idx + 2]
+        const f = Math.max(fMagnet, ambient.f)
 
         if (
-          Math.abs(tOffX - ox) > SETTLE_THRESHOLD ||
-          Math.abs(tOffY - oy) > SETTLE_THRESHOLD ||
-          Math.abs(tF - f) > F_THRESHOLD
+          Math.abs(tOffX - dotState[idx]) > SETTLE_THRESHOLD ||
+          Math.abs(tOffY - dotState[idx + 1]) > SETTLE_THRESHOLD ||
+          Math.abs(tF - fMagnet) > F_THRESHOLD
         ) {
           stillMoving = true
         }
@@ -219,18 +227,9 @@ export function BackgroundDotGrid() {
       if (Math.abs(targetIntensity - intensity) < INTENSITY_THRESHOLD) {
         intensity = targetIntensity
       }
-      const stillMoving = drawFrame()
-      const cursorSettling =
-        Math.abs(targetX - currentX) > SETTLE_THRESHOLD ||
-        Math.abs(targetY - currentY) > SETTLE_THRESHOLD
-      const intensitySettling =
-        Math.abs(targetIntensity - intensity) >= INTENSITY_THRESHOLD
-      if (cursorSettling || stillMoving || intensitySettling) {
-        rafId = requestAnimationFrame(tick)
-      } else {
-        rafId = 0
-        if (intensity === 0) drawStatic()
-      }
+      drawFrame()
+      // Ambient is always animating; never park rAF.
+      rafId = requestAnimationFrame(tick)
     }
 
     function kick() {
@@ -266,6 +265,7 @@ export function BackgroundDotGrid() {
 
     resize()
     drawStatic()
+    kick()
 
     if (animate) {
       window.addEventListener('mousemove', onMove, { passive: true })
