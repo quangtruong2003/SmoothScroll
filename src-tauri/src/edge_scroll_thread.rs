@@ -55,7 +55,13 @@ fn run(state: Arc<AppState>) {
             accumulated -= notches as f64;
             let delta = notches * WHEEL_DELTA;
             let now_ms = epoch.elapsed().as_millis() as u64;
-            state.engine.lock().on_wheel(delta, now_ms);
+            let eff = state.effective.load_full();
+            state.engine.lock().on_wheel_with_source(
+                delta,
+                now_ms,
+                smoothscroll_core::input_source::InputSource::Wheel,
+                &eff,
+            );
             state.engine_signal.signal();
         }
     }

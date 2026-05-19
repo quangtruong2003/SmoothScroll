@@ -1,32 +1,62 @@
-//! Glue between the platform hook and our engine. Reads
-//! `settings.shift_key_horizontal` to decide whether Shift+wheel becomes
-//! a horizontal scroll.
+//! Glue between the platform hook and our engine.
 //!
 //! Lifecycle: the sink holds an `Arc<AppState>` to keep settings accessible.
+//!
+//! Performance notes:
+//! - The engine lock is taken exactly once per wheel event.
+//! - Process-name lookups under the cursor are throttled to 50 ms intervals.
+//! - Debug tracing is lazy (guarded by `tracing::enabled!`).
 
 use crate::state::AppState;
 use parking_lot::Mutex;
-use smoothscroll_core::settings::AppSettings;
+use smoothscroll_core::settings::EffectiveSettings;
 use smoothscroll_platform::traits::HookEventSink;
 use smoothscroll_platform::types::{HookDecision, ModifierKeys};
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 /// Callback signature invoked when the input-source classifier transitions
 /// between Wheel/HighResWheel/Touchpad. Installed once at startup by
 /// `lib.rs::setup()` to bridge to `AppHandle::emit("input-source-changed")`.
 type InputSourceEmitter = Box<dyn Fn(&'static str) + Send + Sync>;
 
+const PROCESS_CACHE_TTL: Duration = Duration::from_millis(50);
+
+/// Throttled process-name cache — caps Win32 syscall rate at ~20 Hz.
+struct ProcessNameCache {
+    last_call_at: Instant,
+    last_name: Option<String>,
+    initialized: bool,
+}
+
+impl ProcessNameCache {
+    fn new() -> Self {
+        Self {
+            last_call_at: Instant::now(),
+            last_name: None,
+            initialized: false,
+        }
+    }
+
+    fn get<F: FnOnce() -> Option<String>>(&mut self, fetch: F) -> Option<String> {
+        if self.initialized && self.last_call_at.elapsed() < PROCESS_CACHE_TTL {
+            return self.last_name.clone();
+        }
+        self.last_name = fetch();
+        self.last_call_at = Instant::now();
+        self.initialized = true;
+        self.last_name.clone()
+    }
+}
+
 pub struct EngineSink {
     pub state: Arc<AppState>,
     pub epoch: Instant,
-    /// Tracks the last applied profile ID to avoid redundant engine updates.
-    /// None = global settings active, Some(id) = a specific profile is active.
-    last_applied_profile: Mutex<Option<String>>,
-    /// Set once during setup (after `AppHandle` becomes available). Called on
-    /// classifier transitions only — never on identical-source events.
+    /// Set once during setup (after `AppHandle` becomes available).
     input_source_emitter: OnceLock<InputSourceEmitter>,
+    /// Throttled process-name cache to keep Win32 syscall rate bounded.
+    process_cache: Mutex<ProcessNameCache>,
 }
 
 impl EngineSink {
@@ -34,8 +64,8 @@ impl EngineSink {
         Arc::new(Self {
             state,
             epoch: Instant::now(),
-            last_applied_profile: Mutex::new(None),
             input_source_emitter: OnceLock::new(),
+            process_cache: Mutex::new(ProcessNameCache::new()),
         })
     }
 
@@ -52,238 +82,71 @@ impl EngineSink {
         self.epoch.elapsed().as_millis() as u64
     }
 
-    /// Resolves the active state for the current cursor position:
-    /// - `None` = pass-through (excluded/disabled)
-    /// - `Some(())` = process with smooth scrolling active (engine settings already applied)
-    fn resolve_active(&self) -> Option<()> {
+    /// Returns `None` if the app under the cursor is excluded/disabled.
+    /// Otherwise returns the active `EffectiveSettings` (per-profile or global).
+    fn resolve_active(&self) -> Option<Arc<EffectiveSettings>> {
+        // Fast path: no exclusions and no per-app profiles configured.
         let (has_excluded, has_profiles) = {
             let s = self.state.settings.read();
-            (!s.excluded_apps.is_empty(), !s.app_profiles.is_empty())
+            (
+                !s.excluded_apps.is_empty() || !s.app_profiles.is_empty(),
+                !s.app_profiles.is_empty(),
+            )
         };
 
-        // Fast path: no exclusions and no app profiles configured.
-        // Reset to global settings if a profile was previously active.
         if !has_excluded && !has_profiles {
-            self.reset_to_global_if_needed();
-            return Some(());
+            return Some(self.state.effective.load_full());
         }
+
+        // Need a process-name lookup. Throttled to 50 ms.
+        let process_name = {
+            let mut cache = self.process_cache.lock();
+            cache.get(|| self.state.processes.process_name_under_cursor())
+        };
+
+        let Some(process_name) = process_name else {
+            return Some(self.state.effective.load_full());
+        };
 
         let start = Instant::now();
-        let process_name = match self.state.processes.process_name_under_cursor() {
-            Some(n) => n,
-            None => {
-                self.reset_to_global_if_needed();
-                return Some(());
-            }
-        };
+        let s = self.state.settings.read();
 
-        // Build merged settings while holding the read lock briefly, then drop
-        // it before mutating the engine to avoid blocking writers.
-        enum Action {
-            PassThrough,
-            ApplyProfile {
-                id: String,
-                name: String,
-                merged: Box<AppSettings>,
-            },
-            ResetGlobal,
-        }
-
-        let action = {
-            let s = self.state.settings.read();
-            if s.is_excluded(&process_name) {
-                Action::PassThrough
-            } else if let Some(profile) = s.get_profile_for_process(&process_name) {
-                let mut merged = s.clone();
-                merged.step_size_px = profile.step_size_px;
-                merged.animation_time_ms = profile.animation_time_ms;
-                merged.acceleration_delta_ms = profile.acceleration_delta_ms;
-                merged.acceleration_max = profile.acceleration_max;
-                merged.tail_to_head_ratio = profile.tail_to_head_ratio;
-                merged.animation_easing = profile.animation_easing;
-                merged.easing_mode = profile.easing_mode;
-                merged.reverse_wheel_direction = profile.reverse_wheel_direction;
-                merged.horizontal_smoothness = profile.horizontal_smoothness;
-                Action::ApplyProfile {
-                    id: profile.id.clone(),
-                    name: profile.name.clone(),
-                    merged: Box::new(merged),
-                }
-            } else {
-                Action::ResetGlobal
-            }
-        };
-
-        match action {
-            Action::PassThrough => {
+        if s.is_excluded(&process_name) {
+            if tracing::enabled!(tracing::Level::DEBUG) {
                 let elapsed = start.elapsed();
-                if elapsed > std::time::Duration::from_millis(2) {
-                    tracing::debug!(?elapsed, process = %process_name, "resolve_active disabled");
+                if elapsed > Duration::from_millis(2) {
+                    tracing::debug!(?elapsed, process = %process_name, "resolve_active excluded");
                 }
-                None
             }
-            Action::ApplyProfile { id, name, merged } => {
-                self.apply_profile_if_changed(id, name, *merged);
-                let elapsed = start.elapsed();
-                if elapsed > std::time::Duration::from_millis(2) {
-                    tracing::debug!(?elapsed, process = %process_name, "resolve_active slow path");
+            return None;
+        }
+
+        if let Some(profile_id) = s.app_profiles.get(&process_name) {
+            if profile_id != smoothscroll_core::settings::AppSettings::DISABLED_PROFILE_ID {
+                let per_profile = self.state.effective_per_profile.read();
+                if let Some(eff) = per_profile.get(profile_id) {
+                    let result = eff.clone();
+                    drop(per_profile);
+                    drop(s);
+                    if tracing::enabled!(tracing::Level::DEBUG) {
+                        let elapsed = start.elapsed();
+                        if elapsed > Duration::from_millis(2) {
+                            tracing::debug!(?elapsed, process = %process_name, "resolve_active profile");
+                        }
+                    }
+                    return Some(result);
                 }
-                Some(())
-            }
-            Action::ResetGlobal => {
-                self.reset_to_global_if_needed();
-                let elapsed = start.elapsed();
-                if elapsed > std::time::Duration::from_millis(2) {
-                    tracing::debug!(?elapsed, process = %process_name, "resolve_active slow path");
-                }
-                Some(())
             }
         }
-    }
 
-    fn apply_profile_if_changed(
-        &self,
-        profile_id: String,
-        profile_name: String,
-        merged: AppSettings,
-    ) {
-        let mut last = self.last_applied_profile.lock();
-        if last.as_deref() == Some(profile_id.as_str()) {
-            return;
-        }
-        self.state.engine.lock().apply_settings(merged);
-        tracing::debug!(profile_id = %profile_id, profile_name = %profile_name, "applied profile");
-        *last = Some(profile_id);
-    }
-
-    fn reset_to_global_if_needed(&self) {
-        let mut last = self.last_applied_profile.lock();
-        if last.is_none() {
-            return;
-        }
-        let global = self.state.settings.read().clone();
-        self.state.engine.lock().apply_settings(global);
-        *last = None;
-        tracing::debug!("reset to global settings");
-    }
-
-    fn route_vertical(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
-        if !self.state.enabled.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.state.game_mode_active.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.resolve_active().is_none() {
-            return HookDecision::Pass;
-        }
-        let (shift_to_horizontal, horizontal_smoothness) = {
-            let s = self.state.engine.lock().settings().clone();
-            (s.shift_key_horizontal, s.horizontal_smoothness)
-        };
-
-        let now = self.now_ms();
-
-        if mods.shift && shift_to_horizontal {
-            if horizontal_smoothness {
-                self.state.engine.lock().on_hwheel(delta, now);
-                self.state.engine_signal.signal();
-                HookDecision::Swallow
-            } else {
-                HookDecision::Pass
+        drop(s);
+        if tracing::enabled!(tracing::Level::DEBUG) {
+            let elapsed = start.elapsed();
+            if elapsed > Duration::from_millis(2) {
+                tracing::debug!(?elapsed, process = %process_name, "resolve_active global");
             }
-        } else {
-            self.state.engine.lock().on_wheel(delta, now);
-            self.state.engine_signal.signal();
-            HookDecision::Swallow
         }
-    }
-
-    fn route_horizontal(&self, delta: i32) -> HookDecision {
-        if !self.state.enabled.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.state.game_mode_active.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.resolve_active().is_none() {
-            return HookDecision::Pass;
-        }
-        let horizontal_smoothness = self.state.engine.lock().settings().horizontal_smoothness;
-        if !horizontal_smoothness {
-            return HookDecision::Pass;
-        }
-        let now = self.now_ms();
-        self.state.engine.lock().on_hwheel(delta, now);
-        self.state.engine_signal.signal();
-        HookDecision::Swallow
-    }
-
-    fn route_vertical_with_source(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        if !self.state.enabled.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.resolve_active().is_none() {
-            return HookDecision::Pass;
-        }
-        let (shift_to_horizontal, horizontal_smoothness) = {
-            let s = self.state.engine.lock().settings().clone();
-            (s.shift_key_horizontal, s.horizontal_smoothness)
-        };
-
-        self.update_last_source(source);
-
-        let now = self.now_ms();
-
-        if mods.shift && shift_to_horizontal {
-            if horizontal_smoothness {
-                self.state
-                    .engine
-                    .lock()
-                    .on_hwheel_with_source(delta, now, source);
-                self.state.engine_signal.signal();
-                HookDecision::Swallow
-            } else {
-                HookDecision::Pass
-            }
-        } else {
-            self.state
-                .engine
-                .lock()
-                .on_wheel_with_source(delta, now, source);
-            self.state.engine_signal.signal();
-            HookDecision::Swallow
-        }
-    }
-
-    fn route_horizontal_with_source(
-        &self,
-        delta: i32,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        if !self.state.enabled.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.resolve_active().is_none() {
-            return HookDecision::Pass;
-        }
-        let horizontal_smoothness = self.state.engine.lock().settings().horizontal_smoothness;
-        if !horizontal_smoothness {
-            return HookDecision::Pass;
-        }
-        self.update_last_source(source);
-        let now = self.now_ms();
-        self.state
-            .engine
-            .lock()
-            .on_hwheel_with_source(delta, now, source);
-        self.state.engine_signal.signal();
-        HookDecision::Swallow
+        Some(self.state.effective.load_full())
     }
 
     fn update_last_source(&self, source: smoothscroll_core::input_source::InputSource) {
@@ -305,15 +168,90 @@ impl EngineSink {
             }
         }
     }
+
+    fn route_vertical_with_source(
+        &self,
+        delta: i32,
+        mods: ModifierKeys,
+        source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
+        if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+        if self.state.game_mode_active.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+
+        let eff = match self.resolve_active() {
+            Some(e) => e,
+            None => return HookDecision::Pass,
+        };
+
+        if mods.shift && eff.shift_key_horizontal && !eff.horizontal_smoothness {
+            return HookDecision::Pass;
+        }
+
+        self.update_last_source(source);
+        let now = self.now_ms();
+
+        // ONE lock acquisition per event.
+        let mut engine = self.state.engine.lock();
+        if mods.shift && eff.shift_key_horizontal {
+            engine.on_hwheel_with_source(delta, now, source, &eff);
+        } else {
+            engine.on_wheel_with_source(delta, now, source, &eff);
+        }
+        drop(engine);
+        self.state.engine_signal.signal();
+        HookDecision::Swallow
+    }
+
+    fn route_horizontal_with_source(
+        &self,
+        delta: i32,
+        source: smoothscroll_core::input_source::InputSource,
+    ) -> HookDecision {
+        if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+        if self.state.game_mode_active.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
+        }
+
+        let eff = match self.resolve_active() {
+            Some(e) => e,
+            None => return HookDecision::Pass,
+        };
+
+        if !eff.horizontal_smoothness {
+            return HookDecision::Pass;
+        }
+
+        self.update_last_source(source);
+        let now = self.now_ms();
+
+        let mut engine = self.state.engine.lock();
+        engine.on_hwheel_with_source(delta, now, source, &eff);
+        drop(engine);
+        self.state.engine_signal.signal();
+        HookDecision::Swallow
+    }
 }
 
 impl HookEventSink for EngineSink {
     fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
-        self.route_vertical(delta, mods)
+        self.route_vertical_with_source(
+            delta,
+            mods,
+            smoothscroll_core::input_source::InputSource::Wheel,
+        )
     }
 
     fn on_hwheel(&self, delta: i32) -> HookDecision {
-        self.route_horizontal(delta)
+        self.route_horizontal_with_source(
+            delta,
+            smoothscroll_core::input_source::InputSource::Wheel,
+        )
     }
 
     fn on_wheel_ext(
@@ -338,16 +276,19 @@ impl HookEventSink for EngineSink {
 mod tests {
     #![allow(clippy::field_reassign_with_default)]
     use super::*;
+    use crate::settings_persistor::SettingsPersistor;
     use crate::state::EngineSignal;
+    use arc_swap::ArcSwap;
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
-    use smoothscroll_core::settings::AppSettings;
+    use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
         KeyboardScrollHook, KeyboardScrollSink, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
         WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
+    use std::collections::HashMap;
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
 
@@ -414,9 +355,12 @@ mod tests {
     }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
+        let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
-            engine: Arc::new(Mutex::new(SmoothScrollEngine::new(settings.clone()))),
+            engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
             settings: Arc::new(RwLock::new(settings.clone())),
+            effective: Arc::new(ArcSwap::from_pointee(eff)),
+            effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
             emitter: Arc::new(StubEmitter),
             processes: Arc::new(StubProcessQuery),
@@ -431,6 +375,7 @@ mod tests {
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
+            persistor: Arc::new(SettingsPersistor::spawn()),
         })
     }
 
@@ -450,9 +395,12 @@ mod tests {
     }
 
     fn make_state_with_process(settings: AppSettings, process_name: Option<&str>) -> Arc<AppState> {
+        let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
-            engine: Arc::new(Mutex::new(SmoothScrollEngine::new(settings.clone()))),
+            engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
             settings: Arc::new(RwLock::new(settings.clone())),
+            effective: Arc::new(ArcSwap::from_pointee(eff)),
+            effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
             emitter: Arc::new(StubEmitter),
             processes: Arc::new(StaticProcessQuery {
@@ -469,6 +417,7 @@ mod tests {
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
+            persistor: Arc::new(SettingsPersistor::spawn()),
         })
     }
 
@@ -482,6 +431,21 @@ mod tests {
 
     fn no_mods() -> ModifierKeys {
         ModifierKeys::default()
+    }
+
+    fn drain_engine(state: &Arc<AppState>) -> (i32, i32) {
+        let eff = state.effective.load_full();
+        let mut v = 0;
+        let mut h = 0;
+        for _ in 0..500 {
+            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
+            v += out.vertical;
+            h += out.horizontal;
+            if !state.engine.lock().has_pending_work() {
+                break;
+            }
+        }
+        (v, h)
     }
 
     #[test]
@@ -503,15 +467,8 @@ mod tests {
         let decision = sink.on_wheel(120, shift_only());
         assert_eq!(decision, HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
-        let mut h_total = 0;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0);
-            h_total += out.horizontal;
-            if !state.engine.lock().has_pending_work() {
-                break;
-            }
-        }
-        assert!(h_total != 0, "expected horizontal emission, got 0");
+        let (_v, h) = drain_engine(&state);
+        assert!(h != 0, "expected horizontal emission, got 0");
     }
 
     #[test]
@@ -522,15 +479,8 @@ mod tests {
         let sink = EngineSink::new(state.clone());
         let decision = sink.on_wheel(120, shift_only());
         assert_eq!(decision, HookDecision::Swallow);
-        let mut v_total = 0;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0);
-            v_total += out.vertical;
-            if !state.engine.lock().has_pending_work() {
-                break;
-            }
-        }
-        assert!(v_total != 0, "expected vertical emission, got 0");
+        let (v, _h) = drain_engine(&state);
+        assert!(v != 0, "expected vertical emission, got 0");
     }
 
     #[test]
@@ -571,15 +521,8 @@ mod tests {
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         sink.on_wheel(120, no_mods());
-        let mut v_total = 0;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0);
-            v_total += out.vertical;
-            if !state.engine.lock().has_pending_work() {
-                break;
-            }
-        }
-        assert!(v_total < 0, "reverse direction should flip sign");
+        let (v, _h) = drain_engine(&state);
+        assert!(v < 0, "reverse direction should flip sign");
     }
 
     #[test]

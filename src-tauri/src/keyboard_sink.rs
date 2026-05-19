@@ -65,7 +65,13 @@ impl KeyboardScrollSink for KeyboardEngineSink {
         }
         let delta = notches * WHEEL_DELTA;
         let now_ms = self.epoch.elapsed().as_millis() as u64;
-        self.state.engine.lock().on_wheel(delta, now_ms);
+        let eff = self.state.effective.load_full();
+        self.state.engine.lock().on_wheel_with_source(
+            delta,
+            now_ms,
+            smoothscroll_core::input_source::InputSource::Wheel,
+            &eff,
+        );
         self.state.engine_signal.signal();
         HookDecision::Swallow
     }

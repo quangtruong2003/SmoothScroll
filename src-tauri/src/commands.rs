@@ -103,8 +103,7 @@ pub fn set_enabled<R: tauri::Runtime>(
         state.engine_signal.signal();
     } else {
         let mut e = state.engine.lock();
-        let s = e.settings().clone();
-        *e = SmoothScrollEngine::new(s);
+        *e = SmoothScrollEngine::default();
     }
     emit_enabled_changed(&app, enabled);
     let current = state.settings.read().clone();
@@ -126,13 +125,10 @@ pub fn save_settings<R: tauri::Runtime>(
     let mut clamped = settings;
     clamped.clamp();
 
+    // Synchronous save — frontend's explicit Save action requires disk state.
     settings::save(&clamped).map_err(|e| e.to_string())?;
 
-    {
-        let mut s = state.settings.write();
-        *s = clamped.clone();
-    }
-    state.engine.lock().apply_settings(clamped.clone());
+    state.commit_settings(clamped.clone());
     state.enabled.store(clamped.enabled, Ordering::Relaxed);
     state.engine_signal.signal();
 
@@ -154,7 +150,7 @@ pub fn set_hotkey_enabled(state: State<'_, Arc<AppState>>, enabled: bool) -> Res
         s.enable_global_hotkey = enabled;
     }
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot.clone());
 
     if enabled {
         let accel = snapshot.hotkey_accelerator.clone();
@@ -181,7 +177,7 @@ pub fn set_hotkey_accelerator(
         s.hotkey_accelerator = accelerator.clone();
     }
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot.clone());
 
     if snapshot.enable_global_hotkey {
         let state_arc: Arc<AppState> = (*state).clone();
@@ -212,7 +208,7 @@ pub fn add_excluded_app(state: State<'_, Arc<AppState>>, name: String) -> Result
         }
     }
     let snapshot = state.settings.read().clone();
-    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
     Ok(())
 }
 
@@ -223,7 +219,7 @@ pub fn remove_excluded_app(state: State<'_, Arc<AppState>>, name: String) -> Res
         s.excluded_apps.retain(|a| !a.eq_ignore_ascii_case(&name));
     }
     let snapshot = state.settings.read().clone();
-    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
     Ok(())
 }
 
@@ -244,7 +240,7 @@ pub fn set_autostart<R: tauri::Runtime>(
         s.start_with_os = enabled;
     }
     let snapshot = state.settings.read().clone();
-    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot.clone());
     emit_settings_changed(&app, &snapshot);
     Ok(())
 }
@@ -261,7 +257,7 @@ pub fn change_language<R: tauri::Runtime>(
         s.clamp();
     }
     let snapshot = state.settings.read().clone();
-    smoothscroll_core::settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot.clone());
     let _ = app.emit("language-changed", snapshot.language.clone());
     Ok(())
 }
@@ -395,7 +391,7 @@ pub fn create_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
 
     Ok(profile)
 }
@@ -425,7 +421,7 @@ pub fn update_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
 
     Ok(())
 }
@@ -460,7 +456,7 @@ pub fn delete_profile(state: State<'_, Arc<AppState>>, profile_id: String) -> Re
     }
 
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
 
     Ok(())
 }
@@ -486,7 +482,7 @@ pub fn assign_app_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
 
     Ok(())
 }
@@ -503,7 +499,7 @@ pub fn unassign_app_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    settings::save(&snapshot).map_err(|e| e.to_string())?;
+    state.commit_settings(snapshot);
 
     Ok(())
 }
@@ -543,7 +539,7 @@ pub fn add_known_game(state: State<'_, Arc<AppState>>, name: String) -> Result<(
         }
     }
     let snap = state.settings.read().clone();
-    settings::save(&snap).map_err(|e| e.to_string())?;
+    state.commit_settings(snap);
     Ok(())
 }
 
@@ -555,7 +551,7 @@ pub fn remove_known_game(state: State<'_, Arc<AppState>>, name: String) -> Resul
             .retain(|g| !g.eq_ignore_ascii_case(&name));
     }
     let snap = state.settings.read().clone();
-    settings::save(&snap).map_err(|e| e.to_string())?;
+    state.commit_settings(snap);
     Ok(())
 }
 

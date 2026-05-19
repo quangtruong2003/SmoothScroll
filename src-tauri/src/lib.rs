@@ -6,14 +6,17 @@ mod engine_thread;
 pub mod game_mode;
 mod hook_wiring;
 pub mod keyboard_sink;
+mod settings_persistor;
 mod state;
 mod tray;
 
+use arc_swap::ArcSwap;
 use engine_thread::EngineThread;
 use hook_wiring::EngineSink;
 use parking_lot::{Mutex, RwLock};
+use settings_persistor::SettingsPersistor;
 use smoothscroll_core::engine::SmoothScrollEngine;
-use smoothscroll_core::settings;
+use smoothscroll_core::settings::{self, EffectiveSettings};
 use smoothscroll_platform::traits::HookHandle;
 use state::{AppState, EngineSignal};
 use std::path::PathBuf;
@@ -35,8 +38,26 @@ pub fn run() {
 
     let loaded_settings = settings::load();
     let enabled_initial = loaded_settings.enabled;
-    let engine = Arc::new(Mutex::new(SmoothScrollEngine::new(loaded_settings.clone())));
-    let settings_arc = Arc::new(RwLock::new(loaded_settings));
+    let engine = Arc::new(Mutex::new(SmoothScrollEngine::new()));
+    let settings_arc = Arc::new(RwLock::new(loaded_settings.clone()));
+
+    // Build initial hot-path snapshots.
+    let initial_eff = EffectiveSettings::from_settings(&loaded_settings);
+    let effective_arc = Arc::new(ArcSwap::from_pointee(initial_eff));
+    let effective_per_profile: std::collections::HashMap<String, Arc<EffectiveSettings>> =
+        loaded_settings
+            .profiles
+            .iter()
+            .map(|p| {
+                (
+                    p.id.clone(),
+                    Arc::new(EffectiveSettings::with_profile(&loaded_settings, p)),
+                )
+            })
+            .collect();
+    let effective_per_profile_arc = Arc::new(RwLock::new(effective_per_profile));
+
+    let persistor = Arc::new(SettingsPersistor::spawn());
 
     #[cfg(windows)]
     let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =
@@ -55,6 +76,8 @@ pub fn run() {
     let app_state = Arc::new(AppState {
         engine,
         settings: settings_arc,
+        effective: effective_arc,
+        effective_per_profile: effective_per_profile_arc,
         mouse_hook: platform.mouse_hook,
         emitter: platform.wheel_emitter,
         processes: platform.process_query,
@@ -69,6 +92,7 @@ pub fn run() {
         fullscreen_detector,
         window_geom,
         last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
+        persistor,
     });
 
     let engine_thread = EngineThread::spawn(app_state.clone());

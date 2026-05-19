@@ -32,6 +32,15 @@ tracing-appender = { workspace = true }
 directories = { workspace = true }
 uuid = { version = "1", features = ["v4"] }
 hostname = "0.4"
+arc-swap = "1"
+crossbeam-channel = "0.5"
+
+[dev-dependencies]
+criterion = { version = "0.5", default-features = false }
+
+[[bench]]
+name = "hot_path"
+harness = false
 
 [features]
 default = []

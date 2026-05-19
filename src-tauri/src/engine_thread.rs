@@ -76,7 +76,8 @@ fn worker(state: Arc<AppState>) {
 
         let frame_ms = adaptive_frame_ms(last_work);
 
-        let output = state.engine.lock().step(dt_ms);
+        let eff = state.effective.load_full();
+        let output = state.engine.lock().step(dt_ms, &eff);
         if output.vertical != 0 || output.horizontal != 0 {
             if let Err(e) = state.emitter.emit(output.vertical, output.horizontal) {
                 tracing::warn!(error = %e, "wheel emit failed");
