@@ -178,12 +178,7 @@ pub fn process_name_for_pid(pid: u32) -> Option<String> {
         }
         let mut buf = [0u16; MAX_PATH as usize];
         let mut len: u32 = buf.len() as u32;
-        let ok = QueryFullProcessImageNameW(
-            handle,
-            0,
-            buf.as_mut_ptr(),
-            &mut len,
-        );
+        let ok = QueryFullProcessImageNameW(handle, 0, buf.as_mut_ptr(), &mut len);
         let _ = CloseHandle(handle);
         if ok == 0 || len == 0 {
             return None;

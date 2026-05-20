@@ -14,7 +14,7 @@ interface PresetValues {
 
 const PRESETS: Record<PresetKey, PresetValues> = {
   slow: { step_size_px: 80, animation_time_ms: 600, acceleration_delta_ms: 100, acceleration_max: 4 },
-  default: { step_size_px: 120, animation_time_ms: 360, acceleration_delta_ms: 70, acceleration_max: 7 },
+  default: { step_size_px: 144, animation_time_ms: 220, acceleration_delta_ms: 70, acceleration_max: 10 },
   fast: { step_size_px: 160, animation_time_ms: 280, acceleration_delta_ms: 50, acceleration_max: 10 },
   snappy: { step_size_px: 200, animation_time_ms: 200, acceleration_delta_ms: 30, acceleration_max: 14 },
   mac_like: { step_size_px: 100, animation_time_ms: 500, acceleration_delta_ms: 80, acceleration_max: 6 },

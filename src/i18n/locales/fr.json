@@ -121,6 +121,10 @@
       "title": "Maj convertit en horizontal",
       "desc": "Maintenir Maj pendant le défilement le rend horizontal"
     },
+    "shift_horizontal_invert": {
+      "title": "Inverser la direction horizontale",
+      "desc": "Faire défiler vers le bas pour aller à droite (correspond au défilement horizontal natif de Windows)"
+    },
     "global_hotkey": {
       "title": "Raccourci global",
       "desc": "Appuyez sur la combinaison choisie depuis n'importe où pour activer/désactiver le défilement fluide"

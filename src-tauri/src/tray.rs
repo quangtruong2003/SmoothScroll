@@ -61,10 +61,7 @@ fn cursor_position() -> PhysicalPosition<i32> {
 fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
     let cursor = cursor_position();
     let panel_w = 260;
-    let panel_h = win
-        .outer_size()
-        .map(|s| s.height as i32)
-        .unwrap_or(480);
+    let panel_h = win.outer_size().map(|s| s.height as i32).unwrap_or(480);
     let edge_gap = 2;
 
     let monitor = app.primary_monitor().ok().flatten();
@@ -111,7 +108,7 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, height: u32) {
     let monitor = app.primary_monitor().ok().flatten();
     let work_h = monitor
         .as_ref()
-        .map(|m| m.work_area().size.height as u32)
+        .map(|m| m.work_area().size.height)
         .unwrap_or(1080);
     let max_h = work_h.saturating_sub(40);
     let height = height.clamp(120, max_h);

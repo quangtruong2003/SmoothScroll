@@ -121,6 +121,10 @@
       "title": "Shift mengubah ke horizontal",
       "desc": "Menahan Shift saat scroll menjadi scroll horizontal"
     },
+    "shift_horizontal_invert": {
+      "title": "Balik arah horizontal",
+      "desc": "Scroll ke bawah bergerak ke kanan (sesuai gulir horizontal Windows asli)"
+    },
     "global_hotkey": {
       "title": "Hotkey global",
       "desc": "Tekan kombinasi yang dipilih di mana saja untuk mengaktifkan smooth scrolling"

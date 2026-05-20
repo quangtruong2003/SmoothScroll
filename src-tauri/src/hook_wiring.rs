@@ -212,7 +212,12 @@ impl EngineSink {
         // ONE lock acquisition per event.
         let mut engine = self.state.engine.lock();
         if mods.shift && eff.shift_key_horizontal {
-            engine.on_hwheel_with_source(delta, now, source, &eff);
+            let h_delta = if eff.shift_horizontal_invert {
+                -delta
+            } else {
+                delta
+            };
+            engine.on_hwheel_with_source(h_delta, now, source, &eff);
         } else {
             engine.on_wheel_with_source(delta, now, source, &eff);
         }
@@ -523,6 +528,33 @@ mod tests {
         assert_eq!(decision, HookDecision::Swallow);
         let (v, _h) = drain_engine(&state);
         assert!(v != 0, "expected vertical emission, got 0");
+    }
+
+    #[test]
+    fn shift_with_invert_on_emits_negated_horizontal_delta() {
+        // Default settings: shift_horizontal_invert = true.
+        // Wheel-down (positive Windows delta) should produce LEFT-going
+        // horizontal accumulation (negative h after sign flip), so that
+        // on Windows native horizontal direction maps "wheel down → right".
+        let s = AppSettings::default();
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let decision = sink.on_wheel(120, shift_only());
+        assert_eq!(decision, HookDecision::Swallow);
+        let (_v, h) = drain_engine(&state);
+        assert!(h < 0, "expected inverted horizontal (h<0), got {h}");
+    }
+
+    #[test]
+    fn shift_with_invert_off_emits_raw_horizontal_delta() {
+        let mut s = AppSettings::default();
+        s.shift_horizontal_invert = false;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let decision = sink.on_wheel(120, shift_only());
+        assert_eq!(decision, HookDecision::Swallow);
+        let (_v, h) = drain_engine(&state);
+        assert!(h > 0, "expected raw horizontal (h>0), got {h}");
     }
 
     #[test]

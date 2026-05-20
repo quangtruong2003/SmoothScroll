@@ -10,6 +10,7 @@ export interface AppSettings {
   animationEasing: boolean;
   easingMode: EasingMode;
   shiftKeyHorizontal: boolean;
+  shiftHorizontalInvert: boolean;
   horizontalSmoothness: boolean;
   reverseWheelDirection: boolean;
   startWithOs: boolean;
@@ -22,14 +23,15 @@ export interface AppSettings {
 
 export const defaultSettings: AppSettings = {
   enabled: true,
-  stepSizePx: 120,
-  animationTimeMs: 360,
+  stepSizePx: 144,
+  animationTimeMs: 220,
   accelerationDeltaMs: 70,
-  accelerationMax: 7,
+  accelerationMax: 10,
   tailToHeadRatio: 3,
   animationEasing: true,
-  easingMode: "ExponentialOut",
+  easingMode: "QuinticOut",
   shiftKeyHorizontal: true,
+  shiftHorizontalInvert: true,
   horizontalSmoothness: true,
   reverseWheelDirection: false,
   startWithOs: false,

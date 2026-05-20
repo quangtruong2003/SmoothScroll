@@ -49,3 +49,15 @@ inherits = "release"
 lto = false
 codegen-units = 16
 strip = false
+
+# Fastest possible release build for iterating on Tauri/Rust changes.
+# Usage: npx tauri build --profile release-dev --no-bundle
+# Trade-offs: ~5-8x faster than `release` after warm cache,
+# binary ~40-60% larger, no optimisation passes (still works fine).
+[profile.release-dev]
+inherits = "dev"
+opt-level = 1
+debug = false
+incremental = true
+codegen-units = 256
+

@@ -121,6 +121,10 @@
       "title": "Shift converte em horizontal",
       "desc": "Manter Shift durante a rolagem a torna horizontal"
     },
+    "shift_horizontal_invert": {
+      "title": "Inverter direção horizontal",
+      "desc": "Rolar para baixo move para a direita (corresponde à rolagem horizontal nativa do Windows)"
+    },
     "global_hotkey": {
       "title": "Atalho global",
       "desc": "Pressione a combinação escolhida em qualquer lugar para alternar a rolagem suave"

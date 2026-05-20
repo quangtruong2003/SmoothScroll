@@ -1,14 +1,16 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {
-  Activity,
   AppWindow,
+  Gamepad2,
   Info,
+  Keyboard,
   Monitor,
   Moon,
   Settings as SettingsIcon,
   Sliders,
   Sun,
+  Wrench,
 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { setLanguage, SUPPORTED_LANGS, type Lang } from "@/i18n";
@@ -22,10 +24,12 @@ import {
 } from "@/components/ui/select";
 
 export type TabKey =
-  | "general"
   | "scroll"
+  | "devices"
+  | "advanced"
   | "apps"
-  | "preferences"
+  | "gamemode"
+  | "behavior"
   | "about";
 
 interface TabDef {
@@ -35,10 +39,12 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { key: "general", labelKey: "tabs.general.label", icon: <Activity className="h-4 w-4" /> },
   { key: "scroll", labelKey: "tabs.scroll.label", icon: <Sliders className="h-4 w-4" /> },
+  { key: "devices", labelKey: "tabs.devices.label", icon: <Keyboard className="h-4 w-4" /> },
+  { key: "advanced", labelKey: "tabs.advanced.label", icon: <Wrench className="h-4 w-4" /> },
   { key: "apps", labelKey: "tabs.apps.label", icon: <AppWindow className="h-4 w-4" /> },
-  { key: "preferences", labelKey: "tabs.preferences.label", icon: <SettingsIcon className="h-4 w-4" /> },
+  { key: "gamemode", labelKey: "tabs.gamemode.label", icon: <Gamepad2 className="h-4 w-4" /> },
+  { key: "behavior", labelKey: "tabs.behavior.label", icon: <SettingsIcon className="h-4 w-4" /> },
   { key: "about", labelKey: "tabs.about.label", icon: <Info className="h-4 w-4" /> },
 ];
 
@@ -51,12 +57,9 @@ interface SidebarProps {
 export function Sidebar({ active, onChange, t }: SidebarProps) {
   return (
     <nav
-      aria-label="Settings tabs"
+      aria-label={t("sidebar.tabs_aria")}
       className="flex h-full w-44 shrink-0 flex-col border-r bg-muted/30 p-3"
     >
-      <div className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        SmoothScroll
-      </div>
       <div className="flex flex-col gap-1">
         {TABS.map((tab) => {
           const isActive = active === tab.key;

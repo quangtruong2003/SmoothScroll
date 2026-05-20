@@ -1,5 +1,6 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollPreviewArea } from "@/components/preview/ScrollPreviewArea";
 import { useWasmEngine } from "@/components/preview/useWasmEngine";
@@ -18,6 +19,7 @@ const FEELS: OnboardingFeel[] = ["Glide", "Balanced", "Snappy"];
 
 export function OnboardingWizard({ onClose }: Props) {
   const { t } = useTranslation();
+  const [introSeen, setIntroSeen] = useState(false);
   const [state, dispatch] = useReducer(wizardReducer, initialWizardState);
   const baseSettings = useSettingsStore((s) => s.settings);
   const reload = useSettingsStore((s) => s.load);
@@ -35,11 +37,67 @@ export function OnboardingWizard({ onClose }: Props) {
     onClose();
   };
 
+  // "Just smooth it" — apply General/Balanced default and finish immediately.
+  const justSmoothIt = async () => {
+    await tauri.applyOnboardingPreset("General", "Balanced");
+    await reload();
+    onClose();
+  };
+
   const skip = async () => {
     await tauri.skipOnboarding();
     await reload();
     onClose();
   };
+
+  // Intro screen — quick "Why SmoothScroll" before tuning.
+  if (!introSeen) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur">
+        <div className="w-[600px] max-w-[90vw] rounded-xl border border-border bg-background p-8 shadow-2xl">
+          <div className="mb-6 flex items-center justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Sparkles className="h-7 w-7" />
+            </div>
+          </div>
+          <h2 className="mb-2 text-center text-xl font-semibold">
+            {t("onboarding_intro.title", "Welcome to SmoothScroll")}
+          </h2>
+          <p className="mx-auto mb-6 max-w-md text-center text-sm text-muted-foreground">
+            {t(
+              "onboarding_intro.body",
+              "We'll get your wheel feeling buttery smooth in under a minute. Pick a path below.",
+            )}
+          </p>
+          <div className="flex flex-col gap-2">
+            <Button
+              size="lg"
+              onClick={justSmoothIt}
+              className="w-full"
+            >
+              <Wand2 className="mr-2 h-4 w-4" />
+              {t("onboarding_intro.just_smooth", "Just smooth it (recommended)")}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setIntroSeen(true)}
+              className="w-full"
+            >
+              {t("onboarding_intro.guided", "Tune it for me (3 quick steps)")}
+            </Button>
+            <button
+              type="button"
+              onClick={skip}
+              className="mt-1 text-xs text-muted-foreground hover:text-foreground"
+            >
+              {t("onboarding.skip", "Skip — I'll configure later")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur">

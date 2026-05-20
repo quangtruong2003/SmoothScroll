@@ -22,7 +22,7 @@ export function SettingRow({ htmlFor, title, description, trailing, children }: 
       </div>
       <div className="flex items-center gap-3 shrink-0">
         {children}
-        {trailing && <span className="text-xs tabular-nums w-10 text-right text-muted-foreground">{trailing}</span>}
+        {trailing && <span className="text-xs tabular-nums whitespace-nowrap text-right text-muted-foreground">{trailing}</span>}
       </div>
     </div>
   );

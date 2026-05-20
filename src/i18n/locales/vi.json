@@ -206,6 +206,10 @@
       "title": "Shift chuyển thành cuộn ngang",
       "desc": "Giữ Shift khi cuộn sẽ thành cuộn ngang"
     },
+    "shift_horizontal_invert": {
+      "title": "Đảo chiều cuộn ngang",
+      "desc": "Khi giữ Shift và cuộn xuống sẽ đi sang phải (giống cách Windows mặc định)"
+    },
     "global_hotkey": {
       "title": "Phím tắt toàn cục",
       "desc": "Nhấn tổ hợp đã chọn ở bất kỳ đâu để bật/tắt cuộn mượt"

@@ -52,6 +52,19 @@ function DirectionSectionInner() {
             onCheckedChange={(v) => patch({ shift_key_horizontal: v })}
           />
         </SettingRow>
+
+        <SettingRow
+          htmlFor="shift-horizontal-invert"
+          title={t("settings.shift_horizontal_invert.title")}
+          description={t("settings.shift_horizontal_invert.desc")}
+        >
+          <Switch
+            id="shift-horizontal-invert"
+            checked={fields.shift_horizontal_invert}
+            onCheckedChange={(v) => patch({ shift_horizontal_invert: v })}
+            disabled={!fields.shift_key_horizontal}
+          />
+        </SettingRow>
       </CardContent>
     </Card>
   );

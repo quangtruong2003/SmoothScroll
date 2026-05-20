@@ -7,7 +7,8 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResetButton } from "./ResetButton";
 
-const KEYS = ["PageUp", "PageDown", "Space", "ShiftSpace", "ArrowUp", "ArrowDown"];
+const PAGE_KEYS = ["PageUp", "PageDown", "Space", "ShiftSpace"];
+const ARROW_KEYS = ["ArrowUp", "ArrowDown"];
 
 function KeyboardScrollSectionInner() {
   const { t } = useTranslation();
@@ -44,9 +45,26 @@ function KeyboardScrollSectionInner() {
         </div>
 
         <div>
-          <Label>{t("keyboard_scroll.active_keys")}</Label>
+          <Label>{t("keyboard_scroll.page_keys")}</Label>
           <div className="mt-1 flex flex-wrap gap-1">
-            {KEYS.map((k) => {
+            {PAGE_KEYS.map((k) => {
+              const on = fields.keyboard_scroll_keys.includes(k);
+              return (
+                <button
+                  key={k}
+                  className={`rounded border px-2 py-0.5 text-xs ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                  onClick={() => toggleKey(k)}
+                  disabled={!fields.keyboard_scroll_enabled}
+                >{k}</button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <Label>{t("keyboard_scroll.arrow_keys")}</Label>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {ARROW_KEYS.map((k) => {
               const on = fields.keyboard_scroll_keys.includes(k);
               return (
                 <button

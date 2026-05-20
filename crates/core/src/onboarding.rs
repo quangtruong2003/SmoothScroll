@@ -64,10 +64,10 @@ pub fn apply_preset(s: &mut AppSettings, use_case: UseCase, feel: Feel) {
 }
 
 fn default_baseline(s: &mut AppSettings) {
-    s.step_size_px = 120;
-    s.animation_time_ms = 360;
+    s.step_size_px = 144;
+    s.animation_time_ms = 220;
     s.acceleration_delta_ms = 70;
-    s.acceleration_max = 7;
+    s.acceleration_max = 10;
     s.easing_mode = EasingMode::ExponentialOut;
     s.animation_easing = true;
 }
@@ -81,7 +81,7 @@ fn mac_like(s: &mut AppSettings) {
 }
 fn fast(s: &mut AppSettings) {
     s.step_size_px = 160;
-    s.animation_time_ms = 280;
+    s.animation_time_ms = 220;
     s.acceleration_delta_ms = 50;
     s.acceleration_max = 10;
     s.easing_mode = EasingMode::ExponentialOut;

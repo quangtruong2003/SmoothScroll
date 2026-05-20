@@ -121,6 +121,10 @@
       "title": "Umschalt für horizontales Scrollen",
       "desc": "Umschalt-Taste beim Scrollen wechselt zu horizontal"
     },
+    "shift_horizontal_invert": {
+      "title": "Horizontale Richtung umkehren",
+      "desc": "Nach unten scrollen bewegt nach rechts (entspricht dem nativen horizontalen Scrollen unter Windows)"
+    },
     "global_hotkey": {
       "title": "Globaler Tastenkürzel",
       "desc": "Drücken Sie die Tastenkombination überall, um sanftes Scrollen umzuschalten"

@@ -121,6 +121,10 @@
       "title": "Maiusc converte in orizzontale",
       "desc": "Tenere Maiusc durante lo scorrimento lo rende orizzontale"
     },
+    "shift_horizontal_invert": {
+      "title": "Inverti direzione orizzontale",
+      "desc": "Scorrere verso il basso si sposta a destra (corrisponde allo scorrimento orizzontale nativo di Windows)"
+    },
     "global_hotkey": {
       "title": "Scorciatoia globale",
       "desc": "Premi la combinazione scelta ovunque per attivare lo scorrimento fluido"

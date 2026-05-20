@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { useSettingsStore, useEdgeScrollFields, useDefaults } from "@/stores/settingsStore";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { ResetButton } from "./ResetButton";
 
 function EdgeScrollSectionInner() {
+  const { t } = useTranslation();
   const fields = useEdgeScrollFields();
   const defaults = useDefaults();
   const patch = useSettingsStore((s) => s.patch);
@@ -15,11 +17,13 @@ function EdgeScrollSectionInner() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edge auto-scroll</CardTitle>
+        <CardTitle>{t("section.edge_scroll")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label htmlFor="edge-scroll-enabled">Enable edge auto-scroll</Label>
+          <Label htmlFor="edge-scroll-enabled">
+            {t("settings.edge_scroll.enable")}
+          </Label>
           <Switch
             id="edge-scroll-enabled"
             checked={fields.edge_scroll_enabled}
@@ -27,7 +31,9 @@ function EdgeScrollSectionInner() {
           />
         </div>
         <div className="space-y-2">
-          <Label>Zone size: {fields.edge_scroll_zone_px}px</Label>
+          <Label>
+            {t("settings.edge_scroll.zone_size", { value: fields.edge_scroll_zone_px })}
+          </Label>
           <div className="flex items-center gap-3">
             <Slider
               min={10}
@@ -47,7 +53,9 @@ function EdgeScrollSectionInner() {
         </div>
         <div className="space-y-2">
           <Label>
-            Max speed: {fields.edge_scroll_max_notches_per_sec.toFixed(1)} notches/s
+            {t("settings.edge_scroll.max_speed", {
+              value: fields.edge_scroll_max_notches_per_sec.toFixed(1),
+            })}
           </Label>
           <div className="flex items-center gap-3">
             <Slider

@@ -73,7 +73,7 @@ function TouchpadSectionInner() {
             min={0.5}
             max={3}
             step={0.1}
-            className="w-48"
+            className="w-40"
             value={[fields.touchpad_pixel_multiplier]}
             onValueChange={([v]) => patch({ touchpad_pixel_multiplier: v })}
             disabled={!fields.touchpad_smoothing_enabled}
@@ -97,7 +97,7 @@ function TouchpadSectionInner() {
             min={0}
             max={3}
             step={0.1}
-            className="w-48"
+            className="w-40"
             value={[fields.touchpad_acceleration_factor]}
             onValueChange={([v]) => patch({ touchpad_acceleration_factor: v })}
             disabled={!fields.touchpad_smoothing_enabled}

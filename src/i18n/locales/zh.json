@@ -121,6 +121,10 @@
       "title": "Shift 转为水平滚动",
       "desc": "按住 Shift 滚动时变为水平滚动"
     },
+    "shift_horizontal_invert": {
+      "title": "反转水平滚动方向",
+      "desc": "向下滚动时向右滚动（与 Windows 原生水平滚动方向一致）"
+    },
     "global_hotkey": {
       "title": "全局快捷键",
       "desc": "在任何位置按下所选组合键以切换平滑滚动"

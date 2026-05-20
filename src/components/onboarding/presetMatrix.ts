@@ -30,10 +30,10 @@ export function applyPresetUI(
     s.acceleration_max = 14;
   };
   const def = () => {
-    s.step_size_px = 120;
-    s.animation_time_ms = 360;
+    s.step_size_px = 144;
+    s.animation_time_ms = 280;
     s.acceleration_delta_ms = 70;
-    s.acceleration_max = 7;
+    s.acceleration_max = 10;
   };
   const enableMP = () => {
     s.modifier_passthrough = {

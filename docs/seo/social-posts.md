@@ -26,82 +26,78 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
 
 ## Reddit — r/rust
 
-**Title:** `[Project] SmoothScroll: Mac-style smooth mouse-wheel scrolling for Windows, written in Rust + Tauri 2`
+**Title:** `Built a small Rust app to make Windows mouse-wheel scrolling feel like macOS`
 
 **Body:**
 
-    Hey r/rust, I just released v0.1.13 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) — a small cross-platform utility that adds eased, 120 Hz inertia to raw mouse-wheel input on Windows and macOS.
+    I bounce between a Mac and a Windows desktop for work, and the clicky feel of Windows wheel scrolling always bugged me after spending the day on a trackpad. Spent a few weekends writing a small thing in Rust to smooth it out, and figured this sub might find the approach interesting.
 
-    Architecture:
-    - `crates/core/` — pure Rust engine, easing math, settings model. No OS deps. Fully unit-tested.
-    - `crates/platform/` — OS-specific behind traits. Windows uses `SetWindowsHookEx(WH_MOUSE_LL)`; macOS uses `CGEventTap`. Process resolver and wheel emitter live here.
-    - `src-tauri/` — Tauri 2 composition root, IPC commands, system tray, global hotkey.
-    - `src/` — React + TS settings UI.
+    It hooks the low-level wheel events (WH_MOUSE_LL on Windows, CGEventTap on macOS), eats the raw ticks, and re-emits them as eased pulses at 120 Hz. The easing math and settings sit in a pure-Rust core crate with no OS deps, and the platform side hides behind a trait so the core stays unit-testable. Tauri 2 hosts a tiny React settings UI.
 
-    Things I'd love feedback on:
-    - The trait abstraction for the OS-specific input layer
-    - Easing curve choice (Linear / Cubic / Quintic / Exponential — currently Quintic default)
-    - Test strategy for the platform layer (currently mocked at the trait boundary)
+    The trickiest bit honestly wasn't the hook, it was getting the easing curve to feel right without adding noticeable lag. Still tweaking it.
 
-    MIT, signed Windows installers, no telemetry (macOS notarization in progress). Repo: https://github.com/quangtruong2003/SmoothScroll
+    Repo if you want to poke around: https://github.com/quangtruong2003/SmoothScroll
 
-**Flair:** `🛠️ project`
+    Happy to hear thoughts on the trait split or the easing choices — currently defaulting to a quintic curve.
 
 ---
 
-## Reddit — r/Windows11 (post first)
+## Reddit — r/Windows11 (or r/Windows10)
 
-**Title:** `I made a free open-source app for Mac-style smooth mouse-wheel scrolling on Windows`
-
-**Body:**
-
-    Hi all — Windows scrolling has always felt jagged to me compared to macOS trackpad scrolling, so I built [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll) to fix it.
-
-    It runs in the system tray, intercepts raw mouse-wheel ticks at the OS level, and re-emits them as smooth eased pulses. Works in any app that takes wheel input — browsers, file explorer, IDEs, Office, even most games (with per-app exclusion if a game prefers raw input).
-
-    - Free, open source (MIT)
-    - No drivers, no admin, no reboot
-    - Toggle with Ctrl+Alt+S
-    - Tiny — single Rust binary
-
-    Direct download: https://github.com/quangtruong2003/SmoothScroll/releases/latest
-
-## Reddit — r/Windows10 (post 2-3 days later, slight rewrite to avoid spam-flag)
-
-**Title:** `Mac-style smooth mouse-wheel scrolling on Windows 10 — free, open source`
+**Title:** `Tried to fix the way mouse-wheel scrolling feels on Windows. Sharing the result.`
 
 **Body:**
 
-    Sharing a small side project: [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), free open-source utility that adds smooth, eased mouse-wheel scrolling to Windows 10.
+    I switch between a Macbook and a Windows desktop a lot, and going back to Windows always felt like the wheel was clicking through pages instead of gliding. Tried a bunch of existing tools, none of them felt quite right, so I ended up writing my own.
 
-    Lives in the system tray, no drivers, no admin rights. Intercepts wheel input at the OS level and re-emits eased 120 Hz pulses, so any wheel mouse behaves like a trackpad. Per-app exclusion for games that prefer raw input.
+    It sits in the system tray, works in any app, and you can toggle it with Ctrl+Alt+S if you want to compare on/off. No drivers, no admin needed, no reboot. If a game wants raw input you can add it to an exclusion list.
 
-    Toggle with Ctrl+Alt+S. MIT licensed.
+    It's free and the source is on GitHub. Sharing it here in case anyone else has been bothered by the same thing:
 
-    Download: https://github.com/quangtruong2003/SmoothScroll/releases/latest
+    https://github.com/quangtruong2003/SmoothScroll
+
+    Curious whether other folks notice the same difference, or if I'm just imagining things after too many years on a Mac.
 
 ---
 
 ## Reddit — r/sideproject
 
-**Title:** `SmoothScroll v0.1.13 — built a free smooth-scrolling app for Windows + macOS in Rust`
+**Title:** `My side project for fixing rough mouse-wheel scrolling on Windows`
 
 **Body:**
 
-    Just shipped v0.1.13 of [SmoothScroll](https://github.com/quangtruong2003/SmoothScroll), a free open-source side project I've been polishing for the last few months.
+    Wanted to share a small thing I've been working on in my spare time. It's called SmoothScroll, and it adds Mac-style eased scrolling to any wheel mouse on Windows (and macOS too).
 
-    The itch: every time I switched from my Mac to my Windows desktop, mouse-wheel scrolling felt like jumping from a smooth glide to a series of clicks. Existing tools either only redirect scroll (WizMouse) or are tied to specific hardware (Logitech Options+). I wanted Mac-style inertia for any wheel mouse on any Windows app.
+    The reason I started it: every time I came home from work on a Macbook and sat down at my Windows PC, scrolling felt jarring. The existing tools I tried either only redirected scroll without smoothing it, or were tied to one mouse brand. So I tried building my own.
 
-    Built it in Rust + Tauri 2:
-    - Single binary, no Electron, small footprint
-    - System tray UI, global hotkey toggle (Ctrl+Alt+S)
-    - Per-app exclusion for games that need raw input
-    - MIT licensed, signed Windows installers (macOS notarization in progress)
+    It runs from the system tray, has a hotkey to toggle, and you can exclude apps that prefer raw input (mostly games). Built in Rust with a Tauri shell, so it's a single small binary instead of an Electron app.
 
-    Live site: https://quangtruong2003.github.io/SmoothScroll/
-    Source: https://github.com/quangtruong2003/SmoothScroll
+    Source and download here: https://github.com/quangtruong2003/SmoothScroll
 
-    Feedback very welcome — especially from anyone who's done OS-level input interception before.
+    Would love to hear how it feels on other people's setups — especially anyone using a high-DPI mouse or a multi-monitor build.
+
+---
+
+## Facebook (English version)
+
+**Post:**
+
+    Mình hay đi qua đi lại giữa Macbook và máy bàn Windows, và mỗi lần ngồi vào Windows thì cảm giác lăn chuột nó cứ giật giật, không mượt như trên Mac. Tìm thử mấy app có sẵn nhưng không cái nào ưng nên rảnh rỗi tự viết một cái cho đỡ ngứa mắt.
+
+    Nó là một app nhỏ chạy ở khay hệ thống, không cần driver, không cần quyền admin, không cần khởi động lại máy. Bật/tắt bằng Ctrl+Alt+S nếu muốn so sánh. App nào hay game nào cần input thô thì cho vào danh sách loại trừ.
+
+    Free, mã nguồn mở. Ai dùng Windows mà cũng thấy lăn chuột hơi cứng thì thử xem sao:
+    https://github.com/quangtruong2003/SmoothScroll
+
+    Có gì góp ý mình với nhé, đang muốn tinh chỉnh thêm phần cảm giác lăn cho đỡ trễ.
+
+**Tips để bài không bị Facebook giảm hiển thị:**
+
+- Đăng từ tài khoản cá nhân, không spam vào nhiều group cùng lúc.
+- Không kèm hashtag quảng cáo (#freeapp, #download...). Để bài nhìn tự nhiên.
+- Không viết hoa toàn câu, không dùng "MIỄN PHÍ", "TẢI NGAY".
+- Ảnh chụp app hoặc GIF demo dán trực tiếp vào bài, đừng để chỉ có link.
+- Nếu post vào group, đọc rule group trước. Nhiều group cấm link GitHub trong bài; có thể bỏ link và để ở comment đầu tiên.
 
 ---
 

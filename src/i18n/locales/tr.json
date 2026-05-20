@@ -121,6 +121,10 @@
       "title": "Shift'i yataya çevir",
       "desc": "Kaydırırken Shift'i basılı tutmak yatay kaydırma yapar"
     },
+    "shift_horizontal_invert": {
+      "title": "Yatay yönü tersine çevir",
+      "desc": "Aşağı kaydırma sağa hareket eder (Windows yerel yatay kaydırma ile eşleşir)"
+    },
     "global_hotkey": {
       "title": "Global kısayol",
       "desc": "Yumuşak kaydırmayı açıp kapatmak için seçilen kombinasyonu herhangi bir yerde kullanın"

@@ -6,7 +6,6 @@ import { applyTheme, watchSystemTheme } from "@/lib/theme";
 import { tauri } from "@/lib/tauri";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { EnableHeader } from "@/components/settings/EnableHeader";
-import { HealthCheck } from "@/components/settings/HealthCheck";
 import { ScrollSection } from "@/components/settings/ScrollSection";
 import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
@@ -38,7 +37,7 @@ export function SettingsPage() {
   const loading = useSettingsStore((s) => s.loading);
   const error = useSettingsStore((s) => s.error);
 
-  const [tab, setTab] = useState<TabKey>("general");
+  const [tab, setTab] = useState<TabKey>("scroll");
   const [wizardOpen, setWizardOpen] = useState(false);
   const settings = useSettingsStore((s) => s.settings);
 
@@ -114,23 +113,14 @@ export function SettingsPage() {
           key={tab}
           className="mx-auto h-full max-w-2xl animate-tab-in"
         >
-          {tab === "general" && (
-            <TabContent
-              title={t("tabs.general.title")}
-              description={t("tabs.general.description")}
-              scrollable={true}
-            >
-              <BatteryHint />
-              <EnableHeader />
-              <HealthCheck />
-            </TabContent>
-          )}
-
           {tab === "scroll" && (
             <TabContent
               title={t("tabs.scroll.title")}
               description={t("tabs.scroll.description")}
+              scrollable={true}
             >
+              <BatteryHint />
+              <EnableHeader />
               <ScrollSection />
               <DirectionSection />
               <AppearanceSection />
@@ -165,6 +155,14 @@ export function SettingsPage() {
             >
               <ProfilesSection />
               <ExcludedAppsSection />
+            </TabContent>
+          )}
+
+          {tab === "gamemode" && (
+            <TabContent
+              title={t("tabs.gamemode.title")}
+              description={t("tabs.gamemode.description")}
+            >
               <GameModeSection />
             </TabContent>
           )}

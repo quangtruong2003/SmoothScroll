@@ -86,13 +86,13 @@ impl ScrollProfile {
         Self {
             id: id.into(),
             name: name.into(),
-            step_size_px: 120,
-            animation_time_ms: 360,
+            step_size_px: 144,
+            animation_time_ms: 220,
             acceleration_delta_ms: 70,
-            acceleration_max: 7,
-            tail_to_head_ratio: 3,
+            acceleration_max: 10,
+            tail_to_head_ratio: 5,
             animation_easing: true,
-            easing_mode: EasingMode::ExponentialOut,
+            easing_mode: EasingMode::QuinticOut,
             reverse_wheel_direction: false,
             horizontal_smoothness: true,
         }
@@ -156,6 +156,7 @@ pub struct AppSettings {
 
     // Direction & horizontal
     pub shift_key_horizontal: bool,
+    pub shift_horizontal_invert: bool,
     pub horizontal_smoothness: bool,
     pub reverse_wheel_direction: bool,
 
@@ -208,20 +209,25 @@ pub struct AppSettings {
 
     // Onboarding
     pub onboarding_completed_at: Option<u64>,
+
+    // Auto-disable seed (Windows native-smooth apps). True after first seed.
+    #[serde(default)]
+    pub auto_excluded_seeded: bool,
 }
 
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
             enabled: true,
-            step_size_px: 120,
-            animation_time_ms: 360,
+            step_size_px: 144,
+            animation_time_ms: 220,
             acceleration_delta_ms: 70,
-            acceleration_max: 7,
-            tail_to_head_ratio: 3,
+            acceleration_max: 10,
+            tail_to_head_ratio: 5,
             animation_easing: true,
-            easing_mode: EasingMode::ExponentialOut,
+            easing_mode: EasingMode::QuinticOut,
             shift_key_horizontal: true,
+            shift_horizontal_invert: true,
             horizontal_smoothness: true,
             reverse_wheel_direction: false,
             start_with_os: false,
@@ -259,6 +265,7 @@ impl Default for AppSettings {
             respect_reduce_motion: RespectReduceMotion::default(),
             modifier_passthrough: ModifierPassthrough::default(),
             onboarding_completed_at: None,
+            auto_excluded_seeded: false,
         }
     }
 }
@@ -314,6 +321,34 @@ impl AppSettings {
 
     /// Special profile ID for disabled (pass-through) apps.
     pub const DISABLED_PROFILE_ID: &'static str = "__disabled__";
+
+    /// Windows apps known to ship native smooth-scroll animation that conflicts
+    /// with this engine (UWP, WinUI, modern Edge). Seeded once into
+    /// `app_profiles` as pass-through so users get a delay-free experience by
+    /// default. After the first seed, the user is in control.
+    pub const NATIVE_SMOOTH_SEED: &'static [&'static str] = &[
+        "Notepad.exe",
+        "SystemSettings.exe",
+        "ApplicationFrameHost.exe",
+        "CalculatorApp.exe",
+        "Photos.exe",
+        "WinStore.App.exe",
+        "msedge.exe",
+    ];
+
+    /// Idempotently seed the native-smooth-app exclusion list. Runs once;
+    /// subsequent loads are no-ops so user removals stick.
+    pub fn seed_native_smooth_excludes(&mut self) {
+        if self.auto_excluded_seeded {
+            return;
+        }
+        for app in Self::NATIVE_SMOOTH_SEED {
+            self.app_profiles
+                .entry((*app).to_string())
+                .or_insert_with(|| Self::DISABLED_PROFILE_ID.to_string());
+        }
+        self.auto_excluded_seeded = true;
+    }
 
     /// Case-insensitive exact-match check against the excluded list.
     /// Also checks app_profiles for "__disabled__" assignment.
@@ -373,6 +408,7 @@ pub struct EffectiveSettings {
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
     pub shift_key_horizontal: bool,
+    pub shift_horizontal_invert: bool,
     pub touchpad_smoothing_enabled: bool,
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
@@ -396,6 +432,7 @@ impl EffectiveSettings {
             reverse_wheel_direction: s.reverse_wheel_direction,
             horizontal_smoothness: s.horizontal_smoothness,
             shift_key_horizontal: s.shift_key_horizontal,
+            shift_horizontal_invert: s.shift_horizontal_invert,
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: s.touchpad_acceleration_factor,
@@ -419,6 +456,7 @@ impl EffectiveSettings {
             reverse_wheel_direction: profile.reverse_wheel_direction,
             horizontal_smoothness: profile.horizontal_smoothness,
             shift_key_horizontal: base.shift_key_horizontal,
+            shift_horizontal_invert: base.shift_horizontal_invert,
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: base.touchpad_acceleration_factor,
@@ -518,6 +556,7 @@ fn try_load() -> Result<AppSettings, SettingsError> {
     let mut settings: AppSettings = serde_json::from_slice(&bytes)?;
     settings.clamp();
     settings.migrate_from_v1();
+    settings.seed_native_smooth_excludes();
     Ok(settings)
 }
 

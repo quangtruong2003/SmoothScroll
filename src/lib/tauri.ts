@@ -45,6 +45,7 @@ export interface AppSettings {
   animation_easing: boolean;
   easing_mode: EasingMode;
   shift_key_horizontal: boolean;
+  shift_horizontal_invert: boolean;
   horizontal_smoothness: boolean;
   reverse_wheel_direction: boolean;
   start_with_os: boolean;

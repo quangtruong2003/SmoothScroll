@@ -48,7 +48,7 @@ impl Axis {
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
         let elapsed = now_ms.saturating_sub(self.last_notch_ms);
         if (elapsed as i64) <= settings.acceleration_delta_ms as i64 {
-            self.accel_factor = (self.accel_factor + 1)
+            self.accel_factor = (self.accel_factor + 2)
                 .clamp(1, settings.acceleration_max)
                 .max(1);
         } else {

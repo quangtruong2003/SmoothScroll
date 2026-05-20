@@ -63,8 +63,8 @@ fn rapid_notches_within_accel_window_increase_acceleration() {
 
     let abs = total_v.abs();
     assert!(
-        (700..=740).contains(&abs),
-        "expected approx 720 emitted wheel units, got {total_v}"
+        (1260..=1320).contains(&abs),
+        "expected approx 1296 emitted wheel units, got {total_v}"
     );
 }
 
@@ -79,8 +79,8 @@ fn notches_outside_accel_window_reset_factor() {
     let total_v = drain_vertical(&mut e, &eff);
     let abs = total_v.abs();
     assert!(
-        (110..=130).contains(&abs),
-        "expected approx 120 emitted wheel units, got {total_v}"
+        (132..=156).contains(&abs),
+        "expected approx 144 emitted wheel units, got {total_v}"
     );
 }
 
@@ -97,8 +97,8 @@ fn step_clamps_pulse_count_per_frame() {
     }
     let out = e.step(1000.0, &eff);
     assert!(
-        out.vertical.abs() <= 240,
-        "expected pulse clamp <= 240, got {}",
+        out.vertical.abs() <= 480,
+        "expected pulse clamp <= 480, got {}",
         out.vertical
     );
 }

@@ -121,6 +121,10 @@
       "title": "Mayús convierte a horizontal",
       "desc": "Mantener Mayús al desplazar lo convierte en horizontal"
     },
+    "shift_horizontal_invert": {
+      "title": "Invertir dirección horizontal",
+      "desc": "Desplazar hacia abajo se mueve a la derecha (coincide con el desplazamiento horizontal nativo de Windows)"
+    },
     "global_hotkey": {
       "title": "Atajo global",
       "desc": "Pulsa la combinación elegida desde cualquier lugar para alternar el desplazamiento suave"

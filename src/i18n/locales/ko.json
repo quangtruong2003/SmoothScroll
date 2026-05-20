@@ -121,6 +121,10 @@
       "title": "Shift로 가로 변환",
       "desc": "스크롤 중 Shift를 누르면 가로 스크롤이 됩니다"
     },
+    "shift_horizontal_invert": {
+      "title": "수평 방향 반전",
+      "desc": "아래로 스크롤하면 오른쪽으로 이동합니다 (Windows 기본 수평 스크롤과 일치)"
+    },
     "global_hotkey": {
       "title": "전역 단축키",
       "desc": "어디서나 지정한 조합으로 부드러운 스크롤 토글"

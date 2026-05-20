@@ -203,6 +203,7 @@ export const useDirectionFields = () =>
       return {
         reverse_wheel_direction: set.reverse_wheel_direction,
         shift_key_horizontal: set.shift_key_horizontal,
+        shift_horizontal_invert: set.shift_horizontal_invert,
         horizontal_smoothness: set.horizontal_smoothness,
       };
     })

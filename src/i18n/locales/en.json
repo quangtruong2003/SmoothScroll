@@ -206,6 +206,10 @@
       "title": "Shift converts to horizontal",
       "desc": "Holding Shift while scrolling becomes horizontal scroll"
     },
+    "shift_horizontal_invert": {
+      "title": "Invert horizontal direction",
+      "desc": "Scrolling down moves right (matches Windows native horizontal scrolling)"
+    },
     "global_hotkey": {
       "title": "Global hotkey",
       "desc": "Press the chosen combination anywhere to toggle smooth scrolling"

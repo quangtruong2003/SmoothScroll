@@ -117,7 +117,7 @@ fn missing_fields_in_json_use_defaults() {
     let json = r#"{ "step_size_px": 200 }"#;
     let s: AppSettings = serde_json::from_str(json).unwrap();
     assert_eq!(s.step_size_px, 200);
-    assert_eq!(s.animation_time_ms, 360);
+    assert_eq!(s.animation_time_ms, 220);
     assert!(s.enabled);
 }
 
@@ -290,4 +290,26 @@ fn effective_settings_default_instant_mode_false() {
     let s = AppSettings::default();
     let eff = EffectiveSettings::from_settings(&s);
     assert!(!eff.instant_mode);
+}
+
+#[test]
+fn default_has_shift_horizontal_invert_true() {
+    let s = AppSettings::default();
+    assert!(s.shift_horizontal_invert);
+}
+
+#[test]
+fn old_settings_without_shift_horizontal_invert_default_to_true() {
+    let json = r#"{"enabled": true}"#;
+    let s: AppSettings = serde_json::from_str(json).unwrap();
+    assert!(s.shift_horizontal_invert);
+}
+
+#[test]
+fn shift_horizontal_invert_round_trips_through_serde() {
+    let mut s = AppSettings::default();
+    s.shift_horizontal_invert = false;
+    let json = serde_json::to_string(&s).unwrap();
+    let back: AppSettings = serde_json::from_str(&json).unwrap();
+    assert!(!back.shift_horizontal_invert);
 }
