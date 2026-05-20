@@ -14,7 +14,8 @@ interface StickyDownloadBarProps {
 export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarProps) {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
-  const { url } = useDownloadUrl()
+  const { os } = useDownloadUrl()
+  const href = `/api/download?os=${os}`
 
   useEffect(() => {
     const onScroll = () => {
@@ -30,10 +31,6 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [dismissed])
-
-  const handleDownload = () => {
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
 
   return (
     <AnimatePresence>
@@ -64,10 +61,12 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
               <Button
                 variant="brand"
                 size="sm"
-                onClick={handleDownload}
+                asChild
               >
-                <Download className="h-4 w-4 mr-1.5" />
-                {ctaLabel || fallbackCta}
+                <a href={href} rel="noopener noreferrer">
+                  <Download className="h-4 w-4 mr-1.5" />
+                  {ctaLabel || fallbackCta}
+                </a>
               </Button>
             </div>
           </div>

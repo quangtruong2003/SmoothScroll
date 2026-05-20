@@ -12,7 +12,8 @@ interface DownloadCTAProps {
 }
 
 export function DownloadCTA({ label, variant = 'brand', size = 'xl', className }: DownloadCTAProps) {
-  const { url } = useDownloadUrl()
+  const { os } = useDownloadUrl()
+  const href = `/api/download?os=${os}`
 
   return (
     <Button
@@ -22,7 +23,7 @@ export function DownloadCTA({ label, variant = 'brand', size = 'xl', className }
       asChild
       aria-label={label}
     >
-      <a href={url} target="_blank" rel="noopener noreferrer">
+      <a href={href} rel="noopener noreferrer">
         <Download className="h-5 w-5 mr-2" />
         {label}
       </a>
