@@ -15,32 +15,150 @@
     "app_profiles": "Per-app assignments",
     "language": "Language",
     "theme": "Appearance",
-    "test_scroll": "Test scrolling",
     "touchpad": "Precision touchpad",
     "keyboard_scroll": "Keyboard scroll smoothing",
     "game_mode": "Game mode",
+    "edge_scroll": "Edge auto-scroll",
     "about": "About"
+  },
+  "sidebar": {
+    "tabs_aria": "Settings tabs"
+  },
+  "permission": {
+    "title": "Accessibility access required",
+    "body": "SmoothScroll needs Accessibility permission to capture mouse-wheel events and re-emit them with smooth animation. Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on.",
+    "open": "Request permission",
+    "check_now": "I just granted it — check now",
+    "checking": "Checking…",
+    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "polling": "Watching for permission. I'll continue automatically once granted."
+  },
+  "feel": {
+    "anim": {
+      "snappy": "snappy",
+      "balanced": "balanced",
+      "glide": "glide",
+      "dreamy": "dreamy"
+    },
+    "step": {
+      "fine": "fine",
+      "standard": "standard",
+      "bold": "bold",
+      "huge": "huge"
+    },
+    "accel": {
+      "flat": "flat",
+      "gentle": "gentle",
+      "responsive": "responsive",
+      "aggressive": "aggressive"
+    }
+  },
+  "cheatsheet": {
+    "title": "Keyboard shortcuts",
+    "toggle": "Show / hide this sheet",
+    "toggle_alt": "Same — alternative",
+    "toggle_smoothing": "Toggle smooth scrolling on/off",
+    "close": "Close dialogs / this sheet",
+    "tab": "Move focus between controls",
+    "space_slider": "Toggle slider value (when focused)",
+    "arrows": "Adjust slider step-by-step",
+    "hint": "Press ? anywhere to open this sheet"
+  },
+  "whatsnew": {
+    "title": "What's new",
+    "dismiss": "Got it",
+    "version_label": "Version {{version}}",
+    "tagline": "Here's what changed since you last opened SmoothScroll.",
+    "view_changelog": "View full changelog",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: new \"Just smooth it\" one-click path",
+        "permission": "Permission flow: active recheck button + smarter polling",
+        "feel_hints": "Sliders now show human-readable feel hints (snappy / balanced / glide)",
+        "cheatsheet": "Press ? anywhere to open the keyboard cheat sheet",
+        "backup": "Backup & restore — export and import settings as JSON"
+      }
+    }
+  },
+  "backup": {
+    "title": "Backup & restore",
+    "description": "Export your settings to a JSON file or restore from a backup. Useful when moving to a new machine.",
+    "export": "Export settings",
+    "import": "Import settings",
+    "exported": "Settings exported successfully",
+    "imported": "Settings imported. Reloading…",
+    "import_error": "Could not parse backup file. Make sure it was exported from SmoothScroll.",
+    "confirm_import": "Import will overwrite your current settings. Continue?"
+  },
+  "diagnostic": {
+    "title": "Health check",
+    "description": "Live status of the scroll engine. Useful for support tickets.",
+    "engine_state": "Engine state",
+    "input_source": "Last input source",
+    "active_profile": "Active profile",
+    "current_app": "Foreground app",
+    "reduce_motion": "Reduce motion",
+    "on": "On",
+    "off": "Off",
+    "auto": "Auto",
+    "test_here": "Test scroll here",
+    "copy_report": "Copy diagnostic report",
+    "copied": "Copied!"
+  },
+  "apppicker": {
+    "title": "Pick an app",
+    "search": "Search running apps…",
+    "empty": "No matches. Try a different name.",
+    "loading": "Loading running apps…",
+    "refresh": "Refresh"
+  },
+  "onboarding_intro": {
+    "title": "Welcome to SmoothScroll",
+    "body": "We'll get your wheel feeling buttery smooth in under a minute. Pick a path below.",
+    "just_smooth": "Just smooth it (recommended)",
+    "guided": "Tune it for me (3 quick steps)"
+  },
+  "stats": {
+    "title": "Your stats (local only)",
+    "description": "These numbers stay on your device. Nothing is uploaded.",
+    "sessions": "Sessions",
+    "using_for": "Using for",
+    "reset": "Reset stats",
+    "confirm_reset": "This will clear all locally-stored statistics. Continue?"
+  },
+  "battery": {
+    "low_hint": "Battery is low. Smooth scrolling adds a small CPU cost — consider turning it off temporarily."
   },
   "tabs": {
     "general": {
       "label": "General",
       "title": "General",
-      "description": "Quick toggles and live test."
+      "description": "Quick toggles and health checks."
     },
     "scroll": {
       "label": "Scroll",
       "title": "Scroll",
-      "description": "Tune step size, easing, direction, and input sources."
+      "description": "Step size, easing, direction, and look."
+    },
+    "devices": {
+      "label": "Devices",
+      "title": "Input devices",
+      "description": "Keyboard and touchpad smoothing."
+    },
+    "advanced": {
+      "label": "Advanced",
+      "title": "Advanced",
+      "description": "Precision modifiers and edge auto-scroll."
     },
     "apps": {
       "label": "Apps",
       "title": "Per-app",
       "description": "Profiles and exclusions tailored to specific applications."
     },
-    "preferences": {
-      "label": "Preferences",
-      "title": "Preferences",
-      "description": "Behavior, hotkeys, and game mode."
+    "behavior": {
+      "label": "Behavior",
+      "title": "Behavior",
+      "description": "App behavior, hotkeys, and game mode."
     },
     "about": {
       "label": "About",
@@ -55,10 +173,6 @@
     "snappy": "Snappy",
     "mac_like": "Mac-like",
     "linear": "Linear"
-  },
-  "test_scroll": {
-    "description": "Scroll inside the box to feel current settings.",
-    "line": "Line {{n}} — try the wheel here"
   },
   "settings": {
     "step_size": {
@@ -115,7 +229,8 @@
       "desc": "Click and press the keys you want to use",
       "press": "Press a key combination…",
       "empty": "Click to record",
-      "aria": "Hotkey combination input"
+      "aria": "Hotkey combination input",
+      "saved": "Hotkey saved"
     },
     "start_with_os": {
       "title": "Start with Windows",
@@ -142,6 +257,11 @@
       "status_off": "OS Reduce Motion: OFF"
     },
     "reset_to_default": "Reset to default",
+    "edge_scroll": {
+      "enable": "Enable edge auto-scroll",
+      "zone_size": "Zone size: {{value}}px",
+      "max_speed": "Max speed: {{value}} notches/s"
+    },
     "touchpad": {
       "detected": "Detected",
       "source": {
@@ -299,6 +419,20 @@
     "ready_to_restart": "Update installed. Restart to apply.",
     "restart_now": "Restart now"
   },
+  "support": {
+    "title": "Support this project",
+    "description": "Thanks for using SmoothScroll. If you find it useful, you can buy me a coffee:",
+    "buy_me_a_coffee": "Buy me a coffee",
+    "or_bank_transfer": "Or transfer directly:",
+    "bank_account": "Account",
+    "bank_name": "Bank",
+    "copy_account": "Copy account number",
+    "copied_toast": "Account number copied",
+    "copy_failed": "Could not copy. Manual: {{account}}",
+    "qr_load_failed": "Could not load QR",
+    "qr_zoom_title": "Scan to transfer",
+    "qr_alt": "VietQR for bank transfer"
+  },
   "forced_update": {
     "title": "Update required",
     "description": "A new version is available. You must update SmoothScroll to continue using it. (Current: v{{current}} → New: v{{latest}})",
@@ -344,13 +478,6 @@
     "alt_help": "Recommended for editors and timelines (Premiere, DAWs).",
     "clear_inertia_label": "Clear inertia when modifier pressed",
     "clear_inertia_help": "Stop pending smooth scroll the moment a modifier is pressed so zoom feels immediate."
-  },
-  "compare": {
-    "toggle": "Compare",
-    "a_label": "A — Saved",
-    "b_label": "B — Editing",
-    "swap": "Swap A ↔ B",
-    "apply_b": "Apply B as new default"
   },
   "onboarding": {
     "skip": "Skip",
