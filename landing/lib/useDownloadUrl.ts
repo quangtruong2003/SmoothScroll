@@ -6,6 +6,7 @@ import { fetchLatestRelease, formatDownloadCount, type Release, type ReleaseAsse
 
 export interface DownloadInfo {
   url: string
+  filename: string
   version: string
   os: ReturnType<typeof detectOS>
   sizeLabel: string
@@ -14,12 +15,29 @@ export interface DownloadInfo {
   release: Release | null
 }
 
-const FALLBACK_URL = 'https://github.com/quangtruong2003/SmoothScroll/releases/latest'
+const REPO_BASE = 'https://github.com/quangtruong2003/SmoothScroll/releases'
+const FALLBACK_URL = `${REPO_BASE}/latest`
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? ''
 
 const NON_INSTALLER_EXT = /\.(sig|json|blockmap|sha256|sha512|asc|txt|md)$/i
 
 function isInstallable(asset: ReleaseAsset): boolean {
   return !NON_INSTALLER_EXT.test(asset.name)
+}
+
+function buildDefaultUrl(os: OS, version: string): { url: string; filename: string } {
+  if (!version) return { url: FALLBACK_URL, filename: '' }
+  const tag = version.startsWith('v') ? version : `v${version}`
+  const ver = version.replace(/^v/, '')
+  if (os === 'win') {
+    const filename = `SmoothScroll_${ver}_x64-setup.exe`
+    return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
+  }
+  if (os === 'mac') {
+    const filename = `SmoothScroll_${ver}_aarch64.dmg`
+    return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
+  }
+  return { url: FALLBACK_URL, filename: '' }
 }
 
 export function findInstallerUrl(release: Release, os: OS): string | null {
@@ -47,27 +65,46 @@ export function findInstallerUrl(release: Release, os: OS): string | null {
 }
 
 export function useDownloadUrl(): DownloadInfo {
-  const [data, setData] = useState<DownloadInfo>({
-    url: FALLBACK_URL,
-    version: 'v1.0.0',
-    os: 'other',
-    sizeLabel: '',
-    ctaLabel: 'Download',
-    totalDownloads: '50k+',
-    release: null,
+  const [data, setData] = useState<DownloadInfo>(() => {
+    const initial = buildDefaultUrl('other', APP_VERSION)
+    return {
+      url: initial.url,
+      filename: initial.filename,
+      version: APP_VERSION ? `v${APP_VERSION.replace(/^v/, '')}` : 'latest',
+      os: 'other',
+      sizeLabel: '',
+      ctaLabel: 'Download',
+      totalDownloads: '',
+      release: null,
+    }
   })
 
   useEffect(() => {
     const os = detectOS()
+    const built = buildDefaultUrl(os, APP_VERSION)
 
     setData((prev) => ({
       ...prev,
+      url: built.url || prev.url,
+      filename: built.filename,
       os,
       ctaLabel: `Download for ${getOSLabel(os)}`,
     }))
 
     fetchLatestRelease().then((release) => {
-      const url = findInstallerUrl(release, os) ?? FALLBACK_URL
+      const apiUrl = findInstallerUrl(release, os)
+      const url = apiUrl ?? built.url
+
+      const filename = (() => {
+        if (apiUrl) {
+          try {
+            return new URL(apiUrl).pathname.split('/').pop() ?? built.filename
+          } catch {
+            return built.filename
+          }
+        }
+        return built.filename
+      })()
 
       const totalDownloads = release.assets.reduce(
         (sum, a) => sum + (a.download_count || 0),
@@ -76,11 +113,12 @@ export function useDownloadUrl(): DownloadInfo {
 
       setData({
         url,
-        version: release.tag_name,
+        filename,
+        version: release.tag_name || (APP_VERSION ? `v${APP_VERSION.replace(/^v/, '')}` : 'latest'),
         os,
         sizeLabel: '',
         ctaLabel: `Download for ${getOSLabel(os)}`,
-        totalDownloads: formatDownloadCount(totalDownloads),
+        totalDownloads: totalDownloads > 0 ? formatDownloadCount(totalDownloads) : '',
         release,
       })
     })

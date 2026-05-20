@@ -48,8 +48,10 @@ export function useGitHubStars(): number | null {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         const value = typeof d?.stargazers_count === 'number' ? d.stargazers_count : null
-        if (value !== null) setStars(value)
-        writeCache(value)
+        if (value !== null) {
+          setStars(value)
+          writeCache(value)
+        }
       })
       .catch(() => {})
 
