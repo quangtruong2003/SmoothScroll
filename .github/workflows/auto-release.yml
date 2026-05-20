@@ -9,6 +9,8 @@ on:
       - 'src-tauri/**'
       - 'package.json'
       - 'Cargo.toml'
+      - '.github/workflows/auto-release.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
