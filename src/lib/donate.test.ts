@@ -25,14 +25,14 @@ describe("donate constants", () => {
 });
 
 describe("buildVietQRUrl", () => {
-  it("builds a compact2 VietQR URL with encoded account name", () => {
+  it("builds a qr_only VietQR URL with encoded account name", () => {
     const url = buildVietQRUrl({
       bankCode: "970454",
       account: "0947890450",
       holder: "NGUYEN QUANG TRUONG",
     });
     expect(url).toBe(
-      "https://img.vietqr.io/image/970454-0947890450-compact2.png?accountName=NGUYEN%20QUANG%20TRUONG",
+      "https://img.vietqr.io/image/970454-0947890450-qr_only.png?accountName=NGUYEN%20QUANG%20TRUONG",
     );
   });
 

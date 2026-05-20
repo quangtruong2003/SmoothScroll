@@ -13,7 +13,7 @@ export interface VietQRParams {
 
 export function buildVietQRUrl({ bankCode, account, holder }: VietQRParams): string {
   const name = encodeURIComponent(holder);
-  return `https://img.vietqr.io/image/${bankCode}-${account}-compact2.png?accountName=${name}`;
+  return `https://img.vietqr.io/image/${bankCode}-${account}-qr_only.png?accountName=${name}`;
 }
 
 export const BANK_QR_URL = buildVietQRUrl({
