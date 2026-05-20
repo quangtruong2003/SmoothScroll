@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BANK_QR_URL } from "@/lib/donate";
@@ -25,19 +24,16 @@ export function SupportSection() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Button
-          className="w-full gap-2"
-          onClick={() => setZoomOpen(true)}
-        >
+        <Button className="w-full gap-2" onClick={() => setZoomOpen(true)}>
           <QrCode className="h-4 w-4" />
           {t("support.donate_button")}
         </Button>
 
         <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{t("support.qr_zoom_title")}</DialogTitle>
-            </DialogHeader>
+          <DialogContent className="max-w-md p-4">
+            <DialogTitle className="sr-only">
+              {t("support.qr_zoom_title")}
+            </DialogTitle>
             <div className="flex justify-center">
               {qrFailed ? (
                 <div className="flex h-[320px] w-[320px] flex-col items-center justify-center bg-muted text-muted-foreground rounded-md">
