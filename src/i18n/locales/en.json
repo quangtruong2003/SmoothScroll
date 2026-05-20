@@ -19,7 +19,8 @@
     "keyboard_scroll": "Keyboard scroll smoothing",
     "game_mode": "Game mode",
     "edge_scroll": "Edge auto-scroll",
-    "about": "About"
+    "about": "About",
+    "advanced_scroll": "Advanced scroll"
   },
   "sidebar": {
     "tabs_aria": "Settings tabs"
@@ -90,21 +91,6 @@
     "import_error": "Could not parse backup file. Make sure it was exported from SmoothScroll.",
     "confirm_import": "Import will overwrite your current settings. Continue?"
   },
-  "diagnostic": {
-    "title": "Health check",
-    "description": "Live status of the scroll engine. Useful for support tickets.",
-    "engine_state": "Engine state",
-    "input_source": "Last input source",
-    "active_profile": "Active profile",
-    "current_app": "Foreground app",
-    "reduce_motion": "Reduce motion",
-    "on": "On",
-    "off": "Off",
-    "auto": "Auto",
-    "test_here": "Test scroll here",
-    "copy_report": "Copy diagnostic report",
-    "copied": "Copied!"
-  },
   "apppicker": {
     "title": "Pick an app",
     "search": "Search running apps…",
@@ -130,15 +116,10 @@
     "low_hint": "Battery is low. Smooth scrolling adds a small CPU cost — consider turning it off temporarily."
   },
   "tabs": {
-    "general": {
-      "label": "General",
-      "title": "General",
-      "description": "Quick toggles and health checks."
-    },
     "scroll": {
       "label": "Scroll",
       "title": "Scroll",
-      "description": "Step size, easing, direction, and look."
+      "description": "Enable scrolling, tune step size, easing, direction, and look."
     },
     "devices": {
       "label": "Devices",
@@ -148,7 +129,7 @@
     "advanced": {
       "label": "Advanced",
       "title": "Advanced",
-      "description": "Precision modifiers and edge auto-scroll."
+      "description": "Acceleration window, tail ratio, precision modifiers, and edge auto-scroll."
     },
     "apps": {
       "label": "Apps",
@@ -158,12 +139,17 @@
     "behavior": {
       "label": "Behavior",
       "title": "Behavior",
-      "description": "App behavior, hotkeys, and game mode."
+      "description": "App behavior, hotkeys, and reduce-motion."
     },
     "about": {
       "label": "About",
       "title": "About",
       "description": "Version, updates, and logs."
+    },
+    "gamemode": {
+      "label": "Game mode",
+      "title": "Game mode",
+      "description": "Auto-disable smooth scrolling for known games."
     }
   },
   "presets": {
@@ -352,10 +338,11 @@
   "keyboard_scroll": {
     "windows_only": "(Windows only)",
     "enable_smoothing": "Enable keyboard smoothing",
-    "active_keys": "Active keys",
     "pgdn_step": "PageUp/PageDown step: {{value}} notches",
     "arrow_step": "Arrow step: {{value}} notches",
-    "skip_in_text_inputs": "Skip in text inputs"
+    "skip_in_text_inputs": "Skip in text inputs",
+    "page_keys": "Page keys",
+    "arrow_keys": "Arrow keys"
   },
   "game_mode": {
     "auto_disable": "Auto-disable in games",
@@ -431,7 +418,8 @@
     "copy_failed": "Could not copy. Manual: {{account}}",
     "qr_load_failed": "Could not load QR",
     "qr_zoom_title": "Scan to transfer",
-    "qr_alt": "VietQR for bank transfer"
+    "qr_alt": "VietQR for bank transfer",
+    "donate_button": "Tap here to donate"
   },
   "forced_update": {
     "title": "Update required",
@@ -497,15 +485,36 @@
       "subtitle": "Scroll the area below. If it feels right, finish."
     },
     "use_case": {
-      "Reader":   { "label": "Reader",   "help": "Articles, PDFs, long pages." },
-      "Coder":    { "label": "Coder",    "help": "VS Code, JetBrains, terminals." },
-      "Designer": { "label": "Designer", "help": "Photoshop, Figma, video editors." },
-      "General":  { "label": "General",  "help": "A mix of everything." }
+      "Reader": {
+        "label": "Reader",
+        "help": "Articles, PDFs, long pages."
+      },
+      "Coder": {
+        "label": "Coder",
+        "help": "VS Code, JetBrains, terminals."
+      },
+      "Designer": {
+        "label": "Designer",
+        "help": "Photoshop, Figma, video editors."
+      },
+      "General": {
+        "label": "General",
+        "help": "A mix of everything."
+      }
     },
     "feel": {
-      "Glide":    { "label": "Glide",    "help": "Slow, mac-like, smooth." },
-      "Balanced": { "label": "Balanced", "help": "Recommended default." },
-      "Snappy":   { "label": "Snappy",   "help": "Fast with little inertia." }
+      "Glide": {
+        "label": "Glide",
+        "help": "Slow, mac-like, smooth."
+      },
+      "Balanced": {
+        "label": "Balanced",
+        "help": "Recommended default."
+      },
+      "Snappy": {
+        "label": "Snappy",
+        "help": "Fast with little inertia."
+      }
     }
   }
 }

@@ -31,15 +31,10 @@
     "polling": "Je détecterai l'octroi de l'autorisation et continuerai."
   },
   "tabs": {
-    "general": {
-      "label": "Général",
-      "title": "Général",
-      "description": "Bascules rapides et contrôles d'état."
-    },
     "scroll": {
       "label": "Défilement",
       "title": "Défilement",
-      "description": "Taille du pas, lissage, direction et apparence."
+      "description": "Activer le défilement, ajuster la taille du pas, le lissage, la direction et l'apparence."
     },
     "devices": {
       "label": "Périphériques",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "Applis",
       "title": "Par application",
-      "description": "Profils, exclusions et mode jeu pour des applications spécifiques."
+      "description": "Profils et exclusions adaptés à chaque application."
     },
     "behavior": {
       "label": "Comportement",
@@ -65,6 +60,11 @@
       "label": "À propos",
       "title": "À propos",
       "description": "Version, mises à jour et journaux."
+    },
+    "gamemode": {
+      "label": "Mode jeu",
+      "title": "Mode jeu",
+      "description": "Désactiver automatiquement le défilement fluide pour les jeux connus."
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "Clair",
       "Dark": "Sombre",
       "System": "Système"
+    },
+    "reduce_motion": {
+      "title": "Respecter « Réduire les animations » du système",
+      "desc": "Quand le système demande de réduire les animations, le défilement devient instantané au lieu de fluide",
+      "auto": "Auto (suivre le système)",
+      "always": "Toujours instantané",
+      "never": "Toujours fluide",
+      "status_on": "Réduire animations système : ACTIVÉ",
+      "status_off": "Réduire animations système : DÉSACTIVÉ"
     },
     "reset_to_default": "Réinitialiser",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "Version",
     "author": "Auteur",
     "open_logs": "Ouvrir le dossier des journaux",
+    "rerun_setup": "Relancer l'assistant de configuration",
     "homepage": "Site web",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Mises à jour",
@@ -323,7 +333,8 @@
     "copy_failed": "Copie impossible. Manuel : {{account}}",
     "qr_load_failed": "Impossible de charger le QR",
     "qr_zoom_title": "Scanner pour transférer",
-    "qr_alt": "VietQR pour virement bancaire"
+    "qr_alt": "VietQR pour virement bancaire",
+    "donate_button": "Appuyer ici pour faire un don"
   },
   "forced_update": {
     "title": "Mise à jour requise",
@@ -350,6 +361,156 @@
     "open_log": "Ouvrir le fichier journal",
     "quit": "Quitter SmoothScroll",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Application actuelle",
+      "category": "Catégorie : {{category}}",
+      "profile": "Profil",
+      "default": "Par défaut",
+      "disabled": "Désactivé (sans effet)",
+      "disable_for_this_app": "Désactiver le lissage pour cette application",
+      "smoothing_on": "Lissage actif",
+      "smoothing_off": "Lissage désactivé"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "vif",
+      "balanced": "équilibré",
+      "glide": "glissant",
+      "dreamy": "rêveur"
+    },
+    "step": {
+      "fine": "fin",
+      "standard": "standard",
+      "bold": "marqué",
+      "huge": "énorme"
+    },
+    "accel": {
+      "flat": "plat",
+      "gentle": "doux",
+      "responsive": "réactif",
+      "aggressive": "agressif"
+    }
+  },
+  "cheatsheet": {
+    "title": "Raccourcis clavier",
+    "toggle": "Afficher / masquer ce panneau",
+    "toggle_alt": "Idem — alternative",
+    "toggle_smoothing": "Activer/désactiver le défilement fluide",
+    "close": "Fermer les boîtes de dialogue / ce panneau",
+    "tab": "Déplacer le focus entre les contrôles",
+    "space_slider": "Basculer la valeur du curseur (au focus)",
+    "arrows": "Ajuster le curseur pas à pas",
+    "hint": "Appuyez sur ? n'importe où pour ouvrir ce panneau"
+  },
+  "whatsnew": {
+    "title": "Nouveautés",
+    "dismiss": "Compris",
+    "version_label": "Version {{version}}",
+    "tagline": "Voici ce qui a changé depuis votre dernière ouverture de SmoothScroll.",
+    "view_changelog": "Voir le journal complet",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding : nouveau chemin « Just smooth it » en un clic",
+        "permission": "Flux d'autorisation : bouton de revérification active + polling plus intelligent",
+        "feel_hints": "Les curseurs affichent maintenant des indices de ressenti lisibles (vif / équilibré / glissant)",
+        "cheatsheet": "Appuyez sur ? n'importe où pour ouvrir le panneau de raccourcis",
+        "backup": "Sauvegarde et restauration — exporter et importer les paramètres en JSON"
+      }
+    }
+  },
+  "backup": {
+    "title": "Sauvegarde et restauration",
+    "description": "Exportez vos paramètres dans un fichier JSON ou restaurez depuis une sauvegarde. Utile lors d'un changement de machine.",
+    "export": "Exporter les paramètres",
+    "import": "Importer les paramètres",
+    "exported": "Paramètres exportés avec succès",
+    "imported": "Paramètres importés. Rechargement…",
+    "import_error": "Impossible de lire le fichier de sauvegarde. Assurez-vous qu'il a été exporté depuis SmoothScroll.",
+    "confirm_import": "L'import écrasera vos paramètres actuels. Continuer ?"
+  },
+  "apppicker": {
+    "title": "Choisir une application",
+    "search": "Rechercher des applications en cours…",
+    "empty": "Aucun résultat. Essayez un autre nom.",
+    "loading": "Chargement des applications en cours…",
+    "refresh": "Actualiser"
+  },
+  "onboarding_intro": {
+    "title": "Bienvenue dans SmoothScroll",
+    "body": "Votre molette sera fluide comme du beurre en moins d'une minute. Choisissez une option ci-dessous.",
+    "just_smooth": "Juste fluidifier (recommandé)",
+    "guided": "Ajuster pour moi (3 étapes rapides)"
+  },
+  "stats": {
+    "title": "Vos statistiques (locales uniquement)",
+    "description": "Ces chiffres restent sur votre appareil. Rien n'est téléversé.",
+    "sessions": "Sessions",
+    "using_for": "Utilisé depuis",
+    "reset": "Réinitialiser les statistiques",
+    "confirm_reset": "Cela effacera toutes les statistiques stockées localement. Continuer ?"
+  },
+  "battery": {
+    "low_hint": "La batterie est faible. Le défilement fluide ajoute un léger coût CPU — vous pouvez le désactiver temporairement."
+  },
+  "precision": {
+    "ctrl_label": "Laisser passer Ctrl + molette",
+    "cmd_label": "Laisser passer Cmd + molette",
+    "ctrl_help": "Recommandé pour le zoom dans Photoshop, Figma, navigateurs, VS Code.",
+    "alt_label": "Laisser passer Alt + molette",
+    "alt_help": "Recommandé pour les éditeurs et timelines (Premiere, DAW).",
+    "clear_inertia_label": "Effacer l'inertie quand un modificateur est pressé",
+    "clear_inertia_help": "Arrête le défilement fluide en attente dès qu'un modificateur est pressé pour un zoom immédiat."
+  },
+  "onboarding": {
+    "skip": "Ignorer",
+    "back": "Retour",
+    "next": "Suivant",
+    "finish": "Ça me va — terminer",
+    "step1": {
+      "title": "Que faites-vous principalement ?",
+      "subtitle": "Nous choisirons des valeurs par défaut adaptées à votre travail."
+    },
+    "step2": {
+      "title": "Quel ressenti souhaitez-vous ?",
+      "subtitle": "Choisissez un ressenti de départ. Vous pourrez ajuster ensuite."
+    },
+    "step3": {
+      "title": "Essayez",
+      "subtitle": "Faites défiler la zone ci-dessous. Si ça vous plaît, terminez."
+    },
+    "use_case": {
+      "Reader": {
+        "label": "Lecture",
+        "help": "Articles, PDF, longues pages."
+      },
+      "Coder": {
+        "label": "Développement",
+        "help": "VS Code, JetBrains, terminaux."
+      },
+      "Designer": {
+        "label": "Design",
+        "help": "Photoshop, Figma, éditeurs vidéo."
+      },
+      "General": {
+        "label": "Général",
+        "help": "Un peu de tout."
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "Glissant",
+        "help": "Lent, style mac, fluide."
+      },
+      "Balanced": {
+        "label": "Équilibré",
+        "help": "Recommandé par défaut."
+      },
+      "Snappy": {
+        "label": "Vif",
+        "help": "Rapide, peu d'inertie."
+      }
+    }
   }
 }

@@ -31,15 +31,10 @@
     "polling": "Rileverò quando concedi il permesso e proseguirò."
   },
   "tabs": {
-    "general": {
-      "label": "Generale",
-      "title": "Generale",
-      "description": "Interruttori rapidi e controlli di stato."
-    },
     "scroll": {
       "label": "Scorrimento",
       "title": "Scorrimento",
-      "description": "Dimensione del passo, easing, direzione e aspetto."
+      "description": "Abilita lo scorrimento, regola dimensione del passo, easing, direzione e aspetto."
     },
     "devices": {
       "label": "Dispositivi",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "App",
       "title": "Per app",
-      "description": "Profili, esclusioni e modalità gioco per applicazioni specifiche."
+      "description": "Profili ed esclusioni per applicazioni specifiche."
     },
     "behavior": {
       "label": "Comportamento",
@@ -65,6 +60,11 @@
       "label": "Info",
       "title": "Info",
       "description": "Versione, aggiornamenti e log."
+    },
+    "gamemode": {
+      "label": "Modalità gioco",
+      "title": "Modalità gioco",
+      "description": "Disattiva automaticamente lo scorrimento fluido per i giochi conosciuti."
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "Chiaro",
       "Dark": "Scuro",
       "System": "Sistema"
+    },
+    "reduce_motion": {
+      "title": "Rispetta «Riduci movimento» del sistema",
+      "desc": "Quando il sistema chiede di ridurre il movimento, lo scorrimento diventa istantaneo invece che fluido",
+      "auto": "Auto (segui il sistema)",
+      "always": "Sempre istantaneo",
+      "never": "Sempre fluido",
+      "status_on": "Riduci movimento sistema: ATTIVO",
+      "status_off": "Riduci movimento sistema: DISATTIVO"
     },
     "reset_to_default": "Ripristina predefiniti",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "Versione",
     "author": "Autore",
     "open_logs": "Apri cartella log",
+    "rerun_setup": "Riavvia la procedura guidata",
     "homepage": "Sito web",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Aggiornamenti",
@@ -323,7 +333,8 @@
     "copy_failed": "Impossibile copiare. Manuale: {{account}}",
     "qr_load_failed": "Impossibile caricare il QR",
     "qr_zoom_title": "Scansiona per trasferire",
-    "qr_alt": "VietQR per bonifico bancario"
+    "qr_alt": "VietQR per bonifico bancario",
+    "donate_button": "Tocca qui per donare"
   },
   "forced_update": {
     "title": "Aggiornamento richiesto",
@@ -350,6 +361,156 @@
     "open_log": "Apri file di log",
     "quit": "Esci da SmoothScroll",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "App corrente",
+      "category": "Categoria: {{category}}",
+      "profile": "Profilo",
+      "default": "Predefinito",
+      "disabled": "Disabilitato (pass-through)",
+      "disable_for_this_app": "Disabilita la smussatura per questa app",
+      "smoothing_on": "Smussatura attiva",
+      "smoothing_off": "Smussatura disattivata"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "reattivo",
+      "balanced": "bilanciato",
+      "glide": "scorrevole",
+      "dreamy": "sognante"
+    },
+    "step": {
+      "fine": "fine",
+      "standard": "standard",
+      "bold": "marcato",
+      "huge": "enorme"
+    },
+    "accel": {
+      "flat": "piatto",
+      "gentle": "delicato",
+      "responsive": "reattivo",
+      "aggressive": "aggressivo"
+    }
+  },
+  "cheatsheet": {
+    "title": "Scorciatoie da tastiera",
+    "toggle": "Mostra / nascondi questo pannello",
+    "toggle_alt": "Stesso — alternativa",
+    "toggle_smoothing": "Attiva/disattiva scorrimento fluido",
+    "close": "Chiudi finestre / questo pannello",
+    "tab": "Sposta il focus tra i controlli",
+    "space_slider": "Alterna valore dello slider (al focus)",
+    "arrows": "Regola lo slider passo passo",
+    "hint": "Premi ? ovunque per aprire questo pannello"
+  },
+  "whatsnew": {
+    "title": "Novità",
+    "dismiss": "Capito",
+    "version_label": "Versione {{version}}",
+    "tagline": "Ecco cosa è cambiato dall'ultima volta che hai aperto SmoothScroll.",
+    "view_changelog": "Visualizza changelog completo",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: nuovo percorso «Just smooth it» con un clic",
+        "permission": "Flusso permessi: pulsante di ricontrollo attivo + polling più intelligente",
+        "feel_hints": "Gli slider mostrano ora suggerimenti leggibili (reattivo / bilanciato / scorrevole)",
+        "cheatsheet": "Premi ? ovunque per aprire il pannello delle scorciatoie",
+        "backup": "Backup e ripristino — esporta e importa le impostazioni come JSON"
+      }
+    }
+  },
+  "backup": {
+    "title": "Backup e ripristino",
+    "description": "Esporta le impostazioni in un file JSON o ripristina da un backup. Utile quando passi a una nuova macchina.",
+    "export": "Esporta impostazioni",
+    "import": "Importa impostazioni",
+    "exported": "Impostazioni esportate con successo",
+    "imported": "Impostazioni importate. Ricaricamento…",
+    "import_error": "Impossibile leggere il file di backup. Assicurati che sia stato esportato da SmoothScroll.",
+    "confirm_import": "L'importazione sovrascriverà le impostazioni attuali. Continuare?"
+  },
+  "apppicker": {
+    "title": "Scegli un'app",
+    "search": "Cerca app in esecuzione…",
+    "empty": "Nessun risultato. Prova un altro nome.",
+    "loading": "Caricamento app in esecuzione…",
+    "refresh": "Aggiorna"
+  },
+  "onboarding_intro": {
+    "title": "Benvenuto in SmoothScroll",
+    "body": "In meno di un minuto la tua rotellina diventerà liscia come il burro. Scegli un percorso qui sotto.",
+    "just_smooth": "Rendilo solo fluido (consigliato)",
+    "guided": "Configuralo per me (3 passaggi rapidi)"
+  },
+  "stats": {
+    "title": "Le tue statistiche (solo locali)",
+    "description": "Questi numeri rimangono sul tuo dispositivo. Nulla viene caricato.",
+    "sessions": "Sessioni",
+    "using_for": "In uso da",
+    "reset": "Reimposta statistiche",
+    "confirm_reset": "Questo cancellerà tutte le statistiche memorizzate localmente. Continuare?"
+  },
+  "battery": {
+    "low_hint": "Batteria scarica. Lo scorrimento fluido aggiunge un piccolo costo CPU — puoi disattivarlo temporaneamente."
+  },
+  "precision": {
+    "ctrl_label": "Lascia passare Ctrl + rotellina",
+    "cmd_label": "Lascia passare Cmd + rotellina",
+    "ctrl_help": "Consigliato per zoom in Photoshop, Figma, browser, VS Code.",
+    "alt_label": "Lascia passare Alt + rotellina",
+    "alt_help": "Consigliato per editor e timeline (Premiere, DAW).",
+    "clear_inertia_label": "Cancella inerzia quando si preme un modificatore",
+    "clear_inertia_help": "Ferma lo scorrimento fluido in attesa quando viene premuto un modificatore, così lo zoom risponde immediatamente."
+  },
+  "onboarding": {
+    "skip": "Salta",
+    "back": "Indietro",
+    "next": "Avanti",
+    "finish": "Va bene — termina",
+    "step1": {
+      "title": "Cosa fai principalmente?",
+      "subtitle": "Sceglieremo valori predefiniti adatti al tuo lavoro."
+    },
+    "step2": {
+      "title": "Come vuoi che si percepisca?",
+      "subtitle": "Scegli una sensazione di partenza. Potrai regolare in seguito."
+    },
+    "step3": {
+      "title": "Provalo",
+      "subtitle": "Scorri l'area sottostante. Se ti piace, termina."
+    },
+    "use_case": {
+      "Reader": {
+        "label": "Lettura",
+        "help": "Articoli, PDF, pagine lunghe."
+      },
+      "Coder": {
+        "label": "Programmazione",
+        "help": "VS Code, JetBrains, terminali."
+      },
+      "Designer": {
+        "label": "Design",
+        "help": "Photoshop, Figma, editor video."
+      },
+      "General": {
+        "label": "Generale",
+        "help": "Un po' di tutto."
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "Scorrevole",
+        "help": "Lento, stile mac, fluido."
+      },
+      "Balanced": {
+        "label": "Bilanciato",
+        "help": "Predefinito consigliato."
+      },
+      "Snappy": {
+        "label": "Reattivo",
+        "help": "Veloce, con poca inerzia."
+      }
+    }
   }
 }

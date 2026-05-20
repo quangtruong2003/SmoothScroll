@@ -31,15 +31,10 @@
     "polling": "İzni verdiğinizde algılayıp devam edeceğim."
   },
   "tabs": {
-    "general": {
-      "label": "Genel",
-      "title": "Genel",
-      "description": "Hızlı düğmeler ve durum kontrolleri."
-    },
     "scroll": {
       "label": "Kaydırma",
       "title": "Kaydırma",
-      "description": "Adım boyutu, easing, yön ve görünüm."
+      "description": "Kaydırmayı etkinleştir, adım boyutu, easing, yön ve görünümü ayarla."
     },
     "devices": {
       "label": "Cihazlar",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "Uygulamalar",
       "title": "Uygulama başına",
-      "description": "Belirli uygulamalar için profiller, hariç tutmalar ve oyun modu."
+      "description": "Belirli uygulamalara özel profiller ve hariç tutmalar."
     },
     "behavior": {
       "label": "Davranış",
@@ -65,6 +60,11 @@
       "label": "Hakkında",
       "title": "Hakkında",
       "description": "Sürüm, güncellemeler ve günlükler."
+    },
+    "gamemode": {
+      "label": "Oyun modu",
+      "title": "Oyun modu",
+      "description": "Bilinen oyunlar için yumuşak kaydırmayı otomatik devre dışı bırak."
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "Açık",
       "Dark": "Koyu",
       "System": "Sistem"
+    },
+    "reduce_motion": {
+      "title": "Sistemin 'Hareketi azalt' ayarına saygı göster",
+      "desc": "Sistem hareket azaltma istediğinde, kaydırma yumuşak yerine anında olur",
+      "auto": "Otomatik (sistemi izle)",
+      "always": "Her zaman anında",
+      "never": "Her zaman yumuşak",
+      "status_on": "Sistem hareketi azalt: AÇIK",
+      "status_off": "Sistem hareketi azalt: KAPALI"
     },
     "reset_to_default": "Varsayılana sıfırla",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "Sürüm",
     "author": "Yazar",
     "open_logs": "Günlük klasörünü aç",
+    "rerun_setup": "Kurulum sihirbazını yeniden çalıştır",
     "homepage": "Ana sayfa",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Güncellemeler",
@@ -323,7 +333,8 @@
     "copy_failed": "Kopyalanamadı. Manuel: {{account}}",
     "qr_load_failed": "QR yüklenemedi",
     "qr_zoom_title": "Havale için tara",
-    "qr_alt": "Banka havalesi için VietQR"
+    "qr_alt": "Banka havalesi için VietQR",
+    "donate_button": "Bağış yapmak için dokun"
   },
   "forced_update": {
     "title": "Güncelleme gerekli",
@@ -350,6 +361,156 @@
     "open_log": "Günlük dosyasını aç",
     "quit": "SmoothScroll'tan çık",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Geçerli uygulama",
+      "category": "Kategori: {{category}}",
+      "profile": "Profil",
+      "default": "Varsayılan",
+      "disabled": "Devre dışı (pass-through)",
+      "disable_for_this_app": "Bu uygulama için yumuşatmayı devre dışı bırak",
+      "smoothing_on": "Yumuşatma etkin",
+      "smoothing_off": "Yumuşatma devre dışı"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "çevik",
+      "balanced": "dengeli",
+      "glide": "süzülme",
+      "dreamy": "rüyamsı"
+    },
+    "step": {
+      "fine": "ince",
+      "standard": "standart",
+      "bold": "belirgin",
+      "huge": "devasa"
+    },
+    "accel": {
+      "flat": "düz",
+      "gentle": "yumuşak",
+      "responsive": "tepkisel",
+      "aggressive": "agresif"
+    }
+  },
+  "cheatsheet": {
+    "title": "Klavye kısayolları",
+    "toggle": "Bu paneli göster / gizle",
+    "toggle_alt": "Aynı — alternatif",
+    "toggle_smoothing": "Yumuşak kaydırmayı aç/kapat",
+    "close": "İletişim kutularını / bu paneli kapat",
+    "tab": "Kontroller arasında odağı taşı",
+    "space_slider": "Kaydırıcı değerini değiştir (odaktayken)",
+    "arrows": "Kaydırıcıyı adım adım ayarla",
+    "hint": "Bu paneli açmak için herhangi bir yerde ?'a basın"
+  },
+  "whatsnew": {
+    "title": "Yenilikler",
+    "dismiss": "Anladım",
+    "version_label": "Sürüm {{version}}",
+    "tagline": "SmoothScroll'u son açmanızdan bu yana neler değişti.",
+    "view_changelog": "Tüm değişiklik günlüğünü görüntüle",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: yeni tek tıkla «Just smooth it» yolu",
+        "permission": "İzin akışı: aktif yeniden denetleme düğmesi + daha akıllı yoklama",
+        "feel_hints": "Kaydırıcılar artık okunaklı his ipuçları gösteriyor (çevik / dengeli / süzülme)",
+        "cheatsheet": "Klavye kısayol panelini açmak için herhangi bir yerde ?'a basın",
+        "backup": "Yedekleme ve geri yükleme — ayarları JSON olarak dışa/içe aktar"
+      }
+    }
+  },
+  "backup": {
+    "title": "Yedekleme ve geri yükleme",
+    "description": "Ayarları bir JSON dosyasına dışa aktarın veya bir yedekten geri yükleyin. Yeni bir makineye geçerken kullanışlı.",
+    "export": "Ayarları dışa aktar",
+    "import": "Ayarları içe aktar",
+    "exported": "Ayarlar başarıyla dışa aktarıldı",
+    "imported": "Ayarlar içe aktarıldı. Yeniden yükleniyor…",
+    "import_error": "Yedek dosyası ayrıştırılamadı. SmoothScroll'tan dışa aktarıldığından emin olun.",
+    "confirm_import": "İçe aktarma mevcut ayarlarınızın üzerine yazacak. Devam edilsin mi?"
+  },
+  "apppicker": {
+    "title": "Bir uygulama seç",
+    "search": "Çalışan uygulamaları ara…",
+    "empty": "Eşleşme yok. Başka bir ad deneyin.",
+    "loading": "Çalışan uygulamalar yükleniyor…",
+    "refresh": "Yenile"
+  },
+  "onboarding_intro": {
+    "title": "SmoothScroll'a hoş geldiniz",
+    "body": "Bir dakikadan kısa sürede tekerleğiniz tereyağı gibi yumuşak hissettirecek. Aşağıdan bir yol seçin.",
+    "just_smooth": "Sadece yumuşat (önerilir)",
+    "guided": "Benim için ayarla (3 hızlı adım)"
+  },
+  "stats": {
+    "title": "İstatistikleriniz (yalnızca yerel)",
+    "description": "Bu sayılar cihazınızda kalır. Hiçbir şey yüklenmez.",
+    "sessions": "Oturumlar",
+    "using_for": "Kullanım süresi",
+    "reset": "İstatistikleri sıfırla",
+    "confirm_reset": "Bu, yerel olarak depolanmış tüm istatistikleri silecek. Devam edilsin mi?"
+  },
+  "battery": {
+    "low_hint": "Pil zayıf. Yumuşak kaydırma az miktarda CPU kullanır — geçici olarak kapatmayı düşünebilirsiniz."
+  },
+  "precision": {
+    "ctrl_label": "Ctrl + tekerlek doğrudan geçsin",
+    "cmd_label": "Cmd + tekerlek doğrudan geçsin",
+    "ctrl_help": "Photoshop, Figma, tarayıcılar, VS Code'da yakınlaştırma için önerilir.",
+    "alt_label": "Alt + tekerlek doğrudan geçsin",
+    "alt_help": "Editör ve zaman çizelgeleri için önerilir (Premiere, DAW).",
+    "clear_inertia_label": "Değiştirici basıldığında ataleti temizle",
+    "clear_inertia_help": "Değiştirici basılır basılmaz bekleyen yumuşak kaydırmayı durdurarak yakınlaştırmanın anında yanıt vermesini sağlar."
+  },
+  "onboarding": {
+    "skip": "Atla",
+    "back": "Geri",
+    "next": "İleri",
+    "finish": "İyi görünüyor — bitir",
+    "step1": {
+      "title": "Çoğunlukla ne yapıyorsunuz?",
+      "subtitle": "Çalışmanız için akıllı varsayılanlar seçeceğiz."
+    },
+    "step2": {
+      "title": "Nasıl bir his istiyorsunuz?",
+      "subtitle": "Bir başlangıç hissi seçin. Sonra ince ayar yapabilirsiniz."
+    },
+    "step3": {
+      "title": "Deneyin",
+      "subtitle": "Aşağıdaki alanı kaydırın. Hoşunuza giderse bitirin."
+    },
+    "use_case": {
+      "Reader": {
+        "label": "Okuyucu",
+        "help": "Makaleler, PDF'ler, uzun sayfalar."
+      },
+      "Coder": {
+        "label": "Kodlayıcı",
+        "help": "VS Code, JetBrains, terminaller."
+      },
+      "Designer": {
+        "label": "Tasarımcı",
+        "help": "Photoshop, Figma, video editörler."
+      },
+      "General": {
+        "label": "Genel",
+        "help": "Her şeyin karışımı."
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "Süzülme",
+        "help": "Yavaş, mac tarzı, yumuşak."
+      },
+      "Balanced": {
+        "label": "Dengeli",
+        "help": "Önerilen varsayılan."
+      },
+      "Snappy": {
+        "label": "Çevik",
+        "help": "Hızlı, az atalet ile."
+      }
+    }
   }
 }

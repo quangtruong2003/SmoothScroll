@@ -31,15 +31,10 @@
     "polling": "Detectaré cuando lo concedas y continuaré."
   },
   "tabs": {
-    "general": {
-      "label": "General",
-      "title": "General",
-      "description": "Conmutadores rápidos y comprobaciones de estado."
-    },
     "scroll": {
       "label": "Desplazamiento",
       "title": "Desplazamiento",
-      "description": "Tamaño del paso, easing, dirección y apariencia."
+      "description": "Activa el desplazamiento, ajusta tamaño del paso, easing, dirección y apariencia."
     },
     "devices": {
       "label": "Dispositivos",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "Apps",
       "title": "Por aplicación",
-      "description": "Perfiles, exclusiones y modo juego para aplicaciones específicas."
+      "description": "Perfiles y exclusiones adaptados a aplicaciones específicas."
     },
     "behavior": {
       "label": "Comportamiento",
@@ -65,6 +60,11 @@
       "label": "Acerca de",
       "title": "Acerca de",
       "description": "Versión, actualizaciones y registros."
+    },
+    "gamemode": {
+      "label": "Modo juego",
+      "title": "Modo juego",
+      "description": "Desactivar el desplazamiento suave automáticamente para juegos conocidos."
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "Claro",
       "Dark": "Oscuro",
       "System": "Sistema"
+    },
+    "reduce_motion": {
+      "title": "Respetar «Reducir movimiento» del sistema",
+      "desc": "Cuando el sistema solicita reducir el movimiento, el desplazamiento se vuelve instantáneo en lugar de suave",
+      "auto": "Auto (seguir sistema)",
+      "always": "Siempre instantáneo",
+      "never": "Siempre suave",
+      "status_on": "Reducir movimiento del sistema: ACTIVADO",
+      "status_off": "Reducir movimiento del sistema: DESACTIVADO"
     },
     "reset_to_default": "Restablecer valores predeterminados",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "Versión",
     "author": "Autor",
     "open_logs": "Abrir carpeta de registros",
+    "rerun_setup": "Volver a ejecutar el asistente de configuración",
     "homepage": "Página principal",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Actualizaciones",
@@ -323,7 +333,8 @@
     "copy_failed": "No se pudo copiar. Manual: {{account}}",
     "qr_load_failed": "No se pudo cargar el QR",
     "qr_zoom_title": "Escanea para transferir",
-    "qr_alt": "VietQR para transferencia bancaria"
+    "qr_alt": "VietQR para transferencia bancaria",
+    "donate_button": "Toca aquí para donar"
   },
   "forced_update": {
     "title": "Actualización requerida",
@@ -350,6 +361,156 @@
     "open_log": "Abrir archivo de registro",
     "quit": "Salir de SmoothScroll",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Aplicación actual",
+      "category": "Categoría: {{category}}",
+      "profile": "Perfil",
+      "default": "Predeterminado",
+      "disabled": "Desactivado (pass-through)",
+      "disable_for_this_app": "Desactivar suavizado para esta aplicación",
+      "smoothing_on": "Suavizado activo",
+      "smoothing_off": "Suavizado desactivado"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "ágil",
+      "balanced": "equilibrado",
+      "glide": "deslizante",
+      "dreamy": "soñador"
+    },
+    "step": {
+      "fine": "fino",
+      "standard": "estándar",
+      "bold": "marcado",
+      "huge": "enorme"
+    },
+    "accel": {
+      "flat": "plano",
+      "gentle": "suave",
+      "responsive": "reactivo",
+      "aggressive": "agresivo"
+    }
+  },
+  "cheatsheet": {
+    "title": "Atajos de teclado",
+    "toggle": "Mostrar / ocultar este panel",
+    "toggle_alt": "Igual — alternativa",
+    "toggle_smoothing": "Activar/desactivar desplazamiento suave",
+    "close": "Cerrar diálogos / este panel",
+    "tab": "Mover el foco entre controles",
+    "space_slider": "Alternar valor del control deslizante (con foco)",
+    "arrows": "Ajustar el deslizante paso a paso",
+    "hint": "Pulsa ? en cualquier sitio para abrir este panel"
+  },
+  "whatsnew": {
+    "title": "Novedades",
+    "dismiss": "Entendido",
+    "version_label": "Versión {{version}}",
+    "tagline": "Esto cambió desde la última vez que abriste SmoothScroll.",
+    "view_changelog": "Ver registro completo",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: nueva ruta «Just smooth it» de un clic",
+        "permission": "Flujo de permisos: botón de reverificación activa + sondeo más inteligente",
+        "feel_hints": "Los deslizantes ahora muestran sugerencias legibles (ágil / equilibrado / deslizante)",
+        "cheatsheet": "Pulsa ? en cualquier lugar para abrir el panel de atajos",
+        "backup": "Copia de seguridad y restauración — exportar e importar ajustes en JSON"
+      }
+    }
+  },
+  "backup": {
+    "title": "Copia de seguridad y restauración",
+    "description": "Exporta tus ajustes a un archivo JSON o restaura desde una copia. Útil al cambiar de máquina.",
+    "export": "Exportar ajustes",
+    "import": "Importar ajustes",
+    "exported": "Ajustes exportados correctamente",
+    "imported": "Ajustes importados. Recargando…",
+    "import_error": "No se pudo leer el archivo de copia. Asegúrate de que se exportó desde SmoothScroll.",
+    "confirm_import": "La importación sobrescribirá tus ajustes actuales. ¿Continuar?"
+  },
+  "apppicker": {
+    "title": "Elegir una aplicación",
+    "search": "Buscar aplicaciones en ejecución…",
+    "empty": "Sin coincidencias. Prueba con otro nombre.",
+    "loading": "Cargando aplicaciones en ejecución…",
+    "refresh": "Actualizar"
+  },
+  "onboarding_intro": {
+    "title": "Bienvenido a SmoothScroll",
+    "body": "En menos de un minuto tu rueda quedará suave como mantequilla. Elige una opción abajo.",
+    "just_smooth": "Solo suavízalo (recomendado)",
+    "guided": "Ajústalo por mí (3 pasos rápidos)"
+  },
+  "stats": {
+    "title": "Tus estadísticas (solo locales)",
+    "description": "Estos números permanecen en tu dispositivo. Nada se sube.",
+    "sessions": "Sesiones",
+    "using_for": "Usando desde",
+    "reset": "Restablecer estadísticas",
+    "confirm_reset": "Esto borrará todas las estadísticas locales. ¿Continuar?"
+  },
+  "battery": {
+    "low_hint": "Batería baja. El desplazamiento suave consume algo de CPU — considera desactivarlo temporalmente."
+  },
+  "precision": {
+    "ctrl_label": "Pasar Ctrl + rueda directo",
+    "cmd_label": "Pasar Cmd + rueda directo",
+    "ctrl_help": "Recomendado para zoom en Photoshop, Figma, navegadores, VS Code.",
+    "alt_label": "Pasar Alt + rueda directo",
+    "alt_help": "Recomendado para editores y líneas de tiempo (Premiere, DAW).",
+    "clear_inertia_label": "Borrar inercia al pulsar modificador",
+    "clear_inertia_help": "Detiene el desplazamiento suave pendiente al pulsar un modificador para que el zoom responda al instante."
+  },
+  "onboarding": {
+    "skip": "Omitir",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Se ve bien — terminar",
+    "step1": {
+      "title": "¿Qué haces principalmente?",
+      "subtitle": "Elegiremos valores predeterminados inteligentes para tu trabajo."
+    },
+    "step2": {
+      "title": "¿Qué sensación prefieres?",
+      "subtitle": "Elige una sensación inicial. Puedes ajustar después."
+    },
+    "step3": {
+      "title": "Pruébalo",
+      "subtitle": "Desplázate por el área de abajo. Si te gusta, termina."
+    },
+    "use_case": {
+      "Reader": {
+        "label": "Lectura",
+        "help": "Artículos, PDFs, páginas largas."
+      },
+      "Coder": {
+        "label": "Programación",
+        "help": "VS Code, JetBrains, terminales."
+      },
+      "Designer": {
+        "label": "Diseño",
+        "help": "Photoshop, Figma, editores de vídeo."
+      },
+      "General": {
+        "label": "General",
+        "help": "Mezcla de todo."
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "Deslizante",
+        "help": "Lento, estilo mac, suave."
+      },
+      "Balanced": {
+        "label": "Equilibrado",
+        "help": "Predeterminado recomendado."
+      },
+      "Snappy": {
+        "label": "Ágil",
+        "help": "Rápido, con poca inercia."
+      }
+    }
   }
 }

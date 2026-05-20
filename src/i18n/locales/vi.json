@@ -19,7 +19,8 @@
     "keyboard_scroll": "Làm mượt cuộn bàn phím",
     "game_mode": "Chế độ game",
     "edge_scroll": "Tự cuộn ở cạnh màn hình",
-    "about": "Giới thiệu"
+    "about": "Giới thiệu",
+    "advanced_scroll": "Cuộn nâng cao"
   },
   "sidebar": {
     "tabs_aria": "Tab cài đặt"
@@ -90,21 +91,6 @@
     "import_error": "Không đọc được file sao lưu. Hãy chắc chắn file được xuất từ SmoothScroll.",
     "confirm_import": "Việc nhập sẽ ghi đè cài đặt hiện tại. Tiếp tục?"
   },
-  "diagnostic": {
-    "title": "Kiểm tra tình trạng",
-    "description": "Trạng thái thời gian thực của engine cuộn. Hữu ích khi gửi yêu cầu hỗ trợ.",
-    "engine_state": "Trạng thái engine",
-    "input_source": "Nguồn nhập gần nhất",
-    "active_profile": "Hồ sơ đang dùng",
-    "current_app": "Ứng dụng đang focus",
-    "reduce_motion": "Giảm chuyển động",
-    "on": "Bật",
-    "off": "Tắt",
-    "auto": "Tự động",
-    "test_here": "Thử cuộn tại đây",
-    "copy_report": "Sao chép báo cáo chẩn đoán",
-    "copied": "Đã sao chép!"
-  },
   "apppicker": {
     "title": "Chọn ứng dụng",
     "search": "Tìm ứng dụng đang chạy…",
@@ -130,15 +116,10 @@
     "low_hint": "Pin yếu. Cuộn mượt tiêu tốn một chút CPU — bạn có thể tạm tắt nếu cần."
   },
   "tabs": {
-    "general": {
-      "label": "Chung",
-      "title": "Chung",
-      "description": "Bật/tắt nhanh và kiểm tra trạng thái."
-    },
     "scroll": {
       "label": "Cuộn",
       "title": "Cuộn",
-      "description": "Bước cuộn, easing, hướng và giao diện."
+      "description": "Bật cuộn, tinh chỉnh bước cuộn, easing, hướng và giao diện."
     },
     "devices": {
       "label": "Thiết bị",
@@ -148,7 +129,7 @@
     "advanced": {
       "label": "Nâng cao",
       "title": "Nâng cao",
-      "description": "Phím bổ trợ chính xác và tự cuộn ở mép."
+      "description": "Cửa sổ tăng tốc, tỉ lệ đuôi, phím bổ trợ chính xác và tự cuộn ở mép."
     },
     "apps": {
       "label": "Ứng dụng",
@@ -158,12 +139,17 @@
     "behavior": {
       "label": "Hành vi",
       "title": "Hành vi",
-      "description": "Hành vi ứng dụng, phím tắt và chế độ game."
+      "description": "Hành vi ứng dụng, phím tắt và giảm chuyển động."
     },
     "about": {
       "label": "Thông tin",
       "title": "Thông tin",
       "description": "Phiên bản, cập nhật và log."
+    },
+    "gamemode": {
+      "label": "Chế độ game",
+      "title": "Chế độ game",
+      "description": "Tự động tắt cuộn mượt cho các game đã biết."
     }
   },
   "presets": {
@@ -352,10 +338,11 @@
   "keyboard_scroll": {
     "windows_only": "(Chỉ Windows)",
     "enable_smoothing": "Bật làm mượt cuộn bàn phím",
-    "active_keys": "Phím đang dùng",
     "pgdn_step": "Bước PageUp/PageDown: {{value}} nấc",
     "arrow_step": "Bước phím mũi tên: {{value}} nấc",
-    "skip_in_text_inputs": "Bỏ qua trong ô nhập văn bản"
+    "skip_in_text_inputs": "Bỏ qua trong ô nhập văn bản",
+    "page_keys": "Phím trang",
+    "arrow_keys": "Phím mũi tên"
   },
   "game_mode": {
     "auto_disable": "Tự tắt khi chơi game",
@@ -431,7 +418,8 @@
     "copy_failed": "Không sao chép được. Số tài khoản: {{account}}",
     "qr_load_failed": "Không tải được mã QR",
     "qr_zoom_title": "Quét để chuyển khoản",
-    "qr_alt": "Mã VietQR để chuyển khoản"
+    "qr_alt": "Mã VietQR để chuyển khoản",
+    "donate_button": "Nhấn vào đây để Donate"
   },
   "forced_update": {
     "title": "Bắt buộc cập nhật",
@@ -497,15 +485,36 @@
       "subtitle": "Cuộn vùng bên dưới. Nếu thấy ổn, hãy hoàn tất."
     },
     "use_case": {
-      "Reader":   { "label": "Đọc",     "help": "Bài viết, PDF, trang dài." },
-      "Coder":    { "label": "Lập trình","help": "VS Code, JetBrains, terminal." },
-      "Designer": { "label": "Thiết kế","help": "Photoshop, Figma, video editor." },
-      "General":  { "label": "Chung",   "help": "Tổng hợp mọi thứ." }
+      "Reader": {
+        "label": "Đọc",
+        "help": "Bài viết, PDF, trang dài."
+      },
+      "Coder": {
+        "label": "Lập trình",
+        "help": "VS Code, JetBrains, terminal."
+      },
+      "Designer": {
+        "label": "Thiết kế",
+        "help": "Photoshop, Figma, video editor."
+      },
+      "General": {
+        "label": "Chung",
+        "help": "Tổng hợp mọi thứ."
+      }
     },
     "feel": {
-      "Glide":    { "label": "Lướt nhẹ", "help": "Chậm, kiểu Mac, mượt mà." },
-      "Balanced": { "label": "Cân bằng", "help": "Mặc định khuyên dùng." },
-      "Snappy":   { "label": "Tức thì",  "help": "Nhanh, ít quán tính." }
+      "Glide": {
+        "label": "Lướt nhẹ",
+        "help": "Chậm, kiểu Mac, mượt mà."
+      },
+      "Balanced": {
+        "label": "Cân bằng",
+        "help": "Mặc định khuyên dùng."
+      },
+      "Snappy": {
+        "label": "Tức thì",
+        "help": "Nhanh, ít quán tính."
+      }
     }
   }
 }

@@ -31,15 +31,10 @@
     "polling": "Saya akan mendeteksi saat Anda memberi izin dan melanjutkan."
   },
   "tabs": {
-    "general": {
-      "label": "Umum",
-      "title": "Umum",
-      "description": "Tombol cepat dan pemeriksaan status."
-    },
     "scroll": {
       "label": "Scroll",
       "title": "Scroll",
-      "description": "Ukuran langkah, easing, arah, dan tampilan."
+      "description": "Aktifkan scroll, atur ukuran langkah, easing, arah, dan tampilan."
     },
     "devices": {
       "label": "Perangkat",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "Aplikasi",
       "title": "Per aplikasi",
-      "description": "Profil, pengecualian, dan mode game untuk aplikasi tertentu."
+      "description": "Profil dan pengecualian khusus untuk aplikasi tertentu."
     },
     "behavior": {
       "label": "Perilaku",
@@ -65,6 +60,11 @@
       "label": "Tentang",
       "title": "Tentang",
       "description": "Versi, pembaruan, dan log."
+    },
+    "gamemode": {
+      "label": "Mode game",
+      "title": "Mode game",
+      "description": "Nonaktifkan scroll halus secara otomatis untuk game yang dikenal."
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "Terang",
       "Dark": "Gelap",
       "System": "Sistem"
+    },
+    "reduce_motion": {
+      "title": "Hormati 'Kurangi gerakan' sistem",
+      "desc": "Saat sistem meminta pengurangan gerakan, scroll menjadi langsung alih-alih halus",
+      "auto": "Otomatis (ikuti sistem)",
+      "always": "Selalu langsung",
+      "never": "Selalu halus",
+      "status_on": "Kurangi gerakan sistem: AKTIF",
+      "status_off": "Kurangi gerakan sistem: NONAKTIF"
     },
     "reset_to_default": "Reset ke default",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "Versi",
     "author": "Pembuat",
     "open_logs": "Buka folder log",
+    "rerun_setup": "Jalankan ulang wizard pengaturan",
     "homepage": "Beranda",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Pembaruan",
@@ -323,7 +333,8 @@
     "copy_failed": "Gagal menyalin. Manual: {{account}}",
     "qr_load_failed": "QR gagal dimuat",
     "qr_zoom_title": "Pindai untuk transfer",
-    "qr_alt": "VietQR untuk transfer bank"
+    "qr_alt": "VietQR untuk transfer bank",
+    "donate_button": "Ketuk di sini untuk donasi"
   },
   "forced_update": {
     "title": "Pembaruan diperlukan",
@@ -350,6 +361,156 @@
     "open_log": "Buka File Log",
     "quit": "Keluar SmoothScroll",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Aplikasi saat ini",
+      "category": "Kategori: {{category}}",
+      "profile": "Profil",
+      "default": "Default",
+      "disabled": "Dinonaktifkan (pass-through)",
+      "disable_for_this_app": "Nonaktifkan penghalusan untuk aplikasi ini",
+      "smoothing_on": "Penghalusan aktif",
+      "smoothing_off": "Penghalusan dinonaktifkan"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "tegas",
+      "balanced": "seimbang",
+      "glide": "meluncur",
+      "dreamy": "lembut"
+    },
+    "step": {
+      "fine": "halus",
+      "standard": "standar",
+      "bold": "tebal",
+      "huge": "besar"
+    },
+    "accel": {
+      "flat": "datar",
+      "gentle": "lembut",
+      "responsive": "responsif",
+      "aggressive": "agresif"
+    }
+  },
+  "cheatsheet": {
+    "title": "Pintasan keyboard",
+    "toggle": "Tampilkan / sembunyikan panel ini",
+    "toggle_alt": "Sama — alternatif",
+    "toggle_smoothing": "Aktifkan/nonaktifkan smooth scrolling",
+    "close": "Tutup dialog / panel ini",
+    "tab": "Pindahkan fokus antar kontrol",
+    "space_slider": "Alihkan nilai slider (saat fokus)",
+    "arrows": "Sesuaikan slider langkah demi langkah",
+    "hint": "Tekan ? di mana saja untuk membuka panel ini"
+  },
+  "whatsnew": {
+    "title": "Ada apa yang baru",
+    "dismiss": "Mengerti",
+    "version_label": "Versi {{version}}",
+    "tagline": "Inilah yang berubah sejak terakhir kali Anda membuka SmoothScroll.",
+    "view_changelog": "Lihat changelog lengkap",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: jalur «Just smooth it» satu klik baru",
+        "permission": "Alur izin: tombol pemeriksaan ulang aktif + polling lebih cerdas",
+        "feel_hints": "Slider kini menampilkan petunjuk rasa yang mudah dibaca (tegas / seimbang / meluncur)",
+        "cheatsheet": "Tekan ? di mana saja untuk membuka panel pintasan keyboard",
+        "backup": "Cadangkan & pulihkan — ekspor dan impor pengaturan dalam JSON"
+      }
+    }
+  },
+  "backup": {
+    "title": "Cadangkan & pulihkan",
+    "description": "Ekspor pengaturan ke file JSON atau pulihkan dari cadangan. Berguna saat pindah ke mesin baru.",
+    "export": "Ekspor pengaturan",
+    "import": "Impor pengaturan",
+    "exported": "Pengaturan berhasil diekspor",
+    "imported": "Pengaturan diimpor. Memuat ulang…",
+    "import_error": "Tidak dapat membaca file cadangan. Pastikan diekspor dari SmoothScroll.",
+    "confirm_import": "Impor akan menimpa pengaturan saat ini. Lanjutkan?"
+  },
+  "apppicker": {
+    "title": "Pilih aplikasi",
+    "search": "Cari aplikasi yang sedang berjalan…",
+    "empty": "Tidak ada yang cocok. Coba nama lain.",
+    "loading": "Memuat aplikasi yang berjalan…",
+    "refresh": "Segarkan"
+  },
+  "onboarding_intro": {
+    "title": "Selamat datang di SmoothScroll",
+    "body": "Dalam waktu kurang dari satu menit, roda Anda akan terasa selembut mentega. Pilih jalur di bawah.",
+    "just_smooth": "Hanya buat halus (disarankan)",
+    "guided": "Sesuaikan untuk saya (3 langkah cepat)"
+  },
+  "stats": {
+    "title": "Statistik Anda (lokal saja)",
+    "description": "Angka-angka ini tetap di perangkat Anda. Tidak ada yang diunggah.",
+    "sessions": "Sesi",
+    "using_for": "Digunakan selama",
+    "reset": "Reset statistik",
+    "confirm_reset": "Ini akan menghapus semua statistik tersimpan secara lokal. Lanjutkan?"
+  },
+  "battery": {
+    "low_hint": "Baterai lemah. Smooth scrolling menambah sedikit beban CPU — pertimbangkan untuk menonaktifkan sementara."
+  },
+  "precision": {
+    "ctrl_label": "Lewatkan Ctrl + roda apa adanya",
+    "cmd_label": "Lewatkan Cmd + roda apa adanya",
+    "ctrl_help": "Disarankan untuk zoom di Photoshop, Figma, browser, VS Code.",
+    "alt_label": "Lewatkan Alt + roda apa adanya",
+    "alt_help": "Disarankan untuk editor dan timeline (Premiere, DAW).",
+    "clear_inertia_label": "Hapus inersia saat modifier ditekan",
+    "clear_inertia_help": "Menghentikan smooth scroll yang tertunda saat modifier ditekan agar zoom merespons seketika."
+  },
+  "onboarding": {
+    "skip": "Lewati",
+    "back": "Kembali",
+    "next": "Berikutnya",
+    "finish": "Bagus — selesai",
+    "step1": {
+      "title": "Apa yang biasanya Anda lakukan?",
+      "subtitle": "Kami akan memilih default cerdas untuk pekerjaan Anda."
+    },
+    "step2": {
+      "title": "Bagaimana rasa yang Anda inginkan?",
+      "subtitle": "Pilih rasa awal. Anda dapat menyetel ulang nanti."
+    },
+    "step3": {
+      "title": "Coba dulu",
+      "subtitle": "Scroll area di bawah. Kalau terasa pas, selesaikan."
+    },
+    "use_case": {
+      "Reader": {
+        "label": "Pembaca",
+        "help": "Artikel, PDF, halaman panjang."
+      },
+      "Coder": {
+        "label": "Coder",
+        "help": "VS Code, JetBrains, terminal."
+      },
+      "Designer": {
+        "label": "Desainer",
+        "help": "Photoshop, Figma, editor video."
+      },
+      "General": {
+        "label": "Umum",
+        "help": "Campuran segalanya."
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "Meluncur",
+        "help": "Lambat, gaya mac, halus."
+      },
+      "Balanced": {
+        "label": "Seimbang",
+        "help": "Default yang disarankan."
+      },
+      "Snappy": {
+        "label": "Tegas",
+        "help": "Cepat dengan sedikit inersia."
+      }
+    }
   }
 }

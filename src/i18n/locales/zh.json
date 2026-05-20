@@ -31,15 +31,10 @@
     "polling": "授予权限后，我会自动检测并继续。"
   },
   "tabs": {
-    "general": {
-      "label": "通用",
-      "title": "通用",
-      "description": "快速切换与状态检查。"
-    },
     "scroll": {
       "label": "滚动",
       "title": "滚动",
-      "description": "步长、缓动、方向和外观。"
+      "description": "启用滚动,调整步长、缓动、方向和外观。"
     },
     "devices": {
       "label": "设备",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "应用",
       "title": "按应用",
-      "description": "特定应用的配置、排除项和游戏模式。"
+      "description": "针对特定应用的配置和排除项。"
     },
     "behavior": {
       "label": "行为",
@@ -65,6 +60,11 @@
       "label": "关于",
       "title": "关于",
       "description": "版本、更新和日志。"
+    },
+    "gamemode": {
+      "label": "游戏模式",
+      "title": "游戏模式",
+      "description": "为已知游戏自动禁用平滑滚动。"
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "浅色",
       "Dark": "深色",
       "System": "跟随系统"
+    },
+    "reduce_motion": {
+      "title": "尊重系统的减少动画设置",
+      "desc": "当系统请求减少动画时,滚动将变为即时而非平滑",
+      "auto": "自动(跟随系统)",
+      "always": "始终即时",
+      "never": "始终平滑",
+      "status_on": "系统减少动画:开",
+      "status_off": "系统减少动画:关"
     },
     "reset_to_default": "恢复默认值",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "版本",
     "author": "作者",
     "open_logs": "打开日志文件夹",
+    "rerun_setup": "重新运行设置向导",
     "homepage": "主页",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "更新",
@@ -323,7 +333,8 @@
     "copy_failed": "复制失败。手动: {{account}}",
     "qr_load_failed": "无法加载二维码",
     "qr_zoom_title": "扫码转账",
-    "qr_alt": "用于银行转账的 VietQR"
+    "qr_alt": "用于银行转账的 VietQR",
+    "donate_button": "点击此处捐赠"
   },
   "forced_update": {
     "title": "必须更新",
@@ -338,6 +349,146 @@
     "quit": "退出应用",
     "skip": "跳过（受信任设备）",
     "error": "更新失败: {{message}}"
+  },
+  "feel": {
+    "anim": {
+      "snappy": "迅捷",
+      "balanced": "平衡",
+      "glide": "滑行",
+      "dreamy": "梦幻"
+    },
+    "step": {
+      "fine": "细腻",
+      "standard": "标准",
+      "bold": "强劲",
+      "huge": "巨幅"
+    },
+    "accel": {
+      "flat": "平直",
+      "gentle": "柔和",
+      "responsive": "灵敏",
+      "aggressive": "激进"
+    }
+  },
+  "cheatsheet": {
+    "title": "键盘快捷键",
+    "toggle": "显示 / 隐藏此面板",
+    "toggle_alt": "同上 — 替代键",
+    "toggle_smoothing": "切换平滑滚动开关",
+    "close": "关闭对话框 / 此面板",
+    "tab": "在控件之间切换焦点",
+    "space_slider": "切换滑杆值（聚焦时）",
+    "arrows": "逐步调整滑杆",
+    "hint": "在任意位置按 ? 打开此面板"
+  },
+  "whatsnew": {
+    "title": "新功能",
+    "dismiss": "知道了",
+    "version_label": "版本 {{version}}",
+    "tagline": "这是您上次打开 SmoothScroll 后的更新内容。",
+    "view_changelog": "查看完整更新日志",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "新手引导：新增「一键平滑」快速通道",
+        "permission": "权限流程：主动重新检查按钮 + 更智能的轮询",
+        "feel_hints": "滑杆现在显示易懂的手感提示（迅捷 / 平衡 / 滑行）",
+        "cheatsheet": "在任何位置按 ? 打开键盘快捷键面板",
+        "backup": "备份与恢复 — 以 JSON 形式导出与导入设置"
+      }
+    }
+  },
+  "backup": {
+    "title": "备份与恢复",
+    "description": "将设置导出为 JSON 文件,或从备份中恢复。在迁移到新机器时很有用。",
+    "export": "导出设置",
+    "import": "导入设置",
+    "exported": "设置导出成功",
+    "imported": "设置已导入。正在重新加载…",
+    "import_error": "无法解析备份文件。请确保它是从 SmoothScroll 导出的。",
+    "confirm_import": "导入将覆盖您当前的设置。是否继续?"
+  },
+  "apppicker": {
+    "title": "选择应用",
+    "search": "搜索正在运行的应用…",
+    "empty": "无匹配项。请尝试其他名称。",
+    "loading": "正在加载运行中的应用…",
+    "refresh": "刷新"
+  },
+  "onboarding_intro": {
+    "title": "欢迎使用 SmoothScroll",
+    "body": "我们将在一分钟内让您的滚轮变得丝滑顺畅。请在下方选择一种方式。",
+    "just_smooth": "直接平滑(推荐)",
+    "guided": "为我调整(3 个快捷步骤)"
+  },
+  "stats": {
+    "title": "您的统计(仅本地)",
+    "description": "这些数据保留在您的设备上,不会上传任何内容。",
+    "sessions": "会话数",
+    "using_for": "使用时长",
+    "reset": "重置统计",
+    "confirm_reset": "这将清除所有本地存储的统计数据。是否继续?"
+  },
+  "battery": {
+    "low_hint": "电量较低。平滑滚动会增加少量 CPU 开销 — 可以考虑暂时关闭。"
+  },
+  "precision": {
+    "ctrl_label": "Ctrl + 滚轮直接传递",
+    "cmd_label": "Cmd + 滚轮直接传递",
+    "ctrl_help": "推荐用于 Photoshop、Figma、浏览器、VS Code 中的缩放。",
+    "alt_label": "Alt + 滚轮直接传递",
+    "alt_help": "推荐用于编辑器和时间线(Premiere、DAW 等)。",
+    "clear_inertia_label": "按下修饰键时清除惯性",
+    "clear_inertia_help": "按下修饰键时立即停止待执行的平滑滚动,使缩放反应更即时。"
+  },
+  "onboarding": {
+    "skip": "跳过",
+    "back": "返回",
+    "next": "下一步",
+    "finish": "看起来不错 — 完成",
+    "step1": {
+      "title": "您主要做什么?",
+      "subtitle": "我们将为您的工作选择智能默认值。"
+    },
+    "step2": {
+      "title": "您希望的手感如何?",
+      "subtitle": "选择一种起始手感。稍后可以微调。"
+    },
+    "step3": {
+      "title": "试用一下",
+      "subtitle": "滚动下方区域。如果感觉良好,请完成。"
+    },
+    "use_case": {
+      "Reader": {
+        "label": "阅读",
+        "help": "文章、PDF、长页面。"
+      },
+      "Coder": {
+        "label": "编码",
+        "help": "VS Code、JetBrains、终端。"
+      },
+      "Designer": {
+        "label": "设计",
+        "help": "Photoshop、Figma、视频编辑器。"
+      },
+      "General": {
+        "label": "通用",
+        "help": "各种用途的混合。"
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "滑行",
+        "help": "缓慢、Mac 风格、平滑。"
+      },
+      "Balanced": {
+        "label": "平衡",
+        "help": "推荐的默认值。"
+      },
+      "Snappy": {
+        "label": "迅捷",
+        "help": "快速、惯性少。"
+      }
+    }
   },
   "tray": {
     "quick_access": "快速访问",

@@ -31,15 +31,10 @@
     "polling": "Sobald Sie die Berechtigung erteilen, erkenne ich es und mache weiter."
   },
   "tabs": {
-    "general": {
-      "label": "Allgemein",
-      "title": "Allgemein",
-      "description": "Schnellschalter und Health-Checks."
-    },
     "scroll": {
       "label": "Scrollen",
       "title": "Scrollen",
-      "description": "Schrittgröße, Easing, Richtung und Optik."
+      "description": "Scrollen aktivieren, Schrittgröße, Easing, Richtung und Optik anpassen."
     },
     "devices": {
       "label": "Geräte",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "Apps",
       "title": "Pro App",
-      "description": "Profile, Ausschlüsse und Spielmodus für bestimmte Anwendungen."
+      "description": "Profile und Ausschlüsse für bestimmte Anwendungen."
     },
     "behavior": {
       "label": "Verhalten",
@@ -65,6 +60,11 @@
       "label": "Info",
       "title": "Info",
       "description": "Version, Updates und Logs."
+    },
+    "gamemode": {
+      "label": "Spielmodus",
+      "title": "Spielmodus",
+      "description": "Glattes Scrollen für bekannte Spiele automatisch deaktivieren."
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "Hell",
       "Dark": "Dunkel",
       "System": "System"
+    },
+    "reduce_motion": {
+      "title": "System-Einstellung „Bewegung reduzieren“ beachten",
+      "desc": "Wenn das System reduzierte Bewegung anfordert, wird das Scrollen sofort statt sanft",
+      "auto": "Automatisch (System folgen)",
+      "always": "Immer sofort",
+      "never": "Immer sanft",
+      "status_on": "System: Bewegung reduziert: AN",
+      "status_off": "System: Bewegung reduziert: AUS"
     },
     "reset_to_default": "Auf Standard zurücksetzen",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "Version",
     "author": "Autor",
     "open_logs": "Protokollordner öffnen",
+    "rerun_setup": "Einrichtungsassistent erneut ausführen",
     "homepage": "Startseite",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Updates",
@@ -323,7 +333,8 @@
     "copy_failed": "Konnte nicht kopiert werden. Manuell: {{account}}",
     "qr_load_failed": "QR-Code konnte nicht geladen werden",
     "qr_zoom_title": "Zum Überweisen scannen",
-    "qr_alt": "VietQR für Banküberweisung"
+    "qr_alt": "VietQR für Banküberweisung",
+    "donate_button": "Hier tippen, um zu spenden"
   },
   "forced_update": {
     "title": "Update erforderlich",
@@ -349,7 +360,157 @@
     "excluded_apps": "Ausgeschlossene Apps",
     "open_log": "Protokolldatei öffnen",
     "quit": "SmoothScroll beenden",
-    "status_on": "ON",
-    "status_off": "OFF"
+    "status_on": "AN",
+    "status_off": "AUS",
+    "current_app": {
+      "heading": "Aktuelle App",
+      "category": "Kategorie: {{category}}",
+      "profile": "Profil",
+      "default": "Standard",
+      "disabled": "Deaktiviert (Pass-Through)",
+      "disable_for_this_app": "Glättung für diese App deaktivieren",
+      "smoothing_on": "Glättung aktiv",
+      "smoothing_off": "Glättung deaktiviert"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "reaktionsschnell",
+      "balanced": "ausgewogen",
+      "glide": "gleitend",
+      "dreamy": "verträumt"
+    },
+    "step": {
+      "fine": "fein",
+      "standard": "standard",
+      "bold": "kräftig",
+      "huge": "riesig"
+    },
+    "accel": {
+      "flat": "flach",
+      "gentle": "sanft",
+      "responsive": "reaktiv",
+      "aggressive": "aggressiv"
+    }
+  },
+  "cheatsheet": {
+    "title": "Tastenkombinationen",
+    "toggle": "Diese Übersicht ein-/ausblenden",
+    "toggle_alt": "Dasselbe — Alternative",
+    "toggle_smoothing": "Sanftes Scrollen ein-/ausschalten",
+    "close": "Dialoge / diese Übersicht schließen",
+    "tab": "Fokus zwischen Steuerelementen wechseln",
+    "space_slider": "Schiebereglerwert umschalten (bei Fokus)",
+    "arrows": "Schieberegler schrittweise anpassen",
+    "hint": "Drücken Sie überall ?, um diese Übersicht zu öffnen"
+  },
+  "whatsnew": {
+    "title": "Neuerungen",
+    "dismiss": "Verstanden",
+    "version_label": "Version {{version}}",
+    "tagline": "Das hat sich seit dem letzten Öffnen von SmoothScroll geändert.",
+    "view_changelog": "Vollständigen Changelog anzeigen",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: neuer Ein-Klick-Pfad „Just smooth it“",
+        "permission": "Berechtigungs-Workflow: aktive Wieder-Prüfen-Schaltfläche + intelligenteres Polling",
+        "feel_hints": "Schieberegler zeigen jetzt verständliche Gefühlshinweise (reaktionsschnell / ausgewogen / gleitend)",
+        "cheatsheet": "Drücken Sie überall ?, um die Tastatur-Übersicht zu öffnen",
+        "backup": "Sicherung & Wiederherstellung — Einstellungen als JSON exportieren und importieren"
+      }
+    }
+  },
+  "backup": {
+    "title": "Sicherung & Wiederherstellung",
+    "description": "Exportieren Sie Ihre Einstellungen in eine JSON-Datei oder stellen Sie sie aus einer Sicherung wieder her. Nützlich beim Wechsel auf einen neuen Computer.",
+    "export": "Einstellungen exportieren",
+    "import": "Einstellungen importieren",
+    "exported": "Einstellungen erfolgreich exportiert",
+    "imported": "Einstellungen importiert. Wird neu geladen…",
+    "import_error": "Sicherungsdatei konnte nicht gelesen werden. Stellen Sie sicher, dass sie aus SmoothScroll exportiert wurde.",
+    "confirm_import": "Beim Import werden Ihre aktuellen Einstellungen überschrieben. Fortfahren?"
+  },
+  "apppicker": {
+    "title": "App auswählen",
+    "search": "Laufende Apps suchen…",
+    "empty": "Keine Treffer. Versuchen Sie einen anderen Namen.",
+    "loading": "Laufende Apps werden geladen…",
+    "refresh": "Aktualisieren"
+  },
+  "onboarding_intro": {
+    "title": "Willkommen bei SmoothScroll",
+    "body": "In unter einer Minute fühlt sich Ihr Mausrad butterweich an. Wählen Sie unten einen Pfad.",
+    "just_smooth": "Einfach glätten (empfohlen)",
+    "guided": "Für mich anpassen (3 schnelle Schritte)"
+  },
+  "stats": {
+    "title": "Ihre Statistiken (nur lokal)",
+    "description": "Diese Werte bleiben auf Ihrem Gerät. Es wird nichts hochgeladen.",
+    "sessions": "Sitzungen",
+    "using_for": "In Verwendung seit",
+    "reset": "Statistiken zurücksetzen",
+    "confirm_reset": "Dadurch werden alle lokal gespeicherten Statistiken gelöscht. Fortfahren?"
+  },
+  "battery": {
+    "low_hint": "Akku schwach. Sanftes Scrollen kostet etwas CPU — Sie können es vorübergehend deaktivieren."
+  },
+  "precision": {
+    "ctrl_label": "Strg + Mausrad direkt durchreichen",
+    "cmd_label": "Cmd + Mausrad direkt durchreichen",
+    "ctrl_help": "Empfohlen für Zoom in Photoshop, Figma, Browser, VS Code.",
+    "alt_label": "Alt + Mausrad direkt durchreichen",
+    "alt_help": "Empfohlen für Editoren und Timelines (Premiere, DAWs).",
+    "clear_inertia_label": "Trägheit beim Drücken eines Modifikators löschen",
+    "clear_inertia_help": "Stoppt anstehendes sanftes Scrollen sobald ein Modifikator gedrückt wird, damit Zoom sofort reagiert."
+  },
+  "onboarding": {
+    "skip": "Überspringen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Sieht gut aus — fertig",
+    "step1": {
+      "title": "Was machen Sie hauptsächlich?",
+      "subtitle": "Wir wählen passende Standardwerte für Ihre Arbeit."
+    },
+    "step2": {
+      "title": "Wie soll es sich anfühlen?",
+      "subtitle": "Wählen Sie ein Ausgangsgefühl. Sie können später feinjustieren."
+    },
+    "step3": {
+      "title": "Probieren Sie es aus",
+      "subtitle": "Scrollen Sie im Bereich unten. Wenn es passt, fertigstellen."
+    },
+    "use_case": {
+      "Reader": {
+        "label": "Leser",
+        "help": "Artikel, PDFs, lange Seiten."
+      },
+      "Coder": {
+        "label": "Entwickler",
+        "help": "VS Code, JetBrains, Terminals."
+      },
+      "Designer": {
+        "label": "Designer",
+        "help": "Photoshop, Figma, Video-Editoren."
+      },
+      "General": {
+        "label": "Allgemein",
+        "help": "Eine Mischung aus allem."
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "Gleitend",
+        "help": "Langsam, mac-artig, sanft."
+      },
+      "Balanced": {
+        "label": "Ausgewogen",
+        "help": "Empfohlene Standardeinstellung."
+      },
+      "Snappy": {
+        "label": "Reaktionsschnell",
+        "help": "Schnell, kaum Trägheit."
+      }
+    }
   }
 }

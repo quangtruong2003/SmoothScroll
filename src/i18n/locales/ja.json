@@ -31,15 +31,10 @@
     "polling": "権限が付与されたら自動で検知して続行します。"
   },
   "tabs": {
-    "general": {
-      "label": "一般",
-      "title": "一般",
-      "description": "クイックトグルとヘルスチェック。"
-    },
     "scroll": {
       "label": "スクロール",
       "title": "スクロール",
-      "description": "ステップサイズ、イージング、方向、外観。"
+      "description": "スクロールを有効化し、ステップサイズ、イージング、方向、外観を調整します。"
     },
     "devices": {
       "label": "デバイス",
@@ -54,7 +49,7 @@
     "apps": {
       "label": "アプリ",
       "title": "アプリ別",
-      "description": "特定のアプリのプロファイル、除外設定、ゲームモード。"
+      "description": "特定のアプリ向けのプロファイルと除外設定。"
     },
     "behavior": {
       "label": "動作",
@@ -65,6 +60,11 @@
       "label": "情報",
       "title": "情報",
       "description": "バージョン、アップデート、ログ。"
+    },
+    "gamemode": {
+      "label": "ゲームモード",
+      "title": "ゲームモード",
+      "description": "既知のゲームでスムーススクロールを自動的に無効化します。"
     }
   },
   "presets": {
@@ -147,6 +147,15 @@
       "Light": "ライト",
       "Dark": "ダーク",
       "System": "システム"
+    },
+    "reduce_motion": {
+      "title": "システムの「動きを減らす」を尊重する",
+      "desc": "システムが動きの軽減を要求すると、スクロールはスムーズではなく即時になります",
+      "auto": "自動 (システムに従う)",
+      "always": "常に即時",
+      "never": "常にスムーズ",
+      "status_on": "システムの動きを減らす: ON",
+      "status_off": "システムの動きを減らす: OFF"
     },
     "reset_to_default": "デフォルトに戻す",
     "edge_scroll": {
@@ -299,6 +308,7 @@
     "version": "バージョン",
     "author": "作者",
     "open_logs": "ログフォルダを開く",
+    "rerun_setup": "セットアップウィザードを再実行",
     "homepage": "ホームページ",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "アップデート",
@@ -323,7 +333,8 @@
     "copy_failed": "コピーできませんでした。手動: {{account}}",
     "qr_load_failed": "QRを読み込めませんでした",
     "qr_zoom_title": "スキャンして送金",
-    "qr_alt": "銀行送金用 VietQR"
+    "qr_alt": "銀行送金用 VietQR",
+    "donate_button": "タップして寄付"
   },
   "forced_update": {
     "title": "アップデートが必要です",
@@ -350,6 +361,156 @@
     "open_log": "ログファイルを開く",
     "quit": "SmoothScrollを終了",
     "status_on": "ON",
-    "status_off": "OFF"
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "現在のアプリ",
+      "category": "カテゴリ: {{category}}",
+      "profile": "プロファイル",
+      "default": "デフォルト",
+      "disabled": "無効 (パススルー)",
+      "disable_for_this_app": "このアプリでスムージングを無効化",
+      "smoothing_on": "スムージング有効",
+      "smoothing_off": "スムージング無効"
+    }
+  },
+  "feel": {
+    "anim": {
+      "snappy": "キビキビ",
+      "balanced": "バランス",
+      "glide": "グライド",
+      "dreamy": "夢幻"
+    },
+    "step": {
+      "fine": "繊細",
+      "standard": "標準",
+      "bold": "大胆",
+      "huge": "巨大"
+    },
+    "accel": {
+      "flat": "フラット",
+      "gentle": "穏やか",
+      "responsive": "レスポンシブ",
+      "aggressive": "アグレッシブ"
+    }
+  },
+  "cheatsheet": {
+    "title": "キーボードショートカット",
+    "toggle": "このパネルを表示/非表示",
+    "toggle_alt": "同じ — 代替",
+    "toggle_smoothing": "スムーススクロールの ON/OFF",
+    "close": "ダイアログ/このパネルを閉じる",
+    "tab": "コントロール間でフォーカスを移動",
+    "space_slider": "スライダー値を切替 (フォーカス時)",
+    "arrows": "スライダーを段階的に調整",
+    "hint": "どこでも ? を押すとこのパネルが開きます"
+  },
+  "whatsnew": {
+    "title": "新機能",
+    "dismiss": "了解",
+    "version_label": "バージョン {{version}}",
+    "tagline": "前回 SmoothScroll を開いてからの変更点です。",
+    "view_changelog": "完全な更新履歴を表示",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "オンボーディング: 新しいワンクリック「Just smooth it」",
+        "permission": "権限フロー: アクティブな再チェックボタン + よりスマートなポーリング",
+        "feel_hints": "スライダーが分かりやすい感覚ヒントを表示 (キビキビ / バランス / グライド)",
+        "cheatsheet": "どこでも ? を押すとキーボードショートカットパネルが開きます",
+        "backup": "バックアップと復元 — 設定を JSON で書き出し/読み込み"
+      }
+    }
+  },
+  "backup": {
+    "title": "バックアップと復元",
+    "description": "設定を JSON ファイルに書き出すか、バックアップから復元します。新しいマシンへの移行時に便利です。",
+    "export": "設定を書き出し",
+    "import": "設定を読み込み",
+    "exported": "設定を書き出しました",
+    "imported": "設定を読み込みました。再読み込み中…",
+    "import_error": "バックアップファイルを解析できませんでした。SmoothScroll から書き出されたものか確認してください。",
+    "confirm_import": "読み込むと現在の設定が上書きされます。続行しますか?"
+  },
+  "apppicker": {
+    "title": "アプリを選択",
+    "search": "実行中のアプリを検索…",
+    "empty": "一致するものがありません。別の名前を試してください。",
+    "loading": "実行中のアプリを読み込み中…",
+    "refresh": "更新"
+  },
+  "onboarding_intro": {
+    "title": "SmoothScroll へようこそ",
+    "body": "1分以内にホイールが滑らかに感じられるようになります。下から経路を選んでください。",
+    "just_smooth": "とりあえずスムーズに (推奨)",
+    "guided": "私に合わせて調整 (3つの簡単なステップ)"
+  },
+  "stats": {
+    "title": "あなたの統計 (ローカルのみ)",
+    "description": "これらの数値はあなたのデバイスにのみ保存されます。何もアップロードされません。",
+    "sessions": "セッション数",
+    "using_for": "使用期間",
+    "reset": "統計をリセット",
+    "confirm_reset": "ローカルに保存されたすべての統計を消去します。続行しますか?"
+  },
+  "battery": {
+    "low_hint": "バッテリーが少なくなっています。スムーススクロールはわずかにCPUを使います — 一時的にオフにすることを検討してください。"
+  },
+  "precision": {
+    "ctrl_label": "Ctrl + ホイールをそのまま通す",
+    "cmd_label": "Cmd + ホイールをそのまま通す",
+    "ctrl_help": "Photoshop、Figma、ブラウザ、VS Code でのズームに推奨。",
+    "alt_label": "Alt + ホイールをそのまま通す",
+    "alt_help": "エディタやタイムライン (Premiere、DAW など) に推奨。",
+    "clear_inertia_label": "修飾キーを押したら慣性をクリア",
+    "clear_inertia_help": "修飾キーが押された瞬間に保留中のスムーススクロールを停止し、ズームが即座に反応するようにします。"
+  },
+  "onboarding": {
+    "skip": "スキップ",
+    "back": "戻る",
+    "next": "次へ",
+    "finish": "良い感じ — 完了",
+    "step1": {
+      "title": "主に何をしますか?",
+      "subtitle": "あなたの作業に合わせたスマートなデフォルトを選択します。"
+    },
+    "step2": {
+      "title": "どんな感覚がいいですか?",
+      "subtitle": "開始時の感覚を選択してください。後で微調整できます。"
+    },
+    "step3": {
+      "title": "試してみる",
+      "subtitle": "下のエリアをスクロールしてください。良ければ完了させてください。"
+    },
+    "use_case": {
+      "Reader": {
+        "label": "リーダー",
+        "help": "記事、PDF、長いページ。"
+      },
+      "Coder": {
+        "label": "コーダー",
+        "help": "VS Code、JetBrains、ターミナル。"
+      },
+      "Designer": {
+        "label": "デザイナー",
+        "help": "Photoshop、Figma、動画編集。"
+      },
+      "General": {
+        "label": "一般",
+        "help": "様々な用途のミックス。"
+      }
+    },
+    "feel": {
+      "Glide": {
+        "label": "グライド",
+        "help": "ゆっくり、Macライク、スムーズ。"
+      },
+      "Balanced": {
+        "label": "バランス",
+        "help": "推奨デフォルト。"
+      },
+      "Snappy": {
+        "label": "キビキビ",
+        "help": "速く、慣性が少ない。"
+      }
+    }
   }
 }
