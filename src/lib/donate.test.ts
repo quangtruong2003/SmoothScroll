@@ -13,8 +13,8 @@ describe("donate constants", () => {
     expect(BMC_URL).toBe("https://buymeacoffee.com/quangtruong2003");
   });
 
-  it("uses BVBank as the VietQR bank code (Timo runs on BVBank)", () => {
-    expect(BANK_CODE).toBe("BVBank");
+  it("uses Timo's VietQR BIN (970454) — shortName BVBank returns non-image", () => {
+    expect(BANK_CODE).toBe("970454");
     expect(BANK_DISPLAY_NAME).toBe("Timo (BVBank)");
   });
 
@@ -27,18 +27,18 @@ describe("donate constants", () => {
 describe("buildVietQRUrl", () => {
   it("builds a compact2 VietQR URL with encoded account name", () => {
     const url = buildVietQRUrl({
-      bankCode: "BVBank",
+      bankCode: "970454",
       account: "0947890450",
       holder: "NGUYEN QUANG TRUONG",
     });
     expect(url).toBe(
-      "https://img.vietqr.io/image/BVBank-0947890450-compact2.png?accountName=NGUYEN%20QUANG%20TRUONG",
+      "https://img.vietqr.io/image/970454-0947890450-compact2.png?accountName=NGUYEN%20QUANG%20TRUONG",
     );
   });
 
   it("URL-encodes special characters in the holder name", () => {
     const url = buildVietQRUrl({
-      bankCode: "BVBank",
+      bankCode: "970454",
       account: "0947890450",
       holder: "A & B",
     });

@@ -16,6 +16,7 @@ import {
   BANK_DISPLAY_NAME,
   BANK_QR_URL,
   BMC_URL,
+  SHOW_BMC,
 } from "@/lib/donate";
 
 export function SupportSection() {
@@ -43,15 +44,19 @@ export function SupportSection() {
       <CardContent className="space-y-4 text-sm">
         <p className="text-muted-foreground">{t("support.description")}</p>
 
-        <Button className="w-full gap-2" onClick={() => void open(BMC_URL)}>
-          <Coffee className="h-4 w-4" />
-          {t("support.buy_me_a_coffee")}
-        </Button>
+        {SHOW_BMC && (
+          <Button className="w-full gap-2" onClick={() => void open(BMC_URL)}>
+            <Coffee className="h-4 w-4" />
+            {t("support.buy_me_a_coffee")}
+          </Button>
+        )}
 
-        <div className="border-t pt-3">
-          <p className="text-muted-foreground mb-2">
-            {t("support.or_bank_transfer")}
-          </p>
+        <div className={SHOW_BMC ? "border-t pt-3" : ""}>
+          {SHOW_BMC && (
+            <p className="text-muted-foreground mb-2">
+              {t("support.or_bank_transfer")}
+            </p>
+          )}
           <div className="flex items-start gap-3 rounded-md border bg-muted/30 p-3">
             <button
               type="button"
