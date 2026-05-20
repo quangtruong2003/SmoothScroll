@@ -9,23 +9,162 @@
     "animation": "Hoạt ảnh",
     "direction": "Hướng",
     "behavior": "Hành vi",
+    "precision": "Phím bổ trợ chính xác",
     "excluded_apps": "Ứng dụng loại trừ",
     "profiles": "Hồ sơ cuộn",
     "app_profiles": "Cuộn theo ứng dụng",
     "language": "Ngôn ngữ",
     "theme": "Giao diện",
-    "test_scroll": "Thử cuộn",
     "touchpad": "Touchpad chính xác",
-    "keyboard_scroll": "Làm mượt cuộn bằng bàn phím",
+    "keyboard_scroll": "Làm mượt cuộn bàn phím",
     "game_mode": "Chế độ game",
+    "edge_scroll": "Tự cuộn ở cạnh màn hình",
     "about": "Giới thiệu"
   },
+  "sidebar": {
+    "tabs_aria": "Tab cài đặt"
+  },
+  "permission": {
+    "title": "Cần quyền Trợ năng",
+    "body": "SmoothScroll cần quyền Accessibility để bắt sự kiện cuộn chuột và phát lại với hiệu ứng mượt. Mở System Settings → Privacy & Security → Accessibility và bật SmoothScroll.",
+    "open": "Yêu cầu quyền",
+    "check_now": "Tôi vừa cấp xong — kiểm tra ngay",
+    "checking": "Đang kiểm tra…",
+    "still_denied": "Vẫn chưa được cấp. Hãy chắc chắn SmoothScroll đã BẬT trong System Settings.",
+    "polling": "Đang theo dõi quyền. Tôi sẽ tự tiếp tục khi được cấp."
+  },
+  "feel": {
+    "anim": {
+      "snappy": "tức thì",
+      "balanced": "cân bằng",
+      "glide": "lướt nhẹ",
+      "dreamy": "êm đềm"
+    },
+    "step": {
+      "fine": "tinh tế",
+      "standard": "tiêu chuẩn",
+      "bold": "đậm",
+      "huge": "khổng lồ"
+    },
+    "accel": {
+      "flat": "phẳng",
+      "gentle": "nhẹ nhàng",
+      "responsive": "linh hoạt",
+      "aggressive": "mạnh mẽ"
+    }
+  },
+  "cheatsheet": {
+    "title": "Phím tắt",
+    "toggle": "Hiện / ẩn bảng phím tắt này",
+    "toggle_alt": "Tương tự — phím thay thế",
+    "toggle_smoothing": "Bật/tắt cuộn mượt",
+    "close": "Đóng hộp thoại / bảng này",
+    "tab": "Di chuyển focus giữa các ô",
+    "space_slider": "Chuyển giá trị slider (khi đang focus)",
+    "arrows": "Điều chỉnh slider từng bước",
+    "hint": "Bấm ? ở bất cứ đâu để mở bảng này"
+  },
+  "whatsnew": {
+    "title": "Có gì mới",
+    "dismiss": "Đã hiểu",
+    "version_label": "Phiên bản {{version}}",
+    "tagline": "Đây là những thay đổi kể từ lần bạn mở SmoothScroll trước.",
+    "view_changelog": "Xem changelog đầy đủ",
+    "highlights": {
+      "0_2_0": {
+        "onboarding": "Onboarding: thêm lối tắt \"Cuộn mượt ngay\" chỉ một cú nhấp",
+        "permission": "Quy trình cấp quyền: nút kiểm tra lại + polling thông minh hơn",
+        "feel_hints": "Slider hiển thị gợi ý cảm giác dễ hiểu (tức thì / cân bằng / lướt nhẹ)",
+        "cheatsheet": "Bấm ? ở bất kỳ đâu để mở bảng phím tắt",
+        "backup": "Sao lưu & phục hồi — xuất/nhập cài đặt dạng JSON"
+      }
+    }
+  },
+  "backup": {
+    "title": "Sao lưu & phục hồi",
+    "description": "Xuất cài đặt ra file JSON hoặc khôi phục từ bản sao lưu. Hữu ích khi chuyển sang máy mới.",
+    "export": "Xuất cài đặt",
+    "import": "Nhập cài đặt",
+    "exported": "Đã xuất cài đặt thành công",
+    "imported": "Đã nhập cài đặt. Đang tải lại…",
+    "import_error": "Không đọc được file sao lưu. Hãy chắc chắn file được xuất từ SmoothScroll.",
+    "confirm_import": "Việc nhập sẽ ghi đè cài đặt hiện tại. Tiếp tục?"
+  },
+  "diagnostic": {
+    "title": "Kiểm tra tình trạng",
+    "description": "Trạng thái thời gian thực của engine cuộn. Hữu ích khi gửi yêu cầu hỗ trợ.",
+    "engine_state": "Trạng thái engine",
+    "input_source": "Nguồn nhập gần nhất",
+    "active_profile": "Hồ sơ đang dùng",
+    "current_app": "Ứng dụng đang focus",
+    "reduce_motion": "Giảm chuyển động",
+    "on": "Bật",
+    "off": "Tắt",
+    "auto": "Tự động",
+    "test_here": "Thử cuộn tại đây",
+    "copy_report": "Sao chép báo cáo chẩn đoán",
+    "copied": "Đã sao chép!"
+  },
+  "apppicker": {
+    "title": "Chọn ứng dụng",
+    "search": "Tìm ứng dụng đang chạy…",
+    "empty": "Không có kết quả. Thử tên khác.",
+    "loading": "Đang tải danh sách ứng dụng…",
+    "refresh": "Tải lại"
+  },
+  "onboarding_intro": {
+    "title": "Chào mừng đến với SmoothScroll",
+    "body": "Chỉ trong dưới một phút, bánh xe chuột của bạn sẽ mượt như nhung. Chọn một lựa chọn bên dưới.",
+    "just_smooth": "Cứ làm mượt thôi (khuyên dùng)",
+    "guided": "Tinh chỉnh giúp tôi (3 bước nhanh)"
+  },
+  "stats": {
+    "title": "Thống kê của bạn (chỉ trên máy)",
+    "description": "Các số liệu này nằm trên máy của bạn. Không có gì được tải lên.",
+    "sessions": "Số phiên",
+    "using_for": "Đã dùng",
+    "reset": "Đặt lại thống kê",
+    "confirm_reset": "Việc này sẽ xoá toàn bộ thống kê lưu trên máy. Tiếp tục?"
+  },
+  "battery": {
+    "low_hint": "Pin yếu. Cuộn mượt tiêu tốn một chút CPU — bạn có thể tạm tắt nếu cần."
+  },
   "tabs": {
-    "general": { "label": "Chung", "title": "Chung", "description": "Bật/tắt nhanh và khu vực thử nghiệm." },
-    "scroll": { "label": "Cuộn", "title": "Cuộn", "description": "Tinh chỉnh bước cuộn, easing, hướng và nguồn input." },
-    "apps": { "label": "Ứng dụng", "title": "Theo ứng dụng", "description": "Profile và loại trừ riêng cho từng ứng dụng." },
-    "preferences": { "label": "Tuỳ chọn", "title": "Tuỳ chọn", "description": "Hành vi, phím tắt và chế độ game." },
-    "about": { "label": "Thông tin", "title": "Thông tin", "description": "Phiên bản, cập nhật và log." }
+    "general": {
+      "label": "Chung",
+      "title": "Chung",
+      "description": "Bật/tắt nhanh và kiểm tra trạng thái."
+    },
+    "scroll": {
+      "label": "Cuộn",
+      "title": "Cuộn",
+      "description": "Bước cuộn, easing, hướng và giao diện."
+    },
+    "devices": {
+      "label": "Thiết bị",
+      "title": "Thiết bị nhập",
+      "description": "Làm mượt bàn phím và touchpad."
+    },
+    "advanced": {
+      "label": "Nâng cao",
+      "title": "Nâng cao",
+      "description": "Phím bổ trợ chính xác và tự cuộn ở mép."
+    },
+    "apps": {
+      "label": "Ứng dụng",
+      "title": "Theo ứng dụng",
+      "description": "Profile và loại trừ riêng cho từng ứng dụng."
+    },
+    "behavior": {
+      "label": "Hành vi",
+      "title": "Hành vi",
+      "description": "Hành vi ứng dụng, phím tắt và chế độ game."
+    },
+    "about": {
+      "label": "Thông tin",
+      "title": "Thông tin",
+      "description": "Phiên bản, cập nhật và log."
+    }
   },
   "presets": {
     "slow": "Chậm",
@@ -34,10 +173,6 @@
     "snappy": "Nhanh tức thì",
     "mac_like": "Kiểu Mac",
     "linear": "Tuyến tính"
-  },
-  "test_scroll": {
-    "description": "Cuộn trong khung dưới đây để cảm nhận cài đặt hiện tại.",
-    "line": "Dòng {{n}} — thử lăn chuột tại đây"
   },
   "settings": {
     "step_size": {
@@ -94,7 +229,8 @@
       "desc": "Nhấn vào ô và bấm tổ hợp phím bạn muốn",
       "press": "Bấm tổ hợp phím…",
       "empty": "Bấm để ghi",
-      "aria": "Ô nhập tổ hợp phím tắt"
+      "aria": "Ô nhập tổ hợp phím tắt",
+      "saved": "Đã lưu phím tắt"
     },
     "start_with_os": {
       "title": "Khởi động cùng Windows",
@@ -111,7 +247,21 @@
       "Dark": "Tối",
       "System": "Theo hệ thống"
     },
+    "reduce_motion": {
+      "title": "Tôn trọng Giảm chuyển động của hệ thống",
+      "desc": "Khi hệ thống yêu cầu giảm chuyển động, cuộn sẽ tức thì thay vì mượt",
+      "auto": "Tự động (theo hệ thống)",
+      "always": "Luôn tức thì",
+      "never": "Luôn mượt",
+      "status_on": "Giảm chuyển động hệ thống: BẬT",
+      "status_off": "Giảm chuyển động hệ thống: TẮT"
+    },
     "reset_to_default": "Đặt về mặc định",
+    "edge_scroll": {
+      "enable": "Bật tự cuộn ở cạnh màn hình",
+      "zone_size": "Kích thước vùng: {{value}}px",
+      "max_speed": "Tốc độ tối đa: {{value}} nấc/giây"
+    },
     "touchpad": {
       "detected": "Đã phát hiện",
       "source": {
@@ -256,6 +406,7 @@
     "version": "Phiên bản",
     "author": "Tác giả",
     "open_logs": "Mở thư mục log",
+    "rerun_setup": "Chạy lại trình hướng dẫn",
     "homepage": "Trang chủ",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
     "updates": "Cập nhật",
@@ -267,6 +418,20 @@
     "downloading": "Đang tải… {{pct}}%",
     "ready_to_restart": "Đã cài đặt. Khởi động lại để áp dụng.",
     "restart_now": "Khởi động lại"
+  },
+  "support": {
+    "title": "Ủng hộ dự án",
+    "description": "Cảm ơn bạn đã dùng SmoothScroll. Nếu thấy hữu ích, bạn có thể mời mình một ly cà phê:",
+    "buy_me_a_coffee": "Mời cà phê (Buy me a coffee)",
+    "or_bank_transfer": "Hoặc chuyển khoản trực tiếp:",
+    "bank_account": "Số tài khoản",
+    "bank_name": "Ngân hàng",
+    "copy_account": "Sao chép số tài khoản",
+    "copied_toast": "Đã sao chép số tài khoản",
+    "copy_failed": "Không sao chép được. Số tài khoản: {{account}}",
+    "qr_load_failed": "Không tải được mã QR",
+    "qr_zoom_title": "Quét để chuyển khoản",
+    "qr_alt": "Mã VietQR để chuyển khoản"
   },
   "forced_update": {
     "title": "Bắt buộc cập nhật",
@@ -293,6 +458,54 @@
     "open_log": "Mở file log",
     "quit": "Thoát SmoothScroll",
     "status_on": "BẬT",
-    "status_off": "TẮT"
+    "status_off": "TẮT",
+    "current_app": {
+      "heading": "Ứng dụng hiện tại",
+      "category": "Loại: {{category}}",
+      "profile": "Hồ sơ",
+      "default": "Mặc định",
+      "disabled": "Tắt (giữ nguyên hệ thống)",
+      "disable_for_this_app": "Tắt làm mượt cho ứng dụng này",
+      "smoothing_on": "Làm mượt đang bật",
+      "smoothing_off": "Làm mượt đang tắt"
+    }
+  },
+  "precision": {
+    "ctrl_label": "Cho phép Ctrl + cuộn đi thẳng",
+    "cmd_label": "Cho phép Cmd + cuộn đi thẳng",
+    "ctrl_help": "Khuyên dùng cho zoom trong Photoshop, Figma, trình duyệt, VS Code.",
+    "alt_label": "Cho phép Alt + cuộn đi thẳng",
+    "alt_help": "Khuyên dùng cho trình biên tập và timeline (Premiere, DAW).",
+    "clear_inertia_label": "Xoá quán tính khi nhấn phím bổ trợ",
+    "clear_inertia_help": "Dừng cuộn mượt đang chạy ngay khi nhấn phím bổ trợ để zoom phản hồi tức thì."
+  },
+  "onboarding": {
+    "skip": "Bỏ qua",
+    "back": "Quay lại",
+    "next": "Tiếp",
+    "finish": "Tốt rồi — hoàn tất",
+    "step1": {
+      "title": "Bạn thường dùng máy để làm gì?",
+      "subtitle": "Chúng tôi sẽ chọn cài đặt phù hợp cho công việc của bạn."
+    },
+    "step2": {
+      "title": "Bạn muốn cảm giác cuộn thế nào?",
+      "subtitle": "Chọn cảm giác khởi đầu. Bạn có thể tinh chỉnh sau."
+    },
+    "step3": {
+      "title": "Thử ngay",
+      "subtitle": "Cuộn vùng bên dưới. Nếu thấy ổn, hãy hoàn tất."
+    },
+    "use_case": {
+      "Reader":   { "label": "Đọc",     "help": "Bài viết, PDF, trang dài." },
+      "Coder":    { "label": "Lập trình","help": "VS Code, JetBrains, terminal." },
+      "Designer": { "label": "Thiết kế","help": "Photoshop, Figma, video editor." },
+      "General":  { "label": "Chung",   "help": "Tổng hợp mọi thứ." }
+    },
+    "feel": {
+      "Glide":    { "label": "Lướt nhẹ", "help": "Chậm, kiểu Mac, mượt mà." },
+      "Balanced": { "label": "Cân bằng", "help": "Mặc định khuyên dùng." },
+      "Snappy":   { "label": "Tức thì",  "help": "Nhanh, ít quán tính." }
+    }
   }
 }
