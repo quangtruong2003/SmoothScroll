@@ -19,11 +19,13 @@ export function DownloadCTA({ label, variant = 'brand', size = 'xl', className }
       variant={variant}
       size={size}
       className={className}
-      onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
+      asChild
       aria-label={label}
     >
-      <Download className="h-5 w-5 mr-2" />
-      {label}
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        <Download className="h-5 w-5 mr-2" />
+        {label}
+      </a>
     </Button>
   )
 }
