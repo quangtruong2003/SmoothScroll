@@ -26,10 +26,10 @@ export function Indie({ dict }: IndieProps) {
           <FadeUp delay={0.1}>
             <div className="grid sm:grid-cols-2 gap-4 mb-10">
               {(i.points ?? []).map((point, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-card border">
-                  <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <div key={idx} className="flex items-center gap-3 p-4 rounded-lg bg-card border min-h-[72px]">
+                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{point}</p>
+                    <p className="text-sm font-medium leading-relaxed">{point}</p>
                   </div>
                 </div>
               ))}
