@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 const REPO = 'quangtruong2003/SmoothScroll'
-const STORAGE_KEY = 'gh-stars-v2'
+const STORAGE_KEY = 'gh-stars-v4'
 const TTL_MS = 60 * 60 * 1000
 
 interface CacheEntry {
@@ -36,7 +36,7 @@ export function useGitHubStars(): number | null {
   useEffect(() => {
     const cached = readCache()
     if (cached) {
-      setStars(cached.value)
+      if (cached.value !== null) setStars(cached.value)
       return
     }
 
@@ -48,7 +48,7 @@ export function useGitHubStars(): number | null {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         const value = typeof d?.stargazers_count === 'number' ? d.stargazers_count : null
-        setStars(value)
+        if (value !== null) setStars(value)
         writeCache(value)
       })
       .catch(() => {})
