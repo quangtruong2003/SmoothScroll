@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
@@ -44,46 +44,133 @@ interface DemoScrollProps {
   toastMessage: string
 }
 
+const STEP_PX = 120
+const DURATION_MS = 360
+
+const easeOutExpo = (t: number): number =>
+  t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)
+
 export function DemoScroll({ prompt, toastMessage }: DemoScrollProps) {
   const [enabled, setEnabled] = useState(false)
-  const [toggledOnce, setToggledOnce] = useState(false)
-  const [scrolledAfterToggle, setScrolledAfterToggle] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const hasScrolledRef = useRef(false)
   const prefersReducedMotion = useReducedMotion()
+
+  const enabledRef = useRef(enabled)
+  const reducedMotionRef = useRef<boolean>(!!prefersReducedMotion)
+  const toggledOnceRef = useRef(false)
+  const scrolledAfterToggleRef = useRef(false)
+
+  const animFromRef = useRef(0)
+  const animToRef = useRef(0)
+  const animStartRef = useRef(0)
+  const rafRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    enabledRef.current = enabled
+    const card = cardRef.current
+    if (card) {
+      animFromRef.current = card.scrollTop
+      animToRef.current = card.scrollTop
+    }
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    scrolledAfterToggleRef.current = false
+  }, [enabled])
+
+  useEffect(() => {
+    reducedMotionRef.current = !!prefersReducedMotion
+  }, [prefersReducedMotion])
 
   const handleToggle = () => {
     setEnabled((prev) => !prev)
-    if (!toggledOnce) setToggledOnce(true)
-    hasScrolledRef.current = false
-    setScrolledAfterToggle(false)
+    toggledOnceRef.current = true
   }
-
-  const handleScroll = useCallback(() => {
-    if (toggledOnce && !scrolledAfterToggle && hasScrolledRef.current) {
-      setScrolledAfterToggle(true)
-      if (!prefersReducedMotion) {
-        toast(toastMessage, { duration: 4000 })
-      }
-    }
-  }, [toggledOnce, scrolledAfterToggle, toastMessage, prefersReducedMotion])
 
   useEffect(() => {
     const card = cardRef.current
     if (!card) return
 
-    const onWheel = () => {
-      hasScrolledRef.current = true
-      setTimeout(handleScroll, 100)
+    const tick = () => {
+      const card = cardRef.current
+      if (!card) {
+        rafRef.current = null
+        return
+      }
+      const now = performance.now()
+      const t = Math.min(1, (now - animStartRef.current) / DURATION_MS)
+      const eased = easeOutExpo(t)
+      card.scrollTop =
+        animFromRef.current +
+        (animToRef.current - animFromRef.current) * eased
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        animFromRef.current = animToRef.current
+        rafRef.current = null
+      }
     }
 
-    card.addEventListener('wheel', onWheel, { passive: true })
-    return () => card.removeEventListener('wheel', onWheel)
-  }, [handleScroll])
+    const notifyScrolled = () => {
+      if (toggledOnceRef.current && !scrolledAfterToggleRef.current) {
+        scrolledAfterToggleRef.current = true
+        if (!reducedMotionRef.current) {
+          toast(toastMessage, { duration: 4000 })
+        }
+      }
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      const card = cardRef.current
+      if (!card) return
+
+      const max = card.scrollHeight - card.clientHeight
+      const direction = event.deltaY > 0 ? 1 : -1
+      const atTop = card.scrollTop <= 0 && direction < 0
+      const atBottom = card.scrollTop >= max - 1 && direction > 0
+      if (atTop || atBottom) return
+
+      event.preventDefault()
+      notifyScrolled()
+
+      const useSmooth = enabledRef.current && !reducedMotionRef.current
+      if (useSmooth) {
+        animFromRef.current = card.scrollTop
+        animToRef.current = Math.max(
+          0,
+          Math.min(max, animToRef.current + direction * STEP_PX),
+        )
+        animStartRef.current = performance.now()
+        if (rafRef.current === null) {
+          rafRef.current = requestAnimationFrame(tick)
+        }
+      } else {
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current)
+          rafRef.current = null
+        }
+        card.scrollTop = Math.max(
+          0,
+          Math.min(max, card.scrollTop + direction * STEP_PX),
+        )
+        animFromRef.current = card.scrollTop
+        animToRef.current = card.scrollTop
+      }
+    }
+
+    card.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      card.removeEventListener('wheel', onWheel)
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
+  }, [toastMessage])
 
   return (
-    <div className="flex flex-col items-center gap-4" ref={containerRef}>
+    <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-3 text-sm text-muted-foreground">
         <span className={cn('transition-colors', enabled && 'text-foreground font-medium')}>
           Native
@@ -104,7 +191,7 @@ export function DemoScroll({ prompt, toastMessage }: DemoScrollProps) {
         transition={{ duration: 0.3, delay: 0.2 }}
         ref={cardRef}
         className="w-full max-w-md h-[480px] rounded-xl border bg-card shadow-xl overflow-y-auto select-none"
-        style={{ scrollBehavior: prefersReducedMotion ? 'auto' : (enabled ? 'smooth' : 'auto') }}
+        style={{ scrollBehavior: 'auto', overscrollBehavior: 'contain' }}
         tabIndex={0}
         aria-label="Demo scroll card"
       >

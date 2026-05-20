@@ -1,6 +1,6 @@
 'use client'
 
-import { DemoScroll } from '@/components/DemoScroll'
+// import { DemoScroll } from '@/components/DemoScroll'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { BrandMarquee } from '@/components/BrandMarquee'
 import { Badge } from '@/components/ui/badge'
@@ -16,7 +16,7 @@ export function Hero({ dict }: HeroProps) {
   return (
     <section className="min-h-screen flex items-center pt-20 pb-16 px-4">
       <div className="container">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="max-w-3xl mx-auto">
           <div className="flex flex-col gap-6">
             <Badge variant="secondary" className="w-fit">{h.eyebrow}</Badge>
 
@@ -40,10 +40,6 @@ export function Hero({ dict }: HeroProps) {
 
             <p className="text-sm text-muted-foreground">{h.trustLine}</p>
             <BrandMarquee />
-          </div>
-
-          <div>
-            <DemoScroll prompt={h.demoPrompt ?? ''} toastMessage={h.demoToast ?? ''} />
           </div>
         </div>
       </div>

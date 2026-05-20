@@ -10,9 +10,8 @@ use std::os::raw::c_void;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use windows_sys::Win32::Foundation::{CloseHandle, BOOL, FALSE, LPARAM, MAX_PATH, POINT, TRUE};
-use windows_sys::Win32::System::ProcessStatus::K32GetProcessImageFileNameW;
 use windows_sys::Win32::System::Threading::{
-    GetCurrentProcessId, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ,
+    GetCurrentProcessId, OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     EnumWindows, GetAncestor, GetCursorPos, GetForegroundWindow, GetTopWindow, GetWindow,
@@ -105,10 +104,56 @@ impl ProcessQuery for WindowsProcessQuery {
         self.enumerate()
     }
 
+    /// Returns the topmost user-visible app window's process name, excluding
+    /// our own process. Walks the Z-order from `GetTopWindow(NULL)` because
+    /// `GetForegroundWindow()` returns the keyboard-focused window — which
+    /// becomes our tray panel the moment we show it, so polling-based
+    /// refresh would misidentify the app the user is actually working in.
+    ///
+    /// Skips: invisible, minimized, owned, tool windows, untitled windows,
+    /// and any window owned by our own PID.
     fn foreground_process_name(&self) -> Option<String> {
-        let pid = self.foreground_process_id()?;
-        process_name_for_pid(pid)
+        let self_pid = unsafe { GetCurrentProcessId() };
+        let mut hwnd = unsafe { GetTopWindow(std::ptr::null_mut()) };
+        while !hwnd.is_null() {
+            if is_eligible_app_window(hwnd) {
+                let mut pid: u32 = 0;
+                unsafe { GetWindowThreadProcessId(hwnd, &mut pid) };
+                if pid != 0 && pid != self_pid {
+                    if let Some(name) = process_name_for_pid(pid) {
+                        return Some(name);
+                    }
+                }
+            }
+            hwnd = unsafe { GetWindow(hwnd, GW_HWNDNEXT) };
+        }
+        None
     }
+}
+
+/// Returns true when the HWND is a normal top-level user-facing app window:
+/// visible, not minimized, has a title, top-level (no owner), not a tool
+/// window. Used by Z-order walks to skip system / chrome / overlay windows.
+fn is_eligible_app_window(hwnd: *mut c_void) -> bool {
+    unsafe {
+        if IsWindowVisible(hwnd as _) == 0 {
+            return false;
+        }
+        if IsIconic(hwnd as _) != 0 {
+            return false;
+        }
+        if GetWindowTextLengthW(hwnd as _) == 0 {
+            return false;
+        }
+        let ex = GetWindowLongW(hwnd as _, GWL_EXSTYLE) as u32;
+        if (ex & WS_EX_TOOLWINDOW) != 0 {
+            return false;
+        }
+        if !GetWindow(hwnd as _, GW_OWNER).is_null() {
+            return false;
+        }
+    }
+    true
 }
 
 fn process_name_for_hwnd(hwnd: isize) -> Option<String> {
@@ -122,18 +167,25 @@ fn process_name_for_hwnd(hwnd: isize) -> Option<String> {
 
 pub fn process_name_for_pid(pid: u32) -> Option<String> {
     unsafe {
-        let handle = OpenProcess(
-            PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ,
-            FALSE,
-            pid,
-        );
+        // PROCESS_QUERY_LIMITED_INFORMATION (no PROCESS_VM_READ) lets us read
+        // the image name even for higher-integrity processes like Task Manager
+        // when running unelevated. QueryFullProcessImageNameW pairs with this
+        // limited token; the older K32GetProcessImageFileNameW required
+        // PROCESS_VM_READ which fails cross-integrity.
+        let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
         if handle.is_null() {
             return None;
         }
         let mut buf = [0u16; MAX_PATH as usize];
-        let len = K32GetProcessImageFileNameW(handle, buf.as_mut_ptr(), buf.len() as u32);
+        let mut len: u32 = buf.len() as u32;
+        let ok = QueryFullProcessImageNameW(
+            handle,
+            0,
+            buf.as_mut_ptr(),
+            &mut len,
+        );
         let _ = CloseHandle(handle);
-        if len == 0 {
+        if ok == 0 || len == 0 {
             return None;
         }
         let path: PathBuf = String::from_utf16_lossy(&buf[..len as usize]).into();

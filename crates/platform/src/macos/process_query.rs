@@ -32,6 +32,7 @@ impl ProcessQuery for MacosProcessQuery {
     }
 
     fn foreground_process_name(&self) -> Option<String> {
+        use objc2::msg_send;
         use objc2::msg_send_id;
         use objc2::rc::Retained;
         use objc2_app_kit::{NSRunningApplication, NSWorkspace};
@@ -41,13 +42,18 @@ impl ProcessQuery for MacosProcessQuery {
         // objc2 0.5, msg_send! requires Encode-implementing types and
         // doesn't accept Retained<T>; msg_send_id! handles the retain/
         // release dance and yields Retained<T> or Option<Retained<T>>.
-        // Selectors `frontmostApplication` and `localizedName` are stable
-        // across all supported macOS versions.
+        // We skip the result if it points at our own process so the tray
+        // panel can't show itself as the active app.
         unsafe {
+            let self_pid = std::process::id() as i32;
             let workspace = NSWorkspace::sharedWorkspace();
             let app: Option<Retained<NSRunningApplication>> =
                 msg_send_id![&*workspace, frontmostApplication];
             let app = app?;
+            let pid: i32 = msg_send![&*app, processIdentifier];
+            if pid == self_pid {
+                return None;
+            }
             let name: Option<Retained<NSString>> = msg_send_id![&*app, localizedName];
             name.map(|n| n.to_string())
         }
