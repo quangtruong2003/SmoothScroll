@@ -14,36 +14,56 @@
     "app_profiles": "Assegnazioni per app",
     "language": "Lingua",
     "theme": "Aspetto",
-    "test_scroll": "Prova lo scorrimento",
     "touchpad": "Touchpad di precisione",
     "keyboard_scroll": "Smussatura scorrimento da tastiera",
     "game_mode": "Modalità gioco",
-    "about": "Informazioni"
+    "edge_scroll": "Scorrimento automatico ai bordi",
+    "about": "Informazioni",
+    "advanced_scroll": "Scorrimento avanzato"
+  },
+  "sidebar": {
+    "tabs_aria": "Schede impostazioni"
+  },
+  "permission": {
+    "title": "Accesso Accessibilità richiesto",
+    "body": "SmoothScroll ha bisogno del permesso Accessibility per catturare gli eventi della rotellina del mouse e ritrasmetterli con animazione fluida. Apri System Settings → Privacy & Security → Accessibility e attiva SmoothScroll.",
+    "open": "Richiedi permesso",
+    "polling": "Rileverò quando concedi il permesso e proseguirò."
   },
   "tabs": {
     "general": {
       "label": "Generale",
       "title": "Generale",
-      "description": "Interruttori rapidi e prova in tempo reale."
+      "description": "Interruttori rapidi e controlli di stato."
     },
     "scroll": {
       "label": "Scorrimento",
       "title": "Scorrimento",
-      "description": "Regola dimensione del passo, easing, direzione e sorgenti di input."
+      "description": "Dimensione del passo, easing, direzione e aspetto."
+    },
+    "devices": {
+      "label": "Dispositivi",
+      "title": "Dispositivi di input",
+      "description": "Smoothing tastiera e touchpad."
+    },
+    "advanced": {
+      "label": "Avanzate",
+      "title": "Avanzate",
+      "description": "Finestra di accelerazione, rapporto di coda, modificatori di precisione e auto-scorrimento ai bordi."
     },
     "apps": {
       "label": "App",
       "title": "Per app",
-      "description": "Profili ed esclusioni per applicazioni specifiche."
+      "description": "Profili, esclusioni e modalità gioco per applicazioni specifiche."
     },
-    "preferences": {
-      "label": "Preferenze",
-      "title": "Preferenze",
-      "description": "Comportamento, scorciatoie e modalità gioco."
+    "behavior": {
+      "label": "Comportamento",
+      "title": "Comportamento",
+      "description": "Comportamento app, scorciatoie e riduci movimento."
     },
     "about": {
       "label": "Info",
-      "title": "Informazioni",
+      "title": "Info",
       "description": "Versione, aggiornamenti e log."
     }
   },
@@ -54,10 +74,6 @@
     "snappy": "Reattivo",
     "mac_like": "Stile Mac",
     "linear": "Lineare"
-  },
-  "test_scroll": {
-    "description": "Scorri all'interno del riquadro per provare le impostazioni attuali.",
-    "line": "Riga {{n}} — prova la rotellina qui"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Clicca e premi i tasti che vuoi usare",
       "press": "Premi una combinazione di tasti…",
       "empty": "Clicca per registrare",
-      "aria": "Input combinazione di tasti"
+      "aria": "Input combinazione di tasti",
+      "saved": "Scorciatoia salvata"
     },
     "start_with_os": {
       "title": "Avvia con Windows",
@@ -132,6 +149,11 @@
       "System": "Sistema"
     },
     "reset_to_default": "Ripristina predefiniti",
+    "edge_scroll": {
+      "enable": "Abilita scorrimento automatico ai bordi",
+      "zone_size": "Dimensione zona: {{value}}px",
+      "max_speed": "Velocità massima: {{value}} scatti/s"
+    },
     "touchpad": {
       "detected": "Rilevato",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Solo Windows)",
     "enable_smoothing": "Abilita smussatura tastiera",
-    "active_keys": "Tasti attivi",
     "pgdn_step": "Passo PgSu/PgGiù: {{value}} scatti",
     "arrow_step": "Passo frecce: {{value}} scatti",
-    "skip_in_text_inputs": "Salta nei campi di testo"
+    "skip_in_text_inputs": "Salta nei campi di testo",
+    "page_keys": "Tasti pagina",
+    "arrow_keys": "Tasti freccia"
   },
   "game_mode": {
     "auto_disable": "Disabilita automaticamente nei giochi",
@@ -287,6 +310,20 @@
     "downloading": "Download in corso… {{pct}}%",
     "ready_to_restart": "Aggiornamento installato. Riavvia per applicare.",
     "restart_now": "Riavvia ora"
+  },
+  "support": {
+    "title": "Supporta questo progetto",
+    "description": "Grazie per usare SmoothScroll. Se ti è utile, puoi offrirmi un caffè:",
+    "buy_me_a_coffee": "Offri un caffè",
+    "or_bank_transfer": "Oppure bonifico diretto:",
+    "bank_account": "Conto",
+    "bank_name": "Banca",
+    "copy_account": "Copia numero di conto",
+    "copied_toast": "Numero di conto copiato",
+    "copy_failed": "Impossibile copiare. Manuale: {{account}}",
+    "qr_load_failed": "Impossibile caricare il QR",
+    "qr_zoom_title": "Scansiona per trasferire",
+    "qr_alt": "VietQR per bonifico bancario"
   },
   "forced_update": {
     "title": "Aggiornamento richiesto",

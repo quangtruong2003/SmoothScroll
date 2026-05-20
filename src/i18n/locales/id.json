@@ -14,32 +14,52 @@
     "app_profiles": "Penugasan per aplikasi",
     "language": "Bahasa",
     "theme": "Tampilan",
-    "test_scroll": "Uji scrolling",
     "touchpad": "Touchpad presisi",
     "keyboard_scroll": "Penghalusan scroll keyboard",
     "game_mode": "Mode game",
-    "about": "Tentang"
+    "edge_scroll": "Scroll otomatis di tepi",
+    "about": "Tentang",
+    "advanced_scroll": "Scroll lanjutan"
+  },
+  "sidebar": {
+    "tabs_aria": "Tab pengaturan"
+  },
+  "permission": {
+    "title": "Akses Aksesibilitas diperlukan",
+    "body": "SmoothScroll membutuhkan izin Accessibility untuk menangkap event roda mouse dan mengirim ulang dengan animasi mulus. Buka System Settings → Privacy & Security → Accessibility lalu aktifkan SmoothScroll.",
+    "open": "Minta izin",
+    "polling": "Saya akan mendeteksi saat Anda memberi izin dan melanjutkan."
   },
   "tabs": {
     "general": {
       "label": "Umum",
       "title": "Umum",
-      "description": "Tombol cepat dan uji langsung."
+      "description": "Tombol cepat dan pemeriksaan status."
     },
     "scroll": {
       "label": "Scroll",
       "title": "Scroll",
-      "description": "Atur ukuran langkah, easing, arah, dan sumber input."
+      "description": "Ukuran langkah, easing, arah, dan tampilan."
+    },
+    "devices": {
+      "label": "Perangkat",
+      "title": "Perangkat input",
+      "description": "Penghalusan keyboard dan touchpad."
+    },
+    "advanced": {
+      "label": "Lanjutan",
+      "title": "Lanjutan",
+      "description": "Jendela akselerasi, rasio ekor, modifier presisi, dan auto-scroll tepi."
     },
     "apps": {
       "label": "Aplikasi",
       "title": "Per aplikasi",
-      "description": "Profil dan pengecualian khusus untuk aplikasi tertentu."
+      "description": "Profil, pengecualian, dan mode game untuk aplikasi tertentu."
     },
-    "preferences": {
-      "label": "Preferensi",
-      "title": "Preferensi",
-      "description": "Perilaku, hotkey, dan mode game."
+    "behavior": {
+      "label": "Perilaku",
+      "title": "Perilaku",
+      "description": "Perilaku aplikasi, hotkey, dan kurangi gerakan."
     },
     "about": {
       "label": "Tentang",
@@ -54,10 +74,6 @@
     "snappy": "Tegas",
     "mac_like": "Gaya Mac",
     "linear": "Linear"
-  },
-  "test_scroll": {
-    "description": "Scroll di dalam kotak untuk merasakan pengaturan saat ini.",
-    "line": "Baris {{n}} — coba roda di sini"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Klik dan tekan tombol yang ingin digunakan",
       "press": "Tekan kombinasi tombol…",
       "empty": "Klik untuk merekam",
-      "aria": "Input kombinasi hotkey"
+      "aria": "Input kombinasi hotkey",
+      "saved": "Hotkey tersimpan"
     },
     "start_with_os": {
       "title": "Mulai bersama Windows",
@@ -132,6 +149,11 @@
       "System": "Sistem"
     },
     "reset_to_default": "Reset ke default",
+    "edge_scroll": {
+      "enable": "Aktifkan scroll otomatis di tepi",
+      "zone_size": "Ukuran zona: {{value}}px",
+      "max_speed": "Kecepatan maks: {{value}} detent/dtk"
+    },
     "touchpad": {
       "detected": "Terdeteksi",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Hanya Windows)",
     "enable_smoothing": "Aktifkan penghalusan keyboard",
-    "active_keys": "Tombol aktif",
     "pgdn_step": "Langkah PageUp/PageDown: {{value}} detent",
     "arrow_step": "Langkah panah: {{value}} detent",
-    "skip_in_text_inputs": "Lewati di input teks"
+    "skip_in_text_inputs": "Lewati di input teks",
+    "page_keys": "Tombol halaman",
+    "arrow_keys": "Tombol panah"
   },
   "game_mode": {
     "auto_disable": "Nonaktifkan otomatis di game",
@@ -287,6 +310,20 @@
     "downloading": "Mengunduh… {{pct}}%",
     "ready_to_restart": "Pembaruan dipasang. Mulai ulang untuk menerapkan.",
     "restart_now": "Mulai ulang"
+  },
+  "support": {
+    "title": "Dukung proyek ini",
+    "description": "Terima kasih sudah pakai SmoothScroll. Kalau berguna, kamu bisa traktir saya kopi:",
+    "buy_me_a_coffee": "Traktir kopi",
+    "or_bank_transfer": "Atau transfer bank langsung:",
+    "bank_account": "Rekening",
+    "bank_name": "Bank",
+    "copy_account": "Salin nomor rekening",
+    "copied_toast": "Nomor rekening disalin",
+    "copy_failed": "Gagal menyalin. Manual: {{account}}",
+    "qr_load_failed": "QR gagal dimuat",
+    "qr_zoom_title": "Pindai untuk transfer",
+    "qr_alt": "VietQR untuk transfer bank"
   },
   "forced_update": {
     "title": "Pembaruan diperlukan",

@@ -14,32 +14,52 @@
     "app_profiles": "Atribuições por aplicativo",
     "language": "Idioma",
     "theme": "Aparência",
-    "test_scroll": "Testar rolagem",
     "touchpad": "Touchpad de precisão",
     "keyboard_scroll": "Suavização da rolagem por teclado",
     "game_mode": "Modo jogo",
-    "about": "Sobre"
+    "edge_scroll": "Rolagem automática nas bordas",
+    "about": "Sobre",
+    "advanced_scroll": "Rolagem avançada"
+  },
+  "sidebar": {
+    "tabs_aria": "Abas de configurações"
+  },
+  "permission": {
+    "title": "Permissão de Acessibilidade necessária",
+    "body": "O SmoothScroll precisa da permissão Accessibility para capturar eventos da roda do mouse e reemiti-los com animação suave. Abra System Settings → Privacy & Security → Accessibility e ative o SmoothScroll.",
+    "open": "Solicitar permissão",
+    "polling": "Vou detectar quando você conceder a permissão e continuar."
   },
   "tabs": {
     "general": {
       "label": "Geral",
       "title": "Geral",
-      "description": "Interruptores rápidos e teste ao vivo."
+      "description": "Interruptores rápidos e verificações de saúde."
     },
     "scroll": {
       "label": "Rolagem",
       "title": "Rolagem",
-      "description": "Ajuste o tamanho do passo, easing, direção e fontes de entrada."
+      "description": "Tamanho do passo, easing, direção e aparência."
+    },
+    "devices": {
+      "label": "Dispositivos",
+      "title": "Dispositivos de entrada",
+      "description": "Suavização de teclado e touchpad."
+    },
+    "advanced": {
+      "label": "Avançado",
+      "title": "Avançado",
+      "description": "Janela de aceleração, proporção de cauda, modificadores de precisão e rolagem automática de borda."
     },
     "apps": {
       "label": "Apps",
       "title": "Por aplicativo",
-      "description": "Perfis e exclusões adaptados a aplicativos específicos."
+      "description": "Perfis, exclusões e modo jogo para aplicativos específicos."
     },
-    "preferences": {
-      "label": "Preferências",
-      "title": "Preferências",
-      "description": "Comportamento, atalhos e modo jogo."
+    "behavior": {
+      "label": "Comportamento",
+      "title": "Comportamento",
+      "description": "Comportamento do app, atalhos e reduzir movimento."
     },
     "about": {
       "label": "Sobre",
@@ -54,10 +74,6 @@
     "snappy": "Ágil",
     "mac_like": "Estilo Mac",
     "linear": "Linear"
-  },
-  "test_scroll": {
-    "description": "Role dentro da caixa para sentir as configurações atuais.",
-    "line": "Linha {{n}} — experimente a roda aqui"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Clique e pressione as teclas que deseja usar",
       "press": "Pressione uma combinação de teclas…",
       "empty": "Clique para gravar",
-      "aria": "Entrada de combinação de teclas"
+      "aria": "Entrada de combinação de teclas",
+      "saved": "Atalho salvo"
     },
     "start_with_os": {
       "title": "Iniciar com o Windows",
@@ -132,6 +149,11 @@
       "System": "Sistema"
     },
     "reset_to_default": "Restaurar padrão",
+    "edge_scroll": {
+      "enable": "Ativar rolagem automática nas bordas",
+      "zone_size": "Tamanho da zona: {{value}}px",
+      "max_speed": "Velocidade máxima: {{value}} entalhes/s"
+    },
     "touchpad": {
       "detected": "Detectado",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Apenas Windows)",
     "enable_smoothing": "Ativar suavização do teclado",
-    "active_keys": "Teclas ativas",
     "pgdn_step": "Passo PageUp/PageDown: {{value}} entalhes",
     "arrow_step": "Passo das setas: {{value}} entalhes",
-    "skip_in_text_inputs": "Ignorar em entradas de texto"
+    "skip_in_text_inputs": "Ignorar em entradas de texto",
+    "page_keys": "Teclas de página",
+    "arrow_keys": "Teclas de seta"
   },
   "game_mode": {
     "auto_disable": "Desativar automaticamente em jogos",
@@ -287,6 +310,20 @@
     "downloading": "Baixando… {{pct}}%",
     "ready_to_restart": "Atualização instalada. Reinicie para aplicar.",
     "restart_now": "Reiniciar agora"
+  },
+  "support": {
+    "title": "Apoie este projeto",
+    "description": "Obrigado por usar o SmoothScroll. Se for útil, você pode me pagar um café:",
+    "buy_me_a_coffee": "Pagar um café",
+    "or_bank_transfer": "Ou transferência bancária direta:",
+    "bank_account": "Conta",
+    "bank_name": "Banco",
+    "copy_account": "Copiar número da conta",
+    "copied_toast": "Número da conta copiado",
+    "copy_failed": "Não foi possível copiar. Manual: {{account}}",
+    "qr_load_failed": "Não foi possível carregar o QR",
+    "qr_zoom_title": "Escaneie para transferir",
+    "qr_alt": "VietQR para transferência bancária"
   },
   "forced_update": {
     "title": "Atualização necessária",

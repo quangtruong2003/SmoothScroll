@@ -14,32 +14,52 @@
     "app_profiles": "Asignaciones por aplicación",
     "language": "Idioma",
     "theme": "Apariencia",
-    "test_scroll": "Probar desplazamiento",
     "touchpad": "Touchpad de precisión",
     "keyboard_scroll": "Suavizado del desplazamiento por teclado",
     "game_mode": "Modo juego",
-    "about": "Acerca de"
+    "edge_scroll": "Desplazamiento automático en los bordes",
+    "about": "Acerca de",
+    "advanced_scroll": "Desplazamiento avanzado"
+  },
+  "sidebar": {
+    "tabs_aria": "Pestañas de configuración"
+  },
+  "permission": {
+    "title": "Se requiere acceso de Accesibilidad",
+    "body": "SmoothScroll necesita el permiso de Accessibility para capturar los eventos de la rueda del ratón y reemitirlos con animación suave. Abre System Settings → Privacy & Security → Accessibility y activa SmoothScroll.",
+    "open": "Solicitar permiso",
+    "polling": "Detectaré cuando lo concedas y continuaré."
   },
   "tabs": {
     "general": {
       "label": "General",
       "title": "General",
-      "description": "Conmutadores rápidos y prueba en vivo."
+      "description": "Conmutadores rápidos y comprobaciones de estado."
     },
     "scroll": {
       "label": "Desplazamiento",
       "title": "Desplazamiento",
-      "description": "Ajusta el tamaño del paso, easing, dirección y fuentes de entrada."
+      "description": "Tamaño del paso, easing, dirección y apariencia."
+    },
+    "devices": {
+      "label": "Dispositivos",
+      "title": "Dispositivos de entrada",
+      "description": "Suavizado de teclado y panel táctil."
+    },
+    "advanced": {
+      "label": "Avanzado",
+      "title": "Avanzado",
+      "description": "Ventana de aceleración, ratio de cola, modificadores de precisión y auto-desplazamiento de borde."
     },
     "apps": {
       "label": "Apps",
       "title": "Por aplicación",
-      "description": "Perfiles y exclusiones adaptados a aplicaciones específicas."
+      "description": "Perfiles, exclusiones y modo juego para aplicaciones específicas."
     },
-    "preferences": {
-      "label": "Preferencias",
-      "title": "Preferencias",
-      "description": "Comportamiento, atajos y modo juego."
+    "behavior": {
+      "label": "Comportamiento",
+      "title": "Comportamiento",
+      "description": "Comportamiento de la app, atajos y reducir movimiento."
     },
     "about": {
       "label": "Acerca de",
@@ -54,10 +74,6 @@
     "snappy": "Ágil",
     "mac_like": "Estilo Mac",
     "linear": "Lineal"
-  },
-  "test_scroll": {
-    "description": "Desplázate dentro del recuadro para sentir los ajustes actuales.",
-    "line": "Línea {{n}} — prueba la rueda aquí"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Haz clic y pulsa las teclas que quieras usar",
       "press": "Pulsa una combinación de teclas…",
       "empty": "Haz clic para grabar",
-      "aria": "Entrada de combinación de teclas"
+      "aria": "Entrada de combinación de teclas",
+      "saved": "Atajo guardado"
     },
     "start_with_os": {
       "title": "Iniciar con Windows",
@@ -132,6 +149,11 @@
       "System": "Sistema"
     },
     "reset_to_default": "Restablecer valores predeterminados",
+    "edge_scroll": {
+      "enable": "Activar desplazamiento automático en los bordes",
+      "zone_size": "Tamaño de zona: {{value}}px",
+      "max_speed": "Velocidad máxima: {{value}} muescas/s"
+    },
     "touchpad": {
       "detected": "Detectado",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Solo Windows)",
     "enable_smoothing": "Activar suavizado del teclado",
-    "active_keys": "Teclas activas",
     "pgdn_step": "Paso AvPág/RePág: {{value}} muescas",
     "arrow_step": "Paso de flechas: {{value}} muescas",
-    "skip_in_text_inputs": "Omitir en campos de texto"
+    "skip_in_text_inputs": "Omitir en campos de texto",
+    "page_keys": "Teclas de página",
+    "arrow_keys": "Teclas de flecha"
   },
   "game_mode": {
     "auto_disable": "Desactivar automáticamente en juegos",
@@ -287,6 +310,20 @@
     "downloading": "Descargando… {{pct}}%",
     "ready_to_restart": "Actualización instalada. Reinicia para aplicar.",
     "restart_now": "Reiniciar ahora"
+  },
+  "support": {
+    "title": "Apoya este proyecto",
+    "description": "Gracias por usar SmoothScroll. Si te resulta útil, puedes invitarme a un café:",
+    "buy_me_a_coffee": "Invítame a un café",
+    "or_bank_transfer": "O transferencia bancaria directa:",
+    "bank_account": "Cuenta",
+    "bank_name": "Banco",
+    "copy_account": "Copiar número de cuenta",
+    "copied_toast": "Número de cuenta copiado",
+    "copy_failed": "No se pudo copiar. Manual: {{account}}",
+    "qr_load_failed": "No se pudo cargar el QR",
+    "qr_zoom_title": "Escanea para transferir",
+    "qr_alt": "VietQR para transferencia bancaria"
   },
   "forced_update": {
     "title": "Actualización requerida",

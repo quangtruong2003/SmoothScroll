@@ -14,32 +14,52 @@
     "app_profiles": "Uygulama başına atamalar",
     "language": "Dil",
     "theme": "Görünüm",
-    "test_scroll": "Kaydırmayı test et",
     "touchpad": "Hassas dokunmatik yüzey",
     "keyboard_scroll": "Klavye kaydırma yumuşatması",
     "game_mode": "Oyun modu",
-    "about": "Hakkında"
+    "edge_scroll": "Kenar otomatik kaydırma",
+    "about": "Hakkında",
+    "advanced_scroll": "Gelişmiş kaydırma"
+  },
+  "sidebar": {
+    "tabs_aria": "Ayarlar sekmeleri"
+  },
+  "permission": {
+    "title": "Erişilebilirlik izni gerekli",
+    "body": "SmoothScroll, fare tekerleği olaylarını yakalayıp yumuşak animasyonla yeniden yayımlamak için Accessibility iznine ihtiyaç duyar. System Settings → Privacy & Security → Accessibility yolunu açıp SmoothScroll'u etkinleştirin.",
+    "open": "İzin iste",
+    "polling": "İzni verdiğinizde algılayıp devam edeceğim."
   },
   "tabs": {
     "general": {
       "label": "Genel",
       "title": "Genel",
-      "description": "Hızlı düğmeler ve canlı test."
+      "description": "Hızlı düğmeler ve durum kontrolleri."
     },
     "scroll": {
       "label": "Kaydırma",
       "title": "Kaydırma",
-      "description": "Adım boyutu, easing, yön ve giriş kaynaklarını ayarlayın."
+      "description": "Adım boyutu, easing, yön ve görünüm."
+    },
+    "devices": {
+      "label": "Cihazlar",
+      "title": "Giriş cihazları",
+      "description": "Klavye ve dokunmatik yüzey yumuşatma."
+    },
+    "advanced": {
+      "label": "Gelişmiş",
+      "title": "Gelişmiş",
+      "description": "Hızlanma penceresi, kuyruk oranı, hassasiyet değiştiricileri ve kenar otomatik kaydırma."
     },
     "apps": {
       "label": "Uygulamalar",
       "title": "Uygulama başına",
-      "description": "Belirli uygulamalara özel profiller ve hariç tutmalar."
+      "description": "Belirli uygulamalar için profiller, hariç tutmalar ve oyun modu."
     },
-    "preferences": {
-      "label": "Tercihler",
-      "title": "Tercihler",
-      "description": "Davranış, kısayollar ve oyun modu."
+    "behavior": {
+      "label": "Davranış",
+      "title": "Davranış",
+      "description": "Uygulama davranışı, kısayollar ve hareketi azalt."
     },
     "about": {
       "label": "Hakkında",
@@ -54,10 +74,6 @@
     "snappy": "Çevik",
     "mac_like": "Mac tarzı",
     "linear": "Doğrusal"
-  },
-  "test_scroll": {
-    "description": "Mevcut ayarları hissetmek için kutunun içinde kaydırın.",
-    "line": "Satır {{n}} — tekerleği burada deneyin"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Tıklayın ve kullanmak istediğiniz tuşlara basın",
       "press": "Bir tuş kombinasyonuna basın…",
       "empty": "Kaydetmek için tıklayın",
-      "aria": "Kısayol kombinasyonu girişi"
+      "aria": "Kısayol kombinasyonu girişi",
+      "saved": "Kısayol kaydedildi"
     },
     "start_with_os": {
       "title": "Windows ile başlat",
@@ -132,6 +149,11 @@
       "System": "Sistem"
     },
     "reset_to_default": "Varsayılana sıfırla",
+    "edge_scroll": {
+      "enable": "Kenar otomatik kaydırmayı etkinleştir",
+      "zone_size": "Bölge boyutu: {{value}}px",
+      "max_speed": "Maksimum hız: {{value}} çentik/sn"
+    },
     "touchpad": {
       "detected": "Algılandı",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Yalnızca Windows)",
     "enable_smoothing": "Klavye yumuşatmasını etkinleştir",
-    "active_keys": "Aktif tuşlar",
     "pgdn_step": "PageUp/PageDown adımı: {{value}} çentik",
     "arrow_step": "Ok adımı: {{value}} çentik",
-    "skip_in_text_inputs": "Metin alanlarında atla"
+    "skip_in_text_inputs": "Metin alanlarında atla",
+    "page_keys": "Sayfa tuşları",
+    "arrow_keys": "Ok tuşları"
   },
   "game_mode": {
     "auto_disable": "Oyunlarda otomatik devre dışı bırak",
@@ -287,6 +310,20 @@
     "downloading": "İndiriliyor… {{pct}}%",
     "ready_to_restart": "Güncelleme yüklendi. Uygulamak için yeniden başlatın.",
     "restart_now": "Şimdi yeniden başlat"
+  },
+  "support": {
+    "title": "Bu projeyi destekle",
+    "description": "SmoothScroll kullandığın için teşekkürler. Faydalı buluyorsan bana bir kahve ısmarlayabilirsin:",
+    "buy_me_a_coffee": "Bir kahve ısmarla",
+    "or_bank_transfer": "Ya da doğrudan havale:",
+    "bank_account": "Hesap",
+    "bank_name": "Banka",
+    "copy_account": "Hesap numarasını kopyala",
+    "copied_toast": "Hesap numarası kopyalandı",
+    "copy_failed": "Kopyalanamadı. Manuel: {{account}}",
+    "qr_load_failed": "QR yüklenemedi",
+    "qr_zoom_title": "Havale için tara",
+    "qr_alt": "Banka havalesi için VietQR"
   },
   "forced_update": {
     "title": "Güncelleme gerekli",

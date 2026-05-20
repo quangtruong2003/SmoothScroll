@@ -14,32 +14,52 @@
     "app_profiles": "प्रति-ऐप असाइनमेंट",
     "language": "भाषा",
     "theme": "रूप",
-    "test_scroll": "स्क्रॉलिंग परीक्षण",
     "touchpad": "प्रिसिजन टचपैड",
     "keyboard_scroll": "कीबोर्ड स्क्रॉल स्मूथिंग",
     "game_mode": "गेम मोड",
-    "about": "जानकारी"
+    "edge_scroll": "किनारे पर स्वतः स्क्रॉल",
+    "about": "जानकारी",
+    "advanced_scroll": "उन्नत स्क्रॉल"
+  },
+  "sidebar": {
+    "tabs_aria": "सेटिंग्स टैब्स"
+  },
+  "permission": {
+    "title": "एक्सेसिबिलिटी एक्सेस आवश्यक",
+    "body": "SmoothScroll को माउस-व्हील ईवेंट कैप्चर करने और स्मूथ एनिमेशन के साथ पुनः उत्सर्जित करने के लिए Accessibility अनुमति चाहिए। System Settings → Privacy & Security → Accessibility खोलें और SmoothScroll को सक्षम करें।",
+    "open": "अनुमति का अनुरोध करें",
+    "polling": "जब आप अनुमति देंगे, मैं स्वयं पहचान कर आगे बढ़ूँगा।"
   },
   "tabs": {
     "general": {
       "label": "सामान्य",
       "title": "सामान्य",
-      "description": "क्विक टॉगल और लाइव परीक्षण।"
+      "description": "क्विक टॉगल और हेल्थ चेक।"
     },
     "scroll": {
       "label": "स्क्रॉल",
       "title": "स्क्रॉल",
-      "description": "स्टेप साइज़, ईज़िंग, दिशा और इनपुट स्रोत समायोजित करें।"
+      "description": "स्टेप साइज़, ईज़िंग, दिशा और रूप।"
+    },
+    "devices": {
+      "label": "डिवाइस",
+      "title": "इनपुट डिवाइस",
+      "description": "कीबोर्ड और टचपैड स्मूथिंग।"
+    },
+    "advanced": {
+      "label": "उन्नत",
+      "title": "उन्नत",
+      "description": "एक्सेलेरेशन विंडो, टेल अनुपात, सटीकता मॉडिफ़ायर और एज ऑटो-स्क्रॉल।"
     },
     "apps": {
       "label": "ऐप्स",
       "title": "प्रति-ऐप",
-      "description": "विशिष्ट ऐप्लिकेशन के लिए प्रोफ़ाइल और अपवर्जन।"
+      "description": "विशिष्ट ऐप्लिकेशन के लिए प्रोफ़ाइल, अपवर्जन और गेम मोड।"
     },
-    "preferences": {
-      "label": "प्राथमिकताएँ",
-      "title": "प्राथमिकताएँ",
-      "description": "व्यवहार, हॉटकी और गेम मोड।"
+    "behavior": {
+      "label": "व्यवहार",
+      "title": "व्यवहार",
+      "description": "ऐप व्यवहार, हॉटकी और कम गति।"
     },
     "about": {
       "label": "जानकारी",
@@ -54,10 +74,6 @@
     "snappy": "तीव्र",
     "mac_like": "Mac-शैली",
     "linear": "रेखीय"
-  },
-  "test_scroll": {
-    "description": "वर्तमान सेटिंग्स महसूस करने के लिए बॉक्स के अंदर स्क्रॉल करें।",
-    "line": "पंक्ति {{n}} — यहाँ व्हील आज़माएँ"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "क्लिक करें और इच्छित कुंजियाँ दबाएँ",
       "press": "कुंजी संयोजन दबाएँ…",
       "empty": "रिकॉर्ड करने हेतु क्लिक करें",
-      "aria": "हॉटकी संयोजन इनपुट"
+      "aria": "हॉटकी संयोजन इनपुट",
+      "saved": "हॉटकी सहेजी गई"
     },
     "start_with_os": {
       "title": "Windows के साथ शुरू करें",
@@ -132,6 +149,11 @@
       "System": "सिस्टम"
     },
     "reset_to_default": "डिफ़ॉल्ट पर रीसेट करें",
+    "edge_scroll": {
+      "enable": "किनारे पर स्वतः स्क्रॉल सक्षम करें",
+      "zone_size": "ज़ोन का आकार: {{value}}px",
+      "max_speed": "अधिकतम गति: {{value}} नॉच/से"
+    },
     "touchpad": {
       "detected": "पहचाना गया",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(केवल Windows)",
     "enable_smoothing": "कीबोर्ड स्मूथिंग सक्षम करें",
-    "active_keys": "सक्रिय कुंजियाँ",
     "pgdn_step": "PageUp/PageDown स्टेप: {{value}} नॉच",
     "arrow_step": "एरो स्टेप: {{value}} नॉच",
-    "skip_in_text_inputs": "टेक्स्ट इनपुट में छोड़ें"
+    "skip_in_text_inputs": "टेक्स्ट इनपुट में छोड़ें",
+    "page_keys": "पेज कीज़",
+    "arrow_keys": "ऐरो कीज़"
   },
   "game_mode": {
     "auto_disable": "गेम्स में स्वतः निष्क्रिय करें",
@@ -287,6 +310,20 @@
     "downloading": "डाउनलोड हो रहा है… {{pct}}%",
     "ready_to_restart": "अपडेट इंस्टॉल हो गया। लागू करने के लिए पुनरारंभ करें।",
     "restart_now": "अभी पुनरारंभ करें"
+  },
+  "support": {
+    "title": "इस प्रोजेक्ट का समर्थन करें",
+    "description": "SmoothScroll उपयोग करने के लिए धन्यवाद। यदि यह उपयोगी लगे तो आप मुझे एक कॉफ़ी ऑफ़र कर सकते हैं:",
+    "buy_me_a_coffee": "एक कॉफ़ी ऑफ़र करें",
+    "or_bank_transfer": "या सीधे बैंक ट्रांसफर:",
+    "bank_account": "खाता",
+    "bank_name": "बैंक",
+    "copy_account": "खाता संख्या कॉपी करें",
+    "copied_toast": "खाता संख्या कॉपी हो गई",
+    "copy_failed": "कॉपी नहीं हो सकी। मैन्युअल: {{account}}",
+    "qr_load_failed": "QR लोड नहीं हो सका",
+    "qr_zoom_title": "ट्रांसफर के लिए स्कैन करें",
+    "qr_alt": "बैंक ट्रांसफर के लिए VietQR"
   },
   "forced_update": {
     "title": "अपडेट आवश्यक",

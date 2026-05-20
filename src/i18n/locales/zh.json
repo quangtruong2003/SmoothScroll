@@ -14,18 +14,58 @@
     "app_profiles": "应用对应配置",
     "language": "语言",
     "theme": "外观",
-    "test_scroll": "试用滚动",
     "touchpad": "精密触控板",
     "keyboard_scroll": "键盘滚动平滑",
     "game_mode": "游戏模式",
-    "about": "关于"
+    "edge_scroll": "边缘自动滚动",
+    "about": "关于",
+    "advanced_scroll": "高级滚动"
+  },
+  "sidebar": {
+    "tabs_aria": "设置标签页"
+  },
+  "permission": {
+    "title": "需要辅助功能权限",
+    "body": "SmoothScroll 需要 Accessibility 权限来捕获鼠标滚轮事件并以平滑动画重新发送。打开 System Settings → Privacy & Security → Accessibility 并启用 SmoothScroll。",
+    "open": "请求权限",
+    "polling": "授予权限后，我会自动检测并继续。"
   },
   "tabs": {
-    "general": { "label": "通用", "title": "通用", "description": "快速切换与实时测试。" },
-    "scroll": { "label": "滚动", "title": "滚动", "description": "调整步长、缓动、方向和输入源。" },
-    "apps": { "label": "应用", "title": "按应用", "description": "针对特定应用的配置和排除项。" },
-    "preferences": { "label": "偏好", "title": "偏好", "description": "行为、热键和游戏模式。" },
-    "about": { "label": "关于", "title": "关于", "description": "版本、更新和日志。" }
+    "general": {
+      "label": "通用",
+      "title": "通用",
+      "description": "快速切换与状态检查。"
+    },
+    "scroll": {
+      "label": "滚动",
+      "title": "滚动",
+      "description": "步长、缓动、方向和外观。"
+    },
+    "devices": {
+      "label": "设备",
+      "title": "输入设备",
+      "description": "键盘和触控板平滑。"
+    },
+    "advanced": {
+      "label": "高级",
+      "title": "高级",
+      "description": "加速窗口、尾部比例、精确修饰键和边缘自动滚动。"
+    },
+    "apps": {
+      "label": "应用",
+      "title": "按应用",
+      "description": "特定应用的配置、排除项和游戏模式。"
+    },
+    "behavior": {
+      "label": "行为",
+      "title": "行为",
+      "description": "应用行为、热键和减少动画。"
+    },
+    "about": {
+      "label": "关于",
+      "title": "关于",
+      "description": "版本、更新和日志。"
+    }
   },
   "presets": {
     "slow": "慢速",
@@ -34,10 +74,6 @@
     "snappy": "极速",
     "mac_like": "Mac 风格",
     "linear": "线性"
-  },
-  "test_scroll": {
-    "description": "在下面的方框内滚动以体验当前设置。",
-    "line": "第 {{n}} 行 — 在此处试试滚轮"
   },
   "settings": {
     "step_size": {
@@ -94,7 +130,8 @@
       "desc": "点击并按下您想使用的按键",
       "press": "请按下组合键…",
       "empty": "点击以录制",
-      "aria": "快捷键组合输入框"
+      "aria": "快捷键组合输入框",
+      "saved": "已保存快捷键"
     },
     "start_with_os": {
       "title": "随 Windows 启动",
@@ -112,6 +149,11 @@
       "System": "跟随系统"
     },
     "reset_to_default": "恢复默认值",
+    "edge_scroll": {
+      "enable": "启用边缘自动滚动",
+      "zone_size": "区域大小：{{value}}px",
+      "max_speed": "最大速度：{{value}} 档/秒"
+    },
     "touchpad": {
       "detected": "已检测",
       "source": {
@@ -202,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "（仅 Windows）",
     "enable_smoothing": "启用键盘平滑",
-    "active_keys": "启用的按键",
     "pgdn_step": "PageUp/PageDown 步长：{{value}} 档",
     "arrow_step": "方向键步长：{{value}} 档",
-    "skip_in_text_inputs": "在文本输入框中跳过"
+    "skip_in_text_inputs": "在文本输入框中跳过",
+    "page_keys": "翻页键",
+    "arrow_keys": "方向键"
   },
   "game_mode": {
     "auto_disable": "游戏中自动禁用",
@@ -267,6 +310,20 @@
     "downloading": "正在下载… {{pct}}%",
     "ready_to_restart": "已安装更新。重新启动以应用。",
     "restart_now": "立即重启"
+  },
+  "support": {
+    "title": "支持这个项目",
+    "description": "感谢使用 SmoothScroll。如果觉得有用,可以请我喝杯咖啡:",
+    "buy_me_a_coffee": "请我喝杯咖啡",
+    "or_bank_transfer": "或直接银行转账:",
+    "bank_account": "账户",
+    "bank_name": "银行",
+    "copy_account": "复制账号",
+    "copied_toast": "账号已复制",
+    "copy_failed": "复制失败。手动: {{account}}",
+    "qr_load_failed": "无法加载二维码",
+    "qr_zoom_title": "扫码转账",
+    "qr_alt": "用于银行转账的 VietQR"
   },
   "forced_update": {
     "title": "必须更新",

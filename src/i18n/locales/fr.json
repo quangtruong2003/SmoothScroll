@@ -14,32 +14,52 @@
     "app_profiles": "Affectations par application",
     "language": "Langue",
     "theme": "Apparence",
-    "test_scroll": "Tester le défilement",
     "touchpad": "Pavé tactile de précision",
     "keyboard_scroll": "Lissage du défilement clavier",
     "game_mode": "Mode jeu",
-    "about": "À propos"
+    "edge_scroll": "Défilement automatique au bord",
+    "about": "À propos",
+    "advanced_scroll": "Défilement avancé"
+  },
+  "sidebar": {
+    "tabs_aria": "Onglets de paramètres"
+  },
+  "permission": {
+    "title": "Autorisation d'accessibilité requise",
+    "body": "SmoothScroll a besoin de l'autorisation Accessibility pour capturer les événements de la molette et les rejouer avec une animation fluide. Ouvrez System Settings → Privacy & Security → Accessibility et activez SmoothScroll.",
+    "open": "Demander l'autorisation",
+    "polling": "Je détecterai l'octroi de l'autorisation et continuerai."
   },
   "tabs": {
     "general": {
       "label": "Général",
       "title": "Général",
-      "description": "Bascules rapides et test en direct."
+      "description": "Bascules rapides et contrôles d'état."
     },
     "scroll": {
       "label": "Défilement",
       "title": "Défilement",
-      "description": "Ajustez la taille du pas, le lissage, la direction et les sources d'entrée."
+      "description": "Taille du pas, lissage, direction et apparence."
+    },
+    "devices": {
+      "label": "Périphériques",
+      "title": "Périphériques d'entrée",
+      "description": "Lissage clavier et pavé tactile."
+    },
+    "advanced": {
+      "label": "Avancé",
+      "title": "Avancé",
+      "description": "Fenêtre d'accélération, ratio de queue, modificateurs de précision et défilement automatique des bords."
     },
     "apps": {
       "label": "Applis",
       "title": "Par application",
-      "description": "Profils et exclusions adaptés à chaque application."
+      "description": "Profils, exclusions et mode jeu pour des applications spécifiques."
     },
-    "preferences": {
-      "label": "Préférences",
-      "title": "Préférences",
-      "description": "Comportement, raccourcis et mode jeu."
+    "behavior": {
+      "label": "Comportement",
+      "title": "Comportement",
+      "description": "Comportement de l'appli, raccourcis et réduire les animations."
     },
     "about": {
       "label": "À propos",
@@ -54,10 +74,6 @@
     "snappy": "Vif",
     "mac_like": "Style Mac",
     "linear": "Linéaire"
-  },
-  "test_scroll": {
-    "description": "Faites défiler à l'intérieur de la zone pour ressentir les réglages actuels.",
-    "line": "Ligne {{n}} — essayez la molette ici"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Cliquez puis appuyez sur les touches souhaitées",
       "press": "Appuyez sur une combinaison de touches…",
       "empty": "Cliquez pour enregistrer",
-      "aria": "Saisie de combinaison de touches"
+      "aria": "Saisie de combinaison de touches",
+      "saved": "Raccourci enregistré"
     },
     "start_with_os": {
       "title": "Démarrer avec Windows",
@@ -132,6 +149,11 @@
       "System": "Système"
     },
     "reset_to_default": "Réinitialiser",
+    "edge_scroll": {
+      "enable": "Activer le défilement automatique au bord",
+      "zone_size": "Taille de la zone : {{value}}px",
+      "max_speed": "Vitesse maximale : {{value}} crans/s"
+    },
     "touchpad": {
       "detected": "Détecté",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Windows uniquement)",
     "enable_smoothing": "Activer le lissage clavier",
-    "active_keys": "Touches actives",
     "pgdn_step": "Pas Pg préc/Pg suiv : {{value}} crans",
     "arrow_step": "Pas des flèches : {{value}} crans",
-    "skip_in_text_inputs": "Désactiver dans les champs texte"
+    "skip_in_text_inputs": "Désactiver dans les champs texte",
+    "page_keys": "Touches de page",
+    "arrow_keys": "Touches fléchées"
   },
   "game_mode": {
     "auto_disable": "Désactiver automatiquement dans les jeux",
@@ -287,6 +310,20 @@
     "downloading": "Téléchargement… {{pct}}%",
     "ready_to_restart": "Mise à jour installée. Redémarrez pour appliquer.",
     "restart_now": "Redémarrer"
+  },
+  "support": {
+    "title": "Soutenir ce projet",
+    "description": "Merci d'utiliser SmoothScroll. Si l'app vous est utile, vous pouvez m'offrir un café :",
+    "buy_me_a_coffee": "Offrir un café",
+    "or_bank_transfer": "Ou virement bancaire direct :",
+    "bank_account": "Compte",
+    "bank_name": "Banque",
+    "copy_account": "Copier le numéro de compte",
+    "copied_toast": "Numéro de compte copié",
+    "copy_failed": "Copie impossible. Manuel : {{account}}",
+    "qr_load_failed": "Impossible de charger le QR",
+    "qr_zoom_title": "Scanner pour transférer",
+    "qr_alt": "VietQR pour virement bancaire"
   },
   "forced_update": {
     "title": "Mise à jour requise",

@@ -14,32 +14,52 @@
     "app_profiles": "앱별 할당",
     "language": "언어",
     "theme": "외관",
-    "test_scroll": "스크롤 테스트",
     "touchpad": "정밀 터치패드",
     "keyboard_scroll": "키보드 스크롤 부드러움",
     "game_mode": "게임 모드",
-    "about": "정보"
+    "edge_scroll": "화면 가장자리 자동 스크롤",
+    "about": "정보",
+    "advanced_scroll": "고급 스크롤"
+  },
+  "sidebar": {
+    "tabs_aria": "설정 탭"
+  },
+  "permission": {
+    "title": "접근성 권한 필요",
+    "body": "SmoothScroll이 마우스 휠 이벤트를 캡처하고 부드러운 애니메이션으로 다시 보내려면 Accessibility 권한이 필요합니다. System Settings → Privacy & Security → Accessibility 를 열고 SmoothScroll을 활성화하세요.",
+    "open": "권한 요청",
+    "polling": "권한이 부여되면 자동으로 감지하고 계속 진행합니다."
   },
   "tabs": {
     "general": {
       "label": "일반",
       "title": "일반",
-      "description": "빠른 토글과 실시간 테스트."
+      "description": "빠른 토글과 상태 점검."
     },
     "scroll": {
       "label": "스크롤",
       "title": "스크롤",
-      "description": "스텝 크기, 이징, 방향, 입력 소스를 조정합니다."
+      "description": "스텝 크기, 이징, 방향, 외관."
+    },
+    "devices": {
+      "label": "장치",
+      "title": "입력 장치",
+      "description": "키보드와 터치패드 스무딩."
+    },
+    "advanced": {
+      "label": "고급",
+      "title": "고급",
+      "description": "가속 창, 테일 비율, 정밀 수정자, 가장자리 자동 스크롤."
     },
     "apps": {
       "label": "앱",
       "title": "앱별",
-      "description": "특정 앱에 맞춘 프로필과 제외 설정."
+      "description": "특정 앱의 프로필, 제외 설정, 게임 모드."
     },
-    "preferences": {
-      "label": "환경설정",
-      "title": "환경설정",
-      "description": "동작, 단축키, 게임 모드."
+    "behavior": {
+      "label": "동작",
+      "title": "동작",
+      "description": "앱 동작, 단축키, 모션 줄이기."
     },
     "about": {
       "label": "정보",
@@ -54,10 +74,6 @@
     "snappy": "민첩",
     "mac_like": "맥 스타일",
     "linear": "선형"
-  },
-  "test_scroll": {
-    "description": "현재 설정을 체험하려면 상자 안에서 스크롤하세요.",
-    "line": "{{n}}번째 줄 — 여기서 휠을 사용해 보세요"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "클릭 후 사용할 키를 누르세요",
       "press": "키 조합을 누르세요…",
       "empty": "클릭하여 기록",
-      "aria": "단축키 조합 입력"
+      "aria": "단축키 조합 입력",
+      "saved": "단축키가 저장되었습니다"
     },
     "start_with_os": {
       "title": "Windows와 함께 시작",
@@ -132,6 +149,11 @@
       "System": "시스템"
     },
     "reset_to_default": "기본값으로 재설정",
+    "edge_scroll": {
+      "enable": "화면 가장자리 자동 스크롤 사용",
+      "zone_size": "구역 크기: {{value}}px",
+      "max_speed": "최대 속도: {{value}} 노치/초"
+    },
     "touchpad": {
       "detected": "감지됨",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Windows 전용)",
     "enable_smoothing": "키보드 부드러움 활성화",
-    "active_keys": "활성 키",
     "pgdn_step": "PageUp/PageDown 스텝: {{value}}노치",
     "arrow_step": "방향키 스텝: {{value}}노치",
-    "skip_in_text_inputs": "텍스트 입력에서 건너뛰기"
+    "skip_in_text_inputs": "텍스트 입력에서 건너뛰기",
+    "page_keys": "페이지 키",
+    "arrow_keys": "화살표 키"
   },
   "game_mode": {
     "auto_disable": "게임에서 자동 비활성화",
@@ -287,6 +310,20 @@
     "downloading": "다운로드 중… {{pct}}%",
     "ready_to_restart": "업데이트가 설치되었습니다. 적용하려면 다시 시작하세요.",
     "restart_now": "지금 다시 시작"
+  },
+  "support": {
+    "title": "이 프로젝트 후원하기",
+    "description": "SmoothScroll을 사용해 주셔서 감사합니다. 도움이 되셨다면 커피 한 잔 사주세요:",
+    "buy_me_a_coffee": "커피 한 잔 사주기",
+    "or_bank_transfer": "또는 직접 송금:",
+    "bank_account": "계좌",
+    "bank_name": "은행",
+    "copy_account": "계좌번호 복사",
+    "copied_toast": "계좌번호가 복사되었습니다",
+    "copy_failed": "복사하지 못했습니다. 수동: {{account}}",
+    "qr_load_failed": "QR을 불러오지 못했습니다",
+    "qr_zoom_title": "스캔하여 송금",
+    "qr_alt": "은행 송금용 VietQR"
   },
   "forced_update": {
     "title": "업데이트 필요",

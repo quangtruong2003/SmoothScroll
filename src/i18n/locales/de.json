@@ -14,37 +14,57 @@
     "app_profiles": "Pro-App-Zuweisungen",
     "language": "Sprache",
     "theme": "Erscheinungsbild",
-    "test_scroll": "Scrollen testen",
     "touchpad": "Präzisions-Touchpad",
     "keyboard_scroll": "Glättung beim Tastatur-Scrollen",
     "game_mode": "Spielemodus",
-    "about": "Über"
+    "edge_scroll": "Automatisches Bildlaufen am Rand",
+    "about": "Über",
+    "advanced_scroll": "Erweitertes Scrollen"
+  },
+  "sidebar": {
+    "tabs_aria": "Einstellungs-Tabs"
+  },
+  "permission": {
+    "title": "Bedienungshilfen-Zugriff erforderlich",
+    "body": "SmoothScroll benötigt die Accessibility-Berechtigung, um Mausrad-Ereignisse zu erfassen und mit sanfter Animation erneut auszulösen. Öffnen Sie System Settings → Privacy & Security → Accessibility und aktivieren Sie SmoothScroll.",
+    "open": "Berechtigung anfordern",
+    "polling": "Sobald Sie die Berechtigung erteilen, erkenne ich es und mache weiter."
   },
   "tabs": {
     "general": {
       "label": "Allgemein",
       "title": "Allgemein",
-      "description": "Schnellschalter und Live-Test."
+      "description": "Schnellschalter und Health-Checks."
     },
     "scroll": {
       "label": "Scrollen",
       "title": "Scrollen",
-      "description": "Schrittgröße, Easing, Richtung und Eingabequellen anpassen."
+      "description": "Schrittgröße, Easing, Richtung und Optik."
+    },
+    "devices": {
+      "label": "Geräte",
+      "title": "Eingabegeräte",
+      "description": "Tastatur- und Touchpad-Smoothing."
+    },
+    "advanced": {
+      "label": "Erweitert",
+      "title": "Erweitert",
+      "description": "Beschleunigungsfenster, Tail-Ratio, Präzisions-Modifikatoren und Rand-Autoscroll."
     },
     "apps": {
       "label": "Apps",
       "title": "Pro App",
-      "description": "Profile und Ausschlüsse für bestimmte Anwendungen."
+      "description": "Profile, Ausschlüsse und Spielmodus für bestimmte Anwendungen."
     },
-    "preferences": {
-      "label": "Einstellungen",
-      "title": "Einstellungen",
-      "description": "Verhalten, Tastenkürzel und Spielemodus."
+    "behavior": {
+      "label": "Verhalten",
+      "title": "Verhalten",
+      "description": "App-Verhalten, Hotkeys und Reduzierte Bewegung."
     },
     "about": {
-      "label": "Über",
-      "title": "Über",
-      "description": "Version, Updates und Protokolle."
+      "label": "Info",
+      "title": "Info",
+      "description": "Version, Updates und Logs."
     }
   },
   "presets": {
@@ -54,10 +74,6 @@
     "snappy": "Reaktionsschnell",
     "mac_like": "Mac-Stil",
     "linear": "Linear"
-  },
-  "test_scroll": {
-    "description": "Scrollen Sie im Feld, um die aktuellen Einstellungen zu spüren.",
-    "line": "Zeile {{n}} — probieren Sie das Mausrad hier"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "Klicken und gewünschte Tasten drücken",
       "press": "Drücken Sie eine Tastenkombination…",
       "empty": "Klicken zum Aufzeichnen",
-      "aria": "Eingabe der Tastenkombination"
+      "aria": "Eingabe der Tastenkombination",
+      "saved": "Tastenkombination gespeichert"
     },
     "start_with_os": {
       "title": "Mit Windows starten",
@@ -132,6 +149,11 @@
       "System": "System"
     },
     "reset_to_default": "Auf Standard zurücksetzen",
+    "edge_scroll": {
+      "enable": "Automatisches Bildlaufen am Rand aktivieren",
+      "zone_size": "Zonengröße: {{value}}px",
+      "max_speed": "Maximale Geschwindigkeit: {{value}} Rasten/s"
+    },
     "touchpad": {
       "detected": "Erkannt",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Nur Windows)",
     "enable_smoothing": "Tastatur-Glättung aktivieren",
-    "active_keys": "Aktive Tasten",
     "pgdn_step": "Bild auf/ab Schritt: {{value}} Rasten",
     "arrow_step": "Pfeiltasten-Schritt: {{value}} Rasten",
-    "skip_in_text_inputs": "In Texteingaben überspringen"
+    "skip_in_text_inputs": "In Texteingaben überspringen",
+    "page_keys": "Seiten-Tasten",
+    "arrow_keys": "Pfeiltasten"
   },
   "game_mode": {
     "auto_disable": "In Spielen automatisch deaktivieren",
@@ -287,6 +310,20 @@
     "downloading": "Wird heruntergeladen… {{pct}}%",
     "ready_to_restart": "Update installiert. Neustart zur Anwendung erforderlich.",
     "restart_now": "Jetzt neu starten"
+  },
+  "support": {
+    "title": "Dieses Projekt unterstützen",
+    "description": "Danke, dass du SmoothScroll nutzt. Wenn es dir hilft, kannst du mir einen Kaffee ausgeben:",
+    "buy_me_a_coffee": "Einen Kaffee spendieren",
+    "or_bank_transfer": "Oder per Banküberweisung:",
+    "bank_account": "Kontonummer",
+    "bank_name": "Bank",
+    "copy_account": "Kontonummer kopieren",
+    "copied_toast": "Kontonummer kopiert",
+    "copy_failed": "Konnte nicht kopiert werden. Manuell: {{account}}",
+    "qr_load_failed": "QR-Code konnte nicht geladen werden",
+    "qr_zoom_title": "Zum Überweisen scannen",
+    "qr_alt": "VietQR für Banküberweisung"
   },
   "forced_update": {
     "title": "Update erforderlich",

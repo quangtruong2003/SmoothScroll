@@ -14,32 +14,52 @@
     "app_profiles": "アプリ別の割り当て",
     "language": "言語",
     "theme": "外観",
-    "test_scroll": "スクロールをテスト",
     "touchpad": "高精度タッチパッド",
     "keyboard_scroll": "キーボードスクロールのスムージング",
     "game_mode": "ゲームモード",
-    "about": "情報"
+    "edge_scroll": "画面端の自動スクロール",
+    "about": "情報",
+    "advanced_scroll": "詳細スクロール"
+  },
+  "sidebar": {
+    "tabs_aria": "設定タブ"
+  },
+  "permission": {
+    "title": "アクセシビリティ権限が必要",
+    "body": "SmoothScrollはマウスホイールイベントを取得し、滑らかなアニメーションで再送信するためにAccessibility権限が必要です。System Settings → Privacy & Security → Accessibility を開き、SmoothScrollを有効にしてください。",
+    "open": "権限をリクエスト",
+    "polling": "権限が付与されたら自動で検知して続行します。"
   },
   "tabs": {
     "general": {
       "label": "一般",
       "title": "一般",
-      "description": "クイックトグルとライブテスト。"
+      "description": "クイックトグルとヘルスチェック。"
     },
     "scroll": {
       "label": "スクロール",
       "title": "スクロール",
-      "description": "ステップサイズ、イージング、方向、入力ソースを調整します。"
+      "description": "ステップサイズ、イージング、方向、外観。"
+    },
+    "devices": {
+      "label": "デバイス",
+      "title": "入力デバイス",
+      "description": "キーボードとタッチパッドのスムージング。"
+    },
+    "advanced": {
+      "label": "詳細",
+      "title": "詳細",
+      "description": "加速ウィンドウ、テール比、精密モディファイア、エッジオートスクロール。"
     },
     "apps": {
       "label": "アプリ",
       "title": "アプリ別",
-      "description": "特定のアプリ向けのプロファイルと除外設定。"
+      "description": "特定のアプリのプロファイル、除外設定、ゲームモード。"
     },
-    "preferences": {
-      "label": "環境設定",
-      "title": "環境設定",
-      "description": "動作、ホットキー、ゲームモード。"
+    "behavior": {
+      "label": "動作",
+      "title": "動作",
+      "description": "アプリの動作、ホットキー、モーション低減。"
     },
     "about": {
       "label": "情報",
@@ -54,10 +74,6 @@
     "snappy": "キビキビ",
     "mac_like": "Macライク",
     "linear": "リニア"
-  },
-  "test_scroll": {
-    "description": "現在の設定を確かめるにはボックス内でスクロールしてください。",
-    "line": "{{n}}行目 — ここでホイールを試してください"
   },
   "settings": {
     "step_size": {
@@ -114,7 +130,8 @@
       "desc": "クリックして使いたいキーを押してください",
       "press": "キーの組み合わせを押してください…",
       "empty": "クリックして記録",
-      "aria": "ホットキーの組み合わせ入力"
+      "aria": "ホットキーの組み合わせ入力",
+      "saved": "ホットキーを保存しました"
     },
     "start_with_os": {
       "title": "Windowsと同時に起動",
@@ -132,6 +149,11 @@
       "System": "システム"
     },
     "reset_to_default": "デフォルトに戻す",
+    "edge_scroll": {
+      "enable": "画面端の自動スクロールを有効化",
+      "zone_size": "ゾーンサイズ: {{value}}px",
+      "max_speed": "最大速度: {{value}} ノッチ/秒"
+    },
     "touchpad": {
       "detected": "検出済み",
       "source": {
@@ -222,10 +244,11 @@
   "keyboard_scroll": {
     "windows_only": "(Windowsのみ)",
     "enable_smoothing": "キーボードスムージングを有効化",
-    "active_keys": "有効キー",
     "pgdn_step": "PageUp/PageDown ステップ: {{value}} ノッチ",
     "arrow_step": "矢印キー ステップ: {{value}} ノッチ",
-    "skip_in_text_inputs": "テキスト入力欄ではスキップ"
+    "skip_in_text_inputs": "テキスト入力欄ではスキップ",
+    "page_keys": "ページキー",
+    "arrow_keys": "矢印キー"
   },
   "game_mode": {
     "auto_disable": "ゲーム中は自動で無効化",
@@ -287,6 +310,20 @@
     "downloading": "ダウンロード中… {{pct}}%",
     "ready_to_restart": "アップデートをインストールしました。適用するには再起動してください。",
     "restart_now": "今すぐ再起動"
+  },
+  "support": {
+    "title": "このプロジェクトをサポート",
+    "description": "SmoothScroll をご利用いただきありがとうございます。お役に立てたなら、コーヒーをご馳走してください:",
+    "buy_me_a_coffee": "コーヒーをおごる",
+    "or_bank_transfer": "または直接送金:",
+    "bank_account": "口座",
+    "bank_name": "銀行",
+    "copy_account": "口座番号をコピー",
+    "copied_toast": "口座番号をコピーしました",
+    "copy_failed": "コピーできませんでした。手動: {{account}}",
+    "qr_load_failed": "QRを読み込めませんでした",
+    "qr_zoom_title": "スキャンして送金",
+    "qr_alt": "銀行送金用 VietQR"
   },
   "forced_update": {
     "title": "アップデートが必要です",
