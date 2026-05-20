@@ -46,7 +46,7 @@ Là người dùng SmoothScroll, sau khi xài app một thời gian và thấy h
 │ ┌──────────┬─────────────────────────────────┐ │
 │ │ [QR img] │ STK   0947890450        [📋]   │ │
 │ │ 120×120  │ Bank  Timo (BVBank)            │ │
-│ │ click→   │ Tên   NGUYEN QUANG TRUONG      │ │
+│ │ click→   │ (tên hiển thị tự động khi scan) │ │
 │ │ zoom     │                                 │ │
 │ └──────────┴─────────────────────────────────┘ │
 └────────────────────────────────────────────────┘
@@ -61,7 +61,7 @@ Là người dùng SmoothScroll, sau khi xài app một thời gian và thấy h
 - Divider/subhead "Hoặc chuyển khoản trực tiếp:".
 - Bank info row:
   - Left: `<img>` 120×120 from `BANK_QR_URL`, clickable.
-  - Right: 3 rows (STK / Bank / Holder) using same row pattern as AboutSection, with copy button on STK row.
+  - Right: 2 rows (STK / Bank) using same row pattern as AboutSection, with copy button on STK row. Tên người nhận không show trên UI — sẽ tự hiển thị trên app banking khi scan QR (VietQR truyền `accountName` qua URL param).
 - Click QR thumbnail → opens dialog (Radix Dialog already in shadcn ui) showing QR at 480×480.
 - Copy button uses `navigator.clipboard.writeText(BANK_ACCOUNT)`, shows toast "Đã copy STK" (use existing toast system).
 
@@ -112,7 +112,6 @@ const BANK_QR_URL = `https://img.vietqr.io/image/${BANK_CODE}-${BANK_ACCOUNT}-co
   "or_bank_transfer": "Or transfer directly:",
   "bank_account": "Account",
   "bank_name": "Bank",
-  "bank_holder": "Name",
   "copy_account": "Copy account number",
   "copied_toast": "Account number copied",
   "copy_failed": "Could not copy. Manual: {{account}}",
@@ -170,8 +169,8 @@ Manual checklist:
 | User scan QR nhưng số tiền/nội dung không tự điền | Acceptable; QR `compact2` để user tự nhập (không hardcode amount = an toàn hơn) |
 | Nút donate quá nổi gây cảm giác "nag" | Card đặt trong tab About (không phải tab Chung); user phải chủ động vào |
 
-## Open Questions for User Review
+## Confirmed Decisions
 
-1. Bank code `BVBank` có đúng cho tài khoản Timo của bạn không? (Timo Plus chạy trên BVBank với BIN 970454.)
-2. Tên trên QR/text có nên là "NGUYEN QUANG TRUONG" (in hoa, không dấu — chuẩn ngân hàng) hay khác?
-3. Có muốn ẩn tên holder trên UI (chỉ hiện STK + bank) không, hay show đầy đủ?
+1. Bank code `BVBank` is correct for the Timo account (BIN 970454).
+2. Holder name is passed to VietQR via `accountName` URL param so it auto-displays in the user's banking app on scan — UI does not need a "Holder" row.
+3. UI shows only STK + Bank (2 rows). Holder name is intentionally hidden from the on-screen text.
