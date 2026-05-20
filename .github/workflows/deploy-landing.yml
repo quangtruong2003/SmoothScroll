@@ -62,3 +62,47 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  cleanup-deployments:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+      actions: write
+    steps:
+      - name: Delete old GitHub Pages deployments (keep latest)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # List deployments in github-pages env (newest first), skip the first (latest), delete the rest
+          gh api "repos/${GH_REPO}/deployments?environment=github-pages&per_page=100" \
+            --jq '.[].id' \
+            | tail -n +2 \
+            | while read -r id; do
+                if [ -n "$id" ]; then
+                  echo "Marking deployment $id inactive"
+                  gh api -X POST "repos/${GH_REPO}/deployments/${id}/statuses" \
+                    -f state=inactive -f description="Superseded by newer deployment" \
+                    >/dev/null 2>&1 || true
+                  echo "Deleting deployment $id"
+                  gh api -X DELETE "repos/${GH_REPO}/deployments/${id}" \
+                    >/dev/null 2>&1 || echo "  failed to delete $id"
+                fi
+              done
+
+      - name: Delete old workflow runs (keep latest 5)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/${GH_REPO}/actions/workflows/deploy-landing.yml/runs?per_page=100" \
+            --jq '.workflow_runs[].id' \
+            | tail -n +6 \
+            | while read -r run_id; do
+                if [ -n "$run_id" ]; then
+                  echo "Deleting workflow run $run_id"
+                  gh api -X DELETE "repos/${GH_REPO}/actions/runs/${run_id}" \
+                    >/dev/null 2>&1 || echo "  failed to delete $run_id"
+                fi
+              done

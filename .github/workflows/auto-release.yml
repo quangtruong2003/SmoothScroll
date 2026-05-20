@@ -227,3 +227,26 @@ jobs:
           tag_name: ${{ needs.bump.outputs.tag }}
           generate_release_notes: true
           files: target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+
+  cleanup-releases:
+    needs: [bump, build-windows, build-macos]
+    if: always() && needs.build-windows.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete old releases and tags (keep latest)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          CURRENT_TAG="${{ needs.bump.outputs.tag }}"
+          echo "Keeping release: $CURRENT_TAG"
+          gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | grep -vx "$CURRENT_TAG" \
+            | while read -r tag; do
+                if [ -n "$tag" ]; then
+                  echo "Deleting release + tag: $tag"
+                  gh release delete "$tag" --cleanup-tag --yes || echo "  failed to delete $tag"
+                fi
+              done
