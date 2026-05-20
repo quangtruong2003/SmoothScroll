@@ -41,11 +41,11 @@ export function Stats({ dict }: StatsProps) {
 
   const liveStars = useGitHubStars()
   const [downloads, setDownloads] = useState<string>(fb.downloads ?? '—')
+  const [downloadCount, setDownloadCount] = useState<number | null>(null)
   const [version, setVersion] = useState<string>(fb.version ?? '—')
 
   useEffect(() => {
     const fallbackVersion = fb.version ?? '—'
-    setDownloads(formatDownloadCount(fakeDownloadOffset()))
 
     fetchLatestRelease()
       .then((releaseData) => {
@@ -53,11 +53,26 @@ export function Stats({ dict }: StatsProps) {
           (sum, a) => sum + (a.download_count ?? 0),
           0
         )
-        setDownloads(formatDownloadCount(realDownloads + fakeDownloadOffset()))
+        if (realDownloads > 0) {
+          setDownloadCount(realDownloads + fakeDownloadOffset())
+          setDownloads(formatDownloadCount(realDownloads + fakeDownloadOffset()))
+        }
         setVersion(releaseData.tag_name ?? fallbackVersion)
       })
       .catch(() => {})
   }, [fb])
+
+  useEffect(() => {
+    const onDownloaded = () => {
+      setDownloadCount((prev) => {
+        const next = (prev ?? 0) + 1
+        setDownloads(formatDownloadCount(next))
+        return next
+      })
+    }
+    window.addEventListener('smoothscroll:downloaded', onDownloaded)
+    return () => window.removeEventListener('smoothscroll:downloaded', onDownloaded)
+  }, [])
 
   const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '—')
 

@@ -6,6 +6,8 @@ on:
     paths:
       - 'landing/**'
       - '.github/workflows/deploy-landing.yml'
+  release:
+    types: [published]
   workflow_dispatch:
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued

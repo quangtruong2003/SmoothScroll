@@ -10,19 +10,30 @@ export interface Release {
 }
 
 const REPO = 'quangtruong2003/SmoothScroll'
-const CACHE_KEY = 'gh-release-latest'
+const CACHE_KEY = 'gh-release-latest-v2'
+const CACHE_TTL_MS = 60 * 1000
 
 export const FALLBACK_RELEASE = {
   tag_name: 'latest',
   assets: [],
 } as const
 
+interface CachedRelease {
+  value: Release
+  ts: number
+}
+
 export async function fetchLatestRelease(): Promise<Release> {
   if (typeof window === 'undefined') return FALLBACK_RELEASE as unknown as Release
 
   try {
     const cached = sessionStorage.getItem(CACHE_KEY)
-    if (cached) return JSON.parse(cached) as Release
+    if (cached) {
+      const parsed = JSON.parse(cached) as CachedRelease
+      if (parsed?.ts && Date.now() - parsed.ts < CACHE_TTL_MS) {
+        return parsed.value
+      }
+    }
   } catch {}
 
   try {
@@ -31,7 +42,9 @@ export async function fetchLatestRelease(): Promise<Release> {
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = (await res.json()) as Release
-    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(data)) } catch {}
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ value: data, ts: Date.now() } satisfies CachedRelease))
+    } catch {}
     return data
   } catch {
     return FALLBACK_RELEASE as unknown as Release

@@ -62,7 +62,16 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
                 size="sm"
                 asChild
               >
-                <a href={url} rel="noopener noreferrer" download={filename || undefined}>
+                <a
+                  href={url}
+                  rel="noopener noreferrer"
+                  download={filename || undefined}
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('smoothscroll:downloaded'))
+                    }
+                  }}
+                >
                   <Download className="h-4 w-4 mr-1.5" />
                   {ctaLabel || fallbackCta}
                 </a>
