@@ -6,8 +6,9 @@ import { applyTheme, watchSystemTheme } from "@/lib/theme";
 import { tauri } from "@/lib/tauri";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { EnableHeader } from "@/components/settings/EnableHeader";
-import { TestSandboxSection } from "@/components/settings/TestSandboxSection";
+import { HealthCheck } from "@/components/settings/HealthCheck";
 import { ScrollSection } from "@/components/settings/ScrollSection";
+import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
 import { PrecisionActionsSection } from "@/components/settings/PrecisionActionsSection";
@@ -18,9 +19,16 @@ import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
+import { SupportSection } from "@/components/settings/SupportSection";
+import { BackupSection } from "@/components/settings/BackupSection";
+import { StatsSection } from "@/components/settings/StatsSection";
 import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
 import { TabContent } from "@/components/settings/TabContent";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import { CheatSheetOverlay } from "@/components/CheatSheetOverlay";
+import { WhatsNewModal } from "@/components/WhatsNewModal";
+import { BatteryHint } from "@/components/BatteryHint";
+import { bumpSession } from "@/lib/localStats";
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -36,6 +44,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     load();
+    bumpSession();
   }, [load]);
 
   // Show onboarding wizard on first run, when timestamp is null AND key
@@ -45,10 +54,10 @@ export function SettingsPage() {
     if (loading || !settings) return;
     if (settings.onboarding_completed_at != null) return;
     const tweaked =
-      settings.step_size_px !== 120 ||
-      settings.animation_time_ms !== 360 ||
+      settings.step_size_px !== 144 ||
+      settings.animation_time_ms !== 220 ||
       settings.acceleration_delta_ms !== 70 ||
-      settings.acceleration_max !== 7;
+      settings.acceleration_max !== 10;
     if (tweaked) {
       void tauri.skipOnboarding();
       return;
@@ -109,10 +118,11 @@ export function SettingsPage() {
             <TabContent
               title={t("tabs.general.title")}
               description={t("tabs.general.description")}
-              scrollable={false}
+              scrollable={true}
             >
+              <BatteryHint />
               <EnableHeader />
-              <TestSandboxSection />
+              <HealthCheck />
             </TabContent>
           )}
 
@@ -122,12 +132,29 @@ export function SettingsPage() {
               description={t("tabs.scroll.description")}
             >
               <ScrollSection />
-              <AppearanceSection />
               <DirectionSection />
-              <PrecisionActionsSection />
-              <EdgeScrollSection />
+              <AppearanceSection />
+            </TabContent>
+          )}
+
+          {tab === "devices" && (
+            <TabContent
+              title={t("tabs.devices.title")}
+              description={t("tabs.devices.description")}
+            >
               <KeyboardScrollSection />
               <TouchpadSection />
+            </TabContent>
+          )}
+
+          {tab === "advanced" && (
+            <TabContent
+              title={t("tabs.advanced.title")}
+              description={t("tabs.advanced.description")}
+            >
+              <AdvancedScrollSection />
+              <PrecisionActionsSection />
+              <EdgeScrollSection />
             </TabContent>
           )}
 
@@ -138,16 +165,16 @@ export function SettingsPage() {
             >
               <ProfilesSection />
               <ExcludedAppsSection />
+              <GameModeSection />
             </TabContent>
           )}
 
-          {tab === "preferences" && (
+          {tab === "behavior" && (
             <TabContent
-              title={t("tabs.preferences.title")}
-              description={t("tabs.preferences.description")}
+              title={t("tabs.behavior.title")}
+              description={t("tabs.behavior.description")}
             >
               <BehaviorSection />
-              <GameModeSection />
             </TabContent>
           )}
 
@@ -155,14 +182,19 @@ export function SettingsPage() {
             <TabContent
               title={t("tabs.about.title")}
               description={t("tabs.about.description")}
-              scrollable={false}
+              scrollable={true}
             >
               <AboutSection />
+              <SupportSection />
+              <BackupSection />
+              <StatsSection />
             </TabContent>
           )}
         </div>
       </main>
       {wizardOpen && <OnboardingWizard onClose={() => setWizardOpen(false)} />}
+      <CheatSheetOverlay />
+      <WhatsNewModal />
     </div>
   );
 }
