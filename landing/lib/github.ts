@@ -13,19 +13,8 @@ const REPO = 'quangtruong2003/SmoothScroll'
 const CACHE_KEY = 'gh-release-latest'
 
 export const FALLBACK_RELEASE = {
-  tag_name: 'v1.0.0',
-  assets: [
-    {
-      name: 'SmoothScroll-1.0.0-windows-x64.msi',
-      browser_download_url: `https://github.com/${REPO}/releases/download/v1.0.0/SmoothScroll-1.0.0-windows-x64.msi`,
-      download_count: 0,
-    },
-    {
-      name: 'SmoothScroll-1.0.0-macos.dmg',
-      browser_download_url: `https://github.com/${REPO}/releases/download/v1.0.0/SmoothScroll-1.0.0-macos.dmg`,
-      download_count: 0,
-    },
-  ],
+  tag_name: 'latest',
+  assets: [],
 } as const
 
 export async function fetchLatestRelease(): Promise<Release> {
