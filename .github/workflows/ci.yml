@@ -50,8 +50,7 @@ jobs:
         run: pnpm run build:wasm
 
       - name: Build Tauri app (no signing)
-        run: pnpm exec tauri build --no-bundle
-        working-directory: src-tauri
+        run: pnpm tauri build -- --no-bundle
 
   build-macos:
     strategy:
@@ -96,5 +95,4 @@ jobs:
         run: pnpm run build:wasm
 
       - name: Build Tauri app (no signing)
-        run: pnpm exec tauri build --target ${{ matrix.target }} --no-bundle
-        working-directory: src-tauri
+        run: pnpm tauri build -- --target ${{ matrix.target }} --no-bundle

@@ -120,8 +120,7 @@ jobs:
         run: pnpm run build:wasm
 
       - name: Build Tauri app
-        run: pnpm exec tauri build
-        working-directory: src-tauri
+        run: pnpm tauri build
 
       - name: Generate latest.json
         shell: pwsh
@@ -219,8 +218,7 @@ jobs:
         run: pnpm run build:wasm
 
       - name: Build Tauri app
-        run: pnpm exec tauri build --target ${{ matrix.target }}
-        working-directory: src-tauri
+        run: pnpm tauri build -- --target ${{ matrix.target }}
 
       - name: Upload .dmg to Release
         uses: softprops/action-gh-release@v2
