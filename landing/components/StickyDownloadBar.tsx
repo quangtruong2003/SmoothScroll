@@ -14,8 +14,7 @@ interface StickyDownloadBarProps {
 export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarProps) {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
-  const { os } = useDownloadUrl()
-  const href = `/api/download?os=${os}`
+  const { url } = useDownloadUrl()
 
   useEffect(() => {
     const onScroll = () => {
@@ -63,7 +62,7 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
                 size="sm"
                 asChild
               >
-                <a href={href} rel="noopener noreferrer">
+                <a href={url} rel="noopener noreferrer">
                   <Download className="h-4 w-4 mr-1.5" />
                   {ctaLabel || fallbackCta}
                 </a>
