@@ -147,7 +147,7 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
               title={t(labelKey)}
               onClick={() => onThemeChange(mode)}
               className={cn(
-                "flex flex-1 items-center justify-center rounded py-1 transition-colors",
+                "flex flex-1 items-center justify-center rounded py-1 transition-all duration-150 ease-out",
                 "outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isActive
                   ? "bg-primary text-primary-foreground"

@@ -50,6 +50,15 @@
 }
 
 @layer base {
+  :root,
+  .dark {
+    transition: background-color 200ms ease-out,
+                color 200ms ease-out,
+                border-color 200ms ease-out;
+  }
+}
+
+@layer base {
   /* 25% smaller default font: tightens the entire UI without breaking
    * Tailwind's rem-based scale. Override per-element with text-* if needed. */
   html {
@@ -57,6 +66,9 @@
   }
   * {
     @apply border-border;
+    transition: background-color 200ms ease-out,
+                color 200ms ease-out,
+                border-color 200ms ease-out;
   }
   html, body, #root {
     margin: 0;

@@ -6,7 +6,6 @@ import { applyTheme, watchSystemTheme } from "@/lib/theme";
 import { tauri } from "@/lib/tauri";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { EnableHeader } from "@/components/settings/EnableHeader";
-import { ScrollSection } from "@/components/settings/ScrollSection";
 import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
@@ -121,7 +120,6 @@ export function SettingsPage() {
             >
               <BatteryHint />
               <EnableHeader />
-              <ScrollSection />
               <DirectionSection />
               <AppearanceSection />
             </TabContent>

@@ -5,7 +5,6 @@ import { Slider } from "@/components/ui/slider";
 import { useSettingsStore, useScrollFields, useDefaults } from "@/stores/settingsStore";
 import { animationTimeFeel, stepSizeFeel, accelMaxFeel } from "@/lib/feelHints";
 import { SettingRow } from "./SettingRow";
-import { ScrollPresets } from "./ScrollPresets";
 import { ResetButton } from "./ResetButton";
 
 function ScrollSectionInner() {
@@ -21,7 +20,6 @@ function ScrollSectionInner() {
         <CardTitle>{t("section.scrolling")}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
-        <ScrollPresets />
         <SettingRow
           htmlFor="step-size"
           title={t("settings.step_size.title")}
