@@ -18,7 +18,7 @@ import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
-import { SupportSection } from "@/components/settings/SupportSection";
+// import { SupportSection } from "@/components/settings/SupportSection";
 import { BackupSection } from "@/components/settings/BackupSection";
 import { StatsSection } from "@/components/settings/StatsSection";
 import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
@@ -183,7 +183,7 @@ export function SettingsPage() {
               scrollable={true}
             >
               <AboutSection />
-              <SupportSection />
+              {/* <SupportSection /> */}
               <BackupSection />
               <StatsSection />
             </TabContent>
