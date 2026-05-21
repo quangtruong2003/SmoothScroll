@@ -13,6 +13,7 @@ export interface DownloadInfo {
   ctaLabel: string
   totalDownloads: string
   release: Release | null
+  isBeta: boolean
 }
 
 const REPO_BASE = 'https://github.com/quangtruong2003/SmoothScroll/releases'
@@ -76,12 +77,14 @@ export function useDownloadUrl(): DownloadInfo {
       ctaLabel: 'Download',
       totalDownloads: '',
       release: null,
+      isBeta: false,
     }
   })
 
   useEffect(() => {
     const os = detectOS()
     const built = buildDefaultUrl(os, APP_VERSION)
+    const isBeta = os === 'mac'
 
     setData((prev) => ({
       ...prev,
@@ -89,6 +92,7 @@ export function useDownloadUrl(): DownloadInfo {
       filename: built.filename,
       os,
       ctaLabel: `Download for ${getOSLabel(os)}`,
+      isBeta,
     }))
 
     fetchLatestRelease().then((release) => {
@@ -120,6 +124,7 @@ export function useDownloadUrl(): DownloadInfo {
         ctaLabel: `Download for ${getOSLabel(os)}`,
         totalDownloads: totalDownloads > 0 ? formatDownloadCount(totalDownloads) : '',
         release,
+        isBeta,
       })
     })
   }, [])

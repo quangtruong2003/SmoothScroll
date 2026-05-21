@@ -19,10 +19,12 @@ export interface Dictionary {
   }
   hero?: {
     eyebrow?: string
+    eyebrowMac?: string
     title?: string
     titleAccent?: string
     subtitle?: string
     cta?: string
+    ctaMac?: string
     ctaFallback?: string
     trustLine?: string
     seeHow?: string
@@ -75,6 +77,7 @@ export interface Dictionary {
     filename?: string
     note?: { windows?: string; macos?: string }
     cta?: string
+    ctaMac?: string
   }
   faq?: {
     title?: string
@@ -84,18 +87,94 @@ export interface Dictionary {
     title?: string
     description?: string
     cta?: string
+    ctaMac?: string
     ctaSub?: string
   }
   exitIntent?: {
     title?: string
     message?: string
     cta?: string
+    ctaMac?: string
+  }
+  beta?: {
+    badge?: string
+    notice?: string
+    reportPrefix?: string
+    reportLink?: string
   }
   footer?: {
     tagline?: string
     links?: {
       github?: string
       license?: string
+    }
+  }
+  howItWorks?: {
+    seo?: { title?: string; description?: string }
+    hero?: {
+      eyebrow?: string
+      title?: string
+      titleAccent?: string
+      subtitle?: string
+      ctaPrimary?: string
+      ctaSecondary?: string
+      backToHome?: string
+    }
+    demo?: {
+      caption?: string
+      alt?: string
+      hint?: string
+    }
+    bigPicture?: {
+      title?: string
+      subtitle?: string
+      steps?: { title?: string; description?: string }[]
+    }
+    tabs?: {
+      title?: string
+      subtitle?: string
+      tocLabel?: string
+      sections?: {
+        id?: string
+        label?: string
+        intro?: string
+        settings?: {
+          name?: string
+          what?: string
+          why?: string
+          range?: string
+          defaultValue?: string
+          tip?: string
+        }[]
+      }[]
+    }
+    shortcuts?: {
+      title?: string
+      subtitle?: string
+      tableHeaders?: { action?: string; keys?: string; scope?: string }
+      rows?: { action?: string; keys?: string; scope?: string }[]
+      hotkeyNote?: string
+    }
+    tray?: {
+      title?: string
+      subtitle?: string
+      leftClick?: { title?: string; description?: string; items?: string[] }
+      rightClick?: { title?: string; description?: string; items?: string[] }
+      perApp?: { title?: string; description?: string }
+    }
+    recipes?: {
+      title?: string
+      subtitle?: string
+      items?: { name?: string; scenario?: string; suggestion?: string; settings?: string[] }[]
+    }
+    privacy?: {
+      title?: string
+      points?: string[]
+    }
+    finalCta?: {
+      title?: string
+      subtitle?: string
+      cta?: string
     }
   }
 }

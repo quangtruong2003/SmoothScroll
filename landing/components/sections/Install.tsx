@@ -3,13 +3,14 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { DownloadCTA } from '@/components/DownloadCTA'
+import { BetaNotice } from '@/components/BetaNotice'
 import { Copy, Check } from 'lucide-react'
 import { useState } from 'react'
 import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 interface InstallProps {
-  dict: { install?: Dictionary['install'] }
+  dict: { install?: Dictionary['install']; beta?: Dictionary['beta'] }
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -35,7 +36,9 @@ export function Install({ dict }: InstallProps) {
     filename: '',
     note: { windows: '', macos: '' },
     cta: '',
+    ctaMac: '',
   }
+  const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
   const { os, ctaLabel } = useDownloadUrl()
 
   const defaultTab = os === 'mac' ? 'macos' : 'windows'
@@ -95,10 +98,22 @@ export function Install({ dict }: InstallProps) {
           </TabsContent>
         </Tabs>
 
-        <div className="text-center mt-8">
-          <DownloadCTA label={ctaLabel} variant="brand" size="xl" />
+        <div className="text-center mt-8 space-y-4">
+          <DownloadCTA
+            label={ctaLabel}
+            labelMac={i.ctaMac}
+            betaBadge={b.badge ?? 'BETA'}
+            variant="brand"
+            size="xl"
+          />
+          <BetaNotice
+            notice={b.notice ?? ''}
+            reportPrefix={b.reportPrefix ?? ''}
+            reportLink={b.reportLink ?? ''}
+          />
         </div>
       </div>
     </section>
   )
 }
+

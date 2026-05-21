@@ -10,7 +10,11 @@ import { Install } from '@/components/sections/Install'
 import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
 import { StickyDownloadBar } from '@/components/StickyDownloadBar'
-import { getDictionary, type Locale } from '@/lib/i18n/dict'
+import { getDictionary, locales, type Locale } from '@/lib/i18n/dict'
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ lang: locale }))
+}
 
 export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
@@ -19,7 +23,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 
   return (
     <>
-      <Hero dict={{ hero: dict.hero }} />
+      <Hero dict={{ hero: dict.hero, beta: dict.beta }} locale={locale} />
       <PainPoints dict={{ painPoints: dict.painPoints }} />
       <SolutionBridge dict={{ solutionBridge: dict.solutionBridge }} />
       <Features dict={{ features: dict.features }} />
@@ -29,11 +33,13 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
       <Indie dict={{ indie: dict.indie }} />
       <StickyDownloadBar
         ctaLabel={dict.hero?.cta ?? 'Download'}
+        ctaLabelMac={dict.hero?.ctaMac}
         fallbackCta={dict.hero?.ctaFallback ?? 'Download'}
+        betaBadge={dict.beta?.badge ?? 'BETA'}
       />
-      <Install dict={{ install: dict.install }} />
+      <Install dict={{ install: dict.install, beta: dict.beta }} />
       <FAQ dict={{ faq: dict.faq }} />
-      <FinalCTA dict={{ finalCta: dict.finalCta }} />
+      <FinalCTA dict={{ finalCta: dict.finalCta, beta: dict.beta }} />
     </>
   )
 }

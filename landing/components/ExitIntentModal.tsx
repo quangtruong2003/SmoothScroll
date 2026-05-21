@@ -19,17 +19,21 @@ interface ExitIntentModalProps {
     title: string
     message: string
     cta: string
+    ctaMac?: string
   }
+  betaBadge?: string
 }
 
-export function ExitIntentModal({ dict }: ExitIntentModalProps) {
+export function ExitIntentModal({ dict, betaBadge = 'BETA' }: ExitIntentModalProps) {
   const triggered = useExitIntent()
-  const { url } = useDownloadUrl()
+  const { url, isBeta } = useDownloadUrl()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
     if (triggered) setOpen(true)
   }, [triggered])
+
+  const displayLabel = isBeta && dict.ctaMac ? dict.ctaMac : dict.cta
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -49,10 +53,16 @@ export function ExitIntentModal({ dict }: ExitIntentModalProps) {
             }}
           >
             <Download className="h-4 w-4 mr-2" />
-            {dict.cta}
+            {displayLabel}
+            {isBeta && (
+              <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
+                {betaBadge}
+              </span>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   )
 }
+

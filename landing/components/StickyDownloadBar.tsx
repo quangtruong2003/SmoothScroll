@@ -8,13 +8,21 @@ import { useDownloadUrl } from '@/lib/useDownloadUrl'
 
 interface StickyDownloadBarProps {
   ctaLabel: string
+  ctaLabelMac?: string
   fallbackCta: string
+  betaBadge?: string
 }
 
-export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarProps) {
+export function StickyDownloadBar({
+  ctaLabel,
+  ctaLabelMac,
+  fallbackCta,
+  betaBadge = 'BETA',
+}: StickyDownloadBarProps) {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
-  const { url, filename } = useDownloadUrl()
+  const { url, filename, isBeta } = useDownloadUrl()
+  const displayLabel = isBeta && ctaLabelMac ? ctaLabelMac : (ctaLabel || fallbackCta)
 
   useEffect(() => {
     const onScroll = () => {
@@ -73,7 +81,12 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
                   }}
                 >
                   <Download className="h-4 w-4 mr-1.5" />
-                  {ctaLabel || fallbackCta}
+                  {displayLabel}
+                  {isBeta && (
+                    <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
+                      {betaBadge}
+                    </span>
+                  )}
                 </a>
               </Button>
             </div>
@@ -83,3 +96,4 @@ export function StickyDownloadBar({ ctaLabel, fallbackCta }: StickyDownloadBarPr
     </AnimatePresence>
   )
 }
+

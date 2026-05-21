@@ -2,10 +2,12 @@
   "nav": { "github": "GitHub", "stars": "sao" },
   "hero": {
     "eyebrow": "Cho Windows",
+    "eyebrowMac": "Cho macOS (Beta)",
     "title": "Cuộn mượt như",
     "titleAccent": "tự nhiên",
     "subtitle": "SmoothScroll giúp mọi lần cuộn chuột đều mượt mà — như đang dùng trackpad cao cấp. Không cần học cách dùng, không cần cài thêm gì.",
     "cta": "Tải cho Windows",
+    "ctaMac": "Tải bản Beta cho macOS",
     "ctaFallback": "Tải xuống",
     "trustLine": "Miễn phí, không thu thập dữ liệu. Giấy phép source-available.",
     "seeHow": "Xem cách hoạt động",
@@ -43,7 +45,7 @@
   "trayPreview": { "title": "Nó sống trong khay hệ thống", "subtitle": "Một cú click từ khay hệ thống là mở ra panel gọn nhẹ với mọi thứ bạn cần — bật tắt smoothing, quyết định SmoothScroll có khởi động cùng Windows hay không, nhảy thẳng vào danh sách loại trừ theo từng ứng dụng, hoặc mở cài đặt đầy đủ khi muốn tinh chỉnh sâu hơn. Không có cửa sổ choán màn hình, không có icon taskbar gây xao nhãng. Nó đứng yên trong khay cho đến đúng khoảnh khắc bạn cần đến." },
   "stats": { "title": "Được tin dùng bởi", "githubStars": "Sao GitHub", "downloads": "Lượt tải", "version": "Phiên bản", "fallback": { "stars": "—", "downloads": "—", "version": "v1.0.0" } },
   "indie": { "title": "Tạo bởi một lập trình viên indie", "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.", "points": ["Giấy phép source-available (FSL-1.1 → Apache 2.0) — tự kiểm tra code", "Không telemetry hay thu thập dữ liệu", "Không quảng cáo, không premium, không upsell", "Xây dựng công khai trên GitHub"], "cta": "Xem trên GitHub" },
-  "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe — không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho {os}" },
+  "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe — không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho {os}", "ctaMac": "Tải bản Beta cho macOS" },
   "faq": { "title": "Câu hỏi thường gặp", "questions": [
     { "q": "Có hoạt động với mọi ứng dụng không?", "a": "SmoothScroll chặn input wheel từ chuột trước khi đến ứng dụng, nên hoạt động với hầu hết mọi thứ — Chrome, VS Code, File Explorer, Adobe apps." },
     { "q": "Có tốn pin không?", "a": "Không. SmoothScroll gần như không dùng CPU khi rảnh rỗi và chỉ xử lý khi có sự kiện cuộn." },
@@ -54,8 +56,210 @@
     { "q": "Hỗ trợ Windows phiên bản nào?", "a": "Windows 10 và Windows 11 được hỗ trợ đầy đủ." },
     { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller — không có gì khác trên hệ thống." }
   ]},
-  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaSub": "Hiện tại đang miễn phí. Giấy phép source-available." },
+  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaMac": "Tải SmoothScroll Beta", "ctaSub": "Hiện tại đang miễn phí. Giấy phép source-available." },
+  "beta": { "badge": "BETA", "notice": "Bản macOS đang trong giai đoạn Beta và có thể có lỗi.", "reportPrefix": "Gặp lỗi?", "reportLink": "Báo cáo trên GitHub" },
   "footer": { "tagline": "Cuộn mượt cho Windows.", "links": { "github": "GitHub", "license": "Giấy phép" } },
-  "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí" },
-  "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" }
+  "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí", "ctaMac": "Tải bản Beta miễn phí" },
+  "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },
+  "howItWorks": {
+    "seo": {
+      "title": "SmoothScroll hoạt động thế nào — Giải thích từng cài đặt",
+      "description": "Hướng dẫn đầy đủ mọi tính năng, cài đặt và phím tắt của SmoothScroll. Tinh chỉnh cảm giác cuộn cho đọc, code, thiết kế và chơi game."
+    },
+    "hero": {
+      "eyebrow": "Hướng dẫn đầy đủ",
+      "title": "Xem cách SmoothScroll",
+      "titleAccent": "thực sự hoạt động",
+      "subtitle": "Một tour qua từng tab, từng cài đặt và từng phím tắt — để bạn có thể tinh chỉnh chính xác cảm giác cuộn mình muốn.",
+      "ctaPrimary": "Tải SmoothScroll",
+      "ctaSecondary": "Xem phím tắt",
+      "backToHome": "Về trang chủ"
+    },
+    "demo": {
+      "caption": "Mọi tab, mọi cài đặt — quay trực tiếp",
+      "alt": "Video demo cửa sổ cài đặt SmoothScroll: Cuộn, Thiết bị, Nâng cao, Ứng dụng, Game, Hành vi, Giới thiệu",
+      "hint": "Mẹo: mỗi tab đều có hướng dẫn riêng bên dưới."
+    },
+    "bigPicture": {
+      "title": "Bức tranh tổng thể",
+      "subtitle": "Ba bước chạy cho mỗi tick chuột — 120 lần mỗi giây.",
+      "steps": [
+        { "title": "1. Chặn", "description": "Một hook cấp thấp (Windows WH_MOUSE_LL / macOS CGEventTap) bắt mỗi sự kiện cuộn thô trước khi bất kỳ ứng dụng nào nhìn thấy." },
+        { "title": "2. Làm mượt", "description": "Một đường cong easing — Exponential, Cubic, Quintic, hay Linear — nội suy delta qua khoảng thời gian animation. Acceleration tích lũy đà nếu bạn cuộn nhanh." },
+        { "title": "3. Phát lại", "description": "Sự kiện cuộn tổng hợp được phát ở 120 Hz đến ứng dụng đang foreground. Ứng dụng bị loại trừ và game được bỏ qua engine, đi qua nguyên trạng." }
+      ]
+    },
+    "tabs": {
+      "title": "Mọi tab trong ứng dụng",
+      "subtitle": "Mở Cài đặt (click trái vào icon trong khay hệ thống) để theo dõi. Thứ tự bên dưới giống hệt sidebar.",
+      "tocLabel": "Nhảy đến tab",
+      "sections": [
+        {
+          "id": "scroll",
+          "label": "Cuộn",
+          "intro": "Các điều khiển cảm giác chính. Hầu hết người dùng chỉ chạm vào tab này.",
+          "settings": [
+            { "name": "Bật", "what": "Công tắc tổng. Tắt = cuộn mặc định của OS, Bật = engine SmoothScroll.", "why": "So sánh A/B nhanh mà không cần gỡ cài. Cũng được gán vào phím tắt toàn cục.", "range": "Bật / Tắt", "defaultValue": "Bật", "tip": "Dùng phím tắt toàn cục (Ctrl+Alt+S) để bật/tắt mà không cần rời bàn phím." },
+            { "name": "Kích thước bước", "what": "Số pixel cuộn cho mỗi notch của chuột.", "why": "Lớn hơn = cuộn được nhiều trang hơn mỗi click; nhỏ hơn = điều khiển tinh hơn.", "range": "24–300 px", "defaultValue": "144 px", "tip": "Hạ xuống 96 khi review code, nâng lên 200 cho PDF dài." },
+            { "name": "Thời gian animation", "what": "Mỗi chuyển động cuộn mất bao lâu để dừng lại.", "why": "Dài hơn = lướt mượt hơn; ngắn hơn = phản hồi nhanh hơn.", "range": "50–500 ms", "defaultValue": "220 ms", "tip": "Dưới 120 ms thì gần như không cảm thấy smoothing; trên 300 ms thì có cảm giác trackpad Mac." },
+            { "name": "Smooth easing", "what": "Áp dụng đường cong easing cho mỗi chuyển động. Tắt = ramp tuyến tính.", "why": "Easing là thứ làm cho cuộn cảm giác tự nhiên thay vì máy móc.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Đường cong easing", "what": "Bốn dạng — Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Mỗi đường cong giảm tốc khác nhau. Quintic giống Mac; Linear cảm giác máy móc thuần túy.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Exponential Out", "tip": "Thử Quintic nếu bạn muốn đuôi dài, mượt nhất." },
+            { "name": "Đảo ngược chiều", "what": "Đảo chiều cuộn (kiểu natural như macOS).", "why": "Khớp với Mac mà bạn cũng dùng, hoặc theo sở thích.", "range": "Bật / Tắt", "defaultValue": "Tắt" },
+            { "name": "Cuộn ngang mượt", "what": "Áp dụng smoothing cho tilt-wheel và Shift+wheel.", "why": "Bảng tính rộng, timeline, dải ảnh.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Shift chuyển sang ngang", "what": "Giữ Shift khi cuộn sẽ thành cuộn ngang.", "why": "Hữu ích khi chuột không có tilt-wheel.", "range": "Bật / Tắt", "defaultValue": "Bật" }
+          ]
+        },
+        {
+          "id": "devices",
+          "label": "Thiết bị",
+          "intro": "Smoothing cho cuộn bằng bàn phím và precision touchpad — tách biệt với chuột.",
+          "settings": [
+            { "name": "Bật smoothing bàn phím (Chỉ Windows)", "what": "Áp dụng easing cho PageUp/Down và phím mũi tên.", "why": "Cùng lợi ích flow như cuộn chuột, nhưng cho điều hướng bàn phím.", "range": "Bật / Tắt", "defaultValue": "Tắt", "tip": "Bật 'Bỏ qua trong ô nhập text' để mũi tên vẫn hoạt động bình thường trong text field." },
+            { "name": "Bước PageUp / PageDown", "what": "Mỗi PageUp/PageDown phát ra bao nhiêu notch tương đương.", "why": "Tinh chỉnh khoảng nhảy cho tài liệu dài.", "range": "1–20 notch", "defaultValue": "10" },
+            { "name": "Bước mũi tên", "what": "Mỗi lần nhấn mũi tên phát ra bao nhiêu notch.", "why": "Nhỏ hơn = điều hướng chính xác hơn.", "range": "1–10 notch", "defaultValue": "3" },
+            { "name": "Cuộn touchpad mượt", "what": "Áp dụng easing cho input precision touchpad độ phân giải cao.", "why": "Touchpad phát delta cấp pixel; cái này làm mượt cả chúng.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Hệ số pixel", "what": "Nhân raw pixel delta từ touchpad trước khi smoothing.", "why": "Khớp độ nhạy touchpad với chuột.", "range": "0.5–3.0×", "defaultValue": "1.0×" },
+            { "name": "Hệ số tăng tốc", "what": "Tăng cường flick lớn bằng hai ngón. 0 tắt acceleration hoàn toàn.", "why": "Cho phép flick nhanh đi xa hơn trong khi kéo nhỏ vẫn chính xác.", "range": "0–5", "defaultValue": "1" }
+          ]
+        },
+        {
+          "id": "advanced",
+          "label": "Nâng cao",
+          "intro": "Khu vực tinh chỉnh sâu. Chạm vào khi mặc định không khớp với tay bạn.",
+          "settings": [
+            { "name": "Cửa sổ tăng tốc", "what": "Khoảng thời gian các notch liên tiếp tích lũy đà.", "why": "Cho phép flick nhanh cuộn xa hơn mà không cần tick nhanh hơn.", "range": "0–500 ms", "defaultValue": "70 ms", "tip": "Cao hơn = tích đà nhiều hơn. Đặt 0 để tắt acceleration." },
+            { "name": "Acceleration tối đa", "what": "Giới hạn cứng cho hệ số acceleration.", "why": "Ngăn tốc độ tăng vô tội vạ khi xoay nhanh.", "range": "1–20×", "defaultValue": "10×" },
+            { "name": "Tỉ lệ đuôi/đầu", "what": "Đường cong giảm tốc sắc bao nhiêu.", "why": "Cao hơn = bắt đầu nhanh hơn, đuôi dài hơn.", "range": "1–10", "defaultValue": "3" },
+            { "name": "Pass-through Ctrl + wheel", "what": "Khi giữ Ctrl, gửi tick wheel thô (không smoothing).", "why": "Photoshop, Figma, browser, VS Code dùng Ctrl+wheel để zoom — smoothing sẽ làm lag zoom.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Pass-through Alt + wheel", "what": "Khi giữ Alt, gửi tick wheel thô.", "why": "Premiere, DAW, và timeline editor zoom hoặc scrub bằng Alt+wheel.", "range": "Bật / Tắt", "defaultValue": "Tắt" },
+            { "name": "Xóa quán tính khi nhấn modifier", "what": "Dừng cuộn smooth đang chờ ngay lập tức khi nhấn Ctrl/Alt.", "why": "Làm zoom cảm giác tức thì sau một cuộn smooth.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Cuộn tự động ở rìa", "what": "Tự cuộn khi con trỏ vào vùng rìa màn hình.", "why": "Cuộn rảnh tay khi đang kéo-thả.", "range": "Bật / Tắt + cỡ vùng + tốc độ tối đa", "defaultValue": "Tắt", "tip": "Kết hợp với yêu cầu modifier để tránh kích hoạt vô tình." }
+          ]
+        },
+        {
+          "id": "apps",
+          "label": "Ứng dụng",
+          "intro": "Override theo từng ứng dụng. Mỗi ứng dụng đáng có cảm giác riêng.",
+          "settings": [
+            { "name": "Hồ sơ cuộn", "what": "Preset có tên — vd. Mac-like, Snappy, Đọc chậm — mỗi cái có step size, thời gian animation, easing riêng.", "why": "Tránh phải tinh chỉnh slider toàn cục mỗi khi đổi việc.", "range": "Không giới hạn", "defaultValue": "Không có", "tip": "Xây hồ sơ theo cách dùng ứng dụng, không phải bản thân ứng dụng. 'Đọc dài' áp dụng cho PDF, sách, bài viết như nhau." },
+            { "name": "Gán theo ứng dụng", "what": "Map tên process (vd. chrome.exe) đến một hồ sơ cụ thể.", "why": "Chrome có thể lướt trong khi VS Code vẫn snappy.", "range": "Không giới hạn", "defaultValue": "Không có" },
+            { "name": "Ứng dụng loại trừ", "what": "Ứng dụng bỏ qua hoàn toàn SmoothScroll.", "why": "Một số ứng dụng (anti-cheat, công cụ chuyên dụng) thích input wheel thô.", "range": "Không giới hạn", "defaultValue": "Không có" }
+          ]
+        },
+        {
+          "id": "gamemode",
+          "label": "Game mode",
+          "intro": "Tự tắt smoothing mỗi khi một game đã biết được focus.",
+          "settings": [
+            { "name": "Tự tắt trong game", "what": "Tạm dừng engine khi bất kỳ process nào trong danh sách game được focus.", "why": "Game cần input cuộn thô — để đổi súng, zoom scope, v.v.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Danh sách game đã biết", "what": "Danh sách process name kích hoạt Game mode (có thể chỉnh sửa).", "why": "Thêm game của bạn; xóa false positive.", "range": "Không giới hạn", "defaultValue": "Danh sách mặc định được tuyển chọn" }
+          ]
+        },
+        {
+          "id": "behavior",
+          "label": "Hành vi",
+          "intro": "Cách ứng dụng tự xử khi khởi động, trong tray, và khi nhấn phím tắt.",
+          "settings": [
+            { "name": "Phím tắt toàn cục", "what": "Phím tắt toàn hệ thống để bật/tắt smoothing.", "why": "Bật/tắt mà không cần alt-tab vào Cài đặt.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Tổ hợp phím tắt", "what": "Click vào ô, rồi nhấn các phím bạn muốn.", "why": "Tránh xung đột với ứng dụng khác.", "range": "Bất kỳ tổ hợp modifier+phím", "defaultValue": "Ctrl+Alt+S" },
+            { "name": "Khởi động cùng Windows / macOS", "what": "Chạy SmoothScroll khi đăng nhập.", "why": "Cài và quên — cuộn mượt từ giây đầu mỗi phiên.", "range": "Bật / Tắt", "defaultValue": "Tắt" },
+            { "name": "Khởi động ẩn vào tray", "what": "Bỏ qua cửa sổ cài đặt khi khởi động.", "why": "Kết hợp với Khởi động cùng Windows cho trải nghiệm chạy nền hoàn toàn.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Hiện trạng thái icon tray", "what": "Icon tray đổi visual giữa BẬT và TẮT.", "why": "Xác nhận liếc qua là biết smoothing đang hoạt động.", "range": "Bật / Tắt", "defaultValue": "Bật" },
+            { "name": "Tôn trọng Reduce Motion của OS", "what": "Ba chế độ — Auto (theo OS), Luôn instant, Luôn smooth.", "why": "Tự động tôn trọng tùy chọn accessibility.", "range": "Auto / Luôn instant / Luôn smooth", "defaultValue": "Auto" }
+          ]
+        },
+        {
+          "id": "about",
+          "label": "Giới thiệu",
+          "intro": "Phiên bản, cập nhật, sao lưu, và thống kê cục bộ — tab dọn dẹp.",
+          "settings": [
+            { "name": "Phiên bản & cập nhật", "what": "Kiểm tra và cài đặt update đã ký.", "why": "Luôn ở phiên bản mới nhất mà không cần đi tìm download.", "range": "Thủ công / Auto", "defaultValue": "Kiểm tra thủ công" },
+            { "name": "Sao lưu & khôi phục", "what": "Xuất toàn bộ cài đặt thành JSON, nhập trên máy khác.", "why": "Chuyển preset giữa các máy mà không phải làm lại từng slider.", "range": "File JSON", "defaultValue": "—" },
+            { "name": "Thống kê cục bộ", "what": "Số phiên và tổng thời gian dùng, tính trên thiết bị.", "why": "Xem bạn đã dùng SmoothScroll bao nhiêu. Không có gì được upload.", "range": "—", "defaultValue": "—" },
+            { "name": "Mở thư mục log", "what": "Mở %APPDATA%\\SmoothScroll\\logs (hoặc ~/Library/Logs/SmoothScroll trên macOS).", "why": "Hữu ích khi báo lỗi.", "range": "—", "defaultValue": "—" },
+            { "name": "Chạy lại wizard cài đặt", "what": "Mở lại onboarding 3 bước.", "why": "Reset về preset known-good nếu bạn đã chỉnh quá tay.", "range": "—", "defaultValue": "—" }
+          ]
+        }
+      ]
+    },
+    "shortcuts": {
+      "title": "Phím tắt",
+      "subtitle": "Nhấn từ bất cứ đâu trên hệ thống, hoặc chỉ trong cửa sổ cài đặt — cột Phạm vi cho biết loại nào.",
+      "tableHeaders": { "action": "Hành động", "keys": "Phím", "scope": "Phạm vi" },
+      "rows": [
+        { "action": "Bật / tắt cuộn mượt", "keys": "Ctrl + Alt + S", "scope": "Toàn hệ thống" },
+        { "action": "Mở cửa sổ cài đặt", "keys": "Click trái icon tray", "scope": "Khay hệ thống" },
+        { "action": "Mở quick menu (Bật, Cài đặt, Log, Thoát)", "keys": "Click phải icon tray", "scope": "Khay hệ thống" },
+        { "action": "Hiện cheatsheet phím tắt", "keys": "?", "scope": "Cửa sổ cài đặt" },
+        { "action": "Di chuyển focus giữa các điều khiển", "keys": "Tab / Shift + Tab", "scope": "Cửa sổ cài đặt" },
+        { "action": "Chỉnh slider đang focus", "keys": "Phím mũi tên", "scope": "Cửa sổ cài đặt" },
+        { "action": "Bật/tắt switch đang focus", "keys": "Space", "scope": "Cửa sổ cài đặt" },
+        { "action": "Đóng dialog / cheatsheet", "keys": "Esc", "scope": "Cửa sổ cài đặt" },
+        { "action": "Pass-through zoom (không smoothing)", "keys": "Ctrl + wheel", "scope": "Mọi ứng dụng" },
+        { "action": "Cuộn ngang", "keys": "Shift + wheel", "scope": "Mọi ứng dụng" }
+      ],
+      "hotkeyNote": "Phím tắt toàn cục có thể đổi trong Hành vi → Tổ hợp phím tắt. Chọn cái không xung đột với công cụ khác."
+    },
+    "tray": {
+      "title": "Khay hệ thống",
+      "subtitle": "SmoothScroll không có cửa sổ taskbar — tất cả nằm trong khay.",
+      "leftClick": {
+        "title": "Click trái icon tray",
+        "description": "Mở panel tray gọn gàng.",
+        "items": [
+          "Bật / tắt smoothing",
+          "Bật/tắt Khởi động cùng Windows",
+          "Bật/tắt Khởi động ẩn",
+          "Mở cài đặt đầy đủ",
+          "Nhảy đến danh sách loại trừ",
+          "Mở file log",
+          "Thoát SmoothScroll"
+        ]
+      },
+      "rightClick": {
+        "title": "Click phải icon tray",
+        "description": "Menu ngữ cảnh native của OS (nhanh hơn trên máy yếu).",
+        "items": [
+          "Bật / Tắt",
+          "Mở cài đặt",
+          "Ứng dụng loại trừ",
+          "Mở file log",
+          "Thoát"
+        ]
+      },
+      "perApp": {
+        "title": "Card ứng dụng hiện tại",
+        "description": "Panel tray hiện ứng dụng đang foreground và danh mục của nó. Bật/tắt smoothing cho ứng dụng đó, hoặc gán hồ sơ — không cần mở cài đặt đầy đủ."
+      }
+    },
+    "recipes": {
+      "title": "Mẹo & công thức",
+      "subtitle": "Preset đã được kiểm chứng cho các workflow phổ biến. Mở Ứng dụng → Hồ sơ để lưu chúng.",
+      "items": [
+        { "name": "Đọc dài", "scenario": "PDF, bài viết, sách — lướt qua hoặc đọc kỹ mà không mất vị trí.", "suggestion": "Preset Glide", "settings": ["Step size: 200 px", "Animation time: 320 ms", "Easing: Quintic Out", "Acceleration max: 6×"] },
+        { "name": "Code trong VS Code / JetBrains", "scenario": "Điều hướng code không bị quá đà và mất dòng.", "suggestion": "Preset Balanced", "settings": ["Step size: 96 px", "Animation time: 180 ms", "Easing: Cubic Out", "Acceleration max: 4×"] },
+        { "name": "Photoshop / Figma / Illustrator", "scenario": "Hay zoom Ctrl+wheel; cuộn mượt trong panel layer.", "suggestion": "Mặc định + Ctrl pass-through BẬT", "settings": ["Mặc định là tuyệt", "Nâng cao → Pass-through Ctrl+wheel: BẬT", "Nâng cao → Xóa quán tính khi modifier: BẬT"] },
+        { "name": "Premiere / DAW", "scenario": "Scrub timeline bằng Alt+wheel.", "suggestion": "Mặc định + Alt pass-through BẬT", "settings": ["Nâng cao → Pass-through Alt+wheel: BẬT", "Ứng dụng → gán hồ sơ Snappy cho editor"] },
+        { "name": "Chơi game", "scenario": "Bánh xe vũ khí, scope zoom — bất kỳ thứ gì đọc notch thô.", "suggestion": "Game mode tự tắt", "settings": ["Game mode → Tự tắt trong game: BẬT", "Thêm process game vào danh sách (vd. csgo.exe)"] },
+        { "name": "Laptop chạy pin", "scenario": "Tận dụng từng phút — giảm tải CPU.", "suggestion": "Preset Snappy", "settings": ["Animation time: 120 ms", "Easing: Cubic Out", "Hành vi → Reduce motion: Auto"] }
+      ]
+    },
+    "privacy": {
+      "title": "Nó làm gì (và không làm gì)",
+      "points": [
+        "Đọc sự kiện chuột ở lớp hook OS — cùng API với công cụ accessibility và screen reader.",
+        "Không inject vào process khác.",
+        "Không cài driver, service, hay daemon.",
+        "Không gọi mạng trừ kiểm tra GitHub có release mới (có thể tắt).",
+        "Cài đặt nằm trong %APPDATA%\\SmoothScroll (Windows) hoặc ~/Library/Application Support/SmoothScroll (macOS).",
+        "Log xoay vòng hàng ngày, giữ 7 ngày, ở lại trên thiết bị.",
+        "Source-available theo FSL-1.1 → tự động Apache 2.0 sau 2 năm."
+      ]
+    },
+    "finalCta": {
+      "title": "Sẵn sàng cảm nhận sự khác biệt?",
+      "subtitle": "Cài 60 giây. Tinh chỉnh thêm 60 giây nữa. Rồi quên là nó tồn tại.",
+      "cta": "Tải SmoothScroll"
+    }
+  }
 }
