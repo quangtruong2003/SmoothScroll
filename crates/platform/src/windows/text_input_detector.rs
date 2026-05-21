@@ -14,6 +14,12 @@ const TEXT_INPUT_CLASSES: &[&str] = &[
     "Scintilla",
     "OpenEdit",
     "_WwG",
+    "AFX:00400000:0",
+    "RichEditD2D",
+    "TSearchEdit",
+    "CascadiaCode",
+    "Notepad++",
+    "VAEDocument",
 ];
 
 pub fn is_focus_in_text_input() -> bool {
