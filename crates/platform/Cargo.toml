@@ -27,6 +27,10 @@ windows-sys = { version = "0.59", features = [
     "Win32_System_Registry",
     "Win32_Media",
 ] }
+windows = { version = "0.58", features = [
+    "Win32_UI_Accessibility",
+    "Win32_System_Com",
+] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = { version = "0.5", default-features = false, features = ["std"] }
