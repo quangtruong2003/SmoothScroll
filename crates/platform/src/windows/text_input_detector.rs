@@ -1,51 +1,76 @@
 #![cfg(windows)]
 
-use std::mem;
-use windows_sys::Win32::UI::WindowsAndMessaging::{
-    GetClassNameW, GetForegroundWindow, GetGUIThreadInfo, GetWindowThreadProcessId, GUITHREADINFO,
+use std::sync::Mutex;
+use std::time::{Duration, Instant};
+
+use windows::Win32::System::Com::{
+    CoCreateInstance, CoInitializeEx, CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED,
+};
+use windows::Win32::UI::Accessibility::{
+    CUIAutomation, IUIAutomation, UIA_DocumentControlTypeId, UIA_EditControlTypeId,
 };
 
-const TEXT_INPUT_CLASSES: &[&str] = &[
-    "Edit",
-    "RichEdit",
-    "RICHEDIT50W",
-    "RichEdit20A",
-    "RichEdit20W",
-    "Scintilla",
-    "OpenEdit",
-    "_WwG",
-    "AFX:00400000:0",
-    "RichEditD2D",
-    "TSearchEdit",
-    "CascadiaCode",
-    "Notepad++",
-    "VAEDocument",
-];
+const CACHE_TTL: Duration = Duration::from_millis(50);
+
+static CACHE: Mutex<Option<(Instant, bool)>> = Mutex::new(None);
 
 pub fn is_focus_in_text_input() -> bool {
-    unsafe {
-        let hwnd = GetForegroundWindow();
-        if hwnd.is_null() {
-            return false;
+    let mut guard = CACHE.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((ts, val)) = *guard {
+        if ts.elapsed() < CACHE_TTL {
+            return val;
         }
-        let tid = GetWindowThreadProcessId(hwnd, std::ptr::null_mut());
-        let mut gti: GUITHREADINFO = mem::zeroed();
-        gti.cbSize = mem::size_of::<GUITHREADINFO>() as u32;
-        if GetGUIThreadInfo(tid, &mut gti) == 0 {
-            return false;
-        }
+    }
+    let result = query_uia_focus();
+    *guard = Some((Instant::now(), result));
+    result
+}
 
-        if !gti.hwndCaret.is_null() {
-            return true;
-        }
-        let focus = if gti.hwndFocus.is_null() {
-            hwnd
-        } else {
-            gti.hwndFocus
+fn query_uia_focus() -> bool {
+    unsafe {
+        // COM init is idempotent per thread; ignore return value.
+        let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
+
+        let automation: IUIAutomation =
+            match CoCreateInstance(&CUIAutomation, None, CLSCTX_INPROC_SERVER) {
+                Ok(a) => a,
+                Err(_) => return false,
+            };
+
+        let element = match automation.GetFocusedElement() {
+            Ok(e) => e,
+            Err(_) => return false,
         };
-        let mut buf = [0u16; 64];
-        let n = GetClassNameW(focus, buf.as_mut_ptr(), buf.len() as i32);
-        let class = String::from_utf16_lossy(&buf[..n as usize]);
-        TEXT_INPUT_CLASSES.contains(&class.as_str())
+
+        let control_type = match element.CurrentControlType() {
+            Ok(ct) => ct,
+            Err(_) => return false,
+        };
+
+        // UIA_EditControlTypeId = 50004: <input>, native Edit controls, browser address bars
+        // UIA_DocumentControlTypeId = 50030: <textarea>, contenteditable, rich editors
+        control_type == UIA_EditControlTypeId || control_type == UIA_DocumentControlTypeId
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn does_not_panic() {
+        // UIA may not be available in headless CI; we just verify no panic.
+        let _ = is_focus_in_text_input();
+    }
+
+    #[test]
+    fn cache_is_populated_after_first_call() {
+        {
+            let mut guard = CACHE.lock().unwrap();
+            *guard = None;
+        }
+        let _ = is_focus_in_text_input();
+        let guard = CACHE.lock().unwrap();
+        assert!(guard.is_some(), "cache should be populated after first call");
     }
 }
