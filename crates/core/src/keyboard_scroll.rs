@@ -12,11 +12,13 @@ pub enum KeyboardScrollKey {
 
 impl KeyboardScrollKey {
     pub fn to_notches(self, pgdn_step: i32, arrow_step: i32) -> i32 {
+        // Windows WM_MOUSEWHEEL convention: positive delta = wheel rotated
+        // forward (away from user) = scroll up. Negative = scroll down.
         match self {
-            Self::PageDown | Self::Space => pgdn_step,
-            Self::PageUp | Self::ShiftSpace => -pgdn_step,
-            Self::ArrowUp => arrow_step,    // ArrowUp = scroll down (content moves up)
-            Self::ArrowDown => -arrow_step, // ArrowDown = scroll up (content moves down)
+            Self::PageDown | Self::Space => -pgdn_step,
+            Self::PageUp | Self::ShiftSpace => pgdn_step,
+            Self::ArrowDown => -arrow_step,
+            Self::ArrowUp => arrow_step,
         }
     }
 }
