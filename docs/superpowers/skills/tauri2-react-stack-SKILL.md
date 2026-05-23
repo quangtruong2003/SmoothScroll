@@ -109,3 +109,134 @@ project-root/
 ├── commitlint.config.cjs
 └── CLAUDE.md
 ```
+
+### 1.3 Bootstrap commands
+
+pnpm-first; if pnpm errors occur, fix the error rather than falling back to npm/yarn.
+
+```bash
+# 1. Scaffold Vite + React + TS
+pnpm create vite@latest <app-name> --template react-ts
+cd <app-name>
+
+# 2. Tauri
+pnpm add -D @tauri-apps/cli@^2
+pnpm add @tauri-apps/api@^2 @tauri-apps/plugin-updater@^2 \
+  @tauri-apps/plugin-process@^2 @tauri-apps/plugin-shell@^2
+pnpm tauri init
+
+# 3. UI + state + i18n
+pnpm add zustand@^5 i18next@^24 react-i18next@^15 \
+  i18next-browser-languagedetector@^8 \
+  clsx tailwind-merge class-variance-authority \
+  lucide-react sonner \
+  @radix-ui/react-dialog @radix-ui/react-label @radix-ui/react-scroll-area \
+  @radix-ui/react-select @radix-ui/react-separator @radix-ui/react-slider \
+  @radix-ui/react-slot @radix-ui/react-switch @radix-ui/react-tabs \
+  @radix-ui/react-tooltip
+
+# 4. Tailwind
+pnpm add -D tailwindcss@^3 postcss autoprefixer
+npx tailwindcss init -p
+
+# 5. Test + lint + commit lint
+pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom \
+  eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser \
+  eslint-plugin-react-hooks eslint-plugin-react-refresh \
+  @commitlint/cli @commitlint/config-conventional
+
+# 6. Cargo dependencies (from src-tauri/)
+cargo add arc-swap parking_lot crossbeam-channel \
+  tracing tracing-subscriber tracing-appender \
+  directories serde@1 serde_json anyhow thiserror \
+  uuid --features v4
+```
+
+### 1.4 Baseline configuration files
+
+#### `commitlint.config.cjs`
+
+```js
+module.exports = { extends: ['@commitlint/config-conventional'] };
+```
+
+#### `vite.config.ts`
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'node:path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: { alias: { '@': path.resolve(__dirname, './src') } },
+  server: { port: 1420, strictPort: true },
+  clearScreen: false,
+  envPrefix: ['VITE_', 'TAURI_'],
+  test: { environment: 'jsdom', setupFiles: ['./test-setup.ts'] },
+});
+```
+
+#### `tailwind.config.ts`
+
+```ts
+import type { Config } from 'tailwindcss';
+
+export default {
+  darkMode: ['class'],
+  content: ['./src/**/*.{ts,tsx,html}'],
+  theme: { extend: {} },
+  plugins: [],
+} satisfies Config;
+```
+
+#### `tsconfig.json` (key options)
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noImplicitAny": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }
+  },
+  "include": ["src", "vite.config.ts", "test-setup.ts"]
+}
+```
+
+#### `src-tauri/Cargo.toml` (excerpt)
+
+```toml
+[package]
+name = "<app>-app"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+parking_lot = "0.12"
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+tracing-appender = "0.2"
+directories = "5"
+uuid = { version = "1", features = ["v4"] }
+arc-swap = "1"
+crossbeam-channel = "0.5"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = ["Win32_UI_WindowsAndMessaging"] }
+```
