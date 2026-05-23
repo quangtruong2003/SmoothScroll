@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -136,15 +136,13 @@ function getCommits(lastTag) {
   const SEP = '<<<COMMIT_END>>>';
   const FIELD_SEP = '<<<FIELD>>>';
   const format = `%H${FIELD_SEP}%B${SEP}`;
-  const range = lastTag ? `${lastTag}..HEAD` : 'HEAD';
+  const args = ['log', `--pretty=format:${format}`];
+  if (lastTag) args.splice(1, 0, `${lastTag}..HEAD`);
   let raw;
   try {
-    raw = execSync(`git log ${range} --pretty=format:${format}`, {
-      cwd: REPO_ROOT,
-      encoding: 'utf8',
-    });
+    raw = execFileSync('git', args, { cwd: REPO_ROOT, encoding: 'utf8' });
   } catch {
-    raw = execSync(`git log --pretty=format:${format}`, {
+    raw = execFileSync('git', ['log', `--pretty=format:${format}`], {
       cwd: REPO_ROOT,
       encoding: 'utf8',
     });
