@@ -1074,3 +1074,198 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/).
 ```
 
 `VERSIONING.md` documents the policy (which commit types bump which versions, channel rules, signing).
+
+---
+
+## Part 3 — Optional addendum: System utility patterns
+
+Consult this part only when building a system utility (mouse/keyboard tweaker, window manager, tray helper) requiring OS-level integration. Skip otherwise — these patterns add complexity that a typical Tauri productivity app doesn't need.
+
+#### D.1 Platform abstraction via traits
+
+**Files:** Optional workspace crate `crates/platform/`.
+
+**Skeleton:**
+
+```rust
+// crates/platform/src/traits.rs
+use std::sync::Arc;
+
+pub trait MouseHook: Send + Sync {
+    fn install(&self, sink: Arc<dyn HookEventSink>) -> Result<HookHandle, PlatformError>;
+}
+pub trait KeyboardScrollHook: Send + Sync {
+    fn install(&self, sink: Arc<dyn KeyboardSink>) -> Result<HookHandle, PlatformError>;
+}
+pub trait Hotkey: Send + Sync {
+    fn register(&self, accel: Accelerator, on_pressed: Box<dyn Fn() + Send + Sync>) -> Result<HotkeyHandle, PlatformError>;
+}
+pub trait FullscreenDetector: Send + Sync { fn is_fullscreen(&self) -> bool; }
+pub trait ProcessQuery: Send + Sync { fn foreground(&self) -> Option<ProcessInfo>; }
+pub trait Accessibility: Send + Sync {
+    fn reduce_motion_enabled(&self) -> bool;
+    fn watch(&self, cb: Box<dyn Fn(bool) + Send + Sync>) -> Result<WatchHandle, PlatformError>;
+}
+
+// crates/platform/src/lib.rs
+pub fn current() -> anyhow::Result<Platform> {
+    #[cfg(windows)]   return Ok(windows::build());
+    #[cfg(target_os = "macos")] return Ok(macos::build());
+    #[cfg(not(any(windows, target_os = "macos")))]
+    anyhow::bail!("unsupported platform");
+}
+```
+
+**Gotcha:** All trait objects stored in `AppState` must be `Send + Sync`.
+
+#### D.2 Global hotkey registration
+
+**Files:** `src-tauri/src/commands.rs`.
+
+**Skeleton:**
+
+```rust
+pub(crate) fn register_hotkey_internal(state: &Arc<AppState>, accel: &str) -> Result<(), String> {
+    if !is_valid_accelerator(accel) { return Err(format!("invalid accelerator '{accel}'")); }
+    *state.hotkey_handle.lock() = None; // drop OS slot first
+    let toggle_state = state.clone();
+    let on_pressed: Box<dyn Fn() + Send + Sync> = Box::new(move || {
+        let v = !toggle_state.enabled.load(Ordering::Relaxed);
+        toggle_state.enabled.store(v, Ordering::Relaxed);
+        toggle_state.engine_signal.signal();
+    });
+    state.hotkey
+        .register(Accelerator { raw: accel.into() }, on_pressed)
+        .map(|h| { *state.hotkey_handle.lock() = Some(h); })
+        .map_err(|e| e.to_string())
+}
+```
+
+**Gotcha:** Drop the previous handle **before** registering — Win32/macOS hotkey slots collide otherwise.
+
+#### D.3 Per-app profile assignment
+
+Foreground process query → category classifier → swap effective settings snapshot via ArcSwap.
+
+```rust
+let pid_info = state.processes.foreground();
+let category = classify_app(&pid_info);
+let preset = preset_for_category(category);
+let eff_for_app = EffectiveSettings::with_profile(&state.settings.read(), &preset);
+state.effective.store(Arc::new(eff_for_app));
+```
+
+#### D.4 Game mode watcher
+
+**Files:** `src-tauri/src/game_mode.rs`.
+
+**Skeleton:**
+
+```rust
+pub fn spawn<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: Arc<AppState>) {
+    std::thread::Builder::new().name("game-mode".into()).spawn(move || loop {
+        let fs = state.fullscreen_detector.is_fullscreen();
+        let known = state.settings.read().known_games.iter().any(|g| {
+            state.processes.foreground().map(|p| p.exe == *g).unwrap_or(false)
+        });
+        let active = fs && known;
+        if state.game_mode_active.swap(active, Ordering::Relaxed) != active {
+            let _ = app.emit("game-mode-changed", active);
+        }
+        std::thread::sleep(std::time::Duration::from_secs(1));
+    }).expect("spawn game-mode thread");
+}
+```
+
+#### D.5 WASM core bridge
+
+**Files:** `crates/core/` (with `wasm-bindgen`), `scripts/build-wasm.{ps1,sh}`, `src/lib/engineWasm.ts`, committed `src/lib/engine-wasm/*.d.ts`.
+
+**Build script (PowerShell):**
+
+```powershell
+cd crates/core
+wasm-pack build --target web --out-dir ../../src/lib/engine-wasm
+```
+
+**Load lazily in preview component:**
+
+```ts
+import init, { run_curve } from '@/lib/engine-wasm/<crate>_core';
+let ready: Promise<void> | null = null;
+export async function ensureWasm() { ready ??= init().then(() => undefined); return ready; }
+```
+
+**Gotcha:** Commit the generated `.d.ts` for IDE support; do not commit the `.wasm` binary if your CI rebuilds it.
+
+#### D.6 macOS Accessibility permission gate
+
+**Files:** `src/components/macos/PermissionGate.tsx`, backend `commands::accessibility_status` + `accessibility_request_prompt`.
+
+**Skeleton (backend):**
+
+```rust
+#[tauri::command]
+pub fn accessibility_status(state: State<'_, Arc<AppState>>) -> bool {
+    #[cfg(target_os = "macos")]
+    { state.accessibility.reduce_motion_enabled(); /* + AXIsProcessTrusted */ }
+    #[cfg(not(target_os = "macos"))]
+    { true }
+}
+```
+
+**Skeleton (frontend):** Show modal on launch if `accessibility_status` is `false`, with a "Grant access" button that calls `accessibility_request_prompt` and re-checks on window focus.
+
+#### D.7 High-res timer guard (Windows)
+
+```rust
+pub struct HighResTimerGuard;
+impl HighResTimerGuard {
+    pub fn begin(period_ms: u32) -> Self {
+        unsafe { winapi::um::timeapi::timeBeginPeriod(period_ms); }
+        Self
+    }
+}
+impl Drop for HighResTimerGuard {
+    fn drop(&mut self) { unsafe { winapi::um::timeapi::timeEndPeriod(1); } }
+}
+```
+
+Owned by `OwnedHandles` (A.6) so the period is restored at app exit.
+
+#### D.8 Reduce-motion watcher (macOS)
+
+**Skeleton (inside `.setup`):**
+
+```rust
+let rm_handle = state.accessibility.watch(Box::new(move |new_value: bool| {
+    state_clone.reduce_motion.store(new_value, Ordering::Relaxed);
+    let snapshot = state_clone.settings.read().clone();
+    state_clone.commit_settings(snapshot);
+    let _ = tauri::Emitter::emit(&app_handle, "reduce-motion-changed", new_value);
+}))?;
+*state.rm_watch_handle.lock() = Some(rm_handle);
+```
+
+#### D.9 Beta channel badge
+
+**Files:** `src/lib/release-channel.ts`, `src/components/BetaBadge.tsx`.
+
+```tsx
+import { channel } from '@/lib/release-channel';
+export function BetaBadge() {
+  if (channel !== 'beta') return null;
+  return <span className="rounded bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-700">Beta</span>;
+}
+```
+
+#### D.10 Donate / support links
+
+```ts
+// src/lib/donate.ts
+import { open } from '@tauri-apps/plugin-shell';
+export const openDonate = () => open('https://example.com/donate');
+```
+
+**Gotcha:** Never use `window.open` — Tauri's CSP forbids it. Always go through `@tauri-apps/plugin-shell`.
+
