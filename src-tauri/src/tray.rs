@@ -1,6 +1,9 @@
 //! System tray icon.
 //!
 //! - Left-click: toggle enabled/disabled
+//! - Double-left-click: open main settings window. Windows still delivers
+//!   two single-click Ups around the DoubleClick event, so the two toggles
+//!   cancel each other out and the net effect is just opening Settings.
 //! - Right-click: show the floating tray-panel window at cursor position
 //!
 //! The panel is a frameless WebView window rendered via React.
@@ -200,6 +203,16 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                             }
                         }
                         show_tray_panel(&app);
+                    }
+                    TrayIconEvent::DoubleClick {
+                        button: MouseButton::Left,
+                        ..
+                    } => {
+                        if let Some(win) = app.get_webview_window("main") {
+                            let _ = win.show();
+                            let _ = win.set_focus();
+                        }
+                        tracing::info!("tray double-click opened main settings");
                     }
                     _ => {}
                 }
