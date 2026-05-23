@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-05-23
+
+### Fixed
+- broaden Chromium framework check and add Custom control handling
 ## [1.0.2] - 2026-05-23
 
 ### Fixed
