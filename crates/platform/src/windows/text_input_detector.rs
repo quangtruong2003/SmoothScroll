@@ -8,8 +8,9 @@ use windows::Win32::System::Com::{
     CoCreateInstance, CoInitializeEx, CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED,
 };
 use windows::Win32::UI::Accessibility::{
-    CUIAutomation, IUIAutomation, IUIAutomationElement, IUIAutomationValuePattern,
-    UIA_DocumentControlTypeId, UIA_EditControlTypeId, UIA_ValuePatternId,
+    CUIAutomation, IUIAutomation, IUIAutomationElement, IUIAutomationTextEditPattern,
+    IUIAutomationValuePattern, UIA_DocumentControlTypeId, UIA_EditControlTypeId,
+    UIA_TextEditPatternId, UIA_ValuePatternId,
 };
 
 const CACHE_TTL: Duration = Duration::from_millis(50);
@@ -54,8 +55,9 @@ fn query_uia_focus() -> bool {
             return true;
         }
         // Document controls span both editable surfaces (contenteditable, Word,
-        // rich editors) and read-only browser page bodies. Only treat as text
-        // input when ValuePattern reports the document is editable.
+        // rich editors, Chromium/Electron textareas) and read-only browser page
+        // bodies. Treat as text input when either ValuePattern reports
+        // not-read-only OR TextEditPattern is supported.
         if control_type == UIA_DocumentControlTypeId {
             return is_document_editable(&element);
         }
@@ -64,18 +66,25 @@ fn query_uia_focus() -> bool {
 }
 
 unsafe fn is_document_editable(element: &IUIAutomationElement) -> bool {
-    let pattern_obj = match element.GetCurrentPattern(UIA_ValuePatternId) {
-        Ok(p) => p,
-        Err(_) => return false,
-    };
-    let value_pattern: IUIAutomationValuePattern = match pattern_obj.cast() {
-        Ok(v) => v,
-        Err(_) => return false,
-    };
-    match value_pattern.CurrentIsReadOnly() {
-        Ok(ro) => !ro.as_bool(),
-        Err(_) => false,
+    // ValuePattern path: Word, native rich editors, some Edit-like controls.
+    if let Ok(pattern_obj) = element.GetCurrentPattern(UIA_ValuePatternId) {
+        if let Ok(value_pattern) = pattern_obj.cast::<IUIAutomationValuePattern>() {
+            if let Ok(ro) = value_pattern.CurrentIsReadOnly() {
+                if !ro.as_bool() {
+                    return true;
+                }
+            }
+        }
     }
+    // TextEditPattern path: Chromium contenteditable, Monaco, Electron rich
+    // inputs. TextEdit is only exposed by editable text surfaces, so its
+    // presence alone is sufficient.
+    if let Ok(pattern_obj) = element.GetCurrentPattern(UIA_TextEditPatternId) {
+        if pattern_obj.cast::<IUIAutomationTextEditPattern>().is_ok() {
+            return true;
+        }
+    }
+    false
 }
 
 #[cfg(test)]
