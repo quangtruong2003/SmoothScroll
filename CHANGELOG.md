@@ -1,11 +1,29 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to SmoothScroll documented here.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Format: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/)
+Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-05-23
+
+### Added
+- First production release. Adopts SemVer 2.0.0 + Conventional Commits 1.0.0 + Keep a Changelog 1.1.0.
+- Cross-platform smooth scrolling for Windows (stable channel) and macOS (beta channel).
+- Settings UI with themes, i18n (en, vi, zh, plus more).
+- Auto-updater integration (Windows).
+- UIA-based text input detection on Windows.
+- Tray panel + main window UX.
+
+### Changed
+- Version jumps from 0.1.38 → 1.0.0 to signal stability.
+- Automated release workflow now derives bump level from Conventional Commits.
+
+### Known Issues
+- macOS builds unsigned (no Apple Developer ID yet). Users must allow via Gatekeeper.
+- macOS auto-update disabled in beta channel until code-signing is set up.
 
 ## [0.1.0] — 2026-05-16
 
