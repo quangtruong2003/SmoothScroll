@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-05-23
+
+### Fixed
+- drop -- separator so tauri CLI receives --target on macOS
 ## [1.0.0] - 2026-05-23
 
 ### Added
