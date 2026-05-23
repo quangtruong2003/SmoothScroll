@@ -19,7 +19,6 @@ import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
 // import { SupportSection } from "@/components/settings/SupportSection";
 import { BackupSection } from "@/components/settings/BackupSection";
-import { StatsSection } from "@/components/settings/StatsSection";
 import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
 import { TabContent } from "@/components/settings/TabContent";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
@@ -183,7 +182,6 @@ export function SettingsPage() {
               <AboutSection />
               {/* <SupportSection /> */}
               <BackupSection />
-              <StatsSection />
             </TabContent>
           )}
         </div>
