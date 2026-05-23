@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-05-23
+
+### Added
+- open main settings on double-left-click
+
+### Fixed
+- drop FrameworkId fallback that suppressed keyboard smooth scroll
 ## [1.0.3] - 2026-05-23
 
 ### Fixed
