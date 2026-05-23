@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-05-23
+
+### Fixed
+- treat non-Chromium Document controls as editable text input
 ## [1.0.1] - 2026-05-23
 
 ### Fixed
