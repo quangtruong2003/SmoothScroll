@@ -926,3 +926,151 @@ import { toast } from 'sonner';
 toast.success('Saved');
 toast.error('Failed: ' + msg);
 ```
+
+### Group C — Release & CI
+
+#### C.1 Conventional Commits + commitlint
+
+**Files:** `commitlint.config.cjs`, `.github/workflows/commitlint.yml`.
+
+**Skeleton (workflow):**
+
+```yaml
+name: commitlint
+on: [pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm commitlint --from=${{ github.event.pull_request.base.sha }} --to=HEAD
+```
+
+Allowed types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`, `build`, `style`, `revert`.
+
+#### C.2 SemVer 2.0.0 auto-bump
+
+**Files:** `scripts/version-bump.mjs`, `package.json` script.
+
+**Skeleton:**
+
+```js
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const lastTag = execFileSync('git', ['describe', '--tags', '--abbrev=0']).toString().trim();
+const log = execFileSync('git', ['log', `${lastTag}..HEAD`, '--pretty=%s']).toString().split('\n');
+
+let major = 0, minor = 0, patch = 0;
+for (const msg of log) {
+  if (/!:|BREAKING CHANGE/.test(msg)) major++;
+  else if (/^feat(\(|:)/.test(msg)) minor++;
+  else if (/^fix(\(|:)/.test(msg)) patch++;
+}
+const [cMaj, cMin, cPat] = lastTag.replace(/^v/, '').split('.').map(Number);
+const next = major ? `${cMaj+1}.0.0` : minor ? `${cMaj}.${cMin+1}.0` : `${cMaj}.${cMin}.${cPat+1}`;
+console.log(next);
+
+// Write to package.json, src-tauri/tauri.conf.json, src-tauri/Cargo.toml
+```
+
+**Gotcha (Windows):** Use `execFileSync('git', [...])` — **not** `execSync('git ...')`. The string form invokes a shell and breaks on argument quoting.
+
+#### C.3 Multi-channel updater manifest
+
+**Files:** `scripts/generate-updater-manifest.mjs`, deployed to `latest.json` / `beta.json` endpoints.
+
+**Skeleton (output shape):**
+
+```json
+{
+  "version": "1.1.0",
+  "notes": "See CHANGELOG.md",
+  "pub_date": "2026-05-23T00:00:00Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "<base64 minisig>",
+      "url": "https://example.com/releases/v1.1.0/<app>_1.1.0_x64-setup.nsis.zip"
+    },
+    "darwin-universal": {
+      "signature": "<base64 minisig>",
+      "url": "https://example.com/releases/v1.1.0/<app>_universal.app.tar.gz"
+    }
+  }
+}
+```
+
+Channel selection on the client side via `src/lib/release-channel.ts`:
+
+```ts
+export type Channel = 'stable' | 'beta';
+export const channel: Channel =
+  (import.meta.env.VITE_CHANNEL as Channel | undefined) ?? 'stable';
+export const manifestUrl =
+  channel === 'beta'
+    ? 'https://example.com/releases/beta.json'
+    : 'https://example.com/releases/latest.json';
+```
+
+#### C.4 Auto-release workflow
+
+**Files:** `.github/workflows/release.yml`.
+
+**Triggers:** Push tags `v*.*.*` (stable) or `v*.*.*-beta.*` (beta).
+
+**Matrix:**
+
+```yaml
+strategy:
+  matrix:
+    include:
+      - { os: windows-latest, target: x86_64-pc-windows-msvc }
+      - { os: macos-latest,  target: universal-apple-darwin }
+```
+
+**Steps:** checkout → setup pnpm + node + rust → `pnpm install` → `pnpm tauri build --target ${{ matrix.target }}` → upload artifacts → after matrix completes, regenerate manifest → publish GitHub Release with assets.
+
+**Gotcha:** Don't use `--` separator — `pnpm tauri build --target X` is correct; `pnpm tauri build -- --target X` was wrong on macOS (see SmoothScroll commit `b871a96`).
+
+#### C.5 Pre-release local verification
+
+Before pushing any release-triggering tag, run locally and hand off the exe path:
+
+```bash
+pnpm tauri build
+# Windows: src-tauri/target/release/bundle/nsis/<App>_<ver>_x64-setup.exe
+# macOS:   src-tauri/target/release/bundle/dmg/<App>_<ver>_universal.dmg
+```
+
+This catches build failures before they consume the cross-platform CI matrix budget.
+
+#### C.6 Keep a Changelog 1.1.0
+
+**Files:** `CHANGELOG.md`, `VERSIONING.md`.
+
+**Skeleton (CHANGELOG.md):**
+
+```markdown
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/).
+
+## [Unreleased]
+### Added
+### Changed
+### Fixed
+
+## [1.0.0] - 2026-MM-DD
+### Added
+- Initial release.
+```
+
+`VERSIONING.md` documents the policy (which commit types bump which versions, channel rules, signing).
