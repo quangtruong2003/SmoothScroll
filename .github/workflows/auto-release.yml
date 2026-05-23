@@ -208,7 +208,7 @@ jobs:
         run: pnpm run build:wasm
 
       - name: Build Tauri app
-        run: pnpm tauri build -- --target ${{ matrix.target }}
+        run: pnpm tauri build --target ${{ matrix.target }}
 
       - name: Rename dmg with _beta suffix
         id: rename
