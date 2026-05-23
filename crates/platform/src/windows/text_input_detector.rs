@@ -84,6 +84,16 @@ unsafe fn is_document_editable(element: &IUIAutomationElement) -> bool {
             return true;
         }
     }
+    // FrameworkId heuristic: Word/PowerPoint/Excel/Outlook expose Document
+    // controls without TextEditPattern or ValuePattern. Chromium uses Document
+    // for both editable surfaces (caught above) and read-only page bodies.
+    // Treat non-Chromium Document controls as editable.
+    if let Ok(framework) = element.CurrentFrameworkId() {
+        let s = framework.to_string();
+        if !s.is_empty() && !s.eq_ignore_ascii_case("Chrome") {
+            return true;
+        }
+    }
     false
 }
 
