@@ -589,3 +589,340 @@ if let Some(win) = app.get_webview_window("main") {
     let _ = win.hide(); // silent boot
 }
 ```
+
+### Group B — Frontend (TypeScript/React)
+
+#### B.1 Typed IPC wrapper
+
+**Trigger:** Anywhere the frontend calls Rust.
+
+**Files:** `src/lib/tauri.ts`.
+
+**Skeleton:**
+
+```ts
+import { invoke } from '@tauri-apps/api/core';
+import { listen, type UnlistenFn } from '@tauri-apps/api/event';
+import type { AppSettings } from './settings';
+
+export const getSettings   = () => invoke<AppSettings>('get_settings');
+export const saveSettings  = (settings: AppSettings) =>
+  invoke<void>('save_settings', { settings });
+export const setEnabled    = (enabled: boolean) =>
+  invoke<void>('set_enabled', { enabled });
+
+export const onSettingsChanged = (cb: (s: AppSettings) => void): Promise<UnlistenFn> =>
+  listen<AppSettings>('settings-changed', e => cb(e.payload));
+export const onEnabledChanged = (cb: (v: boolean) => void): Promise<UnlistenFn> =>
+  listen<boolean>('enabled-changed', e => cb(e.payload));
+```
+
+**Gotchas:** Always type the generic — IPC payloads are `unknown` otherwise.
+
+#### B.2 Zustand settings store with IPC hydration
+
+**Files:** `src/stores/settingsStore.ts`.
+
+**Skeleton:**
+
+```ts
+import { create } from 'zustand';
+import { getSettings, saveSettings, onSettingsChanged } from '@/lib/tauri';
+import { debounce } from '@/lib/debounce';
+import type { AppSettings } from '@/lib/settings';
+
+interface SettingsState {
+  settings: AppSettings | null;
+  hydrate: () => Promise<void>;
+  update: (patch: Partial<AppSettings>) => void;
+}
+
+let suppressPersist = false;
+const persist = debounce((s: AppSettings) => saveSettings(s), 250);
+
+export const useSettings = create<SettingsState>((set, get) => ({
+  settings: null,
+  hydrate: async () => {
+    const s = await getSettings();
+    set({ settings: s });
+    onSettingsChanged(remote => {
+      suppressPersist = true;
+      set({ settings: remote });
+      queueMicrotask(() => { suppressPersist = false; });
+    });
+  },
+  update: patch => {
+    const cur = get().settings; if (!cur) return;
+    const next = { ...cur, ...patch };
+    set({ settings: next });
+    if (!suppressPersist) persist(next);
+  },
+}));
+```
+
+**Gotchas:** Without `suppressPersist`, the event from your own save will trigger another save → feedback loop.
+
+#### B.3 Settings section pattern
+
+**Files:** `src/components/settings/SettingRow.tsx`, `src/components/settings/<Name>Section.tsx`.
+
+**Skeleton (SettingRow.tsx):**
+
+```tsx
+import { ReactNode } from 'react';
+
+export function SettingRow({ label, description, control }: {
+  label: ReactNode; description?: ReactNode; control: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-3">
+      <div className="space-y-1">
+        <div className="text-sm font-medium">{label}</div>
+        {description && <div className="text-xs text-muted-foreground">{description}</div>}
+      </div>
+      <div className="shrink-0">{control}</div>
+    </div>
+  );
+}
+```
+
+**Skeleton (BehaviorSection.tsx):**
+
+```tsx
+import { useSettings } from '@/stores/settingsStore';
+import { Switch } from '@/components/ui/switch';
+import { SettingRow } from './SettingRow';
+import { useTranslation } from 'react-i18next';
+
+export function BehaviorSection() {
+  const { t } = useTranslation();
+  const { settings, update } = useSettings();
+  if (!settings) return null;
+  return (
+    <section className="space-y-2">
+      <h2 className="text-lg font-semibold">{t('settings.behavior.title')}</h2>
+      <SettingRow
+        label={t('settings.behavior.invertDir')}
+        description={t('settings.behavior.invertDirHint')}
+        control={
+          <Switch
+            checked={settings.invertDirection}
+            onCheckedChange={v => update({ invertDirection: v })}
+          />
+        }
+      />
+    </section>
+  );
+}
+```
+
+#### B.4 shadcn-style primitive
+
+**Files:** `src/components/ui/<name>.tsx`. Required primitives at minimum: `button`, `card`, `dialog`, `input`, `label`, `scroll-area`, `select`, `separator`, `slider`, `switch`, `tabs`, `toast`, `tooltip`.
+
+**Skeleton (button.tsx):**
+
+```tsx
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        ghost:   'hover:bg-accent hover:text-accent-foreground',
+        outline: 'border border-input hover:bg-accent',
+      },
+      size: { default: 'h-9 px-4', sm: 'h-8 px-3', lg: 'h-10 px-6' },
+    },
+    defaultVariants: { variant: 'default', size: 'default' },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+    return <Comp ref={ref} className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+  }
+);
+```
+
+**Skeleton (`src/lib/utils.ts`):**
+
+```ts
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
+```
+
+**Gotcha:** Don't pull in the shadcn CLI runtime — copy primitives directly so the dependency surface stays tight.
+
+#### B.5 i18n key
+
+**Files:** `src/i18n/index.ts` (resources) + component usage.
+
+**Skeleton (index.ts):**
+
+```ts
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import en from './locales/en.json';
+import vi from './locales/vi.json';
+import zh from './locales/zh.json';
+
+i18n.use(LanguageDetector).use(initReactI18next).init({
+  resources: { en: { translation: en }, vi: { translation: vi }, zh: { translation: zh } },
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false },
+});
+export default i18n;
+```
+
+**Skeleton (component usage):**
+
+```tsx
+import { useTranslation } from 'react-i18next';
+const { t, i18n } = useTranslation();
+// t('settings.behavior.title')
+// i18n.changeLanguage('vi'); invoke('change_language', { lang: 'vi' });
+```
+
+**Gotcha:** Mirror language change to the backend so settings can persist it (and so any backend-rendered strings stay in sync).
+
+#### B.6 Theme system
+
+**Files:** `src/lib/theme.ts`.
+
+**Skeleton:**
+
+```ts
+export type Theme = 'light' | 'dark' | 'system';
+
+export function applyTheme(theme: Theme) {
+  const html = document.documentElement;
+  const isDark = theme === 'dark'
+    || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  html.classList.toggle('dark', isDark);
+}
+
+export function watchOSTheme(onChange: () => void) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
+}
+```
+
+**Gotcha:** Only watch OS theme when the user-selected theme is `system`. Otherwise OS toggles trigger spurious repaints.
+
+#### B.7 Vitest test colocated
+
+**Files:** `<feature>.test.ts(x)` next to source.
+
+**Skeleton (`debounce.test.ts`):**
+
+```ts
+import { describe, it, expect, vi } from 'vitest';
+import { debounce } from './debounce';
+
+describe('debounce', () => {
+  it('coalesces rapid calls into one trailing invocation', async () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const d = debounce(fn, 100);
+    d('a'); d('b'); d('c');
+    expect(fn).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(150);
+    expect(fn).toHaveBeenCalledExactlyOnceWith('c');
+    vi.useRealTimers();
+  });
+});
+```
+
+**Skeleton (`test-setup.ts`):**
+
+```ts
+import '@testing-library/jest-dom/vitest';
+```
+
+#### B.8 Updater integration
+
+**Files:** `src/lib/updater.ts`, mounted from App root.
+
+**Skeleton:**
+
+```ts
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
+
+export async function checkForUpdates() {
+  try {
+    const update = await check();
+    if (!update) return { kind: 'up-to-date' as const };
+    await update.downloadAndInstall();
+    await relaunch();
+    return { kind: 'installed' as const };
+  } catch (e) {
+    return { kind: 'error' as const, message: String(e) };
+  }
+}
+```
+
+**Gotcha:** `latest.json` (stable) + `beta.json` (beta) manifests must be signed. See C.3 below.
+
+#### B.9 Onboarding wizard reducer
+
+**Files:** `src/components/onboarding/wizardReducer.ts`, `OnboardingWizard.tsx`.
+
+**Skeleton:**
+
+```ts
+export type Step = 'welcome' | 'preset' | 'permissions' | 'done';
+export interface State { step: Step; preset?: string; }
+export type Action =
+  | { type: 'NEXT' }
+  | { type: 'BACK' }
+  | { type: 'CHOOSE_PRESET'; preset: string };
+
+const order: Step[] = ['welcome', 'preset', 'permissions', 'done'];
+
+export function wizardReducer(state: State, action: Action): State {
+  const idx = order.indexOf(state.step);
+  switch (action.type) {
+    case 'NEXT': return { ...state, step: order[Math.min(idx + 1, order.length - 1)] };
+    case 'BACK': return { ...state, step: order[Math.max(idx - 1, 0)] };
+    case 'CHOOSE_PRESET': return { ...state, preset: action.preset };
+  }
+}
+```
+
+Persist progress via Tauri commands `apply_onboarding_preset` / `skip_onboarding`.
+
+#### B.10 Toast notifications
+
+**Files:** App root + any call site.
+
+**Skeleton:**
+
+```tsx
+// App.tsx
+import { Toaster } from 'sonner';
+// ...
+<Toaster position="bottom-right" richColors />
+```
+
+```ts
+import { toast } from 'sonner';
+toast.success('Saved');
+toast.error('Failed: ' + msg);
+```
