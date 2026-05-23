@@ -240,3 +240,352 @@ crossbeam-channel = "0.5"
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = ["Win32_UI_WindowsAndMessaging"] }
 ```
+
+---
+
+## Part 2 — Pattern catalog
+
+Each pattern follows the same shape:
+- **Trigger:** when this pattern applies
+- **Files:** where to put / modify code
+- **Skeleton:** copy-pasteable code
+- **Gotchas:** non-obvious pitfalls
+
+### Group A — Rust backend
+
+#### A.1 AppState composition root
+
+**Trigger:** When initializing the app — every Tauri app needs a single shared state container.
+
+**Files:** `src-tauri/src/state.rs`, `src-tauri/src/lib.rs`
+
+**Skeleton (state.rs):**
+
+```rust
+use arc_swap::ArcSwap;
+use parking_lot::{Mutex, RwLock};
+use std::sync::{atomic::AtomicBool, Arc};
+
+pub struct AppState {
+    pub settings: Arc<RwLock<AppSettings>>,
+    pub effective: Arc<ArcSwap<EffectiveSettings>>,
+    pub enabled: Arc<AtomicBool>,
+    pub persistor: Arc<SettingsPersistor>,
+    pub engine_signal: Arc<EngineSignal>,
+    // platform handles (optional, see Part 3)
+}
+
+impl AppState {
+    pub fn commit_settings(&self, settings: AppSettings) {
+        let eff = EffectiveSettings::from_settings(&settings);
+        self.effective.store(Arc::new(eff));
+        *self.settings.write() = settings.clone();
+        self.persistor.queue(settings);
+    }
+}
+```
+
+**Skeleton (lib.rs `run`):**
+
+```rust
+pub fn run() {
+    init_logging();
+    let loaded = settings::load();
+    let app_state = Arc::new(AppState { /* … */ });
+    app_state.commit_settings(loaded.clone());
+
+    tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_shell::init())
+        .manage(app_state.clone())
+        .setup(move |app| {
+            tray::init(app.handle(), app_state.clone())?;
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![
+            commands::ping,
+            commands::get_settings,
+            commands::save_settings,
+            /* … */
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running Tauri application");
+}
+```
+
+**Gotchas:**
+- Build order matters: settings → AppState → workers → hooks. A worker that reads `effective` before `commit_settings` runs sees stale defaults.
+- Use `Arc<Mutex<Option<HookHandle>>>` for handles that may be replaced (re-register).
+
+#### A.2 Add Tauri command
+
+**Trigger:** When the frontend needs to call Rust.
+
+**Files:** `src-tauri/src/commands.rs` + register in `lib.rs` `invoke_handler![]`.
+
+**Skeleton:**
+
+```rust
+#[tauri::command]
+pub fn save_settings<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    state: tauri::State<'_, Arc<AppState>>,
+    settings: AppSettings,
+) -> Result<(), String> {
+    // 1. validate
+    if !settings.is_valid() { return Err("invalid settings".into()); }
+    // 2. mutate state
+    state.commit_settings(settings.clone());
+    // 3. emit event so other windows reload
+    emit_settings_changed(&app, &settings);
+    Ok(())
+}
+```
+
+**Gotchas:**
+- Errors must serialize — return `String` or a `serde::Serialize` error type.
+- Heavy work should be sent into a worker thread; don't block the IPC thread.
+- Don't forget to register in `invoke_handler![…]` — silent runtime error otherwise.
+
+#### A.3 Canonical event emit helpers
+
+**Trigger:** When state changes must notify all open windows.
+
+**Files:** Top of `src-tauri/src/commands.rs`.
+
+**Skeleton:**
+
+```rust
+pub(crate) fn emit_settings_changed<R: tauri::Runtime>(app: &AppHandle<R>, s: &AppSettings) {
+    let _ = app.emit("settings-changed", s.clone());
+}
+pub(crate) fn emit_enabled_changed<R: tauri::Runtime>(app: &AppHandle<R>, enabled: bool) {
+    let _ = app.emit("enabled-changed", enabled);
+}
+```
+
+**Gotchas:** Ignore the `Err` — emit fails when no windows exist, which is fine for a tray-resident app.
+
+#### A.4 Hot-path snapshot with ArcSwap
+
+**Trigger:** Settings read in a hot loop (every wheel event, every frame).
+
+**Files:** `state.rs`, hot-loop callers (e.g. `engine_thread.rs`).
+
+**Skeleton:**
+
+```rust
+// In AppState:
+pub effective: Arc<ArcSwap<EffectiveSettings>>,
+
+// Write (rare):
+state.effective.store(Arc::new(EffectiveSettings::from_settings(&new_settings)));
+
+// Read (hot path, lock-free):
+let eff = state.effective.load();
+let curve = eff.curve;
+```
+
+**Gotchas:**
+- `ArcSwap::store` clones the whole `Arc<EffectiveSettings>` — keep that struct small (booleans, scalars, small enums).
+- `load()` returns a `Guard` — call `.load_full()` if you need a real `Arc` to hold across `await` points.
+
+#### A.5 Background worker thread
+
+**Trigger:** Long-running work (hook event pump, scroll engine, watchdog) that shouldn't block IPC.
+
+**Files:** `src-tauri/src/engine_thread.rs` (or `edge_scroll_thread.rs`, etc.)
+
+**Skeleton:**
+
+```rust
+pub struct EngineThread {
+    _join: std::thread::JoinHandle<()>,
+}
+
+impl EngineThread {
+    pub fn spawn(state: Arc<AppState>) -> Self {
+        let handle = std::thread::Builder::new()
+            .name("engine".into())
+            .spawn(move || engine_loop(state))
+            .expect("spawn engine thread");
+        Self { _join: handle }
+    }
+}
+
+fn engine_loop(state: Arc<AppState>) {
+    loop {
+        state.engine_signal.wait_timeout(std::time::Duration::from_millis(16));
+        if state.shutdown.load(std::sync::atomic::Ordering::Relaxed) { break; }
+        let eff = state.effective.load();
+        /* hot work */
+    }
+}
+```
+
+**Gotchas:**
+- Wake via a `crossbeam-channel` or a dedicated signal (Condvar wrapper) — never busy-loop.
+- Drop semantics: pair with **A.6 OwnedHandles** so cleanup is deterministic.
+
+#### A.6 OwnedHandles RAII cleanup
+
+**Trigger:** Multiple OS handles/threads must drop in order at app exit.
+
+**Files:** `src-tauri/src/lib.rs`.
+
+**Skeleton:**
+
+```rust
+struct OwnedHandles {
+    #[allow(dead_code)] _engine: EngineThread,
+    #[allow(dead_code)] _hook: Option<HookHandle>,
+    #[cfg(windows)] #[allow(dead_code)] _timer: HighResTimerGuard,
+}
+
+let owned = OwnedHandles {
+    _engine: engine_thread,
+    _hook: hook_result.ok(),
+    #[cfg(windows)] _timer: HighResTimerGuard::begin(1),
+};
+
+tauri::Builder::default()
+    .manage(parking_lot::Mutex::new(Some(owned)))
+    /* … */;
+```
+
+**Gotchas:** Tauri drops `manage`'d state at app exit, giving deterministic cleanup. Don't store handles directly in `AppState` — they'd be cloned across threads.
+
+#### A.7 Debounced settings persistor
+
+**Trigger:** Settings change frequently (sliders) but disk writes are expensive.
+
+**Files:** `src-tauri/src/settings_persistor.rs`.
+
+**Skeleton:**
+
+```rust
+use crossbeam_channel::{bounded, Sender};
+
+pub struct SettingsPersistor { tx: Sender<AppSettings> }
+
+impl SettingsPersistor {
+    pub fn spawn() -> Self {
+        let (tx, rx) = bounded::<AppSettings>(8);
+        std::thread::Builder::new().name("settings-persistor".into()).spawn(move || {
+            let mut last: Option<AppSettings> = None;
+            loop {
+                match rx.recv_timeout(std::time::Duration::from_millis(500)) {
+                    Ok(s) => last = Some(s),
+                    Err(crossbeam_channel::RecvTimeoutError::Timeout) => {
+                        if let Some(s) = last.take() { write_atomic(&s); }
+                    }
+                    Err(_) => break,
+                }
+            }
+        }).expect("spawn persistor");
+        Self { tx }
+    }
+    pub fn queue(&self, s: AppSettings) { let _ = self.tx.try_send(s); }
+}
+
+fn write_atomic(s: &AppSettings) {
+    let path = directories::ProjectDirs::from("com", "<Org>", "<App>")
+        .unwrap().config_dir().join("settings.json");
+    std::fs::create_dir_all(path.parent().unwrap()).ok();
+    let tmp = path.with_extension("json.tmp");
+    std::fs::write(&tmp, serde_json::to_vec_pretty(s).unwrap()).ok();
+    std::fs::rename(&tmp, &path).ok();
+}
+```
+
+**Gotchas:** Atomic write via tempfile + rename, never write in place. `try_send` so the IPC thread never blocks on the persistor channel.
+
+#### A.8 Tray init
+
+**Trigger:** App needs a system tray (always-on apps).
+
+**Files:** `src-tauri/src/tray.rs`. Cargo: `tauri = { features = ["tray-icon", "image-png"] }`.
+
+**Skeleton:**
+
+```rust
+use tauri::{AppHandle, Manager, Runtime, menu::{Menu, MenuItem}, tray::TrayIconBuilder};
+
+pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Result<()> {
+    let toggle = MenuItem::with_id(app, "toggle", "Enable", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+    let menu = Menu::with_items(app, &[&toggle, &quit])?;
+
+    TrayIconBuilder::new()
+        .menu(&menu)
+        .icon(app.default_window_icon().unwrap().clone())
+        .on_menu_event(move |app, event| match event.id.as_ref() {
+            "toggle" => { /* flip state.enabled */ }
+            "quit"   => { app.exit(0); }
+            _ => {}
+        })
+        .build(app)?;
+    Ok(())
+}
+```
+
+**Gotchas:** macOS uses a B&W template image; Windows uses a colored icon. Don't share one PNG without testing both platforms.
+
+#### A.9 Logging with tracing + daily rolling files
+
+**Trigger:** Every project.
+
+**Files:** `src-tauri/src/lib.rs` `init_logging()`.
+
+**Skeleton:**
+
+```rust
+fn init_logging() {
+    use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
+    let log_path = log_dir();
+    std::fs::create_dir_all(&log_path).ok();
+    let file_appender = tracing_appender::rolling::daily(&log_path, "<app>");
+    let (file_writer, guard) = tracing_appender::non_blocking(file_appender);
+    Box::leak(Box::new(guard)); // flush on normal exit
+
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info,<app>=debug"));
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(fmt::layer().with_target(false))
+        .with(fmt::layer().with_writer(file_writer).with_ansi(false).with_target(false))
+        .try_init().ok();
+}
+
+fn log_dir() -> std::path::PathBuf {
+    let dirs = directories::ProjectDirs::from("com", "<Org>", "<App>").unwrap();
+    #[cfg(target_os = "macos")]
+    if let Some(home) = std::env::var_os("HOME") {
+        return std::path::PathBuf::from(home).join("Library/Logs/<App>");
+    }
+    dirs.config_dir().join("logs")
+}
+```
+
+Prune logs older than 7 days at startup (`std::fs::read_dir` + `metadata.modified()`).
+
+#### A.10 CloseRequested → hide
+
+**Trigger:** Tray-resident app — X button should hide, not quit.
+
+**Skeleton (inside `.setup`):**
+
+```rust
+if let Some(win) = app.get_webview_window("main") {
+    let win_clone = win.clone();
+    win.on_window_event(move |event| {
+        if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+            api.prevent_close();
+            let _ = win_clone.hide();
+        }
+    });
+    let _ = win.hide(); // silent boot
+}
+```
