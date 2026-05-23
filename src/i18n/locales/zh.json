@@ -323,7 +323,9 @@
     "install_now": "立即安装",
     "downloading": "正在下载… {{pct}}%",
     "ready_to_restart": "已安装更新。重新启动以应用。",
-    "restart_now": "立即重启"
+    "restart_now": "立即重启",
+    "beta_badge_label": "BETA",
+    "beta_badge_tooltip": "macOS 版本未经签名，在配置 Apple Developer ID 之前运行在 beta 通道。"
   },
   "support": {
     "title": "支持这个项目",

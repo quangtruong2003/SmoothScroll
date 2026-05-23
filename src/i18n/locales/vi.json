@@ -408,7 +408,9 @@
     "install_now": "Cài đặt ngay",
     "downloading": "Đang tải… {{pct}}%",
     "ready_to_restart": "Đã cài đặt. Khởi động lại để áp dụng.",
-    "restart_now": "Khởi động lại"
+    "restart_now": "Khởi động lại",
+    "beta_badge_label": "BETA",
+    "beta_badge_tooltip": "Bản macOS chưa được ký số và chạy trên kênh beta cho đến khi có chứng chỉ Apple Developer ID."
   },
   "support": {
     "title": "Ủng hộ dự án",

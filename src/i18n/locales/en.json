@@ -408,7 +408,9 @@
     "install_now": "Install now",
     "downloading": "Downloading… {{pct}}%",
     "ready_to_restart": "Update installed. Restart to apply.",
-    "restart_now": "Restart now"
+    "restart_now": "Restart now",
+    "beta_badge_label": "BETA",
+    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up."
   },
   "support": {
     "title": "Support this project",
