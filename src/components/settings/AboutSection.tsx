@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { open } from "@tauri-apps/plugin-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { BetaBadge } from "@/components/BetaBadge";
 import { tauri } from "@/lib/tauri";
 import { useSettingsStore } from "@/stores/settingsStore";
 import {
@@ -65,7 +66,10 @@ export function AboutSection() {
       <CardContent className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">{t("about.version")}</span>
-          <span className="font-medium tabular-nums">{version}</span>
+          <span className="flex items-center gap-2 font-medium tabular-nums">
+            {version}
+            <BetaBadge />
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">{t("about.author")}</span>
