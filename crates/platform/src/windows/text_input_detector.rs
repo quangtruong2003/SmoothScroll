@@ -9,8 +9,8 @@ use windows::Win32::System::Com::{
 };
 use windows::Win32::UI::Accessibility::{
     CUIAutomation, IUIAutomation, IUIAutomationElement, IUIAutomationTextEditPattern,
-    IUIAutomationValuePattern, UIA_DocumentControlTypeId, UIA_EditControlTypeId,
-    UIA_TextEditPatternId, UIA_ValuePatternId,
+    IUIAutomationValuePattern, UIA_CustomControlTypeId, UIA_DocumentControlTypeId,
+    UIA_EditControlTypeId, UIA_TextEditPatternId, UIA_ValuePatternId,
 };
 
 const CACHE_TTL: Duration = Duration::from_millis(50);
@@ -61,6 +61,13 @@ fn query_uia_focus() -> bool {
         if control_type == UIA_DocumentControlTypeId {
             return is_document_editable(&element);
         }
+        // Custom controls cover Discord/Slack/Telegram/Signal chat inputs and
+        // some IDEs (JetBrains). They expose neither Edit nor Document, so
+        // require an explicit editable signal (TextEditPattern or
+        // ValuePattern not-read-only) before claiming text input.
+        if control_type == UIA_CustomControlTypeId {
+            return is_custom_editable(&element);
+        }
         false
     }
 }
@@ -85,12 +92,44 @@ unsafe fn is_document_editable(element: &IUIAutomationElement) -> bool {
         }
     }
     // FrameworkId heuristic: Word/PowerPoint/Excel/Outlook expose Document
-    // controls without TextEditPattern or ValuePattern. Chromium uses Document
-    // for both editable surfaces (caught above) and read-only page bodies.
-    // Treat non-Chromium Document controls as editable.
+    // controls without TextEditPattern or ValuePattern. Chromium-family
+    // frameworks (Chrome, Edge, WebView2) use Document for both editable
+    // surfaces (caught above by TextEditPattern) AND read-only page bodies,
+    // so they must stay strict. Everything else (Win32, Office, WPF, UWP)
+    // defaults to editable since Document there means a real text surface.
     if let Ok(framework) = element.CurrentFrameworkId() {
         let s = framework.to_string();
-        if !s.is_empty() && !s.eq_ignore_ascii_case("Chrome") {
+        if !s.is_empty() && !is_chromium_framework(&s) {
+            return true;
+        }
+    }
+    false
+}
+
+fn is_chromium_framework(framework_id: &str) -> bool {
+    const CHROMIUM_FRAMEWORKS: &[&str] = &["Chrome", "Edge", "WebView2"];
+    CHROMIUM_FRAMEWORKS
+        .iter()
+        .any(|f| framework_id.eq_ignore_ascii_case(f))
+}
+
+unsafe fn is_custom_editable(element: &IUIAutomationElement) -> bool {
+    // Discord/Slack/Telegram/Signal/JetBrains expose Custom controls. Unlike
+    // Document, Custom has no read-only-page-body false-positive risk: if a
+    // Custom element advertises TextEdit or a writable value, it really is
+    // text input. Skip the FrameworkId fallback here — without an editable
+    // pattern, treat as not-text-input.
+    if let Ok(pattern_obj) = element.GetCurrentPattern(UIA_ValuePatternId) {
+        if let Ok(value_pattern) = pattern_obj.cast::<IUIAutomationValuePattern>() {
+            if let Ok(ro) = value_pattern.CurrentIsReadOnly() {
+                if !ro.as_bool() {
+                    return true;
+                }
+            }
+        }
+    }
+    if let Ok(pattern_obj) = element.GetCurrentPattern(UIA_TextEditPatternId) {
+        if pattern_obj.cast::<IUIAutomationTextEditPattern>().is_ok() {
             return true;
         }
     }
@@ -105,6 +144,24 @@ mod tests {
     fn does_not_panic() {
         // UIA may not be available in headless CI; we just verify no panic.
         let _ = is_focus_in_text_input();
+    }
+
+    #[test]
+    fn chromium_frameworks_are_recognised() {
+        assert!(is_chromium_framework("Chrome"));
+        assert!(is_chromium_framework("chrome"));
+        assert!(is_chromium_framework("Edge"));
+        assert!(is_chromium_framework("WebView2"));
+        assert!(is_chromium_framework("webview2"));
+    }
+
+    #[test]
+    fn non_chromium_frameworks_are_rejected() {
+        assert!(!is_chromium_framework("Win32"));
+        assert!(!is_chromium_framework("WPF"));
+        assert!(!is_chromium_framework("XAML"));
+        assert!(!is_chromium_framework("DirectUI"));
+        assert!(!is_chromium_framework(""));
     }
 
     #[test]
