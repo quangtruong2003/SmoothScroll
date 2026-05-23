@@ -56,8 +56,10 @@ fn query_uia_focus() -> bool {
         }
         // Document controls span both editable surfaces (contenteditable, Word,
         // rich editors, Chromium/Electron textareas) and read-only browser page
-        // bodies. Treat as text input when either ValuePattern reports
-        // not-read-only OR TextEditPattern is supported.
+        // bodies. Treat as text input only when ValuePattern reports
+        // not-read-only OR TextEditPattern is supported — never via a broad
+        // FrameworkId fallback, which causes false positives in Office/PDF and
+        // suppresses keyboard smooth scroll.
         if control_type == UIA_DocumentControlTypeId {
             return is_document_editable(&element);
         }
@@ -91,26 +93,7 @@ unsafe fn is_document_editable(element: &IUIAutomationElement) -> bool {
             return true;
         }
     }
-    // FrameworkId heuristic: Word/PowerPoint/Excel/Outlook expose Document
-    // controls without TextEditPattern or ValuePattern. Chromium-family
-    // frameworks (Chrome, Edge, WebView2) use Document for both editable
-    // surfaces (caught above by TextEditPattern) AND read-only page bodies,
-    // so they must stay strict. Everything else (Win32, Office, WPF, UWP)
-    // defaults to editable since Document there means a real text surface.
-    if let Ok(framework) = element.CurrentFrameworkId() {
-        let s = framework.to_string();
-        if !s.is_empty() && !is_chromium_framework(&s) {
-            return true;
-        }
-    }
     false
-}
-
-fn is_chromium_framework(framework_id: &str) -> bool {
-    const CHROMIUM_FRAMEWORKS: &[&str] = &["Chrome", "Edge", "WebView2"];
-    CHROMIUM_FRAMEWORKS
-        .iter()
-        .any(|f| framework_id.eq_ignore_ascii_case(f))
 }
 
 unsafe fn is_custom_editable(element: &IUIAutomationElement) -> bool {
@@ -147,24 +130,6 @@ mod tests {
     }
 
     #[test]
-    fn chromium_frameworks_are_recognised() {
-        assert!(is_chromium_framework("Chrome"));
-        assert!(is_chromium_framework("chrome"));
-        assert!(is_chromium_framework("Edge"));
-        assert!(is_chromium_framework("WebView2"));
-        assert!(is_chromium_framework("webview2"));
-    }
-
-    #[test]
-    fn non_chromium_frameworks_are_rejected() {
-        assert!(!is_chromium_framework("Win32"));
-        assert!(!is_chromium_framework("WPF"));
-        assert!(!is_chromium_framework("XAML"));
-        assert!(!is_chromium_framework("DirectUI"));
-        assert!(!is_chromium_framework(""));
-    }
-
-    #[test]
     fn cache_is_populated_after_first_call() {
         {
             let mut guard = CACHE.lock().unwrap();
@@ -172,6 +137,9 @@ mod tests {
         }
         let _ = is_focus_in_text_input();
         let guard = CACHE.lock().unwrap();
-        assert!(guard.is_some(), "cache should be populated after first call");
+        assert!(
+            guard.is_some(),
+            "cache should be populated after first call"
+        );
     }
 }
