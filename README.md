@@ -41,13 +41,26 @@ Grab `SmoothScroll_<version>_x64-setup.exe` (NSIS) or `.msi` from the [Releases 
 
 **Requirements:** Windows 10/11 with WebView2 runtime (preinstalled on Windows 11).
 
-### macOS
+### macOS (beta channel)
 
-1. Download `SmoothScroll_<version>_aarch64.dmg` and mount it.
+> **Note:** macOS builds are **unsigned and unnotarized** (no Apple Developer ID yet) and ship on the **beta channel**. Expect Gatekeeper friction on first launch. Auto-update is disabled on macOS until code-signing is set up; re-download fresh DMGs for new versions.
+
+1. Download `SmoothScroll_<version>_aarch64_beta.dmg` and mount it.
 2. Drag **SmoothScroll.app** into `/Applications`.
-3. The first launch is blocked by Gatekeeper (the app isn't notarized yet):
-   - Right-click **SmoothScroll.app** → **Open**
-   - Confirm in the dialog
+3. Bypass Gatekeeper — pick one option:
+
+   **Option A — strip the quarantine attribute (one-line, recommended):**
+
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/SmoothScroll.app
+   ```
+
+   **Option B — through System Settings:**
+   - Launch SmoothScroll once (you'll get a "cannot be opened" alert; click **Done**)
+   - Open **System Settings → Privacy & Security**
+   - Scroll to the message "SmoothScroll was blocked..." → click **Open Anyway**
+   - Confirm in the next dialog
+
 4. Grant **Accessibility** access when prompted: System Settings → Privacy & Security → Accessibility → toggle SmoothScroll on.
 5. The app detects the grant automatically and resumes.
 
