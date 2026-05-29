@@ -155,97 +155,97 @@ jobs:
             target/release/bundle/msi/*.msi
             release-feed/latest.json
 
-  build-macos:
-    needs: bump
-    if: needs.bump.outputs.skipped != 'true'
-    continue-on-error: true
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: aarch64-apple-darwin
-            arch: arm64
-          - target: x86_64-apple-darwin
-            arch: x64
-    runs-on: macos-latest
-    env:
-      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.bump.outputs.tag }}
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}, wasm32-unknown-unknown
-
-      - name: Cache cargo + target
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            .
-            src-tauri
-          shared-key: build-macos-${{ matrix.target }}
-
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Build WASM engine bundle
-        run: pnpm run build:wasm
-
-      - name: Build Tauri app
-        run: pnpm tauri build --target ${{ matrix.target }}
-
-      - name: Rename dmg with _beta suffix
-        id: rename
-        run: |
-          DMG_DIR="target/${{ matrix.target }}/release/bundle/dmg"
-          ORIGINAL=$(ls "$DMG_DIR"/*.dmg | head -n1)
-          BASENAME=$(basename "$ORIGINAL" .dmg)
-          BETA_PATH="$DMG_DIR/${BASENAME}_beta.dmg"
-          mv "$ORIGINAL" "$BETA_PATH"
-          echo "dmg_path=$BETA_PATH" >> "$GITHUB_OUTPUT"
-          echo "Renamed to $BETA_PATH"
-
-      - name: Generate beta.json (macOS beta channel)
-        if: matrix.arch == 'arm64'
-        run: |
-          VERSION="${{ needs.bump.outputs.version }}"
-          TAG="${{ needs.bump.outputs.tag }}"
-          DMG_PATH="${{ steps.rename.outputs.dmg_path }}"
-
-          node scripts/generate-updater-manifest.mjs \
-            --channel beta \
-            --version "$VERSION" \
-            --tag "$TAG" \
-            --output release-feed/beta.json \
-            --macos-arm-dmg "$DMG_PATH"
-
-      - name: Upload .dmg + beta.json to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.bump.outputs.tag }}
-          generate_release_notes: true
-          files: |
-            target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            release-feed/beta.json
+  # build-macos:
+  #   needs: bump
+  #   if: needs.bump.outputs.skipped != 'true'
+  #   continue-on-error: true
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - target: aarch64-apple-darwin
+  #           arch: arm64
+  #         - target: x86_64-apple-darwin
+  #           arch: x64
+  #   runs-on: macos-latest
+  #   env:
+  #     TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+  #     TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{ needs.bump.outputs.tag }}
+  #
+  #     - uses: dtolnay/rust-toolchain@stable
+  #       with:
+  #         targets: ${{ matrix.target }}, wasm32-unknown-unknown
+  #
+  #     - name: Cache cargo + target
+  #       uses: Swatinem/rust-cache@v2
+  #       with:
+  #         workspaces: |
+  #           .
+  #           src-tauri
+  #         shared-key: build-macos-${{ matrix.target }}
+  #
+  #     - name: Install wasm-pack
+  #       uses: taiki-e/install-action@v2
+  #       with:
+  #         tool: wasm-pack
+  #
+  #     - name: Setup pnpm
+  #       uses: pnpm/action-setup@v4
+  #
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: 'pnpm'
+  #         cache-dependency-path: pnpm-lock.yaml
+  #
+  #     - run: pnpm install --frozen-lockfile
+  #
+  #     - name: Build WASM engine bundle
+  #       run: pnpm run build:wasm
+  #
+  #     - name: Build Tauri app
+  #       run: pnpm tauri build --target ${{ matrix.target }}
+  #
+  #     - name: Rename dmg with _beta suffix
+  #       id: rename
+  #       run: |
+  #         DMG_DIR="target/${{ matrix.target }}/release/bundle/dmg"
+  #         ORIGINAL=$(ls "$DMG_DIR"/*.dmg | head -n1)
+  #         BASENAME=$(basename "$ORIGINAL" .dmg)
+  #         BETA_PATH="$DMG_DIR/${BASENAME}_beta.dmg"
+  #         mv "$ORIGINAL" "$BETA_PATH"
+  #         echo "dmg_path=$BETA_PATH" >> "$GITHUB_OUTPUT"
+  #         echo "Renamed to $BETA_PATH"
+  #
+  #     - name: Generate beta.json (macOS beta channel)
+  #       if: matrix.arch == 'arm64'
+  #       run: |
+  #         VERSION="${{ needs.bump.outputs.version }}"
+  #         TAG="${{ needs.bump.outputs.tag }}"
+  #         DMG_PATH="${{ steps.rename.outputs.dmg_path }}"
+  #
+  #         node scripts/generate-updater-manifest.mjs \
+  #           --channel beta \
+  #           --version "$VERSION" \
+  #           --tag "$TAG" \
+  #           --output release-feed/beta.json \
+  #           --macos-arm-dmg "$DMG_PATH"
+  #
+  #     - name: Upload .dmg + beta.json to Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         tag_name: ${{ needs.bump.outputs.tag }}
+  #         generate_release_notes: true
+  #         files: |
+  #           target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+  #           release-feed/beta.json
 
   cleanup-releases:
-    needs: [bump, build-windows, build-macos]
+    needs: [bump, build-windows]
     if: always() && needs.bump.outputs.skipped != 'true' && needs.build-windows.result == 'success'
     runs-on: ubuntu-latest
     permissions:
