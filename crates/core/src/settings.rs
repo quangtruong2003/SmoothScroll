@@ -114,7 +114,7 @@ impl ScrollProfile {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ModifierPassthrough {
-    #[serde(default = "default_true")]
+    #[serde(default = "default_false")]
     pub ctrl: bool,
     #[serde(default = "default_true")]
     pub alt: bool,
@@ -126,10 +126,14 @@ fn default_true() -> bool {
     true
 }
 
+fn default_false() -> bool {
+    false
+}
+
 impl Default for ModifierPassthrough {
     fn default() -> Self {
         Self {
-            ctrl: true,
+            ctrl: false,
             alt: true,
             clear_inertia_on_press: true,
         }
@@ -155,9 +159,8 @@ pub struct AppSettings {
     pub easing_mode: EasingMode,
 
     // Direction & horizontal
-    pub shift_key_horizontal: bool,
-    pub shift_horizontal_invert: bool,
     pub horizontal_smoothness: bool,
+    pub horizontal_invert: bool,
     pub reverse_wheel_direction: bool,
 
     // Startup & UI
@@ -200,6 +203,11 @@ pub struct AppSettings {
     // Precision actions (modifier passthrough)
     pub modifier_passthrough: ModifierPassthrough,
 
+    // Zoom
+    pub smooth_zoom: bool,
+    pub zoom_invert: bool,
+    pub zoom_sensitivity: f64,
+
     // Onboarding
     pub onboarding_completed_at: Option<u64>,
 
@@ -219,9 +227,8 @@ impl Default for AppSettings {
             tail_to_head_ratio: 5,
             animation_easing: true,
             easing_mode: EasingMode::QuinticOut,
-            shift_key_horizontal: true,
-            shift_horizontal_invert: true,
             horizontal_smoothness: true,
+            horizontal_invert: false,
             reverse_wheel_direction: false,
             start_with_os: false,
             start_minimized: true,
@@ -245,6 +252,9 @@ impl Default for AppSettings {
             touchpad_acceleration_factor: 1.0,
             respect_reduce_motion: RespectReduceMotion::default(),
             modifier_passthrough: ModifierPassthrough::default(),
+            smooth_zoom: true,
+            zoom_invert: false,
+            zoom_sensitivity: 1.0,
             onboarding_completed_at: None,
             auto_excluded_seeded: false,
         }
@@ -261,6 +271,7 @@ impl AppSettings {
 
         self.touchpad_pixel_multiplier = self.touchpad_pixel_multiplier.clamp(0.1, 5.0);
         self.touchpad_acceleration_factor = self.touchpad_acceleration_factor.clamp(0.0, 3.0);
+        self.zoom_sensitivity = self.zoom_sensitivity.clamp(0.25, 4.0);
 
         // Clamp all profiles
         for profile in &mut self.profiles {
@@ -385,8 +396,7 @@ pub struct EffectiveSettings {
     pub easing_mode: EasingMode,
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
-    pub shift_key_horizontal: bool,
-    pub shift_horizontal_invert: bool,
+    pub horizontal_invert: bool,
     pub touchpad_smoothing_enabled: bool,
     pub touchpad_pixel_multiplier: f64,
     pub touchpad_acceleration_factor: f64,
@@ -394,6 +404,9 @@ pub struct EffectiveSettings {
     pub modifier_ctrl_passthrough: bool,
     pub modifier_alt_passthrough: bool,
     pub modifier_clear_inertia: bool,
+    pub smooth_zoom: bool,
+    pub zoom_invert: bool,
+    pub zoom_sensitivity: f64,
 }
 
 impl EffectiveSettings {
@@ -409,8 +422,7 @@ impl EffectiveSettings {
             easing_mode: s.easing_mode,
             reverse_wheel_direction: s.reverse_wheel_direction,
             horizontal_smoothness: s.horizontal_smoothness,
-            shift_key_horizontal: s.shift_key_horizontal,
-            shift_horizontal_invert: s.shift_horizontal_invert,
+            horizontal_invert: s.horizontal_invert,
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: s.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: s.touchpad_acceleration_factor,
@@ -418,6 +430,9 @@ impl EffectiveSettings {
             modifier_ctrl_passthrough: s.modifier_passthrough.ctrl,
             modifier_alt_passthrough: s.modifier_passthrough.alt,
             modifier_clear_inertia: s.modifier_passthrough.clear_inertia_on_press,
+            smooth_zoom: s.smooth_zoom,
+            zoom_invert: s.zoom_invert,
+            zoom_sensitivity: s.zoom_sensitivity,
         }
     }
 
@@ -433,8 +448,7 @@ impl EffectiveSettings {
             easing_mode: profile.easing_mode,
             reverse_wheel_direction: profile.reverse_wheel_direction,
             horizontal_smoothness: profile.horizontal_smoothness,
-            shift_key_horizontal: base.shift_key_horizontal,
-            shift_horizontal_invert: base.shift_horizontal_invert,
+            horizontal_invert: base.horizontal_invert,
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
             touchpad_pixel_multiplier: base.touchpad_pixel_multiplier,
             touchpad_acceleration_factor: base.touchpad_acceleration_factor,
@@ -442,6 +456,9 @@ impl EffectiveSettings {
             modifier_ctrl_passthrough: base.modifier_passthrough.ctrl,
             modifier_alt_passthrough: base.modifier_passthrough.alt,
             modifier_clear_inertia: base.modifier_passthrough.clear_inertia_on_press,
+            smooth_zoom: base.smooth_zoom,
+            zoom_invert: base.zoom_invert,
+            zoom_sensitivity: base.zoom_sensitivity,
         }
     }
 }
