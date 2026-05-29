@@ -6,7 +6,7 @@ use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
 use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MouseHook,
-    ProcessQuery, WheelEmitter, WindowGeometry,
+    ProcessQuery, WheelEmitter, ZoomEmitter, WindowGeometry,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
@@ -38,6 +38,7 @@ pub struct AppState {
     pub effective_per_profile: Arc<RwLock<HashMap<String, Arc<EffectiveSettings>>>>,
     pub mouse_hook: Arc<dyn MouseHook>,
     pub emitter: Arc<dyn WheelEmitter>,
+    pub zoom_emitter: Arc<dyn ZoomEmitter>,
     pub processes: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,
