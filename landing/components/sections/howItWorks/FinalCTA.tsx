@@ -8,9 +8,10 @@ interface FinalCTAProps {
   finalCta: NonNullable<NonNullable<Dictionary['howItWorks']>['finalCta']>
   ctaMacLabel?: string
   betaBadge?: string
+  comingSoonLabel?: string
 }
 
-export function FinalCTA({ finalCta, ctaMacLabel, betaBadge }: FinalCTAProps) {
+export function FinalCTA({ finalCta, ctaMacLabel, betaBadge, comingSoonLabel }: FinalCTAProps) {
   return (
     <section className="py-20 sm:py-28 px-4 border-t">
       <div className="container max-w-3xl text-center">
@@ -30,6 +31,7 @@ export function FinalCTA({ finalCta, ctaMacLabel, betaBadge }: FinalCTAProps) {
               label={finalCta.cta ?? 'Download'}
               labelMac={ctaMacLabel}
               betaBadge={betaBadge}
+              comingSoonLabel={comingSoonLabel}
               variant="brand"
               size="xl"
             />

@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { BetaNotice } from '@/components/BetaNotice'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Download } from 'lucide-react'
 import { useState } from 'react'
 import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import type { Dictionary } from '@/lib/i18n/dict'
@@ -39,7 +39,7 @@ export function Install({ dict }: InstallProps) {
     ctaMac: '',
   }
   const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
-  const { os, ctaLabel } = useDownloadUrl()
+  const { os, ctaLabel, isMac } = useDownloadUrl()
 
   const defaultTab = os === 'mac' ? 'macos' : 'windows'
 
@@ -99,15 +99,30 @@ export function Install({ dict }: InstallProps) {
         </Tabs>
 
         <div className="text-center mt-8 space-y-4">
-          <DownloadCTA
-            label={ctaLabel}
-            labelMac={i.ctaMac}
-            betaBadge={b.badge ?? 'BETA'}
-            variant="brand"
-            size="xl"
-          />
+          {isMac ? (
+            <Button
+              variant="brand"
+              size="xl"
+              disabled
+              className="w-full max-w-md"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              {i.ctaMac || ctaLabel}
+              <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
+                Coming Soon
+              </span>
+            </Button>
+          ) : (
+            <DownloadCTA
+              label={ctaLabel}
+              labelMac={i.ctaMac}
+              betaBadge={b.badge ?? 'BETA'}
+              variant="brand"
+              size="xl"
+            />
+          )}
           <BetaNotice
-            notice={b.notice ?? ''}
+            notice={isMac ? '' : (b.notice ?? '')}
             reportPrefix={b.reportPrefix ?? ''}
             reportLink={b.reportLink ?? ''}
           />

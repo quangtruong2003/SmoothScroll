@@ -90,6 +90,7 @@ export default async function HowItWorksPage({
         hero={h.hero}
         ctaMacLabel={dict.hero?.ctaMac}
         betaBadge={dict.beta?.badge}
+        comingSoonLabel={dict.finalCta?.comingSoon}
       />
       <DemoFrame demo={h.demo} />
       <BigPicture bigPicture={h.bigPicture} />
@@ -102,6 +103,7 @@ export default async function HowItWorksPage({
         finalCta={h.finalCta}
         ctaMacLabel={dict.hero?.ctaMac}
         betaBadge={dict.beta?.badge}
+        comingSoonLabel={dict.finalCta?.comingSoon}
       />
     </>
   )

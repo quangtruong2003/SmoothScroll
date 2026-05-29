@@ -23,7 +23,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 
   return (
     <>
-      <Hero dict={{ hero: dict.hero, beta: dict.beta }} locale={locale} />
+      <Hero dict={{ hero: dict.hero, beta: dict.beta, finalCta: dict.finalCta }} locale={locale} />
       <PainPoints dict={{ painPoints: dict.painPoints }} />
       <SolutionBridge dict={{ solutionBridge: dict.solutionBridge }} />
       <Features dict={{ features: dict.features }} />

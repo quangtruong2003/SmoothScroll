@@ -8,6 +8,7 @@ interface DownloadCTAProps {
   label: string
   labelMac?: string
   betaBadge?: string
+  comingSoonLabel?: string
   variant?: 'brand' | 'default' | 'outline'
   size?: 'default' | 'lg' | 'xl'
   className?: string
@@ -17,12 +18,31 @@ export function DownloadCTA({
   label,
   labelMac,
   betaBadge = 'BETA',
+  comingSoonLabel = 'Coming Soon',
   variant = 'brand',
   size = 'xl',
   className,
 }: DownloadCTAProps) {
-  const { url, filename, isBeta } = useDownloadUrl()
+  const { url, filename, isBeta, isMac } = useDownloadUrl()
   const displayLabel = isBeta && labelMac ? labelMac : label
+
+  if (isMac) {
+    return (
+      <Button
+        variant={variant}
+        size={size}
+        className={className}
+        disabled
+        aria-label="macOS support coming soon"
+      >
+        <Download className="h-5 w-5 mr-2" />
+        {displayLabel}
+        <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
+          {comingSoonLabel}
+        </span>
+      </Button>
+    )
+  }
 
   return (
     <Button

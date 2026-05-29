@@ -89,6 +89,7 @@ export interface Dictionary {
     cta?: string
     ctaMac?: string
     ctaSub?: string
+    comingSoon?: string
   }
   exitIntent?: {
     title?: string

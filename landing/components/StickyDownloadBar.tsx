@@ -21,7 +21,7 @@ export function StickyDownloadBar({
 }: StickyDownloadBarProps) {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
-  const { url, filename, isBeta } = useDownloadUrl()
+  const { url, filename, isBeta, isMac } = useDownloadUrl()
   const displayLabel = isBeta && ctaLabelMac ? ctaLabelMac : (ctaLabel || fallbackCta)
 
   useEffect(() => {
@@ -68,26 +68,37 @@ export function StickyDownloadBar({
               <Button
                 variant="brand"
                 size="sm"
-                asChild
+                disabled={isMac}
+                asChild={!isMac}
               >
-                <a
-                  href={url}
-                  rel="noopener noreferrer"
-                  download={filename || undefined}
-                  onClick={() => {
-                    if (typeof window !== 'undefined') {
-                      window.dispatchEvent(new CustomEvent('smoothscroll:downloaded'))
-                    }
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-1.5" />
-                  {displayLabel}
-                  {isBeta && (
-                    <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
-                      {betaBadge}
+                {isMac ? (
+                  <>
+                    <Download className="h-4 w-4 mr-1.5" />
+                    {displayLabel}
+                    <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-muted-foreground">
+                      Coming Soon
                     </span>
-                  )}
-                </a>
+                  </>
+                ) : (
+                  <a
+                    href={url}
+                    rel="noopener noreferrer"
+                    download={filename || undefined}
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('smoothscroll:downloaded'))
+                      }
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-1.5" />
+                    {displayLabel}
+                    {isBeta && (
+                      <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
+                        {betaBadge}
+                      </span>
+                    )}
+                  </a>
+                )}
               </Button>
             </div>
           </div>

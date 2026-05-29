@@ -9,13 +9,14 @@ import { detectOS } from '@/lib/os'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 
 interface HeroProps {
-  dict: { hero?: Dictionary['hero']; beta?: Dictionary['beta'] }
+  dict: { hero?: Dictionary['hero']; beta?: Dictionary['beta']; finalCta?: Dictionary['finalCta'] }
   locale: Locale
 }
 
 export function Hero({ dict, locale }: HeroProps) {
   const h = dict?.hero ?? { eyebrow: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download', ctaMac: 'Download Beta for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
   const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
+  const f = dict?.finalCta ?? { comingSoon: 'Coming Soon' }
 
   const isMac = detectOS() === 'mac'
   const eyebrow = isMac && h.eyebrowMac ? h.eyebrowMac : h.eyebrow
@@ -43,6 +44,7 @@ export function Hero({ dict, locale }: HeroProps) {
                 label={h.cta ?? 'Download'}
                 labelMac={h.ctaMac}
                 betaBadge={b.badge ?? 'BETA'}
+                comingSoonLabel={f.comingSoon}
                 variant="brand"
                 size="xl"
               />

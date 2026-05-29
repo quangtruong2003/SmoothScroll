@@ -12,9 +12,10 @@ interface HowItWorksHeroProps {
   hero: NonNullable<NonNullable<Dictionary['howItWorks']>['hero']>
   ctaMacLabel?: string
   betaBadge?: string
+  comingSoonLabel?: string
 }
 
-export function HowItWorksHero({ locale, hero, ctaMacLabel, betaBadge }: HowItWorksHeroProps) {
+export function HowItWorksHero({ locale, hero, ctaMacLabel, betaBadge, comingSoonLabel }: HowItWorksHeroProps) {
   return (
     <section className="relative pt-28 pb-12 px-4 overflow-hidden">
       <div className="container max-w-5xl">
@@ -52,6 +53,7 @@ export function HowItWorksHero({ locale, hero, ctaMacLabel, betaBadge }: HowItWo
                 label={hero.ctaPrimary ?? 'Download'}
                 labelMac={ctaMacLabel}
                 betaBadge={betaBadge}
+                comingSoonLabel={comingSoonLabel}
                 variant="brand"
                 size="xl"
               />

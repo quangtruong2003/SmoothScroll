@@ -10,7 +10,7 @@ interface FinalCTAProps {
 }
 
 export function FinalCTA({ dict }: FinalCTAProps) {
-  const f = dict?.finalCta ?? { title: '', description: '', cta: '', ctaMac: '', ctaSub: '' }
+  const f = dict?.finalCta ?? { title: '', description: '', cta: '', ctaMac: '', ctaSub: '', comingSoon: 'Coming Soon' }
   const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
 
   return (
@@ -24,6 +24,7 @@ export function FinalCTA({ dict }: FinalCTAProps) {
             label={f.cta ?? 'Download'}
             labelMac={f.ctaMac}
             betaBadge={b.badge ?? 'BETA'}
+            comingSoonLabel={f.comingSoon ?? 'Coming Soon'}
             variant="brand"
             size="xl"
           />

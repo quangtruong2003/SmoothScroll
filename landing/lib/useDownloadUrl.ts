@@ -14,6 +14,7 @@ export interface DownloadInfo {
   totalDownloads: string
   release: Release | null
   isBeta: boolean
+  isMac: boolean
 }
 
 const REPO_BASE = 'https://github.com/quangtruong2003/SmoothScroll/releases'
@@ -78,6 +79,7 @@ export function useDownloadUrl(): DownloadInfo {
       totalDownloads: '',
       release: null,
       isBeta: false,
+      isMac: false,
     }
   })
 
@@ -93,6 +95,7 @@ export function useDownloadUrl(): DownloadInfo {
       os,
       ctaLabel: `Download for ${getOSLabel(os)}`,
       isBeta,
+      isMac: os === 'mac',
     }))
 
     fetchLatestRelease().then((release) => {
@@ -125,6 +128,7 @@ export function useDownloadUrl(): DownloadInfo {
         totalDownloads: totalDownloads > 0 ? formatDownloadCount(totalDownloads) : '',
         release,
         isBeta,
+        isMac: os === 'mac',
       })
     })
   }, [])
