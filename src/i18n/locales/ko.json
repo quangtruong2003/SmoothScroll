@@ -116,13 +116,17 @@
       "title": "가로 스크롤 부드럽게",
       "desc": "틸트 휠 및 Shift+휠 스크롤에 부드러움 적용"
     },
-    "shift_horizontal": {
-      "title": "Shift로 가로 변환",
-      "desc": "스크롤 중 Shift를 누르면 가로 스크롤이 됩니다"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "수평 방향 반전",
-      "desc": "아래로 스크롤하면 오른쪽으로 이동합니다 (Windows 기본 수평 스크롤과 일치)"
+      "desc": "수평 스크롤 방향 반전"
+    },
+    "smooth_zoom": {
+      "title": "부드러운 줌",
+      "desc": "디자인 앱에서 Ctrl+휠 줌에 부드러움 적용"
+    },
+    "zoom_invert": {
+      "title": "줌 방향 반전",
+      "desc": "위로 스크롤하여 축소"
     },
     "global_hotkey": {
       "title": "전역 단축키",

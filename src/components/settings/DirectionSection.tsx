@@ -42,27 +42,38 @@ function DirectionSectionInner() {
         </SettingRow>
 
         <SettingRow
-          htmlFor="shift-horizontal"
-          title={t("settings.shift_horizontal.title")}
-          description={t("settings.shift_horizontal.desc")}
+          htmlFor="horizontal-invert"
+          title={t("settings.horizontal_invert.title")}
+          description={t("settings.horizontal_invert.desc")}
         >
           <Switch
-            id="shift-horizontal"
-            checked={fields.shift_key_horizontal}
-            onCheckedChange={(v) => patch({ shift_key_horizontal: v })}
+            id="horizontal-invert"
+            checked={fields.horizontal_invert}
+            onCheckedChange={(v) => patch({ horizontal_invert: v })}
           />
         </SettingRow>
 
         <SettingRow
-          htmlFor="shift-horizontal-invert"
-          title={t("settings.shift_horizontal_invert.title")}
-          description={t("settings.shift_horizontal_invert.desc")}
+          htmlFor="smooth-zoom"
+          title={t("settings.smooth_zoom.title")}
+          description={t("settings.smooth_zoom.desc")}
         >
           <Switch
-            id="shift-horizontal-invert"
-            checked={fields.shift_horizontal_invert}
-            onCheckedChange={(v) => patch({ shift_horizontal_invert: v })}
-            disabled={!fields.shift_key_horizontal}
+            id="smooth-zoom"
+            checked={fields.smooth_zoom ?? false}
+            onCheckedChange={(v) => patch({ smooth_zoom: v })}
+          />
+        </SettingRow>
+
+        <SettingRow
+          htmlFor="zoom-invert"
+          title={t("settings.zoom_invert.title")}
+          description={t("settings.zoom_invert.desc")}
+        >
+          <Switch
+            id="zoom-invert"
+            checked={fields.zoom_invert ?? false}
+            onCheckedChange={(v) => patch({ zoom_invert: v })}
           />
         </SettingRow>
       </CardContent>

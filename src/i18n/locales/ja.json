@@ -116,13 +116,17 @@
       "title": "水平スクロールをスムーズに",
       "desc": "チルトホイールとShift+ホイールにスムージングを適用"
     },
-    "shift_horizontal": {
-      "title": "Shiftで水平スクロールに変換",
-      "desc": "スクロール中にShiftを押すと水平スクロールになります"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "水平方向を反転",
-      "desc": "下にスクロールすると右に移動します（Windows ネイティブの水平スクロールと一致）"
+      "desc": "水平スクロールの方向を反転"
+    },
+    "smooth_zoom": {
+      "title": "スムーズズーム",
+      "desc": "デザインアプリでCtrl+ホイールズームにスムージングを適用"
+    },
+    "zoom_invert": {
+      "title": "ズーム方向を反転",
+      "desc": "上にスクロールするとズームアウト"
     },
     "global_hotkey": {
       "title": "グローバルホットキー",

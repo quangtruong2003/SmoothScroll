@@ -116,13 +116,17 @@
       "title": "Scorrimento orizzontale fluido",
       "desc": "Applica la smussatura alla rotellina inclinabile e a Maiusc+rotella"
     },
-    "shift_horizontal": {
-      "title": "Maiusc converte in orizzontale",
-      "desc": "Tenere Maiusc durante lo scorrimento lo rende orizzontale"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Inverti direzione orizzontale",
-      "desc": "Scorrere verso il basso si sposta a destra (corrisponde allo scorrimento orizzontale nativo di Windows)"
+      "desc": "Inverti la direzione dello scorrimento orizzontale"
+    },
+    "smooth_zoom": {
+      "title": "Zoom fluido",
+      "desc": "Applica la smussatura allo zoom Ctrl+rotella nelle app di design"
+    },
+    "zoom_invert": {
+      "title": "Inverti direzione zoom",
+      "desc": "Scorri verso l'alto per rimpicciolire"
     },
     "global_hotkey": {
       "title": "Scorciatoia globale",

@@ -201,13 +201,17 @@
       "title": "Cuộn ngang mượt",
       "desc": "Áp dụng smoothing cho cuộn nghiêng và Shift+cuộn"
     },
-    "shift_horizontal": {
-      "title": "Shift chuyển thành cuộn ngang",
-      "desc": "Giữ Shift khi cuộn sẽ thành cuộn ngang"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Đảo chiều cuộn ngang",
-      "desc": "Khi giữ Shift và cuộn xuống sẽ đi sang phải (giống cách Windows mặc định)"
+      "desc": "Đảo chiều cuộn ngang"
+    },
+    "smooth_zoom": {
+      "title": "Zoom mượt",
+      "desc": "Áp dụng smoothing cho zoom Ctrl+Wheel trong các app thiết kế"
+    },
+    "zoom_invert": {
+      "title": "Đảo chiều zoom",
+      "desc": "Cuộn lên để thu nhỏ"
     },
     "global_hotkey": {
       "title": "Phím tắt toàn cục",

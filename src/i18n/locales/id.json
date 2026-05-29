@@ -116,13 +116,17 @@
       "title": "Scroll horizontal halus",
       "desc": "Terapkan penghalusan pada tilt-wheel dan Shift+wheel"
     },
-    "shift_horizontal": {
-      "title": "Shift mengubah ke horizontal",
-      "desc": "Menahan Shift saat scroll menjadi scroll horizontal"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Balik arah horizontal",
-      "desc": "Scroll ke bawah bergerak ke kanan (sesuai gulir horizontal Windows asli)"
+      "desc": "Balik arah scroll horizontal"
+    },
+    "smooth_zoom": {
+      "title": "Zoom halus",
+      "desc": "Terapkan penghalusan pada zoom Ctrl+wheel di app desain"
+    },
+    "zoom_invert": {
+      "title": "Balik arah zoom",
+      "desc": "Scroll ke atas untuk perkecil"
     },
     "global_hotkey": {
       "title": "Hotkey global",

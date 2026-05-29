@@ -116,13 +116,17 @@
       "title": "Rolagem horizontal suave",
       "desc": "Aplicar suavização à roda inclinável e Shift+roda"
     },
-    "shift_horizontal": {
-      "title": "Shift converte em horizontal",
-      "desc": "Manter Shift durante a rolagem a torna horizontal"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Inverter direção horizontal",
-      "desc": "Rolar para baixo move para a direita (corresponde à rolagem horizontal nativa do Windows)"
+      "desc": "Inverter a direção da rolagem horizontal"
+    },
+    "smooth_zoom": {
+      "title": "Zoom suave",
+      "desc": "Aplicar suavização ao zoom Ctrl+roda em apps de design"
+    },
+    "zoom_invert": {
+      "title": "Inverter direção do zoom",
+      "desc": "Rolar para cima para缩小ar"
     },
     "global_hotkey": {
       "title": "Atalho global",

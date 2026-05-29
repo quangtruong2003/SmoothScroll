@@ -116,13 +116,17 @@
       "title": "Desplazamiento horizontal suave",
       "desc": "Aplicar suavizado a la rueda inclinable y a Mayús+rueda"
     },
-    "shift_horizontal": {
-      "title": "Mayús convierte a horizontal",
-      "desc": "Mantener Mayús al desplazar lo convierte en horizontal"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Invertir dirección horizontal",
-      "desc": "Desplazar hacia abajo se mueve a la derecha (coincide con el desplazamiento horizontal nativo de Windows)"
+      "desc": "Invertir la dirección del desplazamiento horizontal"
+    },
+    "smooth_zoom": {
+      "title": "Zoom suave",
+      "desc": "Aplicar suavizado al zoom Ctrl+rueda en apps de diseño"
+    },
+    "zoom_invert": {
+      "title": "Invertir dirección del zoom",
+      "desc": "Desplazar hacia arriba para alejar"
     },
     "global_hotkey": {
       "title": "Atajo global",

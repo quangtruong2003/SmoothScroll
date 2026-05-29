@@ -44,9 +44,8 @@ export interface AppSettings {
   tail_to_head_ratio: number;
   animation_easing: boolean;
   easing_mode: EasingMode;
-  shift_key_horizontal: boolean;
-  shift_horizontal_invert: boolean;
   horizontal_smoothness: boolean;
+  horizontal_invert: boolean;
   reverse_wheel_direction: boolean;
   start_with_os: boolean;
   start_minimized: boolean;
@@ -70,6 +69,9 @@ export interface AppSettings {
   touchpad_acceleration_factor: number;
   respect_reduce_motion: RespectReduceMotion;
   modifier_passthrough: ModifierPassthrough;
+  smooth_zoom: boolean;
+  zoom_invert: boolean;
+  zoom_sensitivity: number;
   onboarding_completed_at: number | null;
 }
 

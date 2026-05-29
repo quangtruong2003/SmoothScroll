@@ -9,7 +9,6 @@
     "animation": "Animation",
     "direction": "Direction",
     "behavior": "Behavior",
-    "precision": "Precision actions",
     "excluded_apps": "Excluded apps",
     "profiles": "Scroll profiles",
     "app_profiles": "Per-app assignments",
@@ -17,7 +16,6 @@
     "theme": "Appearance",
     "touchpad": "Precision touchpad",
     "game_mode": "Game mode",
-    "edge_scroll": "Edge auto-scroll",
     "about": "About",
     "advanced_scroll": "Advanced scroll"
   },
@@ -201,13 +199,17 @@
       "title": "Smooth horizontal scrolling",
       "desc": "Apply smoothing to tilt-wheel and Shift+wheel scrolls"
     },
-    "shift_horizontal": {
-      "title": "Shift converts to horizontal",
-      "desc": "Holding Shift while scrolling becomes horizontal scroll"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Invert horizontal direction",
-      "desc": "Scrolling down moves right (matches Windows native horizontal scrolling)"
+      "desc": "Flip the direction of horizontal scrolling"
+    },
+    "smooth_zoom": {
+      "title": "Smooth zoom",
+      "desc": "Apply smoothing to Ctrl+Wheel zoom in design apps"
+    },
+    "zoom_invert": {
+      "title": "Invert zoom direction",
+      "desc": "Scroll up to zoom out"
     },
     "global_hotkey": {
       "title": "Global hotkey",
@@ -246,11 +248,6 @@
       "status_off": "OS Reduce Motion: OFF"
     },
     "reset_to_default": "Reset to default",
-    "edge_scroll": {
-      "enable": "Enable edge auto-scroll",
-      "zone_size": "Zone size: {{value}}px",
-      "max_speed": "Max speed: {{value}} notches/s"
-    },
     "touchpad": {
       "detected": "Detected",
       "source": {
@@ -453,15 +450,6 @@
       "smoothing_on": "Smoothing active",
       "smoothing_off": "Smoothing disabled"
     }
-  },
-  "precision": {
-    "ctrl_label": "Pass-through Ctrl + wheel",
-    "cmd_label": "Pass-through Cmd + wheel",
-    "ctrl_help": "Recommended for zoom in Photoshop, Figma, browsers, VS Code.",
-    "alt_label": "Pass-through Alt + wheel",
-    "alt_help": "Recommended for editors and timelines (Premiere, DAWs).",
-    "clear_inertia_label": "Clear inertia when modifier pressed",
-    "clear_inertia_help": "Stop pending smooth scroll the moment a modifier is pressed so zoom feels immediate."
   },
   "onboarding": {
     "skip": "Skip",

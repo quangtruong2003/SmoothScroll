@@ -202,24 +202,10 @@ export const useDirectionFields = () =>
       if (!set) return null;
       return {
         reverse_wheel_direction: set.reverse_wheel_direction,
-        shift_key_horizontal: set.shift_key_horizontal,
-        shift_horizontal_invert: set.shift_horizontal_invert,
         horizontal_smoothness: set.horizontal_smoothness,
-      };
-    })
-  );
-
-export const useEdgeScrollFields = () =>
-  useSettingsStore(
-    useShallow((s) => {
-      const set = s.settings;
-      if (!set) return null;
-      return {
-        edge_scroll_enabled: set.edge_scroll_enabled,
-        edge_scroll_zone_px: set.edge_scroll_zone_px,
-        edge_scroll_max_notches_per_sec: set.edge_scroll_max_notches_per_sec,
-        edge_scroll_modifier_required: set.edge_scroll_modifier_required,
-        edge_scroll_modifier: set.edge_scroll_modifier,
+        horizontal_invert: set.horizontal_invert,
+        smooth_zoom: set.smooth_zoom,
+        zoom_invert: set.zoom_invert,
       };
     })
   );

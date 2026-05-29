@@ -116,13 +116,17 @@
       "title": "平滑水平滚动",
       "desc": "为倾斜滚轮和 Shift+滚轮应用平滑效果"
     },
-    "shift_horizontal": {
-      "title": "Shift 转为水平滚动",
-      "desc": "按住 Shift 滚动时变为水平滚动"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "反转水平滚动方向",
-      "desc": "向下滚动时向右滚动（与 Windows 原生水平滚动方向一致）"
+      "desc": "反转水平滚动的方向"
+    },
+    "smooth_zoom": {
+      "title": "平滑缩放",
+      "desc": "为设计软件中的 Ctrl+滚轮缩放应用平滑效果"
+    },
+    "zoom_invert": {
+      "title": "反转缩放方向",
+      "desc": "向上滚动以缩小"
     },
     "global_hotkey": {
       "title": "全局快捷键",

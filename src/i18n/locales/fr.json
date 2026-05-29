@@ -116,13 +116,17 @@
       "title": "Défilement horizontal lissé",
       "desc": "Appliquer le lissage à la molette inclinée et à Maj+molette"
     },
-    "shift_horizontal": {
-      "title": "Maj convertit en horizontal",
-      "desc": "Maintenir Maj pendant le défilement le rend horizontal"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Inverser la direction horizontale",
-      "desc": "Faire défiler vers le bas pour aller à droite (correspond au défilement horizontal natif de Windows)"
+      "desc": "Inverser la direction du défilement horizontal"
+    },
+    "smooth_zoom": {
+      "title": "Zoom fluide",
+      "desc": "Appliquer le lissage au zoom Ctrl+molette dans les apps de design"
+    },
+    "zoom_invert": {
+      "title": "Inverser le sens du zoom",
+      "desc": "Défiler vers le haut pour dézoomer"
     },
     "global_hotkey": {
       "title": "Raccourci global",

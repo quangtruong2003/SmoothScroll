@@ -116,13 +116,17 @@
       "title": "Yatay kaydırmayı yumuşat",
       "desc": "Eğimli tekerlek ve Shift+tekerlek kaydırmalarına yumuşatma uygula"
     },
-    "shift_horizontal": {
-      "title": "Shift'i yataya çevir",
-      "desc": "Kaydırırken Shift'i basılı tutmak yatay kaydırma yapar"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Yatay yönü tersine çevir",
-      "desc": "Aşağı kaydırma sağa hareket eder (Windows yerel yatay kaydırma ile eşleşir)"
+      "desc": "Yatay kaydırma yönünü tersine çevir"
+    },
+    "smooth_zoom": {
+      "title": "Duyarlı yakınlaştırma",
+      "desc": "Tasarım uygulamalarında Ctrl+tekerlek yakınlaştırmasına yumuşatma uygula"
+    },
+    "zoom_invert": {
+      "title": "Yakınlaştırma yönünü tersine çevir",
+      "desc": "Küçültmek için yukarı kaydır"
     },
     "global_hotkey": {
       "title": "Global kısayol",

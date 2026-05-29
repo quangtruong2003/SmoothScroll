@@ -116,13 +116,17 @@
       "title": "Horizontales Scrollen glätten",
       "desc": "Glättung auf Tilt-Wheel und Umschalt+Mausrad anwenden"
     },
-    "shift_horizontal": {
-      "title": "Umschalt für horizontales Scrollen",
-      "desc": "Umschalt-Taste beim Scrollen wechselt zu horizontal"
-    },
-    "shift_horizontal_invert": {
+    "horizontal_invert": {
       "title": "Horizontale Richtung umkehren",
-      "desc": "Nach unten scrollen bewegt nach rechts (entspricht dem nativen horizontalen Scrollen unter Windows)"
+      "desc": "Richtung des horizontalen Scrollens umkehren"
+    },
+    "smooth_zoom": {
+      "title": "Sanftes Zoomen",
+      "desc": "Glättung auf Ctrl+Rad-Zoom in Design-Apps anwenden"
+    },
+    "zoom_invert": {
+      "title": "Zoomrichtung umkehren",
+      "desc": "Nach oben scrollen zum Verkleinern"
     },
     "global_hotkey": {
       "title": "Globaler Tastenkürzel",
