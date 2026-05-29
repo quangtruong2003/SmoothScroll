@@ -16,13 +16,6 @@ use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 
-#[cfg(windows)]
-use windows_sys::Win32::Foundation::POINT;
-#[cfg(windows)]
-use windows_sys::Win32::UI::WindowsAndMessaging::{
-    GetAncestor, GetCursorPos, PostMessageW, WM_MOUSEWHEEL, WindowFromPoint, GA_ROOT,
-};
-
 /// Callback signature invoked when the input-source classifier transitions
 /// between Wheel/HighResWheel/Touchpad. Installed once at startup by
 /// `lib.rs::setup()` to bridge to `AppHandle::emit("input-source-changed")`.
@@ -54,41 +47,6 @@ impl ProcessNameCache {
         self.last_call_at = Instant::now();
         self.initialized = true;
         self.last_name.clone()
-    }
-}
-
-/// Posts WM_MOUSEWHEEL with MK_SHIFT flag for horizontal scrolling.
-/// This works in apps (Excel, Pencil, etc.) that don't recognize
-/// MOUSEEVENTF_HWHEEL from SendInput but handle Shift+Wheel natively.
-#[cfg(windows)]
-fn post_shift_wheel_message(delta: i32) {
-    const WHEEL_DELTA: i32 = 120;
-    const MK_SHIFT: usize = 0x0004;
-
-    unsafe {
-        let mut pt = POINT { x: 0, y: 0 };
-        if GetCursorPos(&mut pt) == 0 {
-            return;
-        }
-
-        let hwnd = WindowFromPoint(pt);
-        if hwnd.is_null() {
-            return;
-        }
-
-        // Get the root window for proper message routing
-        let root = GetAncestor(hwnd, GA_ROOT);
-        let target = if !root.is_null() { root } else { hwnd };
-
-        // Convert delta to wheel delta units
-        let notches = delta / WHEEL_DELTA;
-        let mouse_data = ((notches.abs() as u32) << 16) as usize;
-        let w_param = MK_SHIFT | mouse_data;
-
-        // lParam: cursor position packed as (y << 16) | (x & 0xFFFF)
-        let l_param = ((pt.y as usize) << 16) | (pt.x as usize & 0xFFFF);
-
-        let _ = PostMessageW(target, WM_MOUSEWHEEL, w_param as _, l_param as _);
     }
 }
 
@@ -229,9 +187,8 @@ impl EngineSink {
             None => return HookDecision::Pass,
         };
 
-        if mods.shift && eff.shift_key_horizontal && !eff.horizontal_smoothness {
-            return HookDecision::Pass;
-        }
+        // Shift+Wheel always routes through engine when smoothness is enabled.
+        // Native horizontal wheel (no modifiers) always smooths.
 
         // Precision-modifier passthrough (Ctrl/Alt+Wheel for zoom etc.)
         #[cfg(target_os = "macos")]
@@ -253,23 +210,20 @@ impl EngineSink {
 
         // ONE lock acquisition per event.
         let mut engine = self.state.engine.lock();
-        if mods.shift && eff.shift_key_horizontal {
-            // Use PostMessage for shift+wheel on Windows - this works in apps
-            // (Excel, Pencil, etc.) that don't recognize MOUSEEVENTF_HWHEEL
-            #[cfg(windows)]
-            {
-                post_shift_wheel_message(delta);
-                return HookDecision::Pass;
-            }
-            #[cfg(not(windows))]
-            {
-                let h_delta = if eff.shift_horizontal_invert {
-                    -delta
-                } else {
-                    delta
-                };
-                engine.on_hwheel_with_source(h_delta, now, source, &eff);
-            }
+
+        #[cfg(not(target_os = "macos"))]
+        let ctrl_pressed = mods.ctrl;
+        #[cfg(target_os = "macos")]
+        let ctrl_pressed = mods.cmd;
+
+        if ctrl_pressed && eff.smooth_zoom {
+            // Ctrl+Wheel → zoom axis
+            engine.on_wheel_zoom(delta, now, source, &eff);
+        } else if mods.shift && eff.horizontal_smoothness {
+            let h_delta = if eff.horizontal_invert { -delta } else { delta };
+            engine.on_hwheel_with_source(h_delta, now, source, &eff);
+        } else if mods.shift {
+            return HookDecision::Pass;
         } else {
             engine.on_wheel_with_source(delta, now, source, &eff);
         }
@@ -309,7 +263,8 @@ impl EngineSink {
         let now = self.now_ms();
 
         let mut engine = self.state.engine.lock();
-        engine.on_hwheel_with_source(delta, now, source, &eff);
+        let h_delta = if eff.horizontal_invert { -delta } else { delta };
+        engine.on_hwheel_with_source(h_delta, now, source, &eff);
         drop(engine);
         self.state.engine_signal.signal();
         HookDecision::Swallow
@@ -362,7 +317,7 @@ mod tests {
     use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
-        MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
+        MouseHook, ProcessInfo, ProcessQuery, WheelEmitter, ZoomEmitter,
         WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
@@ -378,6 +333,11 @@ mod tests {
     struct StubEmitter;
     impl WheelEmitter for StubEmitter {
         fn emit(&self, _v: i32, _h: i32) -> Result<()> {
+            Ok(())
+        }
+    }
+    impl ZoomEmitter for StubEmitter {
+        fn emit_zoom(&self, _units: i32) -> Result<()> {
             Ok(())
         }
     }
@@ -447,6 +407,7 @@ mod tests {
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
             emitter: Arc::new(StubEmitter),
+            zoom_emitter: Arc::new(StubEmitter),
             processes: Arc::new(StubProcessQuery),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
@@ -489,6 +450,7 @@ mod tests {
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
             emitter: Arc::new(StubEmitter),
+            zoom_emitter: Arc::new(StubEmitter),
             processes: Arc::new(StaticProcessQuery {
                 name: process_name.map(|s| s.to_string()),
             }),
@@ -549,51 +511,52 @@ mod tests {
     }
 
     #[test]
-    fn shift_with_setting_on_passes_and_redirects() {
-        // On Windows, shift+wheel uses PostMessage instead of engine smoothing
-        // so it should pass through and not produce engine work.
+    fn shift_wheel_smooths_horizontal() {
+        // Shift+Wheel always routes through engine for smooth horizontal scrolling.
         let s = AppSettings::default();
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let decision = sink.on_wheel(120, shift_only());
 
-        #[cfg(windows)]
-        {
-            // On Windows, we PostMessage and pass through
-            assert_eq!(decision, HookDecision::Pass);
-            assert!(!state.engine.lock().has_pending_work());
-        }
-        #[cfg(not(windows))]
-        {
-            // On other platforms, engine smooths horizontally
-            assert_eq!(decision, HookDecision::Swallow);
-            assert!(state.engine.lock().has_pending_work());
-            let (_v, h) = drain_engine(&state);
-            assert!(h != 0, "expected horizontal emission, got 0");
-        }
-    }
-
-    #[test]
-    fn shift_with_setting_off_routes_to_v() {
-        let mut s = AppSettings::default();
-        s.shift_key_horizontal = false;
-        let state = make_state(s);
-        let sink = EngineSink::new(state.clone());
-        let decision = sink.on_wheel(120, shift_only());
         assert_eq!(decision, HookDecision::Swallow);
-        let (v, _h) = drain_engine(&state);
-        assert!(v != 0, "expected vertical emission, got 0");
+        assert!(state.engine.lock().has_pending_work());
+        let (_v, h) = drain_engine(&state);
+        assert!(h != 0, "expected horizontal emission, got 0");
     }
 
     #[test]
-    fn shift_with_horizontal_smoothness_off_passes_through() {
+    fn shift_wheel_passes_through_when_smoothness_disabled() {
+        // When horizontal_smoothness is OFF, shift+wheel passes through.
         let mut s = AppSettings::default();
         s.horizontal_smoothness = false;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let decision = sink.on_wheel(120, shift_only());
+
         assert_eq!(decision, HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn horizontal_invert_affects_shift_wheel() {
+        let mut s = AppSettings::default();
+        s.horizontal_invert = true;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        sink.on_wheel(100, shift_only());
+        let (_v, h) = drain_engine(&state);
+        assert!(h < 0, "horizontal_invert should flip sign");
+    }
+
+    #[test]
+    fn horizontal_invert_affects_native_hwheel() {
+        let mut s = AppSettings::default();
+        s.horizontal_invert = true;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        sink.on_hwheel(100);
+        let (_v, h) = drain_engine(&state);
+        assert!(h < 0, "horizontal_invert should flip sign for native hwheel");
     }
 
     #[test]
@@ -706,7 +669,8 @@ mod tests {
 
     #[test]
     fn ctrl_wheel_passes_through_when_passthrough_enabled() {
-        let s = AppSettings::default();
+        let mut s = AppSettings::default();
+        s.modifier_passthrough.ctrl = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
@@ -732,11 +696,58 @@ mod tests {
             cmd: false,
         };
         assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+
+        // Drain engine and verify zoom output (not vertical)
+        let eff = state.effective.load_full();
+        let mut zoom_total = 0i32;
+        for _ in 0..500 {
+            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
+            zoom_total += out.zoom;
+            if !state.engine.lock().has_pending_work() {
+                break;
+            }
+        }
+        assert!(zoom_total != 0, "expected zoom emission, got 0");
+        assert_eq!(
+            state.engine.lock().step(1000.0 / 120.0, &eff).vertical,
+            0,
+            "zoom should not produce vertical output"
+        );
     }
 
     #[test]
-    fn ctrl_press_clears_inertia() {
-        let s = AppSettings::default();
+    fn ctrl_shift_wheel_zoom_inverts_when_setting_on() {
+        let mut s = AppSettings::default();
+        s.modifier_passthrough.ctrl = false;
+        s.zoom_invert = true;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: true,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+        sink.on_wheel(120, mods);
+
+        let eff = state.effective.load_full();
+        let mut zoom_total = 0i32;
+        for _ in 0..500 {
+            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
+            zoom_total += out.zoom;
+            if !state.engine.lock().has_pending_work() {
+                break;
+            }
+        }
+        assert!(zoom_total < 0, "zoom_invert=true should make zoom negative");
+    }
+
+    #[test]
+    fn ctrl_press_clears_inertia_when_passthrough_enabled() {
+        // With modifier_passthrough.ctrl=true (explicit), pressing Ctrl clears
+        // scroll inertia and passes Ctrl+Wheel through raw.
+        let mut s = AppSettings::default();
+        s.modifier_passthrough.ctrl = true; // enable passthrough
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         sink.on_wheel(120, no_mods());
@@ -750,7 +761,7 @@ mod tests {
         let _ = sink.on_wheel(120, mods);
         assert!(
             !state.engine.lock().has_pending_work(),
-            "inertia should clear on ctrl press"
+            "inertia should clear on ctrl press when passthrough enabled"
         );
     }
 }
