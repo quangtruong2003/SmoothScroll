@@ -30,9 +30,11 @@ pub use wheel_emitter::WindowsWheelEmitter;
 pub use window_geom::WindowsWindowGeometry;
 
 pub fn build() -> Result<Platform> {
+    let wheel_emitter: Arc<WindowsWheelEmitter> = Arc::new(WindowsWheelEmitter);
     Ok(Platform {
         mouse_hook: Arc::new(WindowsMouseHook::new()),
-        wheel_emitter: Arc::new(WindowsWheelEmitter),
+        wheel_emitter: wheel_emitter.clone(),
+        zoom_emitter: wheel_emitter.clone(),
         process_query: Arc::new(WindowsProcessQuery::new()),
         autostart: Arc::new(WindowsAutostart),
         hotkey: Arc::new(WindowsHotkey),
