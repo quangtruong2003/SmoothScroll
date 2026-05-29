@@ -9,7 +9,6 @@ import { EnableHeader } from "@/components/settings/EnableHeader";
 import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
-import { PrecisionActionsSection } from "@/components/settings/PrecisionActionsSection";
 import { TouchpadSection } from "@/components/settings/TouchpadSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
@@ -18,7 +17,6 @@ import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
 // import { SupportSection } from "@/components/settings/SupportSection";
 import { BackupSection } from "@/components/settings/BackupSection";
-import { EdgeScrollSection } from "@/components/settings/EdgeScrollSection";
 import { TabContent } from "@/components/settings/TabContent";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { CheatSheetOverlay } from "@/components/CheatSheetOverlay";
@@ -138,8 +136,7 @@ export function SettingsPage() {
               description={t("tabs.advanced.description")}
             >
               <AdvancedScrollSection />
-              <PrecisionActionsSection />
-              <EdgeScrollSection />
+              <TouchpadSection />
             </TabContent>
           )}
 

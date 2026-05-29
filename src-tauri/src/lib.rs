@@ -73,7 +73,7 @@ pub fn run() {
         effective_per_profile: effective_per_profile_arc,
         mouse_hook: platform.mouse_hook,
         emitter: platform.wheel_emitter.clone(),
-        zoom_emitter: platform.wheel_emitter.clone(),
+        zoom_emitter: platform.zoom_emitter.clone(),
         processes: platform.process_query,
         autostart: platform.autostart,
         hotkey: platform.hotkey,

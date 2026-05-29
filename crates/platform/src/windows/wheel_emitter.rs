@@ -10,8 +10,8 @@ use crate::types::{PlatformError, Result};
 use std::mem;
 use windows_sys::Win32::Foundation::{GetLastError, POINT};
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
-    GetAsyncKeyState, INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_MOUSE, KEYBDINPUT, KEYEVENTF_KEYUP,
-    KEYBD_EVENT_FLAGS, MOUSEINPUT, SendInput, VK_CONTROL, MOUSEEVENTF_WHEEL,
+    INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_MOUSE, KEYBDINPUT, KEYEVENTF_KEYUP,
+    MOUSEINPUT, SendInput, VK_CONTROL, MOUSEEVENTF_WHEEL,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     GetAncestor, GetCursorPos, PostMessageW, WindowFromPoint, GA_ROOT, WM_MOUSEWHEEL,
@@ -155,7 +155,7 @@ fn emit_zoom_via_send_input(units: i32) -> Result<()> {
                 ki: KEYBDINPUT {
                     wVk: VK_CONTROL as u16,
                     wScan: 0,
-                    dwFlags: KEYBD_EVENT_FLAGS(0),
+                    dwFlags: 0,
                     time: 0,
                     dwExtraInfo: 0,
                 },
