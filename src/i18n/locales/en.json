@@ -16,7 +16,6 @@
     "language": "Language",
     "theme": "Appearance",
     "touchpad": "Precision touchpad",
-    "keyboard_scroll": "Keyboard scroll smoothing",
     "game_mode": "Game mode",
     "edge_scroll": "Edge auto-scroll",
     "about": "About",
@@ -338,15 +337,6 @@
       "desc": "Pick the profile to use, then choose which app to assign it to.",
       "select_profile": "Profile to assign"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Windows only)",
-    "enable_smoothing": "Enable keyboard smoothing",
-    "pgdn_step": "PageUp/PageDown step: {{value}} notches",
-    "arrow_step": "Arrow step: {{value}} notches",
-    "skip_in_text_inputs": "Skip in text inputs",
-    "page_keys": "Page keys",
-    "arrow_keys": "Arrow keys"
   },
   "game_mode": {
     "auto_disable": "Auto-disable in games",

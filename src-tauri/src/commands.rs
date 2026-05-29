@@ -33,22 +33,15 @@ pub(crate) fn emit_input_source_changed<R: tauri::Runtime>(
     let _ = app.emit("input-source-changed", label);
 }
 
-pub(crate) fn refresh_keyboard_hook(state: &Arc<AppState>) -> Result<(), String> {
-    let enabled = state.settings.read().keyboard_scroll_enabled;
-    if enabled {
-        if state.keyboard_handle.lock().is_some() {
-            return Ok(());
-        }
-        let sink = crate::keyboard_sink::KeyboardEngineSink::new(state.clone());
-        let handle = state
-            .keyboard_hook
-            .install(sink)
-            .map_err(|e| e.to_string())?;
-        *state.keyboard_handle.lock() = Some(handle);
+pub(crate) fn refresh_hotkey(state: &Arc<AppState>) -> Result<(), String> {
+    let enabled = state.settings.read().enable_global_hotkey;
+    let accel = state.settings.read().hotkey_accelerator.clone();
+    if enabled && is_valid_accelerator(&accel) {
+        register_hotkey_internal(state, &accel)
     } else {
-        *state.keyboard_handle.lock() = None;
+        *state.hotkey_handle.lock() = None;
+        Ok(())
     }
-    Ok(())
 }
 
 /// Re-register the global hotkey using the current settings. Returns the
@@ -136,7 +129,7 @@ pub fn save_settings<R: tauri::Runtime>(
     emit_settings_changed(&app, &clamped);
 
     let state_arc: Arc<AppState> = (*state).clone();
-    let _ = refresh_keyboard_hook(&state_arc);
+    let _ = refresh_hotkey(&state_arc);
 
     tracing::debug!("settings saved");
     Ok(())

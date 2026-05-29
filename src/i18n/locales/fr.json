@@ -15,7 +15,6 @@
     "language": "Langue",
     "theme": "Apparence",
     "touchpad": "Pavé tactile de précision",
-    "keyboard_scroll": "Lissage du défilement clavier",
     "game_mode": "Mode jeu",
     "edge_scroll": "Défilement automatique au bord",
     "about": "À propos",
@@ -253,15 +252,6 @@
       "desc": "Choisissez le profil à utiliser, puis l'application à affecter.",
       "select_profile": "Profil à affecter"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Windows uniquement)",
-    "enable_smoothing": "Activer le lissage clavier",
-    "pgdn_step": "Pas Pg préc/Pg suiv : {{value}} crans",
-    "arrow_step": "Pas des flèches : {{value}} crans",
-    "skip_in_text_inputs": "Désactiver dans les champs texte",
-    "page_keys": "Touches de page",
-    "arrow_keys": "Touches fléchées"
   },
   "game_mode": {
     "auto_disable": "Désactiver automatiquement dans les jeux",

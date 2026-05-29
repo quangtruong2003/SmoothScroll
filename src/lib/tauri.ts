@@ -65,11 +65,6 @@ export interface AppSettings {
   edge_scroll_max_notches_per_sec: number;
   edge_scroll_modifier_required: boolean;
   edge_scroll_modifier: string;
-  keyboard_scroll_enabled: boolean;
-  keyboard_scroll_keys: string[];
-  keyboard_smart_text_skip: boolean;
-  keyboard_pgdn_step_notches: number;
-  keyboard_arrow_step_notches: number;
   touchpad_smoothing_enabled: boolean;
   touchpad_pixel_multiplier: number;
   touchpad_acceleration_factor: number;

@@ -15,7 +15,6 @@
     "language": "Bahasa",
     "theme": "Tampilan",
     "touchpad": "Touchpad presisi",
-    "keyboard_scroll": "Penghalusan scroll keyboard",
     "game_mode": "Mode game",
     "edge_scroll": "Scroll otomatis di tepi",
     "about": "Tentang",
@@ -253,15 +252,6 @@
       "desc": "Pilih profil yang akan digunakan, lalu pilih aplikasi yang akan ditugaskan.",
       "select_profile": "Profil yang akan ditugaskan"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Hanya Windows)",
-    "enable_smoothing": "Aktifkan penghalusan keyboard",
-    "pgdn_step": "Langkah PageUp/PageDown: {{value}} detent",
-    "arrow_step": "Langkah panah: {{value}} detent",
-    "skip_in_text_inputs": "Lewati di input teks",
-    "page_keys": "Tombol halaman",
-    "arrow_keys": "Tombol panah"
   },
   "game_mode": {
     "auto_disable": "Nonaktifkan otomatis di game",

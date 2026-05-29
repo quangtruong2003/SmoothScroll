@@ -15,7 +15,6 @@
     "language": "Idioma",
     "theme": "Apariencia",
     "touchpad": "Touchpad de precisión",
-    "keyboard_scroll": "Suavizado del desplazamiento por teclado",
     "game_mode": "Modo juego",
     "edge_scroll": "Desplazamiento automático en los bordes",
     "about": "Acerca de",
@@ -253,15 +252,6 @@
       "desc": "Elige el perfil a usar y luego selecciona la aplicación a asignar.",
       "select_profile": "Perfil a asignar"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Solo Windows)",
-    "enable_smoothing": "Activar suavizado del teclado",
-    "pgdn_step": "Paso AvPág/RePág: {{value}} muescas",
-    "arrow_step": "Paso de flechas: {{value}} muescas",
-    "skip_in_text_inputs": "Omitir en campos de texto",
-    "page_keys": "Teclas de página",
-    "arrow_keys": "Teclas de flecha"
   },
   "game_mode": {
     "auto_disable": "Desactivar automáticamente en juegos",

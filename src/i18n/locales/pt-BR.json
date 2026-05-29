@@ -15,7 +15,6 @@
     "language": "Idioma",
     "theme": "Aparência",
     "touchpad": "Touchpad de precisão",
-    "keyboard_scroll": "Suavização da rolagem por teclado",
     "game_mode": "Modo jogo",
     "edge_scroll": "Rolagem automática nas bordas",
     "about": "Sobre",
@@ -253,15 +252,6 @@
       "desc": "Escolha o perfil a ser usado e, em seguida, o aplicativo a ser atribuído.",
       "select_profile": "Perfil a atribuir"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Apenas Windows)",
-    "enable_smoothing": "Ativar suavização do teclado",
-    "pgdn_step": "Passo PageUp/PageDown: {{value}} entalhes",
-    "arrow_step": "Passo das setas: {{value}} entalhes",
-    "skip_in_text_inputs": "Ignorar em entradas de texto",
-    "page_keys": "Teclas de página",
-    "arrow_keys": "Teclas de seta"
   },
   "game_mode": {
     "auto_disable": "Desativar automaticamente em jogos",

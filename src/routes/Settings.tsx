@@ -10,7 +10,6 @@ import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSecti
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
 import { PrecisionActionsSection } from "@/components/settings/PrecisionActionsSection";
-import { KeyboardScrollSection } from "@/components/settings/KeyboardScrollSection";
 import { TouchpadSection } from "@/components/settings/TouchpadSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
@@ -129,7 +128,6 @@ export function SettingsPage() {
               title={t("tabs.devices.title")}
               description={t("tabs.devices.description")}
             >
-              <KeyboardScrollSection />
               <TouchpadSection />
             </TabContent>
           )}

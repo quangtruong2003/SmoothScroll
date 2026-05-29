@@ -224,21 +224,6 @@ export const useEdgeScrollFields = () =>
     })
   );
 
-export const useKeyboardFields = () =>
-  useSettingsStore(
-    useShallow((s) => {
-      const set = s.settings;
-      if (!set) return null;
-      return {
-        keyboard_scroll_enabled: set.keyboard_scroll_enabled,
-        keyboard_scroll_keys: set.keyboard_scroll_keys,
-        keyboard_smart_text_skip: set.keyboard_smart_text_skip,
-        keyboard_pgdn_step_notches: set.keyboard_pgdn_step_notches,
-        keyboard_arrow_step_notches: set.keyboard_arrow_step_notches,
-      };
-    })
-  );
-
 export const useTouchpadFields = () =>
   useSettingsStore(
     useShallow((s) => {

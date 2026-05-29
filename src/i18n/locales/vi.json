@@ -16,7 +16,6 @@
     "language": "Ngôn ngữ",
     "theme": "Giao diện",
     "touchpad": "Touchpad chính xác",
-    "keyboard_scroll": "Làm mượt cuộn bàn phím",
     "game_mode": "Chế độ game",
     "edge_scroll": "Tự cuộn ở cạnh màn hình",
     "about": "Giới thiệu",
@@ -338,15 +337,6 @@
       "desc": "Chọn hồ sơ muốn dùng, sau đó chọn ứng dụng để gán.",
       "select_profile": "Hồ sơ áp dụng"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Chỉ Windows)",
-    "enable_smoothing": "Bật làm mượt cuộn bàn phím",
-    "pgdn_step": "Bước PageUp/PageDown: {{value}} nấc",
-    "arrow_step": "Bước phím mũi tên: {{value}} nấc",
-    "skip_in_text_inputs": "Bỏ qua trong ô nhập văn bản",
-    "page_keys": "Phím trang",
-    "arrow_keys": "Phím mũi tên"
   },
   "game_mode": {
     "auto_disable": "Tự tắt khi chơi game",

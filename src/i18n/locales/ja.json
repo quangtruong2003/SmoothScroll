@@ -15,7 +15,6 @@
     "language": "言語",
     "theme": "外観",
     "touchpad": "高精度タッチパッド",
-    "keyboard_scroll": "キーボードスクロールのスムージング",
     "game_mode": "ゲームモード",
     "edge_scroll": "画面端の自動スクロール",
     "about": "情報",
@@ -253,15 +252,6 @@
       "desc": "使用するプロファイルを選び、割り当てるアプリを選択してください。",
       "select_profile": "割り当てるプロファイル"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Windowsのみ)",
-    "enable_smoothing": "キーボードスムージングを有効化",
-    "pgdn_step": "PageUp/PageDown ステップ: {{value}} ノッチ",
-    "arrow_step": "矢印キー ステップ: {{value}} ノッチ",
-    "skip_in_text_inputs": "テキスト入力欄ではスキップ",
-    "page_keys": "ページキー",
-    "arrow_keys": "矢印キー"
   },
   "game_mode": {
     "auto_disable": "ゲーム中は自動で無効化",

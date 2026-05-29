@@ -15,7 +15,6 @@
     "language": "语言",
     "theme": "外观",
     "touchpad": "精密触控板",
-    "keyboard_scroll": "键盘滚动平滑",
     "game_mode": "游戏模式",
     "edge_scroll": "边缘自动滚动",
     "about": "关于",
@@ -253,15 +252,6 @@
       "desc": "选择要使用的配置，然后选择要分配的应用。",
       "select_profile": "要分配的配置"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "（仅 Windows）",
-    "enable_smoothing": "启用键盘平滑",
-    "pgdn_step": "PageUp/PageDown 步长：{{value}} 档",
-    "arrow_step": "方向键步长：{{value}} 档",
-    "skip_in_text_inputs": "在文本输入框中跳过",
-    "page_keys": "翻页键",
-    "arrow_keys": "方向键"
   },
   "game_mode": {
     "auto_disable": "游戏中自动禁用",

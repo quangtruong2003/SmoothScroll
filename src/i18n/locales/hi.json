@@ -15,7 +15,6 @@
     "language": "भाषा",
     "theme": "रूप",
     "touchpad": "प्रिसिजन टचपैड",
-    "keyboard_scroll": "कीबोर्ड स्क्रॉल स्मूथिंग",
     "game_mode": "गेम मोड",
     "edge_scroll": "किनारे पर स्वतः स्क्रॉल",
     "about": "जानकारी",
@@ -253,15 +252,6 @@
       "desc": "उपयोग करने वाली प्रोफ़ाइल चुनें, फिर असाइन करने के लिए ऐप चुनें।",
       "select_profile": "असाइन करने हेतु प्रोफ़ाइल"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(केवल Windows)",
-    "enable_smoothing": "कीबोर्ड स्मूथिंग सक्षम करें",
-    "pgdn_step": "PageUp/PageDown स्टेप: {{value}} नॉच",
-    "arrow_step": "एरो स्टेप: {{value}} नॉच",
-    "skip_in_text_inputs": "टेक्स्ट इनपुट में छोड़ें",
-    "page_keys": "पेज कीज़",
-    "arrow_keys": "ऐरो कीज़"
   },
   "game_mode": {
     "auto_disable": "गेम्स में स्वतः निष्क्रिय करें",

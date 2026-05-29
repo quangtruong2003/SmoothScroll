@@ -16,6 +16,13 @@ use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 
+#[cfg(windows)]
+use windows_sys::Win32::Foundation::POINT;
+#[cfg(windows)]
+use windows_sys::Win32::UI::WindowsAndMessaging::{
+    GetAncestor, GetCursorPos, PostMessageW, WM_MOUSEWHEEL, WindowFromPoint, GA_ROOT,
+};
+
 /// Callback signature invoked when the input-source classifier transitions
 /// between Wheel/HighResWheel/Touchpad. Installed once at startup by
 /// `lib.rs::setup()` to bridge to `AppHandle::emit("input-source-changed")`.
@@ -47,6 +54,41 @@ impl ProcessNameCache {
         self.last_call_at = Instant::now();
         self.initialized = true;
         self.last_name.clone()
+    }
+}
+
+/// Posts WM_MOUSEWHEEL with MK_SHIFT flag for horizontal scrolling.
+/// This works in apps (Excel, Pencil, etc.) that don't recognize
+/// MOUSEEVENTF_HWHEEL from SendInput but handle Shift+Wheel natively.
+#[cfg(windows)]
+fn post_shift_wheel_message(delta: i32) {
+    const WHEEL_DELTA: i32 = 120;
+    const MK_SHIFT: usize = 0x0004;
+
+    unsafe {
+        let mut pt = POINT { x: 0, y: 0 };
+        if GetCursorPos(&mut pt) == 0 {
+            return;
+        }
+
+        let hwnd = WindowFromPoint(pt);
+        if hwnd.is_null() {
+            return;
+        }
+
+        // Get the root window for proper message routing
+        let root = GetAncestor(hwnd, GA_ROOT);
+        let target = if !root.is_null() { root } else { hwnd };
+
+        // Convert delta to wheel delta units
+        let notches = delta / WHEEL_DELTA;
+        let mouse_data = ((notches.abs() as u32) << 16) as usize;
+        let w_param = MK_SHIFT | mouse_data;
+
+        // lParam: cursor position packed as (y << 16) | (x & 0xFFFF)
+        let l_param = ((pt.y as usize) << 16) | (pt.x as usize & 0xFFFF);
+
+        let _ = PostMessageW(target, WM_MOUSEWHEEL, w_param as _, l_param as _);
     }
 }
 
@@ -212,12 +254,22 @@ impl EngineSink {
         // ONE lock acquisition per event.
         let mut engine = self.state.engine.lock();
         if mods.shift && eff.shift_key_horizontal {
-            let h_delta = if eff.shift_horizontal_invert {
-                -delta
-            } else {
-                delta
-            };
-            engine.on_hwheel_with_source(h_delta, now, source, &eff);
+            // Use PostMessage for shift+wheel on Windows - this works in apps
+            // (Excel, Pencil, etc.) that don't recognize MOUSEEVENTF_HWHEEL
+            #[cfg(windows)]
+            {
+                post_shift_wheel_message(delta);
+                return HookDecision::Pass;
+            }
+            #[cfg(not(windows))]
+            {
+                let h_delta = if eff.shift_horizontal_invert {
+                    -delta
+                } else {
+                    delta
+                };
+                engine.on_hwheel_with_source(h_delta, now, source, &eff);
+            }
         } else {
             engine.on_wheel_with_source(delta, now, source, &eff);
         }
@@ -310,7 +362,7 @@ mod tests {
     use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
-        KeyboardScrollHook, KeyboardScrollSink, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
+        MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
         WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
@@ -320,12 +372,6 @@ mod tests {
     struct StubHook;
     impl MouseHook for StubHook {
         fn install(&self, _sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
-            Ok(HookHandle::new(Box::new(())))
-        }
-    }
-    struct StubKeyboardHook;
-    impl KeyboardScrollHook for StubKeyboardHook {
-        fn install(&self, _sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle> {
             Ok(HookHandle::new(Box::new(())))
         }
     }
@@ -405,8 +451,6 @@ mod tests {
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
             hotkey_handle: Arc::new(Mutex::new(None)),
-            keyboard_hook: Arc::new(StubKeyboardHook),
-            keyboard_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
@@ -451,8 +495,6 @@ mod tests {
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
             hotkey_handle: Arc::new(Mutex::new(None)),
-            keyboard_hook: Arc::new(StubKeyboardHook),
-            keyboard_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
@@ -507,15 +549,28 @@ mod tests {
     }
 
     #[test]
-    fn shift_with_setting_on_swallows_and_routes_to_h() {
+    fn shift_with_setting_on_passes_and_redirects() {
+        // On Windows, shift+wheel uses PostMessage instead of engine smoothing
+        // so it should pass through and not produce engine work.
         let s = AppSettings::default();
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let decision = sink.on_wheel(120, shift_only());
-        assert_eq!(decision, HookDecision::Swallow);
-        assert!(state.engine.lock().has_pending_work());
-        let (_v, h) = drain_engine(&state);
-        assert!(h != 0, "expected horizontal emission, got 0");
+
+        #[cfg(windows)]
+        {
+            // On Windows, we PostMessage and pass through
+            assert_eq!(decision, HookDecision::Pass);
+            assert!(!state.engine.lock().has_pending_work());
+        }
+        #[cfg(not(windows))]
+        {
+            // On other platforms, engine smooths horizontally
+            assert_eq!(decision, HookDecision::Swallow);
+            assert!(state.engine.lock().has_pending_work());
+            let (_v, h) = drain_engine(&state);
+            assert!(h != 0, "expected horizontal emission, got 0");
+        }
     }
 
     #[test]
@@ -528,33 +583,6 @@ mod tests {
         assert_eq!(decision, HookDecision::Swallow);
         let (v, _h) = drain_engine(&state);
         assert!(v != 0, "expected vertical emission, got 0");
-    }
-
-    #[test]
-    fn shift_with_invert_on_emits_negated_horizontal_delta() {
-        // Default settings: shift_horizontal_invert = true.
-        // Wheel-down (positive Windows delta) should produce LEFT-going
-        // horizontal accumulation (negative h after sign flip), so that
-        // on Windows native horizontal direction maps "wheel down → right".
-        let s = AppSettings::default();
-        let state = make_state(s);
-        let sink = EngineSink::new(state.clone());
-        let decision = sink.on_wheel(120, shift_only());
-        assert_eq!(decision, HookDecision::Swallow);
-        let (_v, h) = drain_engine(&state);
-        assert!(h < 0, "expected inverted horizontal (h<0), got {h}");
-    }
-
-    #[test]
-    fn shift_with_invert_off_emits_raw_horizontal_delta() {
-        let mut s = AppSettings::default();
-        s.shift_horizontal_invert = false;
-        let state = make_state(s);
-        let sink = EngineSink::new(state.clone());
-        let decision = sink.on_wheel(120, shift_only());
-        assert_eq!(decision, HookDecision::Swallow);
-        let (_v, h) = drain_engine(&state);
-        assert!(h > 0, "expected raw horizontal (h>0), got {h}");
     }
 
     #[test]

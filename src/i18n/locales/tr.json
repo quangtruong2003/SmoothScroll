@@ -15,7 +15,6 @@
     "language": "Dil",
     "theme": "Görünüm",
     "touchpad": "Hassas dokunmatik yüzey",
-    "keyboard_scroll": "Klavye kaydırma yumuşatması",
     "game_mode": "Oyun modu",
     "edge_scroll": "Kenar otomatik kaydırma",
     "about": "Hakkında",
@@ -253,15 +252,6 @@
       "desc": "Kullanılacak profili seçin, ardından atanacak uygulamayı seçin.",
       "select_profile": "Atanacak profil"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Yalnızca Windows)",
-    "enable_smoothing": "Klavye yumuşatmasını etkinleştir",
-    "pgdn_step": "PageUp/PageDown adımı: {{value}} çentik",
-    "arrow_step": "Ok adımı: {{value}} çentik",
-    "skip_in_text_inputs": "Metin alanlarında atla",
-    "page_keys": "Sayfa tuşları",
-    "arrow_keys": "Ok tuşları"
   },
   "game_mode": {
     "auto_disable": "Oyunlarda otomatik devre dışı bırak",

@@ -53,9 +53,3 @@ pub struct WindowRect {
     pub right: i32,
     pub bottom: i32,
 }
-
-#[derive(Debug, Clone, Copy)]
-pub struct KeyboardKeyEvent {
-    pub key: smoothscroll_core::keyboard_scroll::KeyboardScrollKey,
-    pub is_autorepeat: bool,
-}

@@ -2,7 +2,7 @@
 //! `windows/` and `macos/` modules (cfg-gated).
 
 use crate::types::{
-    Accelerator, HookDecision, KeyboardKeyEvent, ModifierKeys, Point, Result, WindowRect,
+    Accelerator, HookDecision, ModifierKeys, Point, Result, WindowRect,
 };
 use std::sync::Arc;
 
@@ -100,14 +100,6 @@ pub trait FullscreenDetector: Send + Sync {
 
 pub trait WindowGeometry: Send + Sync {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)>;
-}
-
-pub trait KeyboardScrollSink: Send + Sync {
-    fn on_key(&self, ev: KeyboardKeyEvent) -> HookDecision;
-}
-
-pub trait KeyboardScrollHook: Send + Sync {
-    fn install(&self, sink: Arc<dyn KeyboardScrollSink>) -> Result<HookHandle>;
 }
 
 /// OS-level accessibility signals that influence engine behaviour.

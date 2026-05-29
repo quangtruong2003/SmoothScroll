@@ -15,7 +15,6 @@
     "language": "Sprache",
     "theme": "Erscheinungsbild",
     "touchpad": "Präzisions-Touchpad",
-    "keyboard_scroll": "Glättung beim Tastatur-Scrollen",
     "game_mode": "Spielemodus",
     "edge_scroll": "Automatisches Bildlaufen am Rand",
     "about": "Über",
@@ -253,15 +252,6 @@
       "desc": "Wählen Sie das Profil und dann die App, der es zugewiesen werden soll.",
       "select_profile": "Zuzuweisendes Profil"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Nur Windows)",
-    "enable_smoothing": "Tastatur-Glättung aktivieren",
-    "pgdn_step": "Bild auf/ab Schritt: {{value}} Rasten",
-    "arrow_step": "Pfeiltasten-Schritt: {{value}} Rasten",
-    "skip_in_text_inputs": "In Texteingaben überspringen",
-    "page_keys": "Seiten-Tasten",
-    "arrow_keys": "Pfeiltasten"
   },
   "game_mode": {
     "auto_disable": "In Spielen automatisch deaktivieren",

@@ -15,7 +15,6 @@
     "language": "Lingua",
     "theme": "Aspetto",
     "touchpad": "Touchpad di precisione",
-    "keyboard_scroll": "Smussatura scorrimento da tastiera",
     "game_mode": "Modalità gioco",
     "edge_scroll": "Scorrimento automatico ai bordi",
     "about": "Informazioni",
@@ -253,15 +252,6 @@
       "desc": "Scegli il profilo da usare, poi seleziona l'app da assegnare.",
       "select_profile": "Profilo da assegnare"
     }
-  },
-  "keyboard_scroll": {
-    "windows_only": "(Solo Windows)",
-    "enable_smoothing": "Abilita smussatura tastiera",
-    "pgdn_step": "Passo PgSu/PgGiù: {{value}} scatti",
-    "arrow_step": "Passo frecce: {{value}} scatti",
-    "skip_in_text_inputs": "Salta nei campi di testo",
-    "page_keys": "Tasti pagina",
-    "arrow_keys": "Tasti freccia"
   },
   "game_mode": {
     "auto_disable": "Disabilita automaticamente nei giochi",

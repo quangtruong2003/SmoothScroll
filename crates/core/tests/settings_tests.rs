@@ -163,16 +163,6 @@ fn edge_scroll_clamp_bounds_zone() {
 }
 
 #[test]
-fn keyboard_scroll_defaults_off() {
-    let s = AppSettings::default();
-    assert!(!s.keyboard_scroll_enabled);
-    assert!(s.keyboard_smart_text_skip);
-    assert_eq!(s.keyboard_pgdn_step_notches, 5);
-    assert_eq!(s.keyboard_arrow_step_notches, 1);
-    assert!(s.keyboard_scroll_keys.iter().any(|k| k == "PageDown"));
-}
-
-#[test]
 fn touchpad_defaults() {
     let s = AppSettings::default();
     assert!(s.touchpad_smoothing_enabled);
