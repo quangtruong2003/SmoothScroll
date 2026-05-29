@@ -7,6 +7,21 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-29
+
+### Added
+- add smooth zoom settings UI with 14-locale i18n
+- emit zoom events from engine thread
+- wire ZoomEmitter into AppState
+- implement ZoomEmitter for Windows via PostMessageW+MK_CONTROL
+- add ZoomEmitter trait
+- add ZoomAxis to SmoothScrollEngine with routing logic
+- add smooth_zoom settings fields
+- block macOS downloads, show Coming Soon for macOS users
+
+### Fixed
+- handle zoom field in EngineOutput destructure
+- add zoom_emitter to Platform struct, implement ZoomEmitter for macos stub
 ## [1.1.0] - 2026-05-23
 
 ### Added
