@@ -316,9 +316,8 @@ mod tests {
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
     use smoothscroll_platform::traits::{
-        Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
-        MouseHook, ProcessInfo, ProcessQuery, WheelEmitter, ZoomEmitter,
-        WindowGeometry,
+        Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook,
+        ProcessInfo, ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
@@ -556,7 +555,10 @@ mod tests {
         let sink = EngineSink::new(state.clone());
         sink.on_hwheel(100);
         let (_v, h) = drain_engine(&state);
-        assert!(h < 0, "horizontal_invert should flip sign for native hwheel");
+        assert!(
+            h < 0,
+            "horizontal_invert should flip sign for native hwheel"
+        );
     }
 
     #[test]
