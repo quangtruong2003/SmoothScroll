@@ -16,6 +16,7 @@ use crate::settings::EffectiveSettings;
 pub struct EngineOutput {
     pub vertical: i32,
     pub horizontal: i32,
+    pub zoom: i32,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -25,6 +26,10 @@ struct Axis {
     accel_factor: i32,
     unit_accum: f64,
 }
+
+// ZoomAxis is identical to Axis — same accumulation, easing, step logic.
+// Only difference is output routing (zoom channel vs scroll).
+type ZoomAxis = Axis;
 
 impl Axis {
     fn flush_instant(&mut self) -> i32 {
@@ -107,6 +112,7 @@ impl Axis {
 pub struct SmoothScrollEngine {
     v: Axis,
     h: Axis,
+    z: ZoomAxis,
 }
 
 impl SmoothScrollEngine {
@@ -114,6 +120,7 @@ impl SmoothScrollEngine {
         Self {
             v: Axis::default(),
             h: Axis::default(),
+            z: ZoomAxis::default(),
         }
     }
 
@@ -142,6 +149,30 @@ impl SmoothScrollEngine {
                 let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.v
                     .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
+            }
+        }
+    }
+
+    /// Register a wheel notch for the zoom axis. Called by the hook wiring layer
+    /// when Ctrl is held and smooth_zoom is enabled.
+    pub fn on_wheel_zoom(
+        &mut self,
+        delta: i32,
+        now_ms: u64,
+        source: crate::input_source::InputSource,
+        settings: &EffectiveSettings,
+    ) {
+        use crate::input_source::InputSource;
+        let dir = if settings.zoom_invert { -1 } else { 1 };
+        let sensitivity = settings.zoom_sensitivity.clamp(0.25, 4.0);
+        let scaled_delta = ((delta as f64) * sensitivity) as i32;
+        match source {
+            InputSource::Wheel | InputSource::HighResWheel => {
+                self.z.register_notch(now_ms, scaled_delta * dir, settings);
+            }
+            InputSource::Touchpad => {
+                let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
+                self.z.register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
             }
         }
     }
@@ -186,6 +217,7 @@ impl SmoothScrollEngine {
             return EngineOutput {
                 vertical: v,
                 horizontal: h,
+                zoom: 0,
             };
         }
         let v = self.v.step(dt_ms, settings);
@@ -194,17 +226,23 @@ impl SmoothScrollEngine {
         } else {
             0
         };
+        // Always drain zoom axis — even if smooth_zoom is disabled, complete
+        // any in-flight animation before stopping.
+        let z = self.z.step(dt_ms, settings);
         EngineOutput {
             vertical: v,
             horizontal: h,
+            zoom: z,
         }
     }
 
     pub fn has_pending_work(&self) -> bool {
-        self.v.remaining_px.abs() >= 0.1 || self.h.remaining_px.abs() >= 0.1
+        self.v.remaining_px.abs() >= 0.1
+            || self.h.remaining_px.abs() >= 0.1
+            || self.z.remaining_px.abs() >= 0.1
     }
 
-    /// Discard any pending pixels and unit accumulator on both axes. Used by
+    /// Discard any pending pixels and unit accumulator on all axes. Used by
     /// the modifier-passthrough hot path to clear inertia the moment a
     /// precision modifier (Ctrl/Alt) is pressed, so zoom feels immediate.
     pub fn reset_axes(&mut self) {
@@ -212,6 +250,8 @@ impl SmoothScrollEngine {
         self.v.unit_accum = 0.0;
         self.h.remaining_px = 0.0;
         self.h.unit_accum = 0.0;
+        self.z.remaining_px = 0.0;
+        self.z.unit_accum = 0.0;
     }
 }
 
