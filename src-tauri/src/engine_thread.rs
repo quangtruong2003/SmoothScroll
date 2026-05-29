@@ -83,6 +83,11 @@ fn worker(state: Arc<AppState>) {
                 tracing::warn!(error = %e, "wheel emit failed");
             }
         }
+        if output.zoom != 0 {
+            if let Err(e) = state.zoom_emitter.emit_zoom(output.zoom) {
+                tracing::warn!(error = %e, "zoom emit failed");
+            }
+        }
 
         let elapsed = now.elapsed().as_secs_f64() * 1000.0;
         let sleep_ms = frame_ms - elapsed;
