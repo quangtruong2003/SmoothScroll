@@ -10,8 +10,8 @@ use crate::types::{PlatformError, Result};
 use std::mem;
 use windows_sys::Win32::Foundation::{GetLastError, POINT};
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
-    INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_MOUSE, KEYBDINPUT, KEYEVENTF_KEYUP,
-    MOUSEINPUT, SendInput, VK_CONTROL, MOUSEEVENTF_WHEEL,
+    INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_MOUSE, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE,
+    MOUSEINPUT, SendInput, MOUSEEVENTF_WHEEL,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     GetAncestor, GetCursorPos, PostMessageW, WindowFromPoint, GA_ROOT, WM_MOUSEWHEEL,
@@ -19,6 +19,26 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{
 
 const MK_SHIFT: usize = 0x0004;
 const MK_CONTROL: usize = 0x0008;
+
+/// Retrieves the target window for PostMessageW injection.
+/// Returns (hwnd, screen_x, screen_y) or error.
+fn get_target_window() -> Result<(usize, i32, i32)> {
+    unsafe {
+        let mut pt = POINT { x: 0, y: 0 };
+        if GetCursorPos(&mut pt) == 0 {
+            return Err(PlatformError::Os("GetCursorPos failed".into()));
+        }
+
+        let hwnd = WindowFromPoint(pt);
+        if hwnd.is_null() {
+            return Err(PlatformError::Os("WindowFromPoint returned null".into()));
+        }
+
+        let root = GetAncestor(hwnd, GA_ROOT);
+        let target = if !root.is_null() { root } else { hwnd };
+        Ok((target as usize, pt.x, pt.y))
+    }
+}
 
 pub struct WindowsWheelEmitter;
 
@@ -44,9 +64,16 @@ impl ZoomEmitter for WindowsWheelEmitter {
             return Ok(());
         }
 
-        // Try PostMessageW first (most compatible with design apps like Figma)
-        if emit_zoom_via_post_message(units).is_ok() {
-            return Ok(());
+        // PostMessageW with MK_CONTROL — most compatible with design apps like Figma
+        if let Ok((target, x, y)) = get_target_window() {
+            unsafe {
+                let mouse_data = ((units as u32) << 16) as usize;
+                let w_param = MK_CONTROL | mouse_data;
+                let l_param = ((y as usize) << 16) | (x as usize & 0xFFFF);
+                if PostMessageW(target as _, WM_MOUSEWHEEL, w_param as _, l_param as _) != 0 {
+                    return Ok(());
+                }
+            }
         }
 
         // Fallback: SendInput sequence — Ctrl down → Wheel → Ctrl up
@@ -69,26 +96,14 @@ fn emit_vertical(units: i32) -> Result<()> {
 }
 
 fn emit_horizontal(units: i32) -> Result<()> {
+    let (target, x, y) = get_target_window()?;
+
     unsafe {
-        let mut pt = POINT { x: 0, y: 0 };
-        if GetCursorPos(&mut pt) == 0 {
-            return Err(PlatformError::Os("GetCursorPos failed".into()));
-        }
-
-        let hwnd = WindowFromPoint(pt);
-        if hwnd.is_null() {
-            return Err(PlatformError::Os("WindowFromPoint returned null".into()));
-        }
-
-        let root = GetAncestor(hwnd, GA_ROOT);
-        let target = if !root.is_null() { root } else { hwnd };
-
-        // units is already in wheel units; encode as signed 16-bit in mouseData
         let mouse_data = ((units as u32) << 16) as usize;
         let w_param = MK_SHIFT | mouse_data;
-        let l_param = ((pt.y as usize) << 16) | (pt.x as usize & 0xFFFF);
+        let l_param = ((y as usize) << 16) | (x as usize & 0xFFFF);
 
-        if PostMessageW(target, WM_MOUSEWHEEL, w_param as _, l_param as _) == 0 {
+        if PostMessageW(target as _, WM_MOUSEWHEEL, w_param as _, l_param as _) == 0 {
             return Err(PlatformError::Os(format!(
                 "PostMessageW failed with error {}",
                 GetLastError()
@@ -114,54 +129,28 @@ fn wheel_input(flags: u32, mouse_data: i32) -> INPUT {
     }
 }
 
-fn emit_zoom_via_post_message(units: i32) -> Result<()> {
-    unsafe {
-        let mut pt = POINT { x: 0, y: 0 };
-        if GetCursorPos(&mut pt) == 0 {
-            return Err(PlatformError::Os("GetCursorPos failed".into()));
-        }
-
-        let hwnd = WindowFromPoint(pt);
-        if hwnd.is_null() {
-            return Err(PlatformError::Os("WindowFromPoint returned null".into()));
-        }
-
-        let root = GetAncestor(hwnd, GA_ROOT);
-        let target = if !root.is_null() { root } else { hwnd };
-
-        // units is already in wheel units; encode as signed 16-bit in mouseData
-        let mouse_data = ((units as u32) << 16) as usize;
-        let w_param = MK_CONTROL | mouse_data;
-        let l_param = ((pt.y as usize) << 16) | (pt.x as usize & 0xFFFF);
-
-        if PostMessageW(target, WM_MOUSEWHEEL, w_param as _, l_param as _) == 0 {
-            return Err(PlatformError::Os(format!(
-                "PostMessageW zoom failed with error {}",
-                GetLastError()
-            )));
-        }
-        Ok(())
-    }
-}
-
 fn emit_zoom_via_send_input(units: i32) -> Result<()> {
-    // Fallback: Ctrl keydown → Wheel → Ctrl keyup via SendInput
+    // Fallback: Ctrl keydown → Wheel → Ctrl keyup via SendInput.
+    // Using KEYEVENTF_UNICODE with scan code for the modifier key to avoid
+    // potential VK映射 quirks when the keyboard layout differs.
     unsafe {
         let cb = mem::size_of::<INPUT>() as i32;
 
+        // Ctrl down via Unicode scan (0x1D = left Ctrl in extended scan code)
         let ctrl_down = INPUT {
             r#type: INPUT_KEYBOARD,
             Anonymous: INPUT_0 {
                 ki: KEYBDINPUT {
-                    wVk: VK_CONTROL as u16,
-                    wScan: 0,
-                    dwFlags: 0,
+                    wVk: 0,
+                    wScan: 0x1D,
+                    dwFlags: KEYEVENTF_UNICODE,
                     time: 0,
                     dwExtraInfo: 0,
                 },
             },
         };
 
+        // Wheel
         let wheel = INPUT {
             r#type: INPUT_MOUSE,
             Anonymous: INPUT_0 {
@@ -176,13 +165,14 @@ fn emit_zoom_via_send_input(units: i32) -> Result<()> {
             },
         };
 
+        // Ctrl up
         let ctrl_up = INPUT {
             r#type: INPUT_KEYBOARD,
             Anonymous: INPUT_0 {
                 ki: KEYBDINPUT {
-                    wVk: VK_CONTROL as u16,
-                    wScan: 0,
-                    dwFlags: KEYEVENTF_KEYUP,
+                    wVk: 0,
+                    wScan: 0x1D,
+                    dwFlags: KEYEVENTF_UNICODE | KEYEVENTF_KEYUP,
                     time: 0,
                     dwExtraInfo: 0,
                 },
