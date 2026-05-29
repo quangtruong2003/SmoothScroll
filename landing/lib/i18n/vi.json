@@ -26,12 +26,12 @@
   "features": {
     "title": "Mọi thứ bạn cần, không có thứ bạn không cần",
     "items": [
-      { "title": "Không cần cấu hình", "description": "Cài đặt và cảm nhận sự khác biệt ngay lập tức. Không cần tinh chỉnh gì." },
-      { "title": "Cảm giác tự nhiên", "description": "Sử dụng cùng đường cong vật lý như trackpad cao cấp. Cuộn cảm giác như không thể dừng lại." },
-      { "title": "Hồ sơ theo từng ứng dụng", "description": "Mức làm mượt khác nhau cho Chrome, VS Code, Adobe apps." },
-      { "title": "Tiết kiệm pin", "description": "Chạy gần như không CPU khi rảnh rỗi. Pin sẽ không nhận ra nó." },
-      { "title": "Bảo mật", "description": "Không telemetry, không gọi mạng, không thu thập dữ liệu. Không bao giờ." },
-      { "title": "Bật/tắt tức thì", "description": "Chuyển từ khay hệ thống. Không cần khởi động lại." }
+      { "title": "Sáu preset một click", "description": "Slow, Default, Fast, Snappy, Mac-like, Linear — chọn cảm giác phù hợp tay chỉ trong một click." },
+      { "title": "Tinh chỉnh chi tiết", "description": "Step size, thời gian animation, easing curve, acceleration — mọi slider đều được điều chỉnh cho use case thực tế." },
+      { "title": "Hồ sơ theo từng ứng dụng", "description": "Mức làm mượt khác nhau cho Chrome, VS Code, Adobe apps. App tự gợi ý preset phù hợp." },
+      { "title": "Touchpad + chuột riêng biệt", "description": "Pixel multiplier và acceleration riêng cho precision touchpad. Chuột wheel hoạt động độc lập." },
+      { "title": "Game mode tự tắt", "description": "SmoothScroll tạm dừng tự động khi game đang fullscreen. Input thô được bảo toàn." },
+      { "title": "Bảo mật", "description": "Không telemetry, không gọi mạng, không thu thập dữ liệu. Cài đặt và log ở lại trên thiết bị của bạn." }
     ]
   },
   "useCases": {
@@ -78,7 +78,8 @@
     "demo": {
       "caption": "Mọi tab, mọi cài đặt — quay trực tiếp",
       "alt": "Video demo cửa sổ cài đặt SmoothScroll: Cuộn, Thiết bị, Nâng cao, Ứng dụng, Game, Hành vi, Giới thiệu",
-      "hint": "Mẹo: mỗi tab đều có hướng dẫn riêng bên dưới."
+      "hint": "Mẹo: mỗi tab đều có hướng dẫn riêng bên dưới.",
+      "placeholder": "Screenshot sắp có — đặt ảnh chụp app của bạn tại public/assets/screen.gif"
     },
     "bigPicture": {
       "title": "Bức tranh tổng thể",
@@ -97,13 +98,13 @@
         {
           "id": "scroll",
           "label": "Cuộn",
-          "intro": "Các điều khiển cảm giác chính. Hầu hết người dùng chỉ chạm vào tab này.",
+          "intro": "Các điều khiển cảm giác chính. Sáu preset một click bao phủ 90% use case — hoặc đi sâu vào slider để tinh chỉnh.",
           "settings": [
             { "name": "Bật", "what": "Công tắc tổng. Tắt = cuộn mặc định của OS, Bật = engine SmoothScroll.", "why": "So sánh A/B nhanh mà không cần gỡ cài. Cũng được gán vào phím tắt toàn cục.", "range": "Bật / Tắt", "defaultValue": "Bật", "tip": "Dùng phím tắt toàn cục (Ctrl+Alt+S) để bật/tắt mà không cần rời bàn phím." },
-            { "name": "Kích thước bước", "what": "Số pixel cuộn cho mỗi notch của chuột.", "why": "Lớn hơn = cuộn được nhiều trang hơn mỗi click; nhỏ hơn = điều khiển tinh hơn.", "range": "24–300 px", "defaultValue": "144 px", "tip": "Hạ xuống 96 khi review code, nâng lên 200 cho PDF dài." },
-            { "name": "Thời gian animation", "what": "Mỗi chuyển động cuộn mất bao lâu để dừng lại.", "why": "Dài hơn = lướt mượt hơn; ngắn hơn = phản hồi nhanh hơn.", "range": "50–500 ms", "defaultValue": "220 ms", "tip": "Dưới 120 ms thì gần như không cảm thấy smoothing; trên 300 ms thì có cảm giác trackpad Mac." },
+            { "name": "Kích thước bước", "what": "Số pixel cuộn cho mỗi notch của chuột.", "why": "Lớn hơn = cuộn được nhiều trang hơn mỗi click; nhỏ hơn = điều khiển tinh hơn.", "range": "10–500 px", "defaultValue": "144 px", "tip": "Hạ xuống 96 khi review code, nâng lên 200 cho PDF dài." },
+            { "name": "Thời gian animation", "what": "Mỗi chuyển động cuộn mất bao lâu để dừng lại.", "why": "Dài hơn = lướt mượt hơn; ngắn hơn = phản hồi nhanh hơn.", "range": "50–1500 ms", "defaultValue": "220 ms", "tip": "Dưới 120 ms thì gần như không cảm thấy smoothing; trên 300 ms thì có cảm giác trackpad Mac." },
             { "name": "Smooth easing", "what": "Áp dụng đường cong easing cho mỗi chuyển động. Tắt = ramp tuyến tính.", "why": "Easing là thứ làm cho cuộn cảm giác tự nhiên thay vì máy móc.", "range": "Bật / Tắt", "defaultValue": "Bật" },
-            { "name": "Đường cong easing", "what": "Bốn dạng — Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Mỗi đường cong giảm tốc khác nhau. Quintic giống Mac; Linear cảm giác máy móc thuần túy.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Exponential Out", "tip": "Thử Quintic nếu bạn muốn đuôi dài, mượt nhất." },
+            { "name": "Đường cong easing", "what": "Bốn dạng — Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Mỗi đường cong giảm tốc khác nhau. Quintic giống Mac; Linear cảm giác máy móc thuần túy.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Quintic Out", "tip": "Thử Quintic nếu bạn muốn đuôi dài, mượt nhất." },
             { "name": "Đảo ngược chiều", "what": "Đảo chiều cuộn (kiểu natural như macOS).", "why": "Khớp với Mac mà bạn cũng dùng, hoặc theo sở thích.", "range": "Bật / Tắt", "defaultValue": "Tắt" },
             { "name": "Cuộn ngang mượt", "what": "Áp dụng smoothing cho tilt-wheel và Shift+wheel.", "why": "Bảng tính rộng, timeline, dải ảnh.", "range": "Bật / Tắt", "defaultValue": "Bật" },
             { "name": "Shift chuyển sang ngang", "what": "Giữ Shift khi cuộn sẽ thành cuộn ngang.", "why": "Hữu ích khi chuột không có tilt-wheel.", "range": "Bật / Tắt", "defaultValue": "Bật" }
@@ -112,14 +113,11 @@
         {
           "id": "devices",
           "label": "Thiết bị",
-          "intro": "Smoothing cho cuộn bằng bàn phím và precision touchpad — tách biệt với chuột.",
+          "intro": "Tinh chỉnh cho precision touchpad — riêng biệt với xử lý chuột wheel.",
           "settings": [
-            { "name": "Bật smoothing bàn phím (Chỉ Windows)", "what": "Áp dụng easing cho PageUp/Down và phím mũi tên.", "why": "Cùng lợi ích flow như cuộn chuột, nhưng cho điều hướng bàn phím.", "range": "Bật / Tắt", "defaultValue": "Tắt", "tip": "Bật 'Bỏ qua trong ô nhập text' để mũi tên vẫn hoạt động bình thường trong text field." },
-            { "name": "Bước PageUp / PageDown", "what": "Mỗi PageUp/PageDown phát ra bao nhiêu notch tương đương.", "why": "Tinh chỉnh khoảng nhảy cho tài liệu dài.", "range": "1–20 notch", "defaultValue": "10" },
-            { "name": "Bước mũi tên", "what": "Mỗi lần nhấn mũi tên phát ra bao nhiêu notch.", "why": "Nhỏ hơn = điều hướng chính xác hơn.", "range": "1–10 notch", "defaultValue": "3" },
             { "name": "Cuộn touchpad mượt", "what": "Áp dụng easing cho input precision touchpad độ phân giải cao.", "why": "Touchpad phát delta cấp pixel; cái này làm mượt cả chúng.", "range": "Bật / Tắt", "defaultValue": "Bật" },
             { "name": "Hệ số pixel", "what": "Nhân raw pixel delta từ touchpad trước khi smoothing.", "why": "Khớp độ nhạy touchpad với chuột.", "range": "0.5–3.0×", "defaultValue": "1.0×" },
-            { "name": "Hệ số tăng tốc", "what": "Tăng cường flick lớn bằng hai ngón. 0 tắt acceleration hoàn toàn.", "why": "Cho phép flick nhanh đi xa hơn trong khi kéo nhỏ vẫn chính xác.", "range": "0–5", "defaultValue": "1" }
+            { "name": "Hệ số tăng tốc", "what": "Tăng cường flick lớn bằng hai ngón. 0 tắt acceleration hoàn toàn.", "why": "Cho phép flick nhanh đi xa hơn trong khi kéo nhỏ vẫn chính xác.", "range": "0–3", "defaultValue": "1" }
           ]
         },
         {
@@ -127,9 +125,9 @@
           "label": "Nâng cao",
           "intro": "Khu vực tinh chỉnh sâu. Chạm vào khi mặc định không khớp với tay bạn.",
           "settings": [
-            { "name": "Cửa sổ tăng tốc", "what": "Khoảng thời gian các notch liên tiếp tích lũy đà.", "why": "Cho phép flick nhanh cuộn xa hơn mà không cần tick nhanh hơn.", "range": "0–500 ms", "defaultValue": "70 ms", "tip": "Cao hơn = tích đà nhiều hơn. Đặt 0 để tắt acceleration." },
+            { "name": "Cửa sổ tăng tốc", "what": "Khoảng thời gian các notch liên tiếp tích lũy đà.", "why": "Cho phép flick nhanh cuộn xa hơn mà không cần tick nhanh hơn.", "range": "0–300 ms", "defaultValue": "70 ms", "tip": "Cao hơn = tích đà nhiều hơn. Đặt 0 để tắt acceleration." },
             { "name": "Acceleration tối đa", "what": "Giới hạn cứng cho hệ số acceleration.", "why": "Ngăn tốc độ tăng vô tội vạ khi xoay nhanh.", "range": "1–20×", "defaultValue": "10×" },
-            { "name": "Tỉ lệ đuôi/đầu", "what": "Đường cong giảm tốc sắc bao nhiêu.", "why": "Cao hơn = bắt đầu nhanh hơn, đuôi dài hơn.", "range": "1–10", "defaultValue": "3" },
+            { "name": "Tỉ lệ đuôi/đầu", "what": "Đường cong giảm tốc sắc bao nhiêu.", "why": "Cao hơn = bắt đầu nhanh hơn, đuôi dài hơn.", "range": "1–20", "defaultValue": "3" },
             { "name": "Pass-through Ctrl + wheel", "what": "Khi giữ Ctrl, gửi tick wheel thô (không smoothing).", "why": "Photoshop, Figma, browser, VS Code dùng Ctrl+wheel để zoom — smoothing sẽ làm lag zoom.", "range": "Bật / Tắt", "defaultValue": "Bật" },
             { "name": "Pass-through Alt + wheel", "what": "Khi giữ Alt, gửi tick wheel thô.", "why": "Premiere, DAW, và timeline editor zoom hoặc scrub bằng Alt+wheel.", "range": "Bật / Tắt", "defaultValue": "Tắt" },
             { "name": "Xóa quán tính khi nhấn modifier", "what": "Dừng cuộn smooth đang chờ ngay lập tức khi nhấn Ctrl/Alt.", "why": "Làm zoom cảm giác tức thì sau một cuộn smooth.", "range": "Bật / Tắt", "defaultValue": "Bật" },
@@ -164,7 +162,6 @@
             { "name": "Tổ hợp phím tắt", "what": "Click vào ô, rồi nhấn các phím bạn muốn.", "why": "Tránh xung đột với ứng dụng khác.", "range": "Bất kỳ tổ hợp modifier+phím", "defaultValue": "Ctrl+Alt+S" },
             { "name": "Khởi động cùng Windows / macOS", "what": "Chạy SmoothScroll khi đăng nhập.", "why": "Cài và quên — cuộn mượt từ giây đầu mỗi phiên.", "range": "Bật / Tắt", "defaultValue": "Tắt" },
             { "name": "Khởi động ẩn vào tray", "what": "Bỏ qua cửa sổ cài đặt khi khởi động.", "why": "Kết hợp với Khởi động cùng Windows cho trải nghiệm chạy nền hoàn toàn.", "range": "Bật / Tắt", "defaultValue": "Bật" },
-            { "name": "Hiện trạng thái icon tray", "what": "Icon tray đổi visual giữa BẬT và TẮT.", "why": "Xác nhận liếc qua là biết smoothing đang hoạt động.", "range": "Bật / Tắt", "defaultValue": "Bật" },
             { "name": "Tôn trọng Reduce Motion của OS", "what": "Ba chế độ — Auto (theo OS), Luôn instant, Luôn smooth.", "why": "Tự động tôn trọng tùy chọn accessibility.", "range": "Auto / Luôn instant / Luôn smooth", "defaultValue": "Auto" }
           ]
         },
@@ -236,12 +233,12 @@
       "title": "Mẹo & công thức",
       "subtitle": "Preset đã được kiểm chứng cho các workflow phổ biến. Mở Ứng dụng → Hồ sơ để lưu chúng.",
       "items": [
-        { "name": "Đọc dài", "scenario": "PDF, bài viết, sách — lướt qua hoặc đọc kỹ mà không mất vị trí.", "suggestion": "Preset Glide", "settings": ["Step size: 200 px", "Animation time: 320 ms", "Easing: Quintic Out", "Acceleration max: 6×"] },
-        { "name": "Code trong VS Code / JetBrains", "scenario": "Điều hướng code không bị quá đà và mất dòng.", "suggestion": "Preset Balanced", "settings": ["Step size: 96 px", "Animation time: 180 ms", "Easing: Cubic Out", "Acceleration max: 4×"] },
+        { "name": "Đọc dài", "scenario": "PDF, bài viết, sách — lướt qua hoặc đọc kỹ mà không mất vị trí.", "suggestion": "Preset Slow", "settings": ["Step size: 80 px", "Animation time: 600 ms", "Easing: Quintic Out", "Acceleration max: 4×"] },
+        { "name": "Code trong VS Code / JetBrains", "scenario": "Điều hướng code không bị quá đà và mất dòng.", "suggestion": "Preset Default + modifier passthrough", "settings": ["Step size: 144 px", "Animation time: 220 ms", "Easing: Quintic Out", "Acceleration max: 10×", "Nâng cao → Pass-through Ctrl+wheel: BẬT", "Nâng cao → Pass-through Alt+wheel: BẬT", "Nâng cao → Xóa quán tính khi modifier: BẬT"] },
         { "name": "Photoshop / Figma / Illustrator", "scenario": "Hay zoom Ctrl+wheel; cuộn mượt trong panel layer.", "suggestion": "Mặc định + Ctrl pass-through BẬT", "settings": ["Mặc định là tuyệt", "Nâng cao → Pass-through Ctrl+wheel: BẬT", "Nâng cao → Xóa quán tính khi modifier: BẬT"] },
         { "name": "Premiere / DAW", "scenario": "Scrub timeline bằng Alt+wheel.", "suggestion": "Mặc định + Alt pass-through BẬT", "settings": ["Nâng cao → Pass-through Alt+wheel: BẬT", "Ứng dụng → gán hồ sơ Snappy cho editor"] },
         { "name": "Chơi game", "scenario": "Bánh xe vũ khí, scope zoom — bất kỳ thứ gì đọc notch thô.", "suggestion": "Game mode tự tắt", "settings": ["Game mode → Tự tắt trong game: BẬT", "Thêm process game vào danh sách (vd. csgo.exe)"] },
-        { "name": "Laptop chạy pin", "scenario": "Tận dụng từng phút — giảm tải CPU.", "suggestion": "Preset Snappy", "settings": ["Animation time: 120 ms", "Easing: Cubic Out", "Hành vi → Reduce motion: Auto"] }
+        { "name": "Laptop chạy pin", "scenario": "Tận dụng từng phút — giảm tải CPU.", "suggestion": "Preset Snappy", "settings": ["Step size: 200 px", "Animation time: 200 ms", "Easing: Cubic Out", "Acceleration max: 14×", "Hành vi → Reduce motion: Auto"] }
       ]
     },
     "privacy": {
@@ -255,6 +252,16 @@
         "Log xoay vòng hàng ngày, giữ 7 ngày, ở lại trên thiết bị.",
         "Source-available theo FSL-1.1 → tự động Apache 2.0 sau 2 năm."
       ]
+    },
+    "easingViz": {
+      "title": "Đường cong easing",
+      "subtitle": "Click vào đường cong để làm nổi bật.",
+      "curves": {
+        "exponentialOut": "Exponential Out",
+        "cubicOut": "Cubic Out",
+        "quinticOut": "Quintic Out",
+        "linear": "Linear"
+      }
     },
     "finalCta": {
       "title": "Sẵn sàng cảm nhận sự khác biệt?",

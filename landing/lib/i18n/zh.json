@@ -26,12 +26,12 @@
   "features": {
     "title": "你需要的一切，不需要的一概不要",
     "items": [
-      { "title": "零配置", "description": "安装即体验，无需任何设置。" },
-      { "title": "原生手感", "description": "使用与高端触控板相同的物理曲线。滚动如丝般顺滑。" },
-      { "title": "按应用配置", "description": "Chrome、VS Code、Adobe 全家桶各有最佳参数。" },
-      { "title": "省电友好", "description": "空闲时 CPU 占用几乎为零。电池毫无感知。" },
-      { "title": "隐私优先", "description": "无遥测、无网络请求、无数据收集。永不。" },
-      { "title": "即时开关", "description": "托盘一键切换，无需重启。" }
+      { "title": "六个一键预设", "description": "Slow、Default、Fast、Snappy、Mac-like、Linear — 一键选中最适合你手感的预设。" },
+      { "title": "精细调节", "description": "步长、动画时间、缓动曲线、加速 — 每个滑块都为真实使用场景调校。" },
+      { "title": "按应用配置", "description": "Chrome、VS Code、Adobe 各有最佳参数。App 自动推荐合适预设。" },
+      { "title": "触控板 + 鼠标分别处理", "description": "精密触控板有独立的像素倍增和加速参数。鼠标滚轮独立运行。" },
+      { "title": "游戏模式自动禁用", "description": "已知游戏全屏时 SmoothScroll 自动暂停。原始输入得到保留。" },
+      { "title": "隐私优先", "description": "无遥测、无网络请求、无数据收集。设置和日志留在你的设备上。" }
     ]
   },
   "useCases": {
@@ -78,7 +78,8 @@
     "demo": {
       "caption": "每个标签，每项设置 — 实时录制",
       "alt": "SmoothScroll 设置窗口动画演示：滚动、设备、高级、应用、游戏模式、行为、关于",
-      "hint": "提示：每个标签下方都有专属介绍。"
+      "hint": "提示：每个标签下方都有专属介绍。",
+      "placeholder": "截图即将上线 — 请将应用截图放置于 public/assets/screen.gif"
     },
     "bigPicture": {
       "title": "整体流程",
@@ -97,13 +98,13 @@
         {
           "id": "scroll",
           "label": "滚动",
-          "intro": "主要的手感控制。大多数用户只会动这个标签。",
+          "intro": "主要手感控制。六个一键预设覆盖 90% 的使用场景——也可以深入滑块微调。",
           "settings": [
             { "name": "启用", "what": "总开关。关 = 系统原生滚动，开 = SmoothScroll 引擎。", "why": "无需卸载即可快速 A/B。也绑定到全局快捷键。", "range": "开 / 关", "defaultValue": "开", "tip": "用全局快捷键 (Ctrl+Alt+S) 切换，无需离开键盘。" },
-            { "name": "步长", "what": "每个滚轮 notch 滚动的像素数。", "why": "越大每次点击覆盖越多页面；越小越精细。", "range": "24–300 px", "defaultValue": "144 px", "tip": "代码审阅降到 96，长 PDF 升到 200。" },
-            { "name": "动画时间", "what": "每次滚动稳定下来需要多久。", "why": "越长越丝滑；越短反应越快。", "range": "50–500 ms", "defaultValue": "220 ms", "tip": "120 ms 以下几乎像原生；300 ms 以上有 Mac 触控板感。" },
+            { "name": "步长", "what": "每个滚轮 notch 滚动的像素数。", "why": "越大每次点击覆盖越多页面；越小越精细。", "range": "10–500 px", "defaultValue": "144 px", "tip": "代码审阅降到 96，长 PDF 升到 200。" },
+            { "name": "动画时间", "what": "每次滚动稳定下来需要多久。", "why": "越长越丝滑；越短反应越快。", "range": "50–1500 ms", "defaultValue": "220 ms", "tip": "120 ms 以下几乎像原生；300 ms 以上有 Mac 触控板感。" },
             { "name": "平滑缓动", "what": "对每次移动应用缓动曲线。关 = 线性。", "why": "缓动让滚动自然而非机械。", "range": "开 / 关", "defaultValue": "开" },
-            { "name": "缓动曲线", "what": "四种 — Exponential Out、Cubic Out、Quintic Out、Linear。", "why": "每种曲线减速不同。Quintic 像 Mac；Linear 纯机械感。", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Exponential Out", "tip": "想要最长最平滑的尾巴试 Quintic。" },
+            { "name": "缓动曲线", "what": "四种 — Exponential Out、Cubic Out、Quintic Out、Linear。", "why": "每种曲线减速不同。Quintic 像 Mac；Linear 纯机械感。", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Quintic Out", "tip": "想要最长最平滑的尾巴试 Quintic。" },
             { "name": "反向", "what": "反转滚轮方向（自然式，类似 macOS）。", "why": "与你也用的 Mac 保持一致，或个人偏好。", "range": "开 / 关", "defaultValue": "关" },
             { "name": "平滑横向滚动", "what": "对倾斜滚轮和 Shift+滚轮应用平滑。", "why": "宽表格、时间轴、图片条。", "range": "开 / 关", "defaultValue": "开" },
             { "name": "Shift 转横向", "what": "按住 Shift 滚动变为横向滚动。", "why": "鼠标没有倾斜滚轮时有用。", "range": "开 / 关", "defaultValue": "开" }
@@ -112,14 +113,11 @@
         {
           "id": "devices",
           "label": "设备",
-          "intro": "键盘和精密触控板的平滑 — 与鼠标滚轮分开处理。",
+          "intro": "精密触控板的微调 — 与鼠标滚轮分开处理。",
           "settings": [
-            { "name": "启用键盘平滑（仅 Windows）", "what": "对 PageUp/Down 和方向键滚动应用缓动。", "why": "键盘导航享受同样的流畅感。", "range": "开 / 关", "defaultValue": "关", "tip": "启用『文本输入框中跳过』，方向键在文本框中正常工作。" },
-            { "name": "PageUp / PageDown 步长", "what": "一次 PageUp/PageDown 发出多少等效 notch。", "why": "为长文档调跳转距离。", "range": "1–20 notch", "defaultValue": "10" },
-            { "name": "方向键步长", "what": "每次方向键发出多少 notch。", "why": "越小导航越精确。", "range": "1–10 notch", "defaultValue": "3" },
             { "name": "平滑触控板滚动", "what": "对高分辨率精密触控板输入应用缓动。", "why": "触控板发送像素级 delta；这也会平滑它们。", "range": "开 / 关", "defaultValue": "开" },
             { "name": "像素倍增", "what": "在平滑前缩放原始触控板像素 delta。", "why": "让触控板灵敏度匹配滚轮。", "range": "0.5–3.0×", "defaultValue": "1.0×" },
-            { "name": "加速因子", "what": "增强大幅双指甩动。0 完全禁用加速。", "why": "让快速甩动走得更远，同时小拖动保持精准。", "range": "0–5", "defaultValue": "1" }
+            { "name": "加速因子", "what": "增强大幅双指甩动。0 完全禁用加速。", "why": "让快速甩动走得更远，同时小拖动保持精准。", "range": "0–3", "defaultValue": "1" }
           ]
         },
         {
@@ -127,9 +125,9 @@
           "label": "高级",
           "intro": "深度调校面板。默认手感不合手时再来动。",
           "settings": [
-            { "name": "加速窗口", "what": "连续 notch 累积动量的时间窗口。", "why": "让快速甩动滚得更远，无需更快的 tick。", "range": "0–500 ms", "defaultValue": "70 ms", "tip": "越高动量积累越多。设为 0 禁用加速。" },
+            { "name": "加速窗口", "what": "连续 notch 累积动量的时间窗口。", "why": "让快速甩动滚得更远，无需更快的 tick。", "range": "0–300 ms", "defaultValue": "70 ms", "tip": "越高动量积累越多。设为 0 禁用加速。" },
             { "name": "最大加速", "what": "加速倍数的硬上限。", "why": "防止快速旋转时速度失控。", "range": "1–20×", "defaultValue": "10×" },
-            { "name": "尾首比", "what": "减速曲线有多陡。", "why": "越高初始速度越快，慢尾越长。", "range": "1–10", "defaultValue": "3" },
+            { "name": "尾首比", "what": "减速曲线有多陡。", "why": "越高初始速度越快，慢尾越长。", "range": "1–20", "defaultValue": "3" },
             { "name": "Ctrl + 滚轮直通", "what": "按住 Ctrl 时发送原始 tick（无平滑）。", "why": "Photoshop、Figma、浏览器、VS Code 用 Ctrl+滚轮缩放 — 平滑会让缩放卡顿。", "range": "开 / 关", "defaultValue": "开" },
             { "name": "Alt + 滚轮直通", "what": "按住 Alt 时发送原始 tick。", "why": "Premiere、DAW 和时间轴编辑器用 Alt+滚轮缩放或拖动。", "range": "开 / 关", "defaultValue": "关" },
             { "name": "按下 modifier 时清除惯性", "what": "按下 Ctrl/Alt 时立即停止待处理的平滑滚动。", "why": "让平滑滚动后的缩放感觉立即响应。", "range": "开 / 关", "defaultValue": "开" },
@@ -164,7 +162,6 @@
             { "name": "快捷键组合", "what": "点击输入框，按你想要的键。", "why": "避免与其他应用冲突。", "range": "任何 modifier+键组合", "defaultValue": "Ctrl+Alt+S" },
             { "name": "随 Windows / macOS 启动", "what": "登录时启动 SmoothScroll。", "why": "设置后忘记 — 每个会话第一秒就有平滑滚动。", "range": "开 / 关", "defaultValue": "关" },
             { "name": "启动时最小化到托盘", "what": "启动时跳过设置窗口。", "why": "搭配随系统启动得到完全后台体验。", "range": "开 / 关", "defaultValue": "开" },
-            { "name": "显示托盘图标状态", "what": "托盘图标在 ON 和 OFF 间视觉切换。", "why": "一眼确认平滑是否激活。", "range": "开 / 关", "defaultValue": "开" },
             { "name": "尊重系统减少动效", "what": "三种模式 — 自动（跟随系统）、始终即时、始终平滑。", "why": "自动尊重无障碍偏好。", "range": "自动 / 始终即时 / 始终平滑", "defaultValue": "自动" }
           ]
         },
@@ -236,12 +233,12 @@
       "title": "技巧与配方",
       "subtitle": "为常见工作流量身定制的预设。打开『应用 → 配置文件』保存它们。",
       "items": [
-        { "name": "长文阅读", "scenario": "PDF、文章、书 — 不丢失位置地浏览或细品。", "suggestion": "Glide 预设", "settings": ["步长：200 px", "动画时间：320 ms", "缓动：Quintic Out", "最大加速：6×"] },
-        { "name": "VS Code / JetBrains 编程", "scenario": "导航代码不会过冲丢行。", "suggestion": "Balanced 预设", "settings": ["步长：96 px", "动画时间：180 ms", "缓动：Cubic Out", "最大加速：4×"] },
+        { "name": "长文阅读", "scenario": "PDF、文章、书 — 不丢失位置地浏览或细品。", "suggestion": "Slow 预设", "settings": ["步长：80 px", "动画时间：600 ms", "缓动：Quintic Out", "最大加速：4×"] },
+        { "name": "VS Code / JetBrains 编程", "scenario": "导航代码不会过冲丢行。", "suggestion": "Default 预设 + modifier passthrough", "settings": ["步长：144 px", "动画时间：220 ms", "缓动：Quintic Out", "最大加速：10×", "高级 → Ctrl+滚轮直通：开", "高级 → Alt+滚轮直通：开", "高级 → modifier 时清除惯性：开"] },
         { "name": "Photoshop / Figma / Illustrator", "scenario": "频繁 Ctrl+滚轮缩放；图层面板内平滑滚动。", "suggestion": "默认 + Ctrl 直通开", "settings": ["默认就很好", "高级 → Ctrl+滚轮直通：开", "高级 → modifier 时清除惯性：开"] },
         { "name": "Premiere / DAW", "scenario": "Alt+滚轮拖动时间轴。", "suggestion": "默认 + Alt 直通开", "settings": ["高级 → Alt+滚轮直通：开", "应用 → 给编辑器分配 Snappy 配置"] },
         { "name": "游戏", "scenario": "武器轮、缩放镜 — 任何读取原始 notch 的东西。", "suggestion": "游戏模式自动禁用", "settings": ["游戏模式 → 游戏中自动禁用：开", "把游戏进程加入列表（如 csgo.exe）"] },
-        { "name": "笔记本电池模式", "scenario": "争取每一分钟 — 减少 CPU 工作。", "suggestion": "Snappy 预设", "settings": ["动画时间：120 ms", "缓动：Cubic Out", "行为 → 减少动效：自动"] }
+        { "name": "笔记本电池模式", "scenario": "争取每一分钟 — 减少 CPU 工作。", "suggestion": "Snappy 预设", "settings": ["步长：200 px", "动画时间：200 ms", "缓动：Cubic Out", "最大加速：14×", "行为 → 减少动效：自动"] }
       ]
     },
     "privacy": {
@@ -255,6 +252,16 @@
         "日志每日轮换，保留 7 天，留在你的设备上。",
         "源代码可见许可 FSL-1.1 → 2 年后自动转 Apache 2.0。"
       ]
+    },
+    "easingViz": {
+      "title": "缓动曲线",
+      "subtitle": "点击曲线以高亮显示。",
+      "curves": {
+        "exponentialOut": "Exponential Out",
+        "cubicOut": "Cubic Out",
+        "quinticOut": "Quintic Out",
+        "linear": "Linear"
+      }
     },
     "finalCta": {
       "title": "准备好感受不同了吗？",

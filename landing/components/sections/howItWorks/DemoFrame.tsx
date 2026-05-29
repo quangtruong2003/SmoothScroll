@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 import { FadeUp } from '@/components/motion/FadeUp'
 import type { Dictionary } from '@/lib/i18n/dict'
 
@@ -11,21 +12,52 @@ interface DemoFrameProps {
 }
 
 export function DemoFrame({ demo }: DemoFrameProps) {
+  const [imgError, setImgError] = useState(false)
+  const hasImage = !imgError
+
   return (
     <section className="px-4 pb-16 sm:pb-24">
       <div className="container max-w-5xl">
         <FadeUp>
           <div className="relative rounded-2xl border border-border overflow-hidden shadow-2xl shadow-primary/5">
-            <div className="overflow-hidden rounded-lg border border-border/60 bg-background">
-              <Image
-                src={`${BASE_PATH}/assets/screen.gif`}
-                alt={demo.alt ?? ''}
-                width={1600}
-                height={1000}
-                className="h-auto w-full"
-                unoptimized
-                priority
-              />
+            {/* Browser chrome */}
+            <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b border-border">
+              <div className="flex gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-red-400/80" />
+                <div className="h-3 w-3 rounded-full bg-yellow-400/80" />
+                <div className="h-3 w-3 rounded-full bg-green-400/80" />
+              </div>
+              <div className="flex-1 rounded bg-background/80 border border-border px-3 py-1 text-xs text-muted-foreground text-center">
+                quangtruong2003.github.io/SmoothScroll/{BASE_PATH && BASE_PATH !== '' ? `${BASE_PATH}/` : ''}en/how-it-works
+              </div>
+            </div>
+
+            <div className="overflow-hidden bg-background">
+              {hasImage ? (
+                <Image
+                  src={`${BASE_PATH}/assets/screen.gif`}
+                  alt={demo.alt ?? ''}
+                  width={1600}
+                  height={1000}
+                  className="h-auto w-full"
+                  unoptimized
+                  priority
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 py-24 px-8 bg-gradient-to-br from-brand-from/10 to-brand-to/10 border border-dashed border-border m-4 rounded-xl">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-muted-foreground" aria-hidden>
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <path d="m21 15-5-5L5 21" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center max-w-sm">
+                    {demo.placeholder}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </FadeUp>

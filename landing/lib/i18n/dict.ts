@@ -125,6 +125,7 @@ export interface Dictionary {
       caption?: string
       alt?: string
       hint?: string
+      placeholder?: string
     }
     bigPicture?: {
       title?: string
@@ -171,6 +172,16 @@ export interface Dictionary {
     privacy?: {
       title?: string
       points?: string[]
+    }
+    easingViz?: {
+      title?: string
+      subtitle?: string
+      curves?: {
+        exponentialOut?: string
+        cubicOut?: string
+        quinticOut?: string
+        linear?: string
+      }
     }
     finalCta?: {
       title?: string

@@ -35,8 +35,8 @@ export function ShortcutsTable({ shortcuts }: ShortcutsTableProps) {
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <div className="mt-8 overflow-hidden rounded-xl border bg-card">
-            <table className="w-full text-sm">
+          <div className="mt-8 overflow-x-auto rounded-xl border bg-card">
+            <table className="w-full text-sm min-w-[480px]">
               <thead>
                 <tr className="border-b bg-muted/30 text-xs uppercase tracking-wider text-muted-foreground">
                   <th className="text-left font-medium px-4 sm:px-5 py-3">

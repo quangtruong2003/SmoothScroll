@@ -94,7 +94,7 @@ export default async function HowItWorksPage({
       />
       <DemoFrame demo={h.demo} />
       <BigPicture bigPicture={h.bigPicture} />
-      <TabSections tabs={h.tabs} />
+      <TabSections tabs={h.tabs} dict={dict} />
       <ShortcutsTable shortcuts={h.shortcuts} />
       <TrayActions tray={h.tray} />
       <Recipes recipes={h.recipes} />

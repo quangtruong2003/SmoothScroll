@@ -9,7 +9,6 @@ import { Indie } from '@/components/sections/Indie'
 import { Install } from '@/components/sections/Install'
 import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
-import { StickyDownloadBar } from '@/components/StickyDownloadBar'
 import { getDictionary, locales, type Locale } from '@/lib/i18n/dict'
 
 export function generateStaticParams() {
@@ -31,12 +30,6 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
       <TrayPreviewSection dict={{ trayPreview: dict.trayPreview }} />
       <Stats dict={{ stats: dict.stats }} />
       <Indie dict={{ indie: dict.indie }} />
-      <StickyDownloadBar
-        ctaLabel={dict.hero?.cta ?? 'Download'}
-        ctaLabelMac={dict.hero?.ctaMac}
-        fallbackCta={dict.hero?.ctaFallback ?? 'Download'}
-        betaBadge={dict.beta?.badge ?? 'BETA'}
-      />
       <Install dict={{ install: dict.install, beta: dict.beta }} />
       <FAQ dict={{ faq: dict.faq }} />
       <FinalCTA dict={{ finalCta: dict.finalCta, beta: dict.beta }} />

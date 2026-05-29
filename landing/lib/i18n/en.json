@@ -40,12 +40,12 @@
   "features": {
     "title": "Everything you need, nothing you don't",
     "items": [
-      { "title": "Zero configuration", "description": "Install and feel the difference immediately. No settings to tweak." },
-      { "title": "Native feel", "description": "Uses the same physics curve as premium trackpads. Scroll feels inevitable." },
-      { "title": "Per-app profiles", "description": "Different smoothing for Chrome vs VS Code vs Adobe apps." },
-      { "title": "Battery friendly", "description": "Runs at near-zero CPU when idle. Your battery won't notice it." },
-      { "title": "Privacy-first", "description": "No telemetry, no network calls, no data collection. Ever." },
-      { "title": "Instant on/off", "description": "Toggle from the system tray. No restart required." }
+      { "title": "Six one-click presets", "description": "Slow, Default, Fast, Snappy, Mac-like, Linear — pick the feel that matches your hand in one click." },
+      { "title": "Fine-grained control", "description": "Step size, animation time, easing curve, acceleration — every slider tuned for real use cases." },
+      { "title": "Per-app profiles", "description": "Different smoothing for Chrome vs VS Code vs Adobe apps. The app auto-suggests the right preset." },
+      { "title": "Touchpad + mouse smoothing", "description": "Separate pixel multiplier and acceleration for precision touchpads. Mouse wheel is independent." },
+      { "title": "Game mode auto-disable", "description": "SmoothScroll pauses automatically when a known game goes fullscreen. Raw input is preserved." },
+      { "title": "Privacy-first", "description": "No telemetry, no network calls, no data collection. Settings and logs stay on your device." }
     ]
   },
   "useCases": {
@@ -159,7 +159,8 @@
     "demo": {
       "caption": "Every tab, every setting — recorded in real time",
       "alt": "Animated walkthrough of the SmoothScroll settings window: Scroll, Devices, Advanced, Apps, Game mode, Behavior, About",
-      "hint": "Tip: each tab gets its own tour below."
+      "hint": "Tip: each tab gets its own tour below.",
+      "placeholder": "Screenshot coming soon — place your app screenshot at public/assets/screen.gif"
     },
     "bigPicture": {
       "title": "The big picture",
@@ -178,13 +179,13 @@
         {
           "id": "scroll",
           "label": "Scroll",
-          "intro": "The main feel controls. Most users only ever touch this tab.",
+          "intro": "The main feel controls. Six one-click presets cover 90% of use cases — or dive into the sliders for fine-tuning.",
           "settings": [
             { "name": "Enable", "what": "Master toggle. Off = native OS scroll, on = SmoothScroll engine.", "why": "Quick A/B without uninstalling. Also bound to your global hotkey.", "range": "On / Off", "defaultValue": "On", "tip": "Use the global hotkey (Ctrl+Alt+S) to flip this without leaving your keyboard." },
-            { "name": "Step size", "what": "Pixels scrolled per wheel notch.", "why": "Bigger = covers more page per click; smaller = finer control.", "range": "24–300 px", "defaultValue": "144 px", "tip": "Drop to 96 for code review, raise to 200 for long PDFs." },
-            { "name": "Animation time", "what": "How long each scroll movement takes to settle.", "why": "Longer = silkier glide; shorter = snappier response.", "range": "50–500 ms", "defaultValue": "220 ms", "tip": "Anything under 120 ms feels almost native; over 300 ms feels mac-trackpad-y." },
+            { "name": "Step size", "what": "Pixels scrolled per wheel notch.", "why": "Bigger = covers more page per click; smaller = finer control.", "range": "10–500 px", "defaultValue": "144 px", "tip": "Drop to 96 for code review, raise to 200 for long PDFs." },
+            { "name": "Animation time", "what": "How long each scroll movement takes to settle.", "why": "Longer = silkier glide; shorter = snappier response.", "range": "50–1500 ms", "defaultValue": "220 ms", "tip": "Anything under 120 ms feels almost native; over 300 ms feels mac-trackpad-y." },
             { "name": "Smooth easing", "what": "Apply an easing curve to each movement. Off = linear ramp.", "why": "Easing is what makes scroll feel natural instead of robotic.", "range": "On / Off", "defaultValue": "On" },
-            { "name": "Easing curve", "what": "Four shapes — Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Each curve decelerates differently. Quintic feels mac-like; Linear feels purely mechanical.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Exponential Out", "tip": "Try Quintic if you want the longest, smoothest tail." },
+            { "name": "Easing curve", "what": "Four shapes — Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Each curve decelerates differently. Quintic feels mac-like; Linear feels purely mechanical.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Quintic Out", "tip": "Try Quintic if you want the longest, smoothest tail." },
             { "name": "Reverse direction", "what": "Inverts wheel direction (natural-style, like macOS).", "why": "Match a Mac you also use, or just preference.", "range": "On / Off", "defaultValue": "Off" },
             { "name": "Smooth horizontal scrolling", "what": "Apply smoothing to tilt-wheel and Shift+wheel scrolls.", "why": "Wide spreadsheets, timelines, image strips.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Shift converts to horizontal", "what": "Holding Shift while scrolling becomes horizontal scroll.", "why": "Useful when your mouse has no tilt-wheel.", "range": "On / Off", "defaultValue": "On" }
@@ -193,14 +194,11 @@
         {
           "id": "devices",
           "label": "Devices",
-          "intro": "Smoothing for keyboard scrolling and precision touchpads — separate from mouse-wheel handling.",
+          "intro": "Fine-tuning for precision touchpads — separate from mouse-wheel handling.",
           "settings": [
-            { "name": "Enable keyboard smoothing (Windows only)", "what": "Apply easing to PageUp/Down and arrow-key scrolling.", "why": "Same flow benefits as wheel smoothing, but for keyboard navigation.", "range": "On / Off", "defaultValue": "Off", "tip": "Enable 'Skip in text inputs' so arrow keys still work normally inside text fields." },
-            { "name": "PageUp / PageDown step", "what": "How many wheel-equivalent notches a single PageUp/PageDown emits.", "why": "Tune jump distance for long documents.", "range": "1–20 notches", "defaultValue": "10" },
-            { "name": "Arrow step", "what": "How many notches each arrow keypress emits.", "why": "Smaller = more precise navigation.", "range": "1–10 notches", "defaultValue": "3" },
             { "name": "Smooth touchpad scrolling", "what": "Apply easing to high-resolution precision touchpad input.", "why": "Touchpads emit pixel-level deltas; this smooths them too.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Pixel multiplier", "what": "Scale raw touchpad pixel deltas before smoothing.", "why": "Match touchpad sensitivity to your mouse wheel.", "range": "0.5–3.0×", "defaultValue": "1.0×" },
-            { "name": "Acceleration factor", "what": "Boost large two-finger flicks. 0 disables acceleration entirely.", "why": "Lets quick flicks travel farther while small drags stay precise.", "range": "0–5", "defaultValue": "1" }
+            { "name": "Acceleration factor", "what": "Boost large two-finger flicks. 0 disables acceleration entirely.", "why": "Lets quick flicks travel farther while small drags stay precise.", "range": "0–3", "defaultValue": "1" }
           ]
         },
         {
@@ -208,9 +206,9 @@
           "label": "Advanced",
           "intro": "The deep-tuning pane. Touch when defaults don't quite match your hand.",
           "settings": [
-            { "name": "Acceleration window", "what": "Time window during which consecutive notches stack momentum.", "why": "Lets quick flicks scroll farther without faster ticks.", "range": "0–500 ms", "defaultValue": "70 ms", "tip": "Higher = more momentum buildup. Set to 0 to disable acceleration." },
+            { "name": "Acceleration window", "what": "Time window during which consecutive notches stack momentum.", "why": "Lets quick flicks scroll farther without faster ticks.", "range": "0–300 ms", "defaultValue": "70 ms", "tip": "Higher = more momentum buildup. Set to 0 to disable acceleration." },
             { "name": "Max acceleration", "what": "Hard cap on the acceleration multiplier.", "why": "Prevents runaway speed during fast spinning.", "range": "1–20×", "defaultValue": "10×" },
-            { "name": "Tail to head ratio", "what": "How sharp the deceleration curve is.", "why": "Higher = quicker initial speed, longer slow tail.", "range": "1–10", "defaultValue": "3" },
+            { "name": "Tail to head ratio", "what": "How sharp the deceleration curve is.", "why": "Higher = quicker initial speed, longer slow tail.", "range": "1–20", "defaultValue": "3" },
             { "name": "Pass-through Ctrl + wheel", "what": "When Ctrl is held, send raw wheel ticks (no smoothing).", "why": "Photoshop, Figma, browsers, VS Code use Ctrl+wheel for zoom — smoothing would lag the zoom.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Pass-through Alt + wheel", "what": "When Alt is held, send raw wheel ticks.", "why": "Premiere, DAWs, and timeline editors zoom or scrub with Alt+wheel.", "range": "On / Off", "defaultValue": "Off" },
             { "name": "Clear inertia on modifier", "what": "Stop pending smooth scroll the instant Ctrl/Alt is pressed.", "why": "Makes zoom feel instant after a smooth scroll.", "range": "On / Off", "defaultValue": "On" },
@@ -245,7 +243,6 @@
             { "name": "Hotkey combination", "what": "Click the field, then press the keys you want.", "why": "Avoid clashing with other apps you use.", "range": "Any modifier+key combo", "defaultValue": "Ctrl+Alt+S" },
             { "name": "Start with Windows / macOS", "what": "Launches SmoothScroll on login.", "why": "Set-and-forget — smooth scroll from the first second of every session.", "range": "On / Off", "defaultValue": "Off" },
             { "name": "Start minimized to tray", "what": "Skip the settings window on launch.", "why": "Pair with Start with Windows for a fully background experience.", "range": "On / Off", "defaultValue": "On" },
-            { "name": "Show tray icon state", "what": "Tray icon visually flips between ON and OFF.", "why": "Glanceable confirmation that smoothing is active.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Respect system Reduce Motion", "what": "Three modes — Auto (follow OS), Always instant, Always smooth.", "why": "Honor accessibility preferences automatically.", "range": "Auto / Always instant / Always smooth", "defaultValue": "Auto" }
           ]
         },
@@ -317,12 +314,12 @@
       "title": "Pro tips & recipes",
       "subtitle": "Battle-tested presets for common workflows. Open Apps → Profiles to save them.",
       "items": [
-        { "name": "Long-form reading", "scenario": "PDFs, articles, books — skim or savor without losing your place.", "suggestion": "Glide preset", "settings": ["Step size: 200 px", "Animation time: 320 ms", "Easing: Quintic Out", "Acceleration max: 6×"] },
-        { "name": "Coding in VS Code / JetBrains", "scenario": "Navigate code without overshooting and losing your line.", "suggestion": "Balanced preset", "settings": ["Step size: 96 px", "Animation time: 180 ms", "Easing: Cubic Out", "Acceleration max: 4×"] },
+        { "name": "Long-form reading", "scenario": "PDFs, articles, books — skim or savor without losing your place.", "suggestion": "Slow preset", "settings": ["Step size: 80 px", "Animation time: 600 ms", "Easing: Quintic Out", "Acceleration max: 4×"] },
+        { "name": "Coding in VS Code / JetBrains", "scenario": "Navigate code without overshooting and losing your line.", "suggestion": "Default preset + modifier passthrough", "settings": ["Step size: 144 px", "Animation time: 220 ms", "Easing: Quintic Out", "Acceleration max: 10×", "Advanced → Pass-through Ctrl+wheel: ON", "Advanced → Pass-through Alt+wheel: ON", "Advanced → Clear inertia on modifier: ON"] },
         { "name": "Photoshop / Figma / Illustrator", "scenario": "Frequent Ctrl+wheel zoom; smooth scroll within layer panels.", "suggestion": "Default + Ctrl pass-through ON", "settings": ["Defaults are great", "Advanced → Pass-through Ctrl+wheel: ON", "Advanced → Clear inertia on modifier: ON"] },
         { "name": "Premiere / DAWs", "scenario": "Timeline scrubbing with Alt+wheel.", "suggestion": "Default + Alt pass-through ON", "settings": ["Advanced → Pass-through Alt+wheel: ON", "Apps → assign Snappy profile to your editor"] },
         { "name": "Gaming", "scenario": "Weapon wheel, zoom scope — anything that reads raw notches.", "suggestion": "Game mode auto-disable", "settings": ["Game mode → Auto-disable in games: ON", "Add your game's process to the list (e.g. csgo.exe)"] },
-        { "name": "Laptop on battery", "scenario": "Squeeze every minute — reduce CPU work.", "suggestion": "Snappy preset", "settings": ["Animation time: 120 ms", "Easing: Cubic Out", "Behavior → Reduce motion: Auto"] }
+        { "name": "Laptop on battery", "scenario": "Squeeze every minute — reduce CPU work.", "suggestion": "Snappy preset", "settings": ["Step size: 200 px", "Animation time: 200 ms", "Easing: Cubic Out", "Acceleration max: 14×", "Behavior → Reduce motion: Auto"] }
       ]
     },
     "privacy": {
@@ -336,6 +333,16 @@
         "Logs rotate daily, retained 7 days, stay on your device.",
         "Source-available under FSL-1.1 → auto Apache 2.0 after 2 years."
       ]
+    },
+    "easingViz": {
+      "title": "Easing curves",
+      "subtitle": "Click a curve to highlight it.",
+      "curves": {
+        "exponentialOut": "Exponential Out",
+        "cubicOut": "Cubic Out",
+        "quinticOut": "Quintic Out",
+        "linear": "Linear"
+      }
     },
     "finalCta": {
       "title": "Ready to feel the difference?",

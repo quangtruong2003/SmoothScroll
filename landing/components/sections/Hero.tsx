@@ -28,7 +28,7 @@ export function Hero({ dict, locale }: HeroProps) {
           <div className="flex flex-col items-center text-center gap-8">
             <Badge variant="secondary" className="w-fit">{eyebrow}</Badge>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[1.05] max-w-[14ch]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[1.05] max-w-[14ch]">
               {h.title}{' '}
               <span className="text-primary italic">
                 {h.titleAccent}

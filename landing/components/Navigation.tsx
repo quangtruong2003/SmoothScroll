@@ -35,7 +35,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
           : 'bg-transparent py-4'
       }`}
     >
-      <nav className="container flex items-center justify-between">
+      <nav className="container flex items-center justify-between gap-4">
         <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg">
           <Image
             src={`${BASE_PATH}/assets/icon-128.png`}
@@ -47,13 +47,13 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
           SmoothScroll
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {stars !== null && (
             <a
               href="https://github.com/quangtruong2003/SmoothScroll"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="hidden xl:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <Star className="h-4 w-4" />
               <span>{stars.toLocaleString()}</span>

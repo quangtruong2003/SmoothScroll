@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { FadeUp } from '@/components/motion/FadeUp'
+import { EasingCurveViz } from '@/components/EasingCurveViz'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 const TAB_ICONS: Record<string, LucideIcon> = {
@@ -26,9 +27,10 @@ const TAB_ICONS: Record<string, LucideIcon> = {
 
 interface TabSectionsProps {
   tabs: NonNullable<NonNullable<Dictionary['howItWorks']>['tabs']>
+  dict?: Dictionary
 }
 
-export function TabSections({ tabs }: TabSectionsProps) {
+export function TabSections({ tabs, dict }: TabSectionsProps) {
   const sections = tabs.sections ?? []
 
   return (
@@ -92,6 +94,11 @@ export function TabSections({ tabs }: TabSectionsProps) {
                 </FadeUp>
 
                 <div className="mt-8 grid sm:grid-cols-2 gap-4">
+                  {section.id === 'scroll' && (
+                    <div className="sm:col-span-2">
+                      <EasingCurveViz viz={dict?.howItWorks?.easingViz} />
+                    </div>
+                  )}
                   {(section.settings ?? []).map((setting, idx) => (
                     <FadeUp key={idx} delay={Math.min(idx, 4) * 0.04}>
                       <SettingCard setting={setting} />
