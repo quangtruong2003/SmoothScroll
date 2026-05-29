@@ -53,6 +53,7 @@ impl WasmEngine {
         let EngineOutput {
             vertical,
             horizontal,
+            zoom: _,
         } = self.engine.step(dt_ms, &self.eff);
         Box::new([vertical, horizontal])
     }
