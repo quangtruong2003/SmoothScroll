@@ -49,6 +49,11 @@ pub trait WheelEmitter: Send + Sync {
     fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()>;
 }
 
+/// Emits synthetic zoom events (Ctrl+Wheel).
+pub trait ZoomEmitter: Send + Sync {
+    fn emit_zoom(&self, units: i32) -> Result<()>;
+}
+
 /// Returned by `list_visible_processes`. Used by the UI picker.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ProcessInfo {
