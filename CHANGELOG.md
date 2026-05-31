@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-05-31
+
+### Added
+- introduce auto-disable feature for Windows apps with native smooth scrolling
 ## [1.2.1] - 2026-05-31
 
 ### Fixed
