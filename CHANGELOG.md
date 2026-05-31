@@ -7,6 +7,29 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-05-31
+
+### Added
+- complete Swift menu bar app (AppDelegate, views, MenuBarController, IPC, Settings)
+- IPC client and settings store
+- SwiftUI popover views
+- MenuBarController with NSStatusItem and NSPopover
+- Swift app entry point and AppDelegate
+- add XcodeGen project scaffold
+- add Swift menu bar app scaffold (XcodeGen, views, IPC)
+- add IPC socket server for Swift communication
+- implement is_trusted + wire platform bundle with ZoomEmitter
+- implement wheel emitter with CGEvent posting
+- add CGEventTap scroll interception
+- wire platform bundle with ZoomEmitter
+- is_trusted accessibility check
+- wheel emitter CGEvent emission
+- CGEventTap scroll interception
+
+### Fixed
+- resolve tokio version conflict by removing macros feature (provided by tauri)
+- dispatch crate version 2 -> 0.2
+- address review findings - CFRunLoop pump, FFI types, allocator types, unwrap fixes, memory safety
 ## [1.3.1] - 2026-05-31
 
 ### Fixed
