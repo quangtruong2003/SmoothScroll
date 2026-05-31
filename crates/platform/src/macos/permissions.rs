@@ -1,24 +1,23 @@
 //! macOS accessibility permission check.
 //!
-//! Uses the Application Services Accessibility API to determine whether this
+//! Uses AXIsProcessTrustedWithOptions to determine whether this
 //! process has been granted accessibility permissions (required for
 //! CGEventTap to intercept scroll events).
 
 #![cfg(target_os = "macos")]
 
-use std::ffi::c_void;
+use core_foundation::base::CFTypeRef;
+use core_foundation::boolean::CFBoolean;
+use core_foundation::dictionary::CFMutableDictionary;
+use core_foundation::string::CFString;
+use std::ptr;
 
-/// Raw FFI: AXIsProcessTrustedWithOptions checks accessibility trust.
+#[link(name = "ApplicationServices", kind = "framework")]
 extern "C" {
-    /// AXIsProcessTrustedWithOptions
-    /// Returns true (1) if the process is trusted, false (0) otherwise.
-    /// If options is non-null, it should be a CFDictionaryRef containing
-    /// kAXTrustedCheckOptionPrompt as a key.
-    fn AXIsProcessTrustedWithOptions(options: *const c_void) -> bool;
-
-    /// The key for the "prompt" option in the options dictionary.
-    static kAXTrustedCheckOptionPrompt: *const c_void;
+    fn AXIsProcessTrustedWithOptions(options: CFDictionaryRef) -> bool;
 }
+
+type CFDictionaryRef = CFTypeRef;
 
 /// Returns true if Accessibility permission is granted.
 ///
@@ -26,45 +25,13 @@ extern "C" {
 /// will display the standard "Accessibility access required" dialog.
 pub fn is_trusted(prompt: bool) -> bool {
     if prompt {
-        // Build a CFDictionary with kAXTrustedCheckOptionPrompt -> kCFBooleanTrue.
-        // Using CoreFoundation FFI to construct the dictionary.
-        unsafe {
-            let keys = [kAXTrustedCheckOptionPrompt];
-            let values = [kCFBooleanTrue];
-            let dict = CFDictionaryCreate(
-                std::ptr::null(),
-                keys.as_ptr(),
-                values.as_ptr(),
-                1,
-                &kCFTypeDictionaryKeyCallBacks,
-                &kCFTypeDictionaryValueCallBacks,
-            );
-            let trusted = AXIsProcessTrustedWithOptions(dict as *const c_void);
-            if !dict.is_null() {
-                CFRelease(dict);
-            }
-            trusted
-        }
+        // Build a CFDictionary with kAXTrustedCheckOptionPrompt = true.
+        let key = CFString::from_static_string("kAXTrustedCheckOptionPrompt");
+        let mut dict = CFMutableDictionary::from_CFType_refs(&[
+            (key.as_CFType(), CFBoolean::true_value().as_CFType()),
+        ]);
+        unsafe { AXIsProcessTrustedWithOptions(dict.as_concrete_TypeRef() as CFDictionaryRef) }
     } else {
-        // Just check without prompting (pass null options).
-        unsafe { AXIsProcessTrustedWithOptions(std::ptr::null()) }
+        unsafe { AXIsProcessTrustedWithOptions(ptr::null_mut()) }
     }
-}
-
-/// CoreFoundation FFI helpers.
-extern "C" {
-    fn CFDictionaryCreate(
-        allocator: *mut c_void,
-        keys: *const *const c_void,
-        values: *const *const c_void,
-        num_values: isize,
-        key_callbacks: *const c_void,
-        value_callbacks: *const c_void,
-    ) -> *mut c_void;
-
-    fn CFRelease(cf: *mut c_void);
-
-    static kCFBooleanTrue: *const c_void;
-    static kCFTypeDictionaryKeyCallBacks: c_void;
-    static kCFTypeDictionaryValueCallBacks: c_void;
 }

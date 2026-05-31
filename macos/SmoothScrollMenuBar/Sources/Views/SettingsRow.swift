@@ -6,7 +6,7 @@ struct SettingsRow: View {
     @Binding var isOn: Bool
 
     var body: some View {
-        Toggle(isOn: ) {
+        Toggle(isOn: $isOn) {
             HStack(spacing: 8) {
                 Text(icon)
                     .font(.system(size: 14))

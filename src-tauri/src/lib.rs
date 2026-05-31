@@ -1,5 +1,7 @@
 //! App entry point. Composition Root.
 
+#[cfg(target_os = "macos")]
+mod ipc_socket_server;
 mod commands;
 mod edge_scroll_thread;
 mod engine_thread;

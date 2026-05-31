@@ -6,7 +6,7 @@ struct DirectionSyncSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Text("U{1F504}")
+                Text("🔄")
                     .font(.system(size: 14))
                 Text("Direction Sync")
                     .font(.system(size: 12, weight: .semibold))
@@ -16,7 +16,7 @@ struct DirectionSyncSection: View {
             SettingsRow(
                 icon: "",
                 title: "Sync Trackpad & Mouse",
-                isOn: .directionSyncEnabled
+                isOn: $settings.directionSyncEnabled
             )
             .onChange(of: settings.directionSyncEnabled) { _, newValue in
                 Task {
@@ -24,16 +24,15 @@ struct DirectionSyncSection: View {
                 }
             }
 
-            // Visual comparison.
             HStack(spacing: 8) {
                 DeviceDirectionCard(
-                    device: "U{1F4BB}",
+                    device: "💻",
                     label: "Trackpad",
                     direction: "Natural",
                     isActive: !settings.directionSyncEnabled
                 )
                 DeviceDirectionCard(
-                    device: "U{1F5B1}U{FE0F}",
+                    device: "🖱️",
                     label: "Mouse",
                     direction: settings.directionSyncEnabled ? "Synced" : "Reversed",
                     isActive: settings.directionSyncEnabled

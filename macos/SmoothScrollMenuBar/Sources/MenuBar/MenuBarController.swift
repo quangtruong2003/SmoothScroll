@@ -6,11 +6,9 @@ class MenuBarController: NSObject {
     private var popover: NSPopover!
 
     func setup() {
-        // Create the status bar item.
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            // Use a template image so it adapts to light/dark mode automatically.
             if let image = NSImage(systemSymbolName: "scroll", accessibilityDescription: "SmoothScroll") {
                 image.isTemplate = true
                 button.image = image
@@ -22,10 +20,9 @@ class MenuBarController: NSObject {
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
 
-        // Create the popover.
         popover = NSPopover()
         popover.contentSize = NSSize(width: 300, height: 340)
-        popover.behavior = .transient          // Closes when clicking outside.
+        popover.behavior = .transient
         popover.animates = true
         popover.contentViewController = NSHostingController(
             rootView: SmoothScrollPopover()

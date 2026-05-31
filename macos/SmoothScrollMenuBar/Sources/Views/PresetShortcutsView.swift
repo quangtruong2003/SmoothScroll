@@ -5,7 +5,6 @@ struct PresetShortcutsView: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            // Preset buttons.
             HStack(spacing: 8) {
                 PresetButton(label: "Balanced", shortcut: "⌘1", isActive: settings.speedPreset == "balanced") {
                     Task { try? await IPCClient.shared.setPreset("balanced") }
@@ -20,7 +19,6 @@ struct PresetShortcutsView: View {
 
             Divider()
 
-            // Action shortcuts.
             HStack {
                 ActionShortcut(label: "⌘D DirSync", action: "Toggle") {
                     settings.directionSyncEnabled.toggle()

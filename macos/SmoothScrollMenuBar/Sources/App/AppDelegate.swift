@@ -5,17 +5,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Prevent App Nap from throttling our scroll interception.
         ProcessInfo.processInfo.beginActivity(
             options: .userInitiated,
             reason: "SmoothScroll scroll event interception active"
         )
 
-        // Initialize the menu bar.
         menuBarController = MenuBarController()
         menuBarController?.setup()
 
-        // Connect to the Rust IPC socket.
         Task {
             do {
                 try await IPCClient.shared.connect()

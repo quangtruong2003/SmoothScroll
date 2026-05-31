@@ -6,7 +6,7 @@ struct SmoothScrollSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Text("U{1F30A}")
+                Text("🌊")
                     .font(.system(size: 14))
                 Text("Smooth Scroll")
                     .font(.system(size: 12, weight: .semibold))
@@ -16,7 +16,7 @@ struct SmoothScrollSection: View {
             SettingsRow(
                 icon: "",
                 title: "Enable",
-                isOn: .scrollEnabled
+                isOn: $settings.scrollEnabled
             )
             .onChange(of: settings.scrollEnabled) { _, newValue in
                 Task {
@@ -24,7 +24,6 @@ struct SmoothScrollSection: View {
                 }
             }
 
-            // Speed slider.
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text("Speed")
@@ -36,7 +35,7 @@ struct SmoothScrollSection: View {
                         .foregroundColor(.secondary)
                 }
                 Slider(
-                    value: .speedValue,
+                    value: $settings.speedValue,
                     in: 0...2,
                     step: 1
                 ) {
