@@ -101,7 +101,7 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
   const [version, setVersion] = useState("");
 
   useEffect(() => {
-    tauri.appVersion().then(setVersion).catch(() => {});
+    void tauri.appVersion().then(setVersion);
   }, []);
 
   if (!settings) return null;

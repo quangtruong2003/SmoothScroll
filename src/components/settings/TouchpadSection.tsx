@@ -32,7 +32,9 @@ function TouchpadSectionInner() {
     });
     return () => {
       cancelled = true;
-      unlistenP.then((u) => u()).catch(() => {});
+      unlistenP.then((u) => u()).catch(() => {
+        // ignore
+      });
     };
   }, []);
 

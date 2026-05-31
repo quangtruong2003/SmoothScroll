@@ -64,7 +64,9 @@ export function SettingsPage() {
       setEnabledFromEvent(Boolean(event.payload));
     });
     return () => {
-      unlistenPromise.then((u) => u()).catch(() => {});
+      unlistenPromise.then((u) => u()).catch(() => {
+        // ignore
+      });
     };
   }, [setEnabledFromEvent]);
 
@@ -74,7 +76,9 @@ export function SettingsPage() {
       if (section === "excluded-apps") setTab("apps");
     });
     return () => {
-      unlistenPromise.then((u) => u()).catch(() => {});
+      unlistenPromise.then((u) => u()).catch(() => {
+        // ignore
+      });
     };
   }, []);
 

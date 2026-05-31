@@ -107,29 +107,29 @@ export const tauri = {
   ping: () => invoke<string>("ping"),
 
   getEnabled: () => invoke<boolean>("get_enabled"),
-  setEnabled: (enabled: boolean) => invoke<void>("set_enabled", { enabled }),
+  setEnabled: (enabled: boolean) => invoke<null>("set_enabled", { enabled }),
 
   getSettings: () => invoke<AppSettings>("get_settings"),
   getDefaultSettings: () => invoke<AppSettings>("get_default_settings"),
   saveSettings: (settings: AppSettings) =>
-    invoke<void>("save_settings", { settings }),
+    invoke<null>("save_settings", { settings }),
 
   setHotkeyEnabled: (enabled: boolean) =>
-    invoke<void>("set_hotkey_enabled", { enabled }),
+    invoke<null>("set_hotkey_enabled", { enabled }),
   setHotkeyAccelerator: (accelerator: string) =>
-    invoke<void>("set_hotkey_accelerator", { accelerator }),
+    invoke<null>("set_hotkey_accelerator", { accelerator }),
 
   listRunningProcesses: () => invoke<ProcessInfo[]>("list_running_processes"),
   addExcludedApp: (name: string) =>
-    invoke<void>("add_excluded_app", { name }),
+    invoke<null>("add_excluded_app", { name }),
   removeExcludedApp: (name: string) =>
-    invoke<void>("remove_excluded_app", { name }),
+    invoke<null>("remove_excluded_app", { name }),
 
   getAutostart: () => invoke<boolean>("get_autostart"),
   setAutostart: (enabled: boolean) =>
-    invoke<void>("set_autostart", { enabled }),
+    invoke<null>("set_autostart", { enabled }),
   changeLanguage: (lang: string) =>
-    invoke<void>("change_language", { lang }),
+    invoke<null>("change_language", { lang }),
 
   accessibilityStatus: () => invoke<boolean>("accessibility_status"),
   accessibilityRequestPrompt: () =>
@@ -137,32 +137,32 @@ export const tauri = {
 
   appVersion: () => invoke<string>("app_version"),
   isTrustedDevice: () => invoke<boolean>("is_trusted_device"),
-  openLogDir: () => invoke<void>("open_log_dir"),
+  openLogDir: () => invoke<null>("open_log_dir"),
 
-  openTrayPanel: () => invoke<void>("open_tray_panel"),
-  closeTrayPanel: () => invoke<void>("close_tray_panel"),
-  showMainWindow: () => invoke<void>("show_main_window"),
-  navigateTo: (section: string) => invoke<void>("navigate_to", { section }),
-  quitApp: () => invoke<void>("quit_app"),
+  openTrayPanel: () => invoke<null>("open_tray_panel"),
+  closeTrayPanel: () => invoke<null>("close_tray_panel"),
+  showMainWindow: () => invoke<null>("show_main_window"),
+  navigateTo: (section: string) => invoke<null>("navigate_to", { section }),
+  quitApp: () => invoke<null>("quit_app"),
 
   // Profile management
   listProfiles: () => invoke<ScrollProfile[]>("list_profiles"),
   createProfile: (name: string) => invoke<ScrollProfile>("create_profile", { name }),
-  updateProfile: (profile: ScrollProfile) => invoke<void>("update_profile", { profile }),
-  deleteProfile: (profileId: string) => invoke<void>("delete_profile", { profileId }),
+  updateProfile: (profile: ScrollProfile) => invoke<null>("update_profile", { profile }),
+  deleteProfile: (profileId: string) => invoke<null>("delete_profile", { profileId }),
   assignAppProfile: (processName: string, profileId: string | null) =>
-    invoke<void>("assign_app_profile", { processName, profileId }),
+    invoke<null>("assign_app_profile", { processName, profileId }),
   unassignAppProfile: (processName: string) =>
-    invoke<void>("unassign_app_profile", { processName }),
+    invoke<null>("unassign_app_profile", { processName }),
 
   suggestProfileForApp: (name: string) =>
     invoke<ProfileSuggestion>("suggest_profile_for_app", { name }),
 
   // Game mode
   addKnownGame: (name: string) =>
-    invoke<void>("add_known_game", { name }),
+    invoke<null>("add_known_game", { name }),
   removeKnownGame: (name: string) =>
-    invoke<void>("remove_known_game", { name }),
+    invoke<null>("remove_known_game", { name }),
   getGameModeStatus: () => invoke<boolean>("get_game_mode_status"),
 
   async getInputSource(): Promise<InputSourceLabel> {
@@ -174,7 +174,7 @@ export const tauri = {
   getForegroundAppContext: () => invoke<ForegroundAppContext>("get_foreground_app_context"),
 
   applyOnboardingPreset: (useCase: OnboardingUseCase, feel: OnboardingFeel) =>
-    invoke<void>("apply_onboarding_preset", { useCase, feel }),
-  skipOnboarding: () => invoke<void>("skip_onboarding"),
-  resetOnboarding: () => invoke<void>("reset_onboarding"),
+    invoke<null>("apply_onboarding_preset", { useCase, feel }),
+  skipOnboarding: () => invoke<null>("skip_onboarding"),
+  resetOnboarding: () => invoke<null>("reset_onboarding"),
 };

@@ -75,7 +75,9 @@ export function CurrentAppCard() {
     const un = listen("settings-changed", () => void refresh());
     const interval = window.setInterval(() => void refresh(), 2000);
     return () => {
-      un.then((u) => u()).catch(() => {});
+      un.then((u) => u()).catch(() => {
+        // ignore
+      });
       window.clearInterval(interval);
     };
   }, [refresh]);
@@ -96,7 +98,9 @@ export function CurrentAppCard() {
     if (!name) return;
     if (value === DEFAULT_VALUE) {
       await invoke("unassign_app_profile", { processName: name });
-      await invoke("remove_excluded_app", { name }).catch(() => {});
+      await invoke("remove_excluded_app", { name }).catch(() => {
+        // ignore
+      });
     } else if (value === DISABLED_PROFILE_ID) {
       await invoke("assign_app_profile", {
         processName: name,

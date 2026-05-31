@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { tauri, type AppSettings } from "@/lib/tauri";
 
-const REQUIRED_KEYS: ReadonlyArray<keyof AppSettings> = [
+const REQUIRED_KEYS: readonly (keyof AppSettings)[] = [
   "step_size_px",
   "animation_time_ms",
   "acceleration_delta_ms",

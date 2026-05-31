@@ -45,7 +45,9 @@ export default function App() {
       const result = await checkForUpdate();
       if (cancelled) return;
       if (result.state === "available") {
-        await tauri.showMainWindow().catch(() => {});
+        await tauri.showMainWindow().catch(() => {
+          // ignore
+        });
         dispatch({
           type: "UPDATE_AVAILABLE",
           update: result.update,

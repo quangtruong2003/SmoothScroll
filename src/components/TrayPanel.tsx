@@ -98,9 +98,15 @@ export function TrayPanel() {
   const startMinimized = settings?.start_minimized ?? false;
 
   useEffect(() => {
-    invoke<boolean>('get_enabled').then(setEnabledState);
-    invoke<boolean>('get_autostart').then(setAutostartState);
-    invoke<string>('app_version').then(setAppVersion);
+    invoke<boolean>('get_enabled').then(setEnabledState, () => {
+      // ignore
+    });
+    invoke<boolean>('get_autostart').then(setAutostartState, () => {
+      // ignore
+    });
+    invoke<string>('app_version').then(setAppVersion, () => {
+      // ignore
+    });
     if (!settings) void load();
 
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
@@ -108,8 +114,10 @@ export function TrayPanel() {
     });
 
     return () => {
-      unlistenEnabled.then((u) => u()).catch(() => {});
+      void unlistenEnabled.then((u) => u());
     };
+    // Intentionally run once: the tray panel is ephemeral and is re-mounted
+    // on each open, so this doesn't drift.
   }, []);
 
   // Auto-resize the tray window to fit content. The window is created with
@@ -127,7 +135,9 @@ export function TrayPanel() {
       lastSent = rounded;
       void invoke('resize_tray_panel', {
         height: Math.round(rounded * window.devicePixelRatio),
-      }).catch(() => {});
+      }).catch(() => {
+        // ignore
+      });
     };
     const obs = new ResizeObserver((entries) => {
       for (const entry of entries) {

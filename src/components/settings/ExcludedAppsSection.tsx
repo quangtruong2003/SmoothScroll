@@ -37,7 +37,7 @@ export function ExcludedAppsSection() {
     try {
       await assignAppProfile(name, profileId);
       toast.success(t("app_profiles.assigned", { name, profile: profileLabel(profileId) }));
-    } catch (e) {
+    } catch {
       toast.error(t("errors.app_profile_assign_failed"));
     }
   };
@@ -46,7 +46,7 @@ export function ExcludedAppsSection() {
     try {
       await assignAppProfile(name, profileId);
       toast.success(t("app_profiles.assigned", { name, profile: profileLabel(profileId) }));
-    } catch (e) {
+    } catch {
       toast.error(t("errors.app_profile_assign_failed"));
     }
   };
@@ -55,7 +55,7 @@ export function ExcludedAppsSection() {
     try {
       await unassignAppProfile(name);
       toast.success(t("app_profiles.removed", { name }));
-    } catch (e) {
+    } catch {
       toast.error(t("errors.app_profile_remove_failed"));
     }
   };

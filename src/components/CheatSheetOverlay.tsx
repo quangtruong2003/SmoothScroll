@@ -39,7 +39,7 @@ export function CheatSheetOverlay() {
 
   const isMac =
     typeof navigator !== "undefined" &&
-    /Mac|iPhone|iPad/.test(navigator.platform);
+    /Mac|iPhone|iPad/.test(navigator.userAgent);
   const mod = isMac ? "⌘" : "Ctrl";
 
   const rows: { keys: string[]; label: string }[] = [

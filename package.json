@@ -7,9 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
+    "test": "node --test scripts/*.test.mjs && vitest run src",
+    "test:watch": "vitest src",
     "tauri": "tauri",
     "build:wasm": "node -e \"const{spawnSync}=require('child_process');const isWin=process.platform==='win32';const r=spawnSync(isWin?'powershell':'bash',isWin?['-File','scripts/build-wasm.ps1']:['scripts/build-wasm.sh'],{stdio:'inherit'});process.exit(r.status||0)\""
   },
@@ -59,6 +59,7 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.60.0",
     "vite": "^6.1.0",
     "vitest": "^4.1.6"
   },

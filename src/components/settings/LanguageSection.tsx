@@ -25,7 +25,7 @@ export function LanguageSection() {
     patch({ language: next });
     try {
       await tauri.changeLanguage(next);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("changeLanguage failed", e);
     }
   };

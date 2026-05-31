@@ -47,17 +47,25 @@ fn worker(state: Arc<AppState>) {
     let mut last_work = Instant::now();
 
     loop {
-        if !state.enabled.load(Ordering::Relaxed) && !state.engine.lock().has_pending_work() {
-            let mut flag = state.engine_signal.mutex.lock();
-            if !*flag {
-                state.engine_signal.cv.wait_for(&mut flag, WAIT_TIMEOUT);
-            }
-            *flag = false;
-            if !state.enabled.load(Ordering::Relaxed) && !state.engine.lock().has_pending_work() {
-                continue;
+        // Fast idle: disabled AND no pending work.
+        if !state.enabled.load(Ordering::Relaxed) {
+            // Only lock once in this idle branch.
+            if !state.engine.lock().has_pending_work() {
+                let mut flag = state.engine_signal.mutex.lock();
+                if !*flag {
+                    state.engine_signal.cv.wait_for(&mut flag, WAIT_TIMEOUT);
+                }
+                *flag = false;
+                // Re-check after wake.
+                if !state.enabled.load(Ordering::Relaxed)
+                    && !state.engine.lock().has_pending_work()
+                {
+                    continue;
+                }
             }
         }
 
+        // Idle while enabled but no work: wait for signal instead of spinning.
         if !state.engine.lock().has_pending_work() {
             let mut flag = state.engine_signal.mutex.lock();
             if !*flag {

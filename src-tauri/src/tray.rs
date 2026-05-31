@@ -185,6 +185,11 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                         state.engine_signal.signal();
                         crate::commands::emit_enabled_changed(&app, new_enabled);
 
+                        // Keep the rest of the app in sync (e.g. TrayPanel polling)
+                        // by emitting the full settings snapshot, matching `set_enabled`.
+                        let current = state.settings.read().clone();
+                        crate::commands::emit_settings_changed(&app, &current);
+
                         if let Some(tray) = app.tray_by_id(TRAY_ID) {
                             let _ = tray.set_icon(Some(icon_for(&app, new_enabled)));
                         }

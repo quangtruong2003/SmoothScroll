@@ -30,12 +30,16 @@ function BehaviorSectionInner() {
   }, []);
 
   useEffect(() => {
-    tauri.getReduceMotionStatus().then(setOsReduceMotion).catch(() => {});
-    const un = listen<boolean>("reduce-motion-changed", (e) =>
-      setOsReduceMotion(Boolean(e.payload)),
-    );
+    void tauri.getReduceMotionStatus().then(setOsReduceMotion).catch(() => {
+      // ignore
+    });
+    const un = listen<boolean>("reduce-motion-changed", (e) => {
+      setOsReduceMotion(Boolean(e.payload));
+    });
     return () => {
-      un.then((u) => u()).catch(() => {});
+      un.then((u) => u()).catch(() => {
+        // ignore
+      });
     };
   }, []);
 
@@ -45,7 +49,7 @@ function BehaviorSectionInner() {
     try {
       await tauri.setAutostart(next);
       setAutostartState(next);
-    } catch (e) {
+    } catch {
       toast.error(t("errors.autostart_failed"));
     }
   };
@@ -55,7 +59,7 @@ function BehaviorSectionInner() {
     patch({ enable_global_hotkey: next });
     try {
       await tauri.setHotkeyEnabled(next);
-    } catch (e) {
+    } catch {
       toast.error(t("errors.hotkey_toggle_failed"));
       patch({ enable_global_hotkey: !next });
     }
@@ -68,7 +72,7 @@ function BehaviorSectionInner() {
     try {
       await tauri.setHotkeyAccelerator(accel);
       toast.success(t("settings.hotkey_accelerator.saved"));
-    } catch (e) {
+    } catch {
       toast.error(t("errors.hotkey_save_failed"));
       patch({ hotkey_accelerator: previous });
     }

@@ -51,7 +51,9 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
     tauri
       .listRunningProcesses()
       .then(setProcesses)
-      .catch(() => {})
+      .catch(() => {
+        // ignore
+      })
       .finally(() => setLoading(false));
   }, [open]);
 
@@ -75,7 +77,9 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
       .then((s) => {
         if (!cancelled) setSuggestion(s);
       })
-      .catch(() => {});
+      .catch(() => {
+        // ignore
+      });
     return () => {
       cancelled = true;
     };
