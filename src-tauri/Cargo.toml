@@ -35,6 +35,7 @@ uuid = { version = "1", features = ["v4"] }
 hostname = "0.4"
 arc-swap = "1"
 crossbeam-channel = "0.5"
+tauri-plugin-single-instance = "2"
 
 [dev-dependencies]
 criterion = { version = "0.5", default-features = false }
