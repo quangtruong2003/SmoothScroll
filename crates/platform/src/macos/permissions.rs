@@ -7,7 +7,8 @@
 #![cfg(target_os = "macos")]
 
 use core_foundation::base::CFTypeRef;
-use core_foundation::dictionary::{CFDictionary, CFDictionaryCreateMutable, CFDictionarySetValue};
+use core_foundation::boolean::CFBoolean;
+use core_foundation::dictionary::CFMutableDictionary;
 use core_foundation::string::CFString;
 use std::ptr;
 
@@ -24,22 +25,12 @@ type CFDictionaryRef = CFTypeRef;
 /// will display the standard "Accessibility access required" dialog.
 pub fn is_trusted(prompt: bool) -> bool {
     if prompt {
-        unsafe {
-            let key = CFString::from_static_string("kAXTrustedCheckOptionPrompt");
-            let dict = CFDictionaryCreateMutable(
-                ptr::null_mut(),
-                0,
-                &core_foundation::dictionary::kCFTypeDictionaryKeyCallBacks,
-                &core_foundation::dictionary::kCFTypeDictionaryValueCallBacks,
-            );
-            if dict.is_null() {
-                return false;
-            }
-            CFDictionarySetValue(dict, key.as_concrete_TypeRef(), core_foundation::boolean::CFBooleanTrueValue());
-            let result = AXIsProcessTrustedWithOptions(dict);
-            core_foundation::base::CFRelease(dict);
-            result
-        }
+        // Build a CFDictionary with kAXTrustedCheckOptionPrompt = true.
+        let key = CFString::from_static_string("kAXTrustedCheckOptionPrompt");
+        let mut dict = CFMutableDictionary::from_CFType_refs(&[
+            (key.as_CFType(), CFBoolean::true_value().as_CFType()),
+        ]);
+        unsafe { AXIsProcessTrustedWithOptions(dict.as_concrete_TypeRef() as CFDictionaryRef) }
     } else {
         unsafe { AXIsProcessTrustedWithOptions(ptr::null_mut()) }
     }

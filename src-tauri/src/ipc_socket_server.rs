@@ -17,6 +17,8 @@ use tokio::sync::broadcast;
 
 use crate::state::AppState;
 
+type ResponseResult = (Option<serde_json::Value>, Option<IpcError>);
+
 // ---------------------------------------------------------------------------
 // Message types
 // ---------------------------------------------------------------------------
@@ -141,7 +143,7 @@ impl IpcServer {
                                         result: None,
                                         error: Some(IpcError { code: -32700, message: "Parse error".into() }),
                                     };
-                                    let _ = writer.write_all(serde_json::to_string(&resp).unwrap().as_bytes()).await;
+                                    let _ = writer.write_all(serde_json::to_vec(&resp).unwrap_or_default().as_slice()).await;
                                     let _ = writer.write_all(b"\n").await;
                                     continue;
                                 }
@@ -156,8 +158,10 @@ impl IpcServer {
                                 result: response.0,
                                 error: response.1,
                             };
-                            let _ = writer.write_all(serde_json::to_string(&resp_with_id).unwrap().as_bytes()).await;
-                            let _ = writer.write_all(b"\n").await;
+                            if let Ok(data) = serde_json::to_vec(&resp_with_id) {
+                                let _ = writer.write_all(&data).await;
+                                let _ = writer.write_all(b"\n").await;
+                            }
                         }
                         Ok(None) => break,
                         Err(_) => break,
@@ -165,7 +169,7 @@ impl IpcServer {
                 }
                 event = rx.recv() => {
                     if let Ok(event) = event {
-                        let msg = serde_json::to_string(&event).unwrap();
+                        if let Ok(msg) = serde_json::to_vec(&event) {
                         let _ = writer.write_all(msg.as_bytes()).await;
                         let _ = writer.write_all(b"\n").await;
                     }
