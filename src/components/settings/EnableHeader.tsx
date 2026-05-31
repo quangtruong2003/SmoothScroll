@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { listen } from "@tauri-apps/api/event";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { tauri } from "@/lib/tauri";
@@ -14,6 +15,14 @@ function EnableHeaderInner() {
 
   useEffect(() => {
     tauri.getEnabled().then(setTrayEnabled);
+    const unlistenPromise = listen<boolean>("enabled-changed", (event) => {
+      setTrayEnabled(Boolean(event.payload));
+    });
+    return () => {
+      unlistenPromise.then((u) => u()).catch(() => {
+        // ignore
+      });
+    };
   }, []);
 
   const enabled = settingsEnabled && trayEnabled;

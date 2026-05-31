@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
+import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
 import { CurrentAppCard } from './tray/CurrentAppCard';
 
@@ -112,13 +113,18 @@ export function TrayPanel() {
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
       setEnabledState(Boolean(event.payload));
     });
+    const unlistenSettings = listen<Partial<AppSettings>>('settings-changed', (event) => {
+      const s = event.payload;
+      if (s && typeof s.start_with_os === 'boolean') {
+        setAutostartState(s.start_with_os);
+      }
+    });
 
     return () => {
       void unlistenEnabled.then((u) => u());
+      void unlistenSettings.then((u) => u());
     };
-    // Intentionally run once: the tray panel is ephemeral and is re-mounted
-    // on each open, so this doesn't drift.
-  }, []);
+  }, [load]);
 
   // Auto-resize the tray window to fit content. The window is created with
   // a fixed height in tauri.conf.json; we shrink (or grow) it to match the
@@ -149,12 +155,6 @@ export function TrayPanel() {
     requestAnimationFrame(() => sync(el.getBoundingClientRect().height));
     return () => obs.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (settings?.start_with_os !== undefined) {
-      setAutostartState(Boolean(settings.start_with_os));
-    }
-  }, [settings?.start_with_os]);
 
   useEffect(() => {
     if (settings) applyTheme(settings.theme);

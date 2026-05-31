@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed. And Every time you answer, you have to call me "honey."
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 

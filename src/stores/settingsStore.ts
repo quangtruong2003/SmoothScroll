@@ -22,6 +22,10 @@ interface SettingsStore {
    *  the `enabled-changed` event listener so tray/hotkey toggles propagate
    *  into the UI store immediately. */
   setEnabledFromEvent: (enabled: boolean) => void;
+  /** Update only the in-memory `start_with_os` flag without persisting.
+   *  Used by the `settings-changed` event listener so cross-panel toggles
+   *  (Behavior ↔ Tray) stay in sync. */
+  setStartWithOsFromEvent: (start_with_os: boolean) => void;
 
   // Profile management
   createProfile: (name: string) => Promise<ScrollProfile>;
@@ -100,6 +104,13 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     if (!current) return;
     if (current.enabled === enabled) return;
     set({ settings: { ...current, enabled } });
+  },
+
+  setStartWithOsFromEvent: (start_with_os) => {
+    const current = get().settings;
+    if (!current) return;
+    if (current.start_with_os === start_with_os) return;
+    set({ settings: { ...current, start_with_os } });
   },
 
   createProfile: async (name) => {

@@ -21,13 +21,8 @@ function BehaviorSectionInner() {
   const { t } = useTranslation();
   const fields = useBehaviorFields();
   const patch = useSettingsStore((s) => s.patch);
-  const [autostart, setAutostartState] = useState(false);
   const [hotkeyError, setHotkeyError] = useState<string | null>(null);
   const [osReduceMotion, setOsReduceMotion] = useState<boolean>(false);
-
-  useEffect(() => {
-    tauri.getAutostart().then(setAutostartState);
-  }, []);
 
   useEffect(() => {
     void tauri.getReduceMotionStatus().then(setOsReduceMotion).catch(() => {
@@ -48,7 +43,7 @@ function BehaviorSectionInner() {
   const onAutostart = async (next: boolean) => {
     try {
       await tauri.setAutostart(next);
-      setAutostartState(next);
+      patch({ start_with_os: next });
     } catch {
       toast.error(t("errors.autostart_failed"));
     }
@@ -138,7 +133,7 @@ function BehaviorSectionInner() {
         >
           <Switch
             id="autostart"
-            checked={autostart}
+            checked={fields.start_with_os}
             onCheckedChange={onAutostart}
           />
         </SettingRow>
