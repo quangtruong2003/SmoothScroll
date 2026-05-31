@@ -38,7 +38,8 @@ crossbeam-channel = "0.5"
 tauri-plugin-single-instance = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-tokio = { version = "1", features = ["net", "rt-multi-thread", "macros", "sync", "codec", "io-util"] }
+# tokio is provided transitively by tauri v2
+tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "io-util"] }
 
 [dev-dependencies]
 criterion = { version = "0.5", default-features = false }
