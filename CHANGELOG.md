@@ -7,6 +7,11 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-05-31
+
+### Fixed
+- prevent multiple tray icons via single-instance
+- align pnpm versions across all workflows and package.json files
 ## [1.2.0] - 2026-05-29
 
 ### Added
