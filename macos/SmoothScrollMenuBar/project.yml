@@ -1,0 +1,38 @@
+name: SmoothScrollMenuBar
+options:
+  bundleIdPrefix: com.SmoothScroll
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    PRODUCT_NAME: SmoothScrollMenuBar
+    MARKETING_VERSION: "1.3.1"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_HARDENED_RUNTIME: YES
+    INFOPLIST_FILE: Sources/Resources/Info.plist
+    CODE_SIGN_ENTITLEMENTS: Sources/Resources/SmoothScrollMenuBar.entitlements
+    COMBINE_HIDPI_IMAGES: YES
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    LD_RUNPATH_SEARCH_PATHS:
+      - "@executable_path/../Frameworks"
+
+targets:
+  SmoothScrollMenuBar:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.SmoothScroll.MenuBar
+      GENERATE_INFOPLIST_FILE: NO
+    entitlements:
+      path: Sources/Resources/SmoothScrollMenuBar.entitlements
