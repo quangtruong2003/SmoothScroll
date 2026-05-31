@@ -44,3 +44,6 @@ objc2-foundation = { version = "0.2", default-features = false, features = [
     "std",
     "NSString",
 ] }
+core-foundation = "0.10"
+core-graphics = "0.19"
+dispatch = "2"
