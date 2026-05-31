@@ -238,7 +238,11 @@
       "Dark": "Dark",
       "System": "System"
     },
-    "reduce_motion": {
+    "auto_disable_windows_apps": {
+    "title": "Auto-disable in Windows apps",
+    "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+  },
+  "reduce_motion": {
       "title": "Respect system Reduce Motion",
       "desc": "When the system requests reduced motion, scroll becomes instant instead of smooth",
       "auto": "Auto (follow system)",

@@ -26,7 +26,8 @@ const PROCESS_CACHE_TTL: Duration = Duration::from_millis(50);
 /// Throttled process-name cache — caps Win32 syscall rate at ~20 Hz.
 struct ProcessNameCache {
     last_call_at: Instant,
-    last_name: Option<String>,
+    last_under_cursor: Option<String>,
+    last_foreground: Option<String>,
     initialized: bool,
 }
 
@@ -34,19 +35,25 @@ impl ProcessNameCache {
     fn new() -> Self {
         Self {
             last_call_at: Instant::now(),
-            last_name: None,
+            last_under_cursor: None,
+            last_foreground: None,
             initialized: false,
         }
     }
 
-    fn get<F: FnOnce() -> Option<String>>(&mut self, fetch: F) -> Option<String> {
+    fn get<F>(&mut self, fetch: F) -> (Option<String>, Option<String>)
+    where
+        F: FnOnce() -> (Option<String>, Option<String>),
+    {
         if self.initialized && self.last_call_at.elapsed() < PROCESS_CACHE_TTL {
-            return self.last_name.clone();
+            return (self.last_under_cursor.clone(), self.last_foreground.clone());
         }
-        self.last_name = fetch();
+        let (under_cursor, foreground) = fetch();
+        self.last_under_cursor = under_cursor;
+        self.last_foreground = foreground;
         self.last_call_at = Instant::now();
         self.initialized = true;
-        self.last_name.clone()
+        (self.last_under_cursor.clone(), self.last_foreground.clone())
     }
 }
 
@@ -82,60 +89,70 @@ impl EngineSink {
         self.epoch.elapsed().as_millis() as u64
     }
 
-    /// Returns `None` if the app under the cursor is excluded/disabled.
+    /// Returns `None` if the app under the cursor/foreground is disabled.
     /// Otherwise returns the active `EffectiveSettings` (per-profile or global).
     fn resolve_active(&self) -> Option<Arc<EffectiveSettings>> {
-        // Fast path: no exclusions and no per-app profiles configured.
-        let (has_excluded, has_profiles) = {
+        let should_lookup_processes = {
             let s = self.state.settings.read();
-            (
-                !s.excluded_apps.is_empty() || !s.app_profiles.is_empty(),
-                !s.app_profiles.is_empty(),
-            )
+            !s.excluded_apps.is_empty() || !s.app_profiles.is_empty() || s.auto_disable_windows_apps
         };
 
-        if !has_excluded && !has_profiles {
+        if !should_lookup_processes {
             return Some(self.state.effective.load_full());
         }
 
-        // Need a process-name lookup. Throttled to 50 ms.
-        let process_name = {
+        let (under_cursor, foreground) = {
             let mut cache = self.process_cache.lock();
-            cache.get(|| self.state.processes.process_name_under_cursor())
-        };
-
-        let Some(process_name) = process_name else {
-            return Some(self.state.effective.load_full());
+            cache.get(|| {
+                (
+                    self.state.processes.process_name_under_cursor(),
+                    self.state.processes.foreground_process_name(),
+                )
+            })
         };
 
         let start = Instant::now();
         let s = self.state.settings.read();
 
-        if s.is_excluded(&process_name) {
-            if tracing::enabled!(tracing::Level::DEBUG) {
-                let elapsed = start.elapsed();
-                if elapsed > Duration::from_millis(2) {
-                    tracing::debug!(?elapsed, process = %process_name, "resolve_active excluded");
+        if let Some(process_name) = under_cursor.as_deref() {
+            if s.is_excluded(process_name) || s.should_auto_disable_windows_app(process_name) {
+                if tracing::enabled!(tracing::Level::DEBUG) {
+                    let elapsed = start.elapsed();
+                    if elapsed > Duration::from_millis(2) {
+                        tracing::debug!(?elapsed, process = %process_name, "resolve_active pass-through");
+                    }
+                }
+                return None;
+            }
+
+            if let Some(profile_id) = s.app_profiles.get(process_name) {
+                if profile_id != smoothscroll_core::settings::AppSettings::DISABLED_PROFILE_ID {
+                    let per_profile = self.state.effective_per_profile.read();
+                    if let Some(eff) = per_profile.get(profile_id) {
+                        let result = eff.clone();
+                        drop(per_profile);
+                        drop(s);
+                        if tracing::enabled!(tracing::Level::DEBUG) {
+                            let elapsed = start.elapsed();
+                            if elapsed > Duration::from_millis(2) {
+                                tracing::debug!(?elapsed, process = %process_name, "resolve_active profile");
+                            }
+                        }
+                        return Some(result);
+                    }
                 }
             }
-            return None;
         }
 
-        if let Some(profile_id) = s.app_profiles.get(&process_name) {
-            if profile_id != smoothscroll_core::settings::AppSettings::DISABLED_PROFILE_ID {
-                let per_profile = self.state.effective_per_profile.read();
-                if let Some(eff) = per_profile.get(profile_id) {
-                    let result = eff.clone();
-                    drop(per_profile);
-                    drop(s);
-                    if tracing::enabled!(tracing::Level::DEBUG) {
-                        let elapsed = start.elapsed();
-                        if elapsed > Duration::from_millis(2) {
-                            tracing::debug!(?elapsed, process = %process_name, "resolve_active profile");
-                        }
+        if let Some(process_name) = foreground.as_deref() {
+            if s.should_auto_disable_windows_app(process_name) {
+                if tracing::enabled!(tracing::Level::DEBUG) {
+                    let elapsed = start.elapsed();
+                    if elapsed > Duration::from_millis(2) {
+                        tracing::debug!(?elapsed, process = %process_name, "resolve_active foreground pass-through");
                     }
-                    return Some(result);
                 }
+                return None;
             }
         }
 
@@ -143,7 +160,7 @@ impl EngineSink {
         if tracing::enabled!(tracing::Level::DEBUG) {
             let elapsed = start.elapsed();
             if elapsed > Duration::from_millis(2) {
-                tracing::debug!(?elapsed, process = %process_name, "resolve_active global");
+                tracing::debug!(?elapsed, "resolve_active global");
             }
         }
         Some(self.state.effective.load_full())
@@ -426,11 +443,12 @@ mod tests {
     }
 
     struct StaticProcessQuery {
-        name: Option<String>,
+        under_cursor: Option<String>,
+        foreground: Option<String>,
     }
     impl ProcessQuery for StaticProcessQuery {
         fn process_name_under_cursor(&self) -> Option<String> {
-            self.name.clone()
+            self.under_cursor.clone()
         }
         fn foreground_process_id(&self) -> Option<u32> {
             None
@@ -438,9 +456,20 @@ mod tests {
         fn list_visible_processes(&self) -> Vec<ProcessInfo> {
             Vec::new()
         }
+        fn foreground_process_name(&self) -> Option<String> {
+            self.foreground.clone()
+        }
     }
 
     fn make_state_with_process(settings: AppSettings, process_name: Option<&str>) -> Arc<AppState> {
+        make_state_with_processes(settings, process_name, None)
+    }
+
+    fn make_state_with_processes(
+        settings: AppSettings,
+        under_cursor: Option<&str>,
+        foreground: Option<&str>,
+    ) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
@@ -451,7 +480,8 @@ mod tests {
             emitter: Arc::new(StubEmitter),
             zoom_emitter: Arc::new(StubEmitter),
             processes: Arc::new(StaticProcessQuery {
-                name: process_name.map(|s| s.to_string()),
+                under_cursor: under_cursor.map(|s| s.to_string()),
+                foreground: foreground.map(|s| s.to_string()),
             }),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
@@ -618,6 +648,48 @@ mod tests {
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+    }
+
+    #[test]
+    fn auto_disable_windows_app_under_cursor_passes_through_by_default() {
+        let s = AppSettings::default();
+        let state = make_state_with_process(s, Some("Notepad.exe"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn auto_disable_windows_app_foreground_passes_through_by_default() {
+        let s = AppSettings::default();
+        let state = make_state_with_processes(s, Some("Code.exe"), Some("SystemSettings.exe"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn auto_disable_windows_apps_can_be_disabled() {
+        let mut s = AppSettings::default();
+        s.auto_disable_windows_apps = false;
+        let state = make_state_with_processes(s, Some("Notepad.exe"), Some("SystemSettings.exe"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn manual_disabled_app_still_passes_when_auto_disable_is_off() {
+        let mut s = AppSettings::default();
+        s.auto_disable_windows_apps = false;
+        s.assign_profile(
+            "Notepad.exe".to_string(),
+            Some(AppSettings::DISABLED_PROFILE_ID.to_string()),
+        );
+        let state = make_state_with_process(s, Some("Notepad.exe"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 
     #[test]

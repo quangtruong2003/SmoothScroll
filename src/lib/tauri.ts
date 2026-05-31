@@ -73,6 +73,7 @@ export interface AppSettings {
   zoom_invert: boolean;
   zoom_sensitivity: number;
   onboarding_completed_at: number | null;
+  auto_disable_windows_apps: boolean;
 }
 
 export interface ProcessInfo {

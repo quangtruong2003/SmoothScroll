@@ -211,9 +211,8 @@ pub struct AppSettings {
     // Onboarding
     pub onboarding_completed_at: Option<u64>,
 
-    // Auto-disable seed (Windows native-smooth apps). True after first seed.
-    #[serde(default)]
-    pub auto_excluded_seeded: bool,
+    // Auto-disable: Windows apps that already have native smooth scrolling.
+    pub auto_disable_windows_apps: bool,
 }
 
 impl Default for AppSettings {
@@ -256,7 +255,7 @@ impl Default for AppSettings {
             zoom_invert: false,
             zoom_sensitivity: 1.0,
             onboarding_completed_at: None,
-            auto_excluded_seeded: false,
+            auto_disable_windows_apps: true,
         }
     }
 }
@@ -312,9 +311,8 @@ impl AppSettings {
     pub const DISABLED_PROFILE_ID: &'static str = "__disabled__";
 
     /// Windows apps known to ship native smooth-scroll animation that conflicts
-    /// with this engine (UWP, WinUI, modern Edge). Seeded once into
-    /// `app_profiles` as pass-through so users get a delay-free experience by
-    /// default. After the first seed, the user is in control.
+    /// with this engine (UWP, WinUI, modern Edge). Used by the runtime
+    /// auto-disable switch (no longer seeded into app overrides).
     pub const NATIVE_SMOOTH_SEED: &'static [&'static str] = &[
         "Notepad.exe",
         "SystemSettings.exe",
@@ -325,18 +323,23 @@ impl AppSettings {
         "msedge.exe",
     ];
 
-    /// Idempotently seed the native-smooth-app exclusion list. Runs once;
-    /// subsequent loads are no-ops so user removals stick.
+    /// Legacy no-op. Previously seeded `NATIVE_SMOOTH_SEED` into `app_profiles`.
+    /// Kept for backward-compat in case old settings files rely on
+    /// `auto_excluded_seeded`. New behavior is runtime-only via
+    /// `auto_disable_windows_apps`.
     pub fn seed_native_smooth_excludes(&mut self) {
-        if self.auto_excluded_seeded {
-            return;
+        // no-op
+    }
+
+    /// True when a process name should be auto-disabled by the built-in
+    /// Windows native-smooth list.
+    pub fn should_auto_disable_windows_app(&self, process_name: &str) -> bool {
+        if !self.auto_disable_windows_apps {
+            return false;
         }
-        for app in Self::NATIVE_SMOOTH_SEED {
-            self.app_profiles
-                .entry((*app).to_string())
-                .or_insert_with(|| Self::DISABLED_PROFILE_ID.to_string());
-        }
-        self.auto_excluded_seeded = true;
+        Self::NATIVE_SMOOTH_SEED
+            .iter()
+            .any(|n| n.eq_ignore_ascii_case(process_name))
     }
 
     /// Case-insensitive exact-match check against the excluded list.

@@ -240,7 +240,11 @@
       "Dark": "Tối",
       "System": "Theo hệ thống"
     },
-    "reduce_motion": {
+    "auto_disable_windows_apps": {
+    "title": "Tự tắt trong app Windows",
+    "desc": "Tạm dừng smooth scrolling trong các app Windows có sẵn (đã có smooth scroll native). SmoothScroll sẽ tự bật lại khi bạn chuyển sang app khác."
+  },
+  "reduce_motion": {
       "title": "Tôn trọng Giảm chuyển động của hệ thống",
       "desc": "Khi hệ thống yêu cầu giảm chuyển động, cuộn sẽ tức thì thay vì mượt",
       "auto": "Tự động (theo hệ thống)",

@@ -113,6 +113,21 @@ fn easing_mode_round_trips_through_serde() {
 }
 
 #[test]
+fn auto_disable_windows_apps_defaults_to_on() {
+    let s = AppSettings::default();
+    assert!(s.auto_disable_windows_apps);
+}
+
+#[test]
+fn auto_disable_windows_apps_round_trips_via_json() {
+    let mut s = AppSettings::default();
+    s.auto_disable_windows_apps = false;
+    let json = serde_json::to_string(&s).unwrap();
+    let parsed: AppSettings = serde_json::from_str(&json).unwrap();
+    assert!(!parsed.auto_disable_windows_apps);
+}
+
+#[test]
 fn missing_fields_in_json_use_defaults() {
     let json = r#"{ "step_size_px": 200 }"#;
     let s: AppSettings = serde_json::from_str(json).unwrap();
@@ -196,7 +211,6 @@ fn effective_settings_from_settings_copies_all_fields() {
     s.easing_mode = EasingMode::CubicOut;
     s.reverse_wheel_direction = true;
     s.horizontal_smoothness = false;
-    s.shift_key_horizontal = false;
     s.touchpad_smoothing_enabled = false;
     s.touchpad_pixel_multiplier = 1.5;
     s.touchpad_acceleration_factor = 2.0;
@@ -212,7 +226,6 @@ fn effective_settings_from_settings_copies_all_fields() {
     assert_eq!(eff.easing_mode, EasingMode::CubicOut);
     assert!(eff.reverse_wheel_direction);
     assert!(!eff.horizontal_smoothness);
-    assert!(!eff.shift_key_horizontal);
     assert!(!eff.touchpad_smoothing_enabled);
     assert_eq!(eff.touchpad_pixel_multiplier, 1.5);
     assert_eq!(eff.touchpad_acceleration_factor, 2.0);
@@ -231,7 +244,6 @@ fn effective_settings_with_profile_uses_profile_overrides() {
     assert_eq!(eff.step_size_px, 300);
     assert_eq!(eff.animation_time_ms, 800);
     assert_eq!(eff.easing_mode, EasingMode::Linear);
-    assert_eq!(eff.shift_key_horizontal, s.shift_key_horizontal);
     assert_eq!(eff.touchpad_smoothing_enabled, s.touchpad_smoothing_enabled);
 }
 
@@ -283,23 +295,23 @@ fn effective_settings_default_instant_mode_false() {
 }
 
 #[test]
-fn default_has_shift_horizontal_invert_true() {
+fn default_has_horizontal_invert_false() {
     let s = AppSettings::default();
-    assert!(s.shift_horizontal_invert);
+    assert!(!s.horizontal_invert);
 }
 
 #[test]
-fn old_settings_without_shift_horizontal_invert_default_to_true() {
+fn old_settings_without_horizontal_invert_default_to_false() {
     let json = r#"{"enabled": true}"#;
     let s: AppSettings = serde_json::from_str(json).unwrap();
-    assert!(s.shift_horizontal_invert);
+    assert!(!s.horizontal_invert);
 }
 
 #[test]
-fn shift_horizontal_invert_round_trips_through_serde() {
+fn horizontal_invert_round_trips_through_serde() {
     let mut s = AppSettings::default();
-    s.shift_horizontal_invert = false;
+    s.horizontal_invert = true;
     let json = serde_json::to_string(&s).unwrap();
     let back: AppSettings = serde_json::from_str(&json).unwrap();
-    assert!(!back.shift_horizontal_invert);
+    assert!(back.horizontal_invert);
 }

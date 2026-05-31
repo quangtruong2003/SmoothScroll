@@ -235,6 +235,7 @@ export const useBehaviorFields = () =>
         start_minimized: set.start_minimized,
         show_tray_icon_state: set.show_tray_icon_state,
         respect_reduce_motion: set.respect_reduce_motion,
+        auto_disable_windows_apps: set.auto_disable_windows_apps,
       };
     })
   );

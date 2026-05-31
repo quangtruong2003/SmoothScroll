@@ -19,6 +19,9 @@ export interface AppSettings {
   enableGlobalHotkey: boolean;
   showTrayIconState: boolean;
   excludedApps: string[];
+
+  // Auto-disable: Windows apps that already have native smooth scrolling.
+  autoDisableWindowsApps: boolean;
 }
 
 export const defaultSettings: AppSettings = {
@@ -40,4 +43,5 @@ export const defaultSettings: AppSettings = {
   enableGlobalHotkey: true,
   showTrayIconState: true,
   excludedApps: [],
+  autoDisableWindowsApps: true,
 };

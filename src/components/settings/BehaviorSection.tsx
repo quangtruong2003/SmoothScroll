@@ -78,12 +78,28 @@ function BehaviorSectionInner() {
     }
   };
 
+  const onAutoDisableWindowsApps = (next: boolean) => {
+    patch({ auto_disable_windows_apps: next });
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t("section.behavior")}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
+        <SettingRow
+          htmlFor="auto-disable-windows-apps"
+          title={t("settings.auto_disable_windows_apps.title")}
+          description={t("settings.auto_disable_windows_apps.desc")}
+        >
+          <Switch
+            id="auto-disable-windows-apps"
+            checked={fields.auto_disable_windows_apps}
+            onCheckedChange={onAutoDisableWindowsApps}
+          />
+        </SettingRow>
+
         <SettingRow
           htmlFor="hotkey-toggle"
           title={t("settings.global_hotkey.title")}
