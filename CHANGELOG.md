@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-05-31
+
+### Fixed
+- update behavioral guidelines and enhance settings synchronization
 ## [1.3.0] - 2026-05-31
 
 ### Added
