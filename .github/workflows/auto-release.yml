@@ -17,7 +17,25 @@ permissions:
   contents: write
 
 jobs:
+  # Guard: if this push was triggered by the bump commit itself (tag push or
+  # [skip release] commit), the re-triggered workflow must not run bump again —
+  # doing so would skip all downstream build jobs silently.
+  # The re-triggered run exits here; the original run's build jobs continue.
+  _guard:
+    if: |
+      !(
+        github.event_name == 'push' &&
+        (
+          startsWith(github.ref, 'refs/tags/v') ||
+          contains(github.event.head_commit.message, '[skip release]')
+        )
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "Guarded: not a re-triggered run"'
+
   bump:
+    needs: [_guard]
     if: "!contains(github.event.head_commit.message, '[skip release]')"
     runs-on: ubuntu-latest
     outputs:
