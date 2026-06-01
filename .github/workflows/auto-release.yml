@@ -186,7 +186,7 @@ jobs:
 
       - name: Build Rust engine
         run: |
-          cargo build --release -p smoothscroll-platform -p smoothscroll-core --target ${{ matrix.target }}
+          cargo build --release -p smoothscroll-platform -p smoothscroll_core --target ${{ matrix.target }}
 
       - name: Build Swift app
         run: |
