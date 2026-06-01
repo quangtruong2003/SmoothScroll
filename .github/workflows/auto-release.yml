@@ -11,6 +11,7 @@ on:
       - 'package.json'
       - 'Cargo.toml'
       - '.github/workflows/auto-release.yml'
+      - 'macos/**'
   workflow_dispatch:
 
 permissions:
