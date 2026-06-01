@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SmoothScrollPopover: View {
-    @StateObject private var settings = SettingsStore()
+    @StateObject private var settings = SettingsStore.shared
 
     var body: some View {
         VStack(spacing: 0) {
