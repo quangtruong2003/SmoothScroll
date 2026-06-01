@@ -6,7 +6,7 @@
 
 #![cfg(target_os = "macos")]
 
-use core_foundation::base::CFTypeRef;
+use core_foundation::base::{CFTypeRef, TCFType};
 use core_foundation::boolean::CFBoolean;
 use core_foundation::dictionary::CFMutableDictionary;
 use core_foundation::string::CFString;
@@ -27,10 +27,10 @@ pub fn is_trusted(prompt: bool) -> bool {
     if prompt {
         // Build a CFDictionary with kAXTrustedCheckOptionPrompt = true.
         let key = CFString::from_static_string("kAXTrustedCheckOptionPrompt");
-        let mut dict = CFMutableDictionary::from_CFType_refs(&[
-            (key.as_CFType(), CFBoolean::true_value().as_CFType()),
+        let dict = CFMutableDictionary::from_CFType_pairs(&[
+            (key.as_CFTypeRef(), CFBoolean::true_value().as_CFTypeRef()),
         ]);
-        unsafe { AXIsProcessTrustedWithOptions(dict.as_concrete_TypeRef() as CFDictionaryRef) }
+        unsafe { AXIsProcessTrustedWithOptions(dict.as_CFTypeRef() as CFDictionaryRef) }
     } else {
         unsafe { AXIsProcessTrustedWithOptions(ptr::null_mut()) }
     }

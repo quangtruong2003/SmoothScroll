@@ -8,11 +8,13 @@
 
 use crate::traits::HookEventSink;
 use crate::types::{ModifierKeys, PlatformError, Result};
-use core_foundation::base::{CFAllocatorRef, CFRelease, kCFAllocatorDefault};
-use core_foundation::runloop::{
-    CFRunLoopAddSource, CFRunLoopGetCurrent, CFRunLoopRemoveSource,
-    CFRunLoopRunInMode, CFRunLoopSource, CFRunLoopSourceInvalidate,
-};
+use core_foundation::base::CFRelease;
+use core_foundation::string::CFStringRef;
+use core_foundation_sys::base::CFAllocatorRef;
+use core_foundation_sys::base::kCFAllocatorDefault;
+use core_foundation_sys::runloop::CFRunLoopGetCurrent;
+use core_foundation_sys::runloop::CFRunLoopRunInMode;
+use core_foundation_sys::runloop::CFRunLoopSourceInvalidate;
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
 use std::sync::Arc;
 
@@ -21,8 +23,6 @@ use std::sync::Arc;
 // ---------------------------------------------------------------------------
 
 type CFMachPortRef = *mut std::os::raw::c_void;
-type CFRunLoopRef = *mut std::os::raw::c_void;
-type CFRunLoopSourceRef = *mut std::os::raw::c_void;
 type CGEventTapProxy = *mut std::os::raw::c_void;
 type CGEventRef = *mut std::os::raw::c_void;
 type CGEventTapCallBack = unsafe extern "C" fn(
@@ -32,8 +32,20 @@ type CGEventTapCallBack = unsafe extern "C" fn(
     user_info: *mut std::os::raw::c_void,
 ) -> CGEventRef;
 
+// Use the concrete CF types from core-foundation-sys
+use core_foundation_sys::runloop::CFRunLoopRef;
+use core_foundation_sys::runloop::CFRunLoopSourceRef;
+use core_foundation_sys::base::CFTypeRef;
+
+// Run loop mode from core-foundation (no name conflict — this is a Rust const, not extern)
+use core_foundation::runloop::kCFRunLoopDefaultMode;
+
 const kCGHIDEventTap: u32 = 0;
 const kCGHeadInsertEventTap: u32 = 0;
+
+// CFMachPortRef is CFTypeRef (which is *mut libc::c_void) on macOS
+// We need to cast between these types.
+type MyCFTypeRef = CFTypeRef;
 
 #[link(name = "CoreGraphics", kind = "framework")]
 extern "C" {
@@ -54,14 +66,13 @@ extern "C" {
         order: isize,
     ) -> CFRunLoopSourceRef;
 
-    // FIX #1: First param is CFRunLoopRef, not CFRunLoopSourceRef
     fn CFRunLoopAddSource(rl: CFRunLoopRef, source: CFRunLoopSourceRef, mode: CFStringRef);
     fn CFRunLoopRemoveSource(rl: CFRunLoopRef, source: CFRunLoopSourceRef, mode: CFStringRef);
 
     fn CGEventGetIntegerValueField(event: CGEventRef, field: i64) -> i64;
     fn CGEventGetFlags(event: CGEventRef) -> u32;
 
-    // Event field keys (raw CFStringRef)
+    // Event field keys
     static kCGScrollWheelEventDeltaAxis1: i64;
     static kCGScrollWheelEventDeltaAxis2: i64;
     static kCGScrollWheelEventPointDeltaAxis1: i64;
@@ -74,17 +85,9 @@ extern "C" {
     static kCGEventFlagMaskAlternate: u32;
     static kCGEventFlagMaskCommand: u32;
 
-    // Run loop mode (raw CFStringRef)
-    static kCFRunLoopDefaultMode: CFStringRef;
-
     // CFMachPort cleanup
     fn CFMachPortInvalidate(port: CFMachPortRef);
-
-    // kCFAllocatorDefault constant for the allocator param
-    static kCFAllocatorDefault: CFAllocatorRef;
 }
-
-use core_foundation::string::CFStringRef;
 
 /// Classifies a scroll event's input source.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -94,9 +97,7 @@ pub enum ScrollInputSource {
 }
 
 impl ScrollInputSource {
-    // SAFETY: `event` must be a valid, non-null CGEventRef passed by the system
-    // to our event tap callback. The system guarantees the pointer is valid
-    // for the duration of the callback.
+    /// SAFETY: `event` must be a valid, non-null CGEventRef passed by the system.
     unsafe fn from_event(event: CGEventRef) -> Self {
         let is_continuous = CGEventGetIntegerValueField(event, kCGScrollWheelEventIsContinuous);
         if is_continuous != 0 {
@@ -107,7 +108,7 @@ impl ScrollInputSource {
     }
 }
 
-// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
+/// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
 unsafe fn read_modifiers(event: CGEventRef) -> ModifierKeys {
     let flags = CGEventGetFlags(event);
     ModifierKeys {
@@ -118,7 +119,7 @@ unsafe fn read_modifiers(event: CGEventRef) -> ModifierKeys {
     }
 }
 
-// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
+/// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
 unsafe fn read_vertical_delta(event: CGEventRef) -> i32 {
     let delta = CGEventGetIntegerValueField(event, kCGScrollWheelEventDeltaAxis2);
     if delta != 0 {
@@ -127,7 +128,7 @@ unsafe fn read_vertical_delta(event: CGEventRef) -> i32 {
     CGEventGetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis2) as i32
 }
 
-// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
+/// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
 unsafe fn read_horizontal_delta(event: CGEventRef) -> i32 {
     let delta = CGEventGetIntegerValueField(event, kCGScrollWheelEventDeltaAxis1);
     if delta != 0 {
@@ -144,16 +145,12 @@ struct TapCallback {
     sink: Arc<dyn HookEventSink>,
     run_loop_source: CFRunLoopSourceRef,
     tap: CFMachPortRef,
-    stop: Arc<AtomicBool>,
 }
 
-// FIX #12: Use SeqCst for cross-thread pointer sharing — the callback runs
-// on the event tap's internal thread, not the creating thread.
 static CALLBACK_PTR: AtomicPtr<TapCallback> = AtomicPtr::new(std::ptr::null_mut());
 
-// SAFETY: This callback is invoked by the system on the event tap's dedicated
-// thread. CALLBACK_PTR is loaded with SeqCst ordering and is guaranteed to
-// be non-null between run_event_loop setup and teardown.
+/// SAFETY: Callback is invoked by the system on the event tap's dedicated thread.
+/// CALLBACK_PTR is loaded with SeqCst and guaranteed non-null between setup and teardown.
 unsafe extern "C" fn event_callback(
     _proxy: CGEventTapProxy,
     _type: u32,
@@ -179,31 +176,23 @@ unsafe extern "C" fn event_callback(
     let _v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
     let _h_decision = cb.sink.on_hwheel_ext(h_delta, input_source);
 
-    // Pass the event through unmodified — the sink observes and may
-    // modify engine state; actual event modification for smoothing
-    // happens via the wheel_emitter posting synthetic events.
     event
 }
 
 /// Creates and runs the event tap. Blocks until `stop` is set to true.
-///
-/// FIX #7: This function MUST be called from the main thread (or a thread
-/// with a proper CFRunLoop). It pumps the run loop internally so the
-/// callback actually fires.
+/// MUST be called from the main thread (or a thread with a proper CFRunLoop).
 pub fn run_event_loop(
     sink: Arc<dyn HookEventSink>,
     stop: Arc<AtomicBool>,
 ) -> Result<()> {
-    // Build the mask of interest: scroll wheel events only.
-    let events_of_interest: u64 = 1 << 22; // kCGEventScrollWheel = 22
+    // kCGEventScrollWheel = 22
+    let events_of_interest: u64 = 1 << 22;
 
-    // SAFETY: CGEventTapCreate is a standard Core Graphics function.
-    // We pass valid function pointers and constants.
     let tap = unsafe {
         CGEventTapCreate(
             kCGHIDEventTap,
             kCGHeadInsertEventTap,
-            0, // CGEventTapOptions::Default
+            0,
             events_of_interest,
             event_callback,
             std::ptr::null_mut(),
@@ -214,12 +203,8 @@ pub fn run_event_loop(
         return Err(PlatformError::PermissionDenied);
     }
 
-    // FIX #5: Remove unused CGEventSource creation — it was never used.
-
-    // SAFETY: CFMachPortCreateRunLoopSource requires a valid CFMachPortRef
-    // (tap) which we just created and verified is non-null.
-    let run_loop_source = unsafe {
-        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+    let run_loop_source: CFRunLoopSourceRef = unsafe {
+        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap as MyCFTypeRef, 0)
     };
     if run_loop_source.is_null() {
         unsafe {
@@ -233,35 +218,23 @@ pub fn run_event_loop(
         sink,
         run_loop_source,
         tap,
-        stop: stop.clone(),
     });
-    // FIX #12: SeqCst for the store to match the SeqCst load in the callback.
     let cb_ptr = Box::into_raw(cb);
     CALLBACK_PTR.store(cb_ptr, Ordering::SeqCst);
 
-    // SAFETY: tap is a valid CFMachPortRef, run_loop_source is a valid
-    // CFRunLoopSourceRef, kCFRunLoopDefaultMode is a system constant.
     unsafe {
         CGEventTapEnable(tap, true);
-
         let run_loop = CFRunLoopGetCurrent();
         CFRunLoopAddSource(run_loop, run_loop_source, kCFRunLoopDefaultMode);
     }
 
-    // FIX #6: Actually pump the run loop so callbacks fire.
-    // CFRunLoopRunInMode processes pending events and returns after the
-    // timeout, allowing us to check the stop flag.
     while !stop.load(Ordering::SeqCst) {
-        // SAFETY: kCFRunLoopDefaultMode is a valid system CFStringRef constant.
-        // CFRunLoopRunInMode is safe to call repeatedly from the same thread.
+        // CFRunLoopRunInMode takes Boolean (u8): false = 0
         unsafe {
-            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.016, false);
+            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.016, 0);
         }
     }
 
-    // Clean up.
-    // SAFETY: All pointers were created above and are still valid.
-    // CFMachPortInvalidate must be called before CFRelease for mach ports.
     unsafe {
         let run_loop = CFRunLoopGetCurrent();
         CFRunLoopRemoveSource(run_loop, run_loop_source, kCFRunLoopDefaultMode);
