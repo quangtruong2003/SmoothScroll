@@ -211,9 +211,9 @@ jobs:
           # Download xcodegen binary directly from GitHub releases
           curl -fsSL https://github.com/yonaskolb/XcodeGen/releases/download/2.45.0/xcodegen.zip -o xcodegen.zip
           unzip -o xcodegen.zip
-          chmod +x XcodeGen-2.45.0/bin/xcodegen
+          chmod +x xcodegen/bin/xcodegen
           cd macos/SmoothScrollMenuBar
-          ../XcodeGen-2.45.0/bin/xcodegen generate
+          ../xcodegen/bin/xcodegen generate
           xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch }} build
 
       - name: Package DMG
