@@ -5,6 +5,8 @@ options:
     macOS: "13.0"
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
+  # Keep project format compatible with Xcode 15 (CI runner has Xcode 15.4)
+  projectFormat: xcode15_3
 
 settings:
   base:
