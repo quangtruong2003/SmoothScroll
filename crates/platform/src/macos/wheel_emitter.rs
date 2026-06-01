@@ -6,8 +6,7 @@
 #![cfg(target_os = "macos")]
 
 use crate::types::{PlatformError, Result};
-use core_foundation::base::{CFRelease, kCFAllocatorDefault};
-use core_foundation_sys::base::CFAllocatorRef;
+use core_foundation_sys::base::{CFAllocatorRef, CFRelease, kCFAllocatorDefault};
 use std::sync::OnceLock;
 
 use crate::traits::{WheelEmitter, ZoomEmitter};

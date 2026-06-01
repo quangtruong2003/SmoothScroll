@@ -44,7 +44,7 @@ objc2-foundation = { version = "0.2", default-features = false, features = [
     "std",
     "NSString",
 ] }
-core-foundation = "0.10"
+# core-foundation v0.7 pulls core-foundation-sys v0.7 — must match objc2's dep
+core-foundation = "0.7"
 core-graphics = "0.19"
-# core-foundation-sys re-exported by core-foundation but explicit dep ensures version
-core-foundation-sys = "0.8"
+core-foundation-sys = "0.7"

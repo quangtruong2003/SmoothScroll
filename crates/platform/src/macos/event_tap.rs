@@ -8,13 +8,14 @@
 
 use crate::traits::HookEventSink;
 use crate::types::{ModifierKeys, PlatformError, Result};
-use core_foundation::base::CFRelease;
 use core_foundation::string::CFStringRef;
-use core_foundation_sys::base::CFAllocatorRef;
-use core_foundation_sys::base::kCFAllocatorDefault;
-use core_foundation_sys::runloop::CFRunLoopGetCurrent;
-use core_foundation_sys::runloop::CFRunLoopRunInMode;
-use core_foundation_sys::runloop::CFRunLoopSourceInvalidate;
+use core_foundation::runloop::kCFRunLoopDefaultMode;
+use core_foundation_sys::base::{CFAllocatorRef, kCFAllocatorDefault, CFTypeRef, CFRelease};
+use core_foundation_sys::runloop::{
+    CFRunLoopGetCurrent, CFRunLoopRunInMode, CFRunLoopSourceInvalidate, CFRunLoopRef,
+    CFRunLoopSourceRef,
+};
+use core_foundation_sys::base::CFTypeRef;
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
 use std::sync::Arc;
 
@@ -32,20 +33,8 @@ type CGEventTapCallBack = unsafe extern "C" fn(
     user_info: *mut std::os::raw::c_void,
 ) -> CGEventRef;
 
-// Use the concrete CF types from core-foundation-sys
-use core_foundation_sys::runloop::CFRunLoopRef;
-use core_foundation_sys::runloop::CFRunLoopSourceRef;
-use core_foundation_sys::base::CFTypeRef;
-
-// Run loop mode from core-foundation (no name conflict — this is a Rust const, not extern)
-use core_foundation::runloop::kCFRunLoopDefaultMode;
-
 const kCGHIDEventTap: u32 = 0;
 const kCGHeadInsertEventTap: u32 = 0;
-
-// CFMachPortRef is CFTypeRef (which is *mut libc::c_void) on macOS
-// We need to cast between these types.
-type MyCFTypeRef = CFTypeRef;
 
 #[link(name = "CoreGraphics", kind = "framework")]
 extern "C" {
@@ -204,7 +193,7 @@ pub fn run_event_loop(
     }
 
     let run_loop_source: CFRunLoopSourceRef = unsafe {
-        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap as MyCFTypeRef, 0)
+        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap as CFTypeRef, 0)
     };
     if run_loop_source.is_null() {
         unsafe {
