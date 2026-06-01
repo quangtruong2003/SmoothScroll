@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.9] - 2026-06-01
+
+### Fixed
+- correct xcodegen path after unzip (xcodegen/bin/ not XcodeGen-2.45.0/bin/)
 ## [1.4.8] - 2026-06-01
 
 ### Fixed
