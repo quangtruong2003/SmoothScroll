@@ -24,7 +24,6 @@ pub use process_query::MacosProcessQuery;
 pub use wheel_emitter::MacosWheelEmitter;
 pub use window_geom::MacosWindowGeometry;
 
-use crate::traits::ZoomEmitter;
 use crate::types::Result;
 use crate::Platform;
 use std::sync::Arc;
