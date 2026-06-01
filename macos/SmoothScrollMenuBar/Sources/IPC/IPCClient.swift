@@ -1,9 +1,10 @@
 import Foundation
+import Darwin
 
 actor IPCClient {
     static let shared = IPCClient()
 
-    private var socket: UnixSocketConnection?
+    private var socketFd: Int32 = -1
     private var isConnected = false
     private var nextId = 1
 
@@ -17,12 +18,31 @@ actor IPCClient {
     func connect() async throws {
         guard !isConnected else { return }
 
-        let connection = UnixSocketConnection(path: socketPath)
-        try await connection.connect()
-        self.socket = connection
+        let fd = Darwin.socket(AF_UNIX, SOCK_STREAM, 0)
+        guard fd >= 0 else { throw IpcError(message: "socket() failed") }
+
+        var addr = sockaddr_un()
+        addr.sun_family = sa_family_t(AF_UNIX)
+        withUnsafeMutablePointer(to: &addr.sun_path) { ptr in
+            ptr.withMemoryRebound(to: CChar.self, capacity: Int(UNIX_PATH_MAX)) { pathPtr in
+                _ = (socketPath as NSString).getCString(pathPtr, maxLength: Int(UNIX_PATH_MAX), encoding: .utf8)
+            }
+        }
+
+        let rc = withUnsafePointer(to: &addr) { ptr in
+            ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sockaddrPtr in
+                Darwin.connect(fd, sockaddrPtr, socklen_t(MemoryLayout<sockaddr_un>.size))
+            }
+        }
+
+        if rc < 0 {
+            close(fd)
+            throw IpcError(message: "connect() failed: \(String(cString: strerror(errno)))")
+        }
+
+        self.socketFd = fd
         self.isConnected = true
 
-        // Start reading responses and events.
         Task {
             await readLoop()
         }
@@ -30,24 +50,26 @@ actor IPCClient {
 
     func disconnect() async throws {
         isConnected = false
-        socket = nil
+        if socketFd >= 0 {
+            close(socketFd)
+            socketFd = -1
+        }
     }
 
     private func readLoop() async {
-        guard let socket = socket else { return }
+        guard socketFd >= 0 else { return }
 
         while isConnected {
-            do {
-                let line = try await socket.readLine()
-                guard let data = line.data(using: .utf8) else { continue }
-
-                // Try to decode as event first.
-                if let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
-                    await handleEvent(event)
-                }
-            } catch {
+            var buffer = [CChar](repeating: 0, count: 4096)
+            let n = read(socketFd, &buffer, buffer.count)
+            if n <= 0 {
                 isConnected = false
                 break
+            }
+            let line = String(cString: buffer)
+            if let data = line.data(using: .utf8),
+               let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
+                await handleEvent(event)
             }
         }
     }
@@ -66,7 +88,7 @@ actor IPCClient {
     }
 
     private func send<T: Decodable>(_ request: IpcRequest) async throws -> T {
-        guard let socket = socket else {
+        guard socketFd >= 0 else {
             throw IpcError(message: "Not connected")
         }
 
@@ -78,12 +100,22 @@ actor IPCClient {
         let data = try JSONEncoder().encode(message)
         let line = String(data: data, encoding: .utf8)! + "\n"
 
-        try await socket.write(line)
+        try writeLine(line)
 
-        // For simplicity, events are handled in the read loop.
-        // This is a simplified client — a full implementation would use
-        // a dictionary of pending requests keyed by id.
         throw IpcError(message: "Request/response not implemented — use events for state sync")
+    }
+
+    private func writeLine(_ line: String) throws {
+        guard socketFd >= 0 else { throw IpcError(message: "Not connected") }
+        let bytes = line.data(using: .utf8)!
+        var sent = 0
+        while sent < bytes.count {
+            let n = write(socketFd, bytes.baseAddress! + sent, bytes.count - sent)
+            if n < 0 {
+                throw IpcError(message: "write() failed: \(String(cString: strerror(errno)))")
+            }
+            sent += n
+        }
     }
 
     private func requestToMethodAndParams(_ request: IpcRequest) -> (String, [String: AnyCodable]?) {
@@ -111,62 +143,23 @@ actor IPCClient {
 
     func setScrollEnabled(_ enabled: Bool) async throws {
         guard isConnected else { return }
-        let _ = try await socket?.write("{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_scroll_enabled\",\"params\":{\"enabled\":\(enabled)}}\n")
+        let line = "{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_scroll_enabled\",\"params\":{\"enabled\":\(enabled)}}\n"
         nextId += 1
+        try writeLine(line)
     }
 
     func setDirectionSyncEnabled(_ enabled: Bool) async throws {
         guard isConnected else { return }
-        let _ = try await socket?.write("{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_direction_sync_enabled\",\"params\":{\"enabled\":\(enabled)}}\n")
+        let line = "{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_direction_sync_enabled\",\"params\":{\"enabled\":\(enabled)}}\n"
         nextId += 1
+        try writeLine(line)
     }
 
     func setPreset(_ preset: String) async throws {
         guard isConnected else { return }
-        let _ = try await socket?.write("{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_preset\",\"params\":{\"preset\":\"\(preset)\"}}\n")
+        let line = "{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_preset\",\"params\":{\"preset\":\"\(preset)\"}}\n"
         nextId += 1
-    }
-}
-
-// MARK: - Unix Socket Connection
-
-class UnixSocketConnection {
-    let path: String
-    private var stream: FileHandle?
-
-    init(path: String) {
-        self.path = path
-    }
-
-    func connect() async throws {
-        // Use a pipe approach: connect to the Unix socket.
-        let url = URL(fileURLWithPath: path)
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            var readHandle: FileHandle?
-            var writeHandle: FileHandle?
-
-            // On macOS, use CFSocket/URLSession for Unix domain sockets.
-            // For simplicity, we use a Task to handle the connection.
-            Task {
-                do {
-                    let (r, w) = try await Darwin.connectToUnixSocket(path: self.path)
-                    self.stream = r
-                    continuation.resume()
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
-    }
-
-    func write(_ data: String) async throws {
-        guard let stream = stream else { throw IpcError(message: "Not connected") }
-        try await stream.write(contentsOf: data.data(using: .utf8)!)
-    }
-
-    func readLine() async throws -> String {
-        guard let stream = stream else { throw IpcError(message: "Not connected") }
-        return try await stream.readLine()
+        try writeLine(line)
     }
 }
 
