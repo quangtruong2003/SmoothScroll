@@ -3870,8 +3870,8 @@ name = "smoothscroll_platform"
 version = "1.4.4"
 dependencies = [
  "anyhow",
- "core-foundation 0.10.1",
- "core-foundation-sys 0.8.7",
+ "core-foundation 0.7.0",
+ "core-foundation-sys 0.7.0",
  "core-graphics 0.19.2",
  "objc2 0.5.2",
  "objc2-app-kit 0.2.2",
