@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-06-01
+
+### Fixed
+- pin xcodegen to v2.42.0 to match Xcode 15.4
 ## [1.4.6] - 2026-06-01
 
 ### Fixed
