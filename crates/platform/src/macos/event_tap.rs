@@ -10,12 +10,11 @@ use crate::traits::HookEventSink;
 use crate::types::{ModifierKeys, PlatformError, Result};
 use core_foundation::string::CFStringRef;
 use core_foundation::runloop::kCFRunLoopDefaultMode;
-use core_foundation_sys::base::{CFAllocatorRef, kCFAllocatorDefault, CFTypeRef, CFRelease};
+use core_foundation_sys::base::{CFAllocatorRef, kCFAllocatorDefault, CFRelease};
 use core_foundation_sys::runloop::{
     CFRunLoopGetCurrent, CFRunLoopRunInMode, CFRunLoopSourceInvalidate, CFRunLoopRef,
     CFRunLoopSourceRef,
 };
-use core_foundation_sys::base::CFTypeRef;
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
 use std::sync::Arc;
 
@@ -32,6 +31,7 @@ type CGEventTapCallBack = unsafe extern "C" fn(
     event: CGEventRef,
     user_info: *mut std::os::raw::c_void,
 ) -> CGEventRef;
+type CFTypeRef = *mut std::os::raw::c_void;
 
 const kCGHIDEventTap: u32 = 0;
 const kCGHeadInsertEventTap: u32 = 0;
