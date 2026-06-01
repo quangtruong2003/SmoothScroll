@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.15] - 2026-06-01
+
+### Fixed
+- update IPCClient buffer type for improved data handling
 ## [1.4.14] - 2026-06-01
 
 ### Fixed
