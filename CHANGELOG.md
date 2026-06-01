@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.11] - 2026-06-01
+
+### Fixed
+- map x64 to x86_64 for xcodebuild -arch flag
 ## [1.4.10] - 2026-06-01
 
 ### Fixed
