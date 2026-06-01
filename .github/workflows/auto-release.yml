@@ -207,8 +207,12 @@ jobs:
           cargo build --release -p smoothscroll_platform -p smoothscroll_core --target ${{ matrix.target }}
 
       - name: Build Swift app
+        env:
+          # Latest xcodegen generates project format 77 (Xcode 16.1+) but
+          # CI runner has Xcode 15.4 (max format 56). Use v2.42.0.
+          XCODE_VERSION: "15.0"
         run: |
-          brew install xcodegen
+          npm install -g xcodegen@2.42.0
           cd macos/SmoothScrollMenuBar
           xcodegen generate
           xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch }} build
