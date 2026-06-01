@@ -45,8 +45,6 @@ objc2-foundation = { version = "0.2", default-features = false, features = [
     "NSString",
 ] }
 core-foundation = "0.10"
-core-foundation-sys = "0.8"
 core-graphics = "0.19"
-
-# No target-specific deps for non-macOS
-[target.'cfg(not(target_os = "macos"))'.dependencies]
+# core-foundation-sys re-exported by core-foundation but explicit dep ensures version
+core-foundation-sys = "0.8"

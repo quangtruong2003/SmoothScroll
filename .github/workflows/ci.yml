@@ -52,47 +52,47 @@ jobs:
       - name: Build Tauri app (no signing)
         run: pnpm tauri build -- --no-bundle
 
-  # build-macos:
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include:
-  #         - target: aarch64-apple-darwin
-  #         - target: x86_64-apple-darwin
-  #   runs-on: macos-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #
-  #     - uses: dtolnay/rust-toolchain@stable
-  #       with:
-  #         targets: ${{ matrix.target }}, wasm32-unknown-unknown
-  #
-  #     - name: Cache cargo + target
-  #       uses: Swatinem/rust-cache@v2
-  #       with:
-  #         workspaces: |
-  #           .
-  #           src-tauri
-  #         shared-key: ci-macos-${{ matrix.target }}
-  #
-  #     - name: Install wasm-pack
-  #       uses: taiki-e/install-action@v2
-  #       with:
-  #         tool: wasm-pack
-  #
-  #     - name: Setup pnpm
-  #       uses: pnpm/action-setup@v4
-  #
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '20'
-  #         cache: 'pnpm'
-  #         cache-dependency-path: pnpm-lock.yaml
-  #
-  #     - run: pnpm install --frozen-lockfile
-  #
-  #     - name: Build WASM engine bundle
-  #       run: pnpm run build:wasm
-  #
-  #     - name: Build Tauri app (no signing)
-  #       run: pnpm tauri build -- --target ${{ matrix.target }} --no-bundle
+  build-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}, wasm32-unknown-unknown
+
+      - name: Cache cargo + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: ci-macos-${{ matrix.target }}
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build WASM engine bundle
+        run: pnpm run build:wasm
+
+      - name: Build Tauri app (no signing)
+        run: pnpm tauri build -- --target ${{ matrix.target }} --no-bundle
