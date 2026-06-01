@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.10] - 2026-06-01
+
+### Fixed
+- chain swift build commands with && (each run: line is separate shell)
 ## [1.4.9] - 2026-06-01
 
 ### Fixed
