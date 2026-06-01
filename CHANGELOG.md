@@ -7,6 +7,11 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.12] - 2026-06-01
+
+### Fixed
+- add macos/** to auto-release trigger paths
+- bump deployment target to macOS 15.0 and fix SettingsStore usage
 ## [1.4.11] - 2026-06-01
 
 ### Fixed
