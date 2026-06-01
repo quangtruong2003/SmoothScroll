@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.6] - 2026-06-01
+
+### Fixed
+- define CFTypeRef as *mut c_void to match CFMachPortRef
 ## [1.4.5] - 2026-06-01
 
 ### Fixed
