@@ -23,9 +23,14 @@ actor IPCClient {
 
         var addr = sockaddr_un()
         addr.sun_family = sa_family_t(AF_UNIX)
-        withUnsafeMutablePointer(to: &addr.sun_path) { ptr in
-            ptr.withMemoryRebound(to: CChar.self, capacity: Int(UNIX_PATH_MAX)) { pathPtr in
-                _ = (socketPath as NSString).getCString(pathPtr, maxLength: Int(UNIX_PATH_MAX), encoding: .utf8)
+
+        let maxPathLen = MemoryLayout.size(ofValue: addr.sun_path)
+        socketPath.withCString { pathPtr in
+            withUnsafeMutablePointer(to: &addr.sun_path) { sunPathPtr in
+                sunPathPtr.withMemoryRebound(to: CChar.self, capacity: maxPathLen) { dstPtr in
+                    strncpy(dstPtr, pathPtr, maxPathLen - 1)
+                    dstPtr[maxPathLen - 1] = 0
+                }
             }
         }
 
@@ -66,7 +71,7 @@ actor IPCClient {
                 isConnected = false
                 break
             }
-            let line = String(cString: buffer)
+            let line = String(decoding: buffer[0..<n], as: UTF8.self)
             if let data = line.data(using: .utf8),
                let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
                 await handleEvent(event)
@@ -107,10 +112,13 @@ actor IPCClient {
 
     private func writeLine(_ line: String) throws {
         guard socketFd >= 0 else { throw IpcError(message: "Not connected") }
-        let bytes = line.data(using: .utf8)!
+        let bytes = Array(line.utf8)
         var sent = 0
         while sent < bytes.count {
-            let n = write(socketFd, bytes.baseAddress! + sent, bytes.count - sent)
+            let n = bytes.withUnsafeBytes { rawBuf in
+                let base = rawBuf.bindMemory(to: UInt8.self).baseAddress!
+                return Darwin.write(socketFd, base.advanced(by: sent), bytes.count - sent)
+            }
             if n < 0 {
                 throw IpcError(message: "write() failed: \(String(cString: strerror(errno)))")
             }
