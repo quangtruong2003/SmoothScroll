@@ -216,12 +216,19 @@ jobs:
           chmod +x xcodegen/bin/xcodegen && \
           cd macos/SmoothScrollMenuBar && \
           ../../xcodegen/bin/xcodegen generate && \
-          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch == 'x64' && 'x86_64' || matrix.arch }} build
+          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch == 'x64' && 'x86_64' || matrix.arch }} CONFIGURATION_BUILD_DIR=build/Release build
 
       - name: Package DMG
+        id: package-dmg
         run: |
           mkdir -p dmg-tmp
           APP_PATH="macos/SmoothScrollMenuBar/build/Release/SmoothScrollMenuBar.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: App not found at $APP_PATH"
+            echo "Contents of build/:"
+            ls -la macos/SmoothScrollMenuBar/build/ 2>/dev/null || echo "build dir does not exist"
+            exit 1
+          fi
           hdiutil create dmg-tmp/SmoothScroll.dmg -volname SmoothScroll -srcfolder "$APP_PATH" -ov
           DMG_PATH="dmg-tmp/SmoothScroll_${{ matrix.arch }}.dmg"
           mv dmg-tmp/SmoothScroll.dmg "$DMG_PATH"
