@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.16] - 2026-06-01
+
+### Fixed
+- set CONFIGURATION_BUILD_DIR for xcodebuild, add DMG error diagnostics
 ## [1.4.15] - 2026-06-01
 
 ### Fixed
