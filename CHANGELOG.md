@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-06-01
+
+### Fixed
+- fix all 12 compile errors from CI - name conflicts, type mismatches, OnceLock Sync, CFDictionary API
 ## [1.4.2] - 2026-06-01
 
 ### Fixed
