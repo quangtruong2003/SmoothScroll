@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.13] - 2026-06-01
+
+### Fixed
+- rewrite IPCClient with BSD socket APIs for macOS 14.5 compatibility
 ## [1.4.12] - 2026-06-01
 
 ### Fixed

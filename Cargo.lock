@@ -3823,7 +3823,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "smoothscroll-app"
-version = "1.4.12"
+version = "1.4.13"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -3853,7 +3853,7 @@ dependencies = [
 
 [[package]]
 name = "smoothscroll_core"
-version = "1.4.12"
+version = "1.4.13"
 dependencies = [
  "approx",
  "criterion",
@@ -3867,7 +3867,7 @@ dependencies = [
 
 [[package]]
 name = "smoothscroll_platform"
-version = "1.4.12"
+version = "1.4.13"
 dependencies = [
  "anyhow",
  "core-foundation 0.7.0",
