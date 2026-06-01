@@ -65,14 +65,14 @@ actor IPCClient {
         guard socketFd >= 0 else { return }
 
         while isConnected {
-            var buffer = [CChar](repeating: 0, count: 4096)
+            var buffer = [UInt8](repeating: 0, count: 4096)
             let n = read(socketFd, &buffer, buffer.count)
             if n <= 0 {
                 isConnected = false
                 break
             }
             let line = String(decoding: buffer[0..<n], as: UTF8.self)
-            if let data = line.data(using: .utf8),
+            if let data = line.data(using: String.Encoding.utf8),
                let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
                 await handleEvent(event)
             }
