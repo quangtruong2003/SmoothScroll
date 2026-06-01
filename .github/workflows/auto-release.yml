@@ -215,7 +215,7 @@ jobs:
           chmod +x xcodegen/bin/xcodegen && \
           cd macos/SmoothScrollMenuBar && \
           ../../xcodegen/bin/xcodegen generate && \
-          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch }} build
+          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch == 'x64' && 'x86_64' || matrix.arch }} build
 
       - name: Package DMG
         run: |
