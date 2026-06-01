@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.4.14] - 2026-06-01
+
+### Fixed
+- make menubar buildable on Xcode 15.4 (macOS 14.5 SDK)
 ## [1.4.13] - 2026-06-01
 
 ### Fixed
