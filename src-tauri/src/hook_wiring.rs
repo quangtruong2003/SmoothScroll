@@ -92,6 +92,19 @@ impl EngineSink {
     /// Returns `None` if the app under the cursor/foreground is disabled.
     /// Otherwise returns the active `EffectiveSettings` (per-profile or global).
     fn resolve_active(&self) -> Option<Arc<EffectiveSettings>> {
+        // Bypass engine for elevated (admin) target windows unconditionally.
+        // UIPI blocks SendInput/PostMessageW from a medium-IL sender to a
+        // high-IL target, so swallowing the event would silently lose scroll.
+        // Forwarding the raw event preserves native scroll instead.
+        // This check must run regardless of excluded_apps / app_profiles config.
+        #[cfg(windows)]
+        if self.state.processes.is_target_elevated() {
+            if tracing::enabled!(tracing::Level::DEBUG) {
+                tracing::debug!("bypassing engine for elevated target");
+            }
+            return None;
+        }
+
         let should_lookup_processes = {
             let s = self.state.settings.read();
             !s.excluded_apps.is_empty() || !s.app_profiles.is_empty() || s.auto_disable_windows_apps
@@ -110,18 +123,6 @@ impl EngineSink {
                 )
             })
         };
-
-        // NEW: bypass engine for elevated (admin) target windows.
-        // UIPI blocks SendInput/PostMessageW from a medium-IL sender to a
-        // high-IL target, so swallowing the event would silently lose scroll.
-        // Forwarding the raw event preserves native scroll instead.
-        #[cfg(windows)]
-        if self.state.processes.is_target_elevated() {
-            if tracing::enabled!(tracing::Level::DEBUG) {
-                tracing::debug!("bypassing engine for elevated target");
-            }
-            return None;
-        }
 
         let start = Instant::now();
         let s = self.state.settings.read();
