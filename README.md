@@ -1,10 +1,10 @@
-<div align="center">
 
-<img src="src-tauri/icons/128x128@2x.png" alt="SmoothScroll — smooth mouse wheel scrolling for Windows" width="128" height="128" />
+
+
 
 # SmoothScroll — Smooth Scrolling for Windows
 
-🌐 **[Website &amp; download → quangtruong2003.github.io/SmoothScroll](https://quangtruong2003.github.io/SmoothScroll/)**
+🌐 **[Website & download → quangtruong2003.github.io/SmoothScroll](https://quangtruong2003.github.io/SmoothScroll/)**
 
 **Smooth mouse-wheel scrolling for Windows 10 and Windows 11.** Native low-level input interception, frame-perfect easing, per-app exclusion. A free, open-source alternative to Logitech SmoothScroll, WizMouse, and Mac-style inertia scrolling utilities — built with Rust, Tauri 2, and React.
 
@@ -16,7 +16,14 @@
 [![Release](https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=release)](https://github.com/quangtruong2003/SmoothScroll/releases)
 [![Downloads](https://img.shields.io/github/downloads/quangtruong2003/SmoothScroll/total)](https://github.com/quangtruong2003/SmoothScroll/releases)
 
-</div>
+⭐ 15 stars  |  100+ downloads  |  v1.5.1  |  Windows 10/11
+
+<p align="center">
+  <img src="landing/public/assets/before.gif" alt="Before" width="320" />
+  <img src="landing/public/assets/after.gif" alt="After" width="320" />
+</p>
+
+*Jerky native scroll → SmoothScroll eased scroll*
 
 ---
 
@@ -49,12 +56,14 @@ Grab `SmoothScroll_<version>_x64-setup.exe` (NSIS) or `.msi` from the [Releases 
 
 ## Usage
 
-| Action | How |
-|--------|-----|
-| Open settings | Left-click tray icon |
-| Quick menu | Right-click tray icon — Enable, Open Settings, Exit |
-| Toggle on/off | `Ctrl+Alt+S` (rebindable in settings) |
-| Exclude an app | Settings → **Excluded Apps** → add by process name |
+
+| Action         | How                                                 |
+| -------------- | --------------------------------------------------- |
+| Open settings  | Left-click tray icon                                |
+| Quick menu     | Right-click tray icon — Enable, Open Settings, Exit |
+| Toggle on/off  | `Ctrl+Alt+S` (rebindable in settings)               |
+| Exclude an app | Settings → **Excluded Apps** → add by process name  |
+
 
 **Settings file:** `%APPDATA%\SmoothScroll\settings.json`
 
@@ -86,13 +95,15 @@ SmoothScroll is structured as a workspace with a clean separation between pure l
 └───────────────────────┘           └─────────────────────────────┘
 ```
 
-| Path | Purpose |
-|------|---------|
-| `crates/core/` | Scroll engine, easing math, settings model. Pure Rust, OS-agnostic, fully unit-tested. |
+
+| Path               | Purpose                                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `crates/core/`     | Scroll engine, easing math, settings model. Pure Rust, OS-agnostic, fully unit-tested.                      |
 | `crates/platform/` | OS-specific implementations behind traits — Windows hook, macOS event tap, wheel emitters, process queries. |
-| `src-tauri/` | Tauri 2 host — composition root, IPC commands, tray, hotkey wiring, lifecycle. |
-| `src/` | React + TypeScript settings UI. |
-| `docs/` | Specs, design notes, migration plans. |
+| `src-tauri/`       | Tauri 2 host — composition root, IPC commands, tray, hotkey wiring, lifecycle.                              |
+| `src/`             | React + TypeScript settings UI.                                                                             |
+| `docs/`            | Specs, design notes, migration plans.                                                                       |
+
 
 ## Build from source
 
@@ -123,7 +134,16 @@ cargo test --workspace
 
 ## Status
 
-[![Latest release](https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=latest&color=success)](https://github.com/quangtruong2003/SmoothScroll/releases/latest) — feature-complete v1 on Windows. macOS support is in development.
+[Latest release](https://github.com/quangtruong2003/SmoothScroll/releases/latest) — feature-complete v1 on Windows. macOS support is in development.
+
+## Comparison
+
+| | SmoothScroll | LibreScroll | Windows built-in |
+|---|---|---|---|
+| System-wide | ✅ | ✅ | ❌ |
+| Per-app profiles | ✅ | ❌ | ❌ |
+| Game mode | ✅ | ❌ | ❌ |
+| Open source | FSL-1.1 | GPL-3.0 | Proprietary |
 
 ## FAQ
 
@@ -167,11 +187,14 @@ Not yet. Linux support requires X11 / Wayland event interception, which is on th
 
 Issues and pull requests are welcome. For substantial changes, open an issue first to discuss the approach. Run `cargo fmt`, `cargo clippy -- -D warnings`, and `cargo test --workspace` before submitting.
 
+If this helps your workflow, star us on GitHub — it helps others find the project.
+
 ## License
 
 Licensed under the [Functional Source License, Version 1.1, Apache 2.0 Future License](LICENSE) (FSL-1.1-Apache-2.0).
 
 **What you can do for free:**
+
 - View, study, and learn from the source code
 - Use it for personal, educational, or research purposes
 - Use it internally within your organization
@@ -179,6 +202,7 @@ Licensed under the [Functional Source License, Version 1.1, Apache 2.0 Future Li
 - Redistribute copies under the same license
 
 **What requires a separate commercial license:**
+
 - Offering SmoothScroll (or a substantially similar product) as a paid product or service
 - Selling, sublicensing, or hosting it as a competing commercial offering
 

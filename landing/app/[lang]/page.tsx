@@ -1,5 +1,6 @@
 import { Hero } from '@/components/sections/Hero'
 import { PainPoints } from '@/components/sections/PainPoints'
+import { ScrollDemo } from '@/components/sections/ScrollDemo'
 import { SolutionBridge } from '@/components/sections/SolutionBridge'
 import { Features } from '@/components/sections/Features'
 import { UseCases } from '@/components/sections/UseCases'
@@ -24,6 +25,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
     <>
       <Hero dict={{ hero: dict.hero, beta: dict.beta, finalCta: dict.finalCta }} locale={locale} />
       <PainPoints dict={{ painPoints: dict.painPoints }} />
+      <ScrollDemo />
       <SolutionBridge dict={{ solutionBridge: dict.solutionBridge }} />
       <Features dict={{ features: dict.features }} />
       <UseCases dict={{ useCases: dict.useCases }} />
