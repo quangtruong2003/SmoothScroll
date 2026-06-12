@@ -301,7 +301,17 @@ fn get_process_integrity_level(pid: u32) -> IntegrityLevel {
             return IntegrityLevel::Unknown;
         }
 
+        // TOKEN_MANDATORY_LABEL is SID_AND_ATTRIBUTES{ SID_AND_ATTRIBUTES{ PSID sid, u32 attrs } }.
+        // A valid label needs at least the struct plus one sub-authority DWORD in the SID.
+        const MIN_LABEL_SIZE: usize = core::mem::size_of::<TOKEN_MANDATORY_LABEL>() + 4;
+        if (size as usize) < MIN_LABEL_SIZE {
+            return IntegrityLevel::Unknown;
+        }
+
         let label = &*(buffer.as_ptr() as *const TOKEN_MANDATORY_LABEL);
+        if label.Label.Sid.is_null() {
+            return IntegrityLevel::Unknown;
+        }
         let attr = label.Label.Attributes;
         if (attr & (SE_GROUP_INTEGRITY as u32)) == 0 {
             return IntegrityLevel::Medium;
