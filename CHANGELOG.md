@@ -7,6 +7,16 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-06-12
+
+### Added
+- implement is_target_elevated() with UAC detection
+- add is_target_elevated() to ProcessQuery trait
+- add IntegrityLevel enum
+
+### Fixed
+- move elevated check before should_lookup_processes gate
+- auto-bypass smooth scroll for elevated (admin) targets
 ## [1.4.16] - 2026-06-01
 
 ### Fixed
