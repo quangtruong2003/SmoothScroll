@@ -111,6 +111,18 @@ impl EngineSink {
             })
         };
 
+        // NEW: bypass engine for elevated (admin) target windows.
+        // UIPI blocks SendInput/PostMessageW from a medium-IL sender to a
+        // high-IL target, so swallowing the event would silently lose scroll.
+        // Forwarding the raw event preserves native scroll instead.
+        #[cfg(windows)]
+        if self.state.processes.is_target_elevated() {
+            if tracing::enabled!(tracing::Level::DEBUG) {
+                tracing::debug!("bypassing engine for elevated target");
+            }
+            return None;
+        }
+
         let start = Instant::now();
         let s = self.state.settings.read();
 
