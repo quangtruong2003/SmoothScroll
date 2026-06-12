@@ -74,6 +74,17 @@ pub trait ProcessQuery: Send + Sync {
     fn foreground_process_name(&self) -> Option<String> {
         None
     }
+
+    /// Returns true if the window under the cursor belongs to a process
+    /// running at High (elevated) integrity level. Used to bypass smooth
+    /// scrolling for admin apps that UIPI would otherwise block.
+    ///
+    /// The default returns `false` (safe — bypass is skipped on macOS and
+    /// on non-Windows builds). Windows overrides this in
+    /// `WindowsProcessQuery`.
+    fn is_target_elevated(&self) -> bool {
+        false
+    }
 }
 
 pub trait Autostart: Send + Sync {
