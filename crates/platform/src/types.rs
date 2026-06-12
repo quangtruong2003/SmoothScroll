@@ -53,3 +53,15 @@ pub struct WindowRect {
     pub right: i32,
     pub bottom: i32,
 }
+
+/// Windows process integrity level, used to detect elevated (admin) apps.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntegrityLevel {
+    /// Normal integrity — smooth scroll applies.
+    Medium,
+    /// Elevated (administrator/UAC) integrity — smooth scroll is bypassed
+    /// because UIPI blocks synthetic input from reaching these processes.
+    High,
+    /// Query failed — treat as Medium to avoid silent scroll breaks.
+    Unknown,
+}
