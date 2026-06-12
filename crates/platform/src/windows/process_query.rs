@@ -5,13 +5,22 @@
 #![cfg(windows)]
 
 use crate::traits::{ProcessInfo, ProcessQuery};
+use crate::types::IntegrityLevel;
 use parking_lot::Mutex;
 use std::os::raw::c_void;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
-use windows_sys::Win32::Foundation::{CloseHandle, BOOL, FALSE, LPARAM, MAX_PATH, POINT, TRUE};
-use windows_sys::Win32::System::Threading::{
-    GetCurrentProcessId, OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
+use windows_sys::Win32::Foundation::{CloseHandle, BOOL, FALSE, HANDLE, LPARAM, MAX_PATH, POINT, TRUE};
+use windows_sys::Win32::Security::{
+    GetSidSubAuthority, GetTokenInformation, TokenIntegrityLevel, TOKEN_MANDATORY_LABEL,
+    TOKEN_QUERY,
+};
+use windows_sys::Win32::System::{
+    SystemServices::{SECURITY_MANDATORY_HIGH_RID, SE_GROUP_INTEGRITY},
+    Threading::{
+        GetCurrentProcessId, OpenProcess, OpenProcessToken, QueryFullProcessImageNameW,
+        PROCESS_QUERY_LIMITED_INFORMATION,
+    },
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     EnumWindows, GetAncestor, GetCursorPos, GetForegroundWindow, GetTopWindow, GetWindow,
@@ -31,14 +40,25 @@ struct CacheEntry {
     cached_name: Option<String>,
 }
 
+/// Cached integrity level for the current HWND. Uses the same 100ms TTL
+/// as CacheEntry so both invalidate together on window change.
+#[derive(Default)]
+struct IntegrityCache {
+    last_check: Option<Instant>,
+    last_hwnd: usize,
+    cached_level: Option<IntegrityLevel>,
+}
+
 pub struct WindowsProcessQuery {
     cache: Mutex<CacheEntry>,
+    integrity_cache: Mutex<IntegrityCache>,
 }
 
 impl WindowsProcessQuery {
     pub fn new() -> Self {
         Self {
             cache: Mutex::new(CacheEntry::default()),
+            integrity_cache: Mutex::new(IntegrityCache::default()),
         }
     }
 }
@@ -102,6 +122,55 @@ impl ProcessQuery for WindowsProcessQuery {
 
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
         self.enumerate()
+    }
+
+    fn is_target_elevated(&self) -> bool {
+        let now = Instant::now();
+        let mut cache = self.integrity_cache.lock();
+
+        // Check cache (same TTL as CacheEntry)
+        if let Some(t) = cache.last_check {
+            if now.saturating_duration_since(t) < TTL {
+                return cache.cached_level == Some(IntegrityLevel::High);
+            }
+        }
+
+        // Get HWND under cursor
+        let mut pt = POINT { x: 0, y: 0 };
+        if unsafe { GetCursorPos(&mut pt) } == 0 {
+            return false;
+        }
+        let hwnd = unsafe { WindowFromPoint(pt) };
+        if hwnd.is_null() {
+            return false;
+        }
+        let root = unsafe { GetAncestor(hwnd, GA_ROOT) };
+        let root_usize = root as usize;
+
+        // Invalidate cache if HWND changed
+        if root_usize != cache.last_hwnd {
+            cache.last_hwnd = root_usize;
+            cache.cached_level = None;
+        }
+
+        // If we already cached a result for this HWND, reuse it
+        if let Some(level) = cache.cached_level {
+            cache.last_check = Some(now);
+            return level == IntegrityLevel::High;
+        }
+
+        // Query integrity level
+        let mut pid: u32 = 0;
+        unsafe { GetWindowThreadProcessId(root, &mut pid) };
+        let level = if pid != 0 {
+            get_process_integrity_level(pid)
+        } else {
+            IntegrityLevel::Unknown
+        };
+
+        cache.cached_level = Some(level);
+        cache.last_check = Some(now);
+        level == IntegrityLevel::High
     }
 
     /// Returns the topmost user-visible app window's process name, excluding
@@ -186,6 +255,70 @@ pub fn process_name_for_pid(pid: u32) -> Option<String> {
         let path: PathBuf = String::from_utf16_lossy(&buf[..len as usize]).into();
         path.file_stem()
             .map(|stem| stem.to_string_lossy().into_owned())
+    }
+}
+
+/// Returns the integrity level of the process with the given PID.
+/// Returns `IntegrityLevel::Unknown` on any error (OpenProcess, OpenProcessToken,
+/// or GetTokenInformation failure).
+fn get_process_integrity_level(pid: u32) -> IntegrityLevel {
+    unsafe {
+        let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
+        if handle.is_null() {
+            return IntegrityLevel::Unknown;
+        }
+
+        let mut token_handle: HANDLE = std::ptr::null_mut();
+        let ok = OpenProcessToken(handle, TOKEN_QUERY, &mut token_handle);
+        CloseHandle(handle);
+        if ok == 0 {
+            return IntegrityLevel::Unknown;
+        }
+
+        let mut size: u32 = 0;
+        GetTokenInformation(
+            token_handle,
+            TokenIntegrityLevel,
+            std::ptr::null_mut(),
+            0,
+            &mut size,
+        );
+        if size == 0 {
+            CloseHandle(token_handle);
+            return IntegrityLevel::Unknown;
+        }
+
+        let mut buffer = vec![0u8; size as usize];
+        let ok = GetTokenInformation(
+            token_handle,
+            TokenIntegrityLevel,
+            buffer.as_mut_ptr() as _,
+            size,
+            &mut size,
+        );
+        CloseHandle(token_handle);
+        if ok == 0 {
+            return IntegrityLevel::Unknown;
+        }
+
+        let label = &*(buffer.as_ptr() as *const TOKEN_MANDATORY_LABEL);
+        let attr = label.Label.Attributes;
+        if (attr & (SE_GROUP_INTEGRITY as u32)) == 0 {
+            return IntegrityLevel::Medium;
+        }
+
+        // Get the mandatory level RID via GetSidSubAuthority — the SID's
+        // last sub-authority holds the integrity level.
+        let sub_auth = GetSidSubAuthority(label.Label.Sid, 0);
+        if sub_auth.is_null() {
+            return IntegrityLevel::Unknown;
+        }
+        let level_rid = *sub_auth;
+        if level_rid >= (SECURITY_MANDATORY_HIGH_RID as u32) {
+            IntegrityLevel::High
+        } else {
+            IntegrityLevel::Medium
+        }
     }
 }
 
