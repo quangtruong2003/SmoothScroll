@@ -548,7 +548,20 @@ pub fn load() -> AppSettings {
 fn try_load() -> Result<AppSettings, SettingsError> {
     let path = settings_path()?;
     if !path.exists() {
-        return Ok(AppSettings::default());
+        if let Ok(legacy_path) = legacy_settings_path() {
+            if legacy_path.exists() {
+                if let Err(e) = std::fs::create_dir_all(path.parent().unwrap()) {
+                    tracing::warn!(error = %e, "failed to create settings dir for migration");
+                } else if let Err(e) = std::fs::copy(&legacy_path, &path) {
+                    tracing::warn!(error = %e, "failed to migrate legacy settings");
+                } else {
+                    tracing::info!("migrated settings from legacy path: {}", legacy_path.display());
+                }
+            }
+        }
+        if !path.exists() {
+            return Ok(AppSettings::default());
+        }
     }
     let bytes = std::fs::read(&path)?;
     let mut settings: AppSettings = serde_json::from_slice(&bytes)?;
@@ -556,6 +569,13 @@ fn try_load() -> Result<AppSettings, SettingsError> {
     settings.migrate_from_v1();
     settings.seed_native_smooth_excludes();
     Ok(settings)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn legacy_settings_path() -> Result<PathBuf, SettingsError> {
+    let dirs = directories::ProjectDirs::from("com", "SoftScroll", "SoftScrollNext")
+        .ok_or(SettingsError::NoConfigDir)?;
+    Ok(dirs.config_dir().join("settings.json"))
 }
 
 /// Save settings atomically (write to temp, then rename).
