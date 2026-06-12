@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-06-12
+
+### Fixed
+- migrate legacy SoftScroll config path on first load
 ## [1.5.0] - 2026-06-12
 
 ### Added
