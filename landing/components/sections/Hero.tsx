@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { BetaNotice } from '@/components/BetaNotice'
 import { BrandMarquee } from '@/components/BrandMarquee'
@@ -18,7 +19,11 @@ export function Hero({ dict, locale }: HeroProps) {
   const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
   const f = dict?.finalCta ?? { comingSoon: 'Coming Soon' }
 
-  const isMac = detectOS() === 'mac'
+  const [isMac, setIsMac] = useState(false)
+  useEffect(() => {
+    setIsMac(detectOS() === 'mac')
+  }, [])
+
   const eyebrow = isMac && h.eyebrowMac ? h.eyebrowMac : h.eyebrow
 
   return (
