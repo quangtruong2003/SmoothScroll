@@ -473,6 +473,65 @@ mod tests {
         }
     }
 
+    struct ElevatedStaticProcessQuery {
+        under_cursor: Option<String>,
+        foreground: Option<String>,
+        elevated: bool,
+    }
+    impl ProcessQuery for ElevatedStaticProcessQuery {
+        fn process_name_under_cursor(&self) -> Option<String> {
+            self.under_cursor.clone()
+        }
+        fn foreground_process_id(&self) -> Option<u32> {
+            None
+        }
+        fn list_visible_processes(&self) -> Vec<ProcessInfo> {
+            Vec::new()
+        }
+        fn foreground_process_name(&self) -> Option<String> {
+            self.foreground.clone()
+        }
+        fn is_target_elevated(&self) -> bool {
+            self.elevated
+        }
+    }
+
+    fn make_state_with_elevation(
+        settings: AppSettings,
+        under_cursor: Option<&str>,
+        elevated: bool,
+    ) -> Arc<AppState> {
+        let eff = EffectiveSettings::from_settings(&settings);
+        Arc::new(AppState {
+            engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            settings: Arc::new(RwLock::new(settings.clone())),
+            effective: Arc::new(ArcSwap::from_pointee(eff)),
+            effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
+            mouse_hook: Arc::new(StubHook),
+            emitter: Arc::new(StubEmitter),
+            zoom_emitter: Arc::new(StubEmitter),
+            processes: Arc::new(ElevatedStaticProcessQuery {
+                under_cursor: under_cursor.map(|s| s.to_string()),
+                foreground: None,
+                elevated,
+            }),
+            autostart: Arc::new(StubAutostart),
+            hotkey: Arc::new(StubHotkey),
+            hotkey_handle: Arc::new(Mutex::new(None)),
+            engine_signal: Arc::new(EngineSignal::default()),
+            enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            game_mode_active: Arc::new(AtomicBool::new(false)),
+            fullscreen_detector: Arc::new(StubFullscreen),
+            window_geom: Arc::new(StubWindowGeom),
+            last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
+            persistor: Arc::new(SettingsPersistor::spawn()),
+            reduce_motion: Arc::new(AtomicBool::new(false)),
+            accessibility: Arc::new(StubAccessibility),
+            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
+            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+        })
+    }
+
     fn make_state_with_process(settings: AppSettings, process_name: Option<&str>) -> Arc<AppState> {
         make_state_with_processes(settings, process_name, None)
     }
@@ -849,5 +908,38 @@ mod tests {
             !state.engine.lock().has_pending_work(),
             "inertia should clear on ctrl press when passthrough enabled"
         );
+    }
+
+    #[test]
+    fn elevated_target_passes_through() {
+        // When is_target_elevated() returns true, the engine should not
+        // process the event — it passes through instead. This prevents
+        // scroll from being silently lost when SmoothScroll runs non-elevated
+        // and the user scrolls in an elevated (admin) IDE.
+        let s = AppSettings::default();
+        let state = make_state_with_elevation(s, Some("Code"), true);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn non_elevated_target_swallows_normally() {
+        // When is_target_elevated() returns false, normal scroll swallowing
+        // applies (regression check — behavior must not change for non-elevated).
+        let s = AppSettings::default();
+        let state = make_state_with_elevation(s, Some("Code"), false);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn elevated_horizontal_wheel_passes_through() {
+        let s = AppSettings::default();
+        let state = make_state_with_elevation(s, Some("Code"), true);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 }
