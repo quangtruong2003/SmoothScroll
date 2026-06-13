@@ -16,11 +16,11 @@
 [![Release](https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=release)](https://github.com/quangtruong2003/SmoothScroll/releases)
 [![Downloads](https://img.shields.io/github/downloads/quangtruong2003/SmoothScroll/total)](https://github.com/quangtruong2003/SmoothScroll/releases)
 
-⭐ 15 stars  |  100+ downloads  |  v1.5.1  |  Windows 10/11
+⭐ 15 stars  |  100+ downloads  |  <img src="https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=version" alt="Latest Release" style="vertical-align:middle" />  |  Windows 10/11
 
 <p align="center">
-  <img src="landing/public/assets/before.gif" alt="Before" width="320" />
-  <img src="landing/public/assets/after.gif" alt="After" width="320" />
+  <img src="landing/public/assets/before.gif" alt="Before" width="420" />
+  <img src="landing/public/assets/after.gif" alt="After" width="420" />
 </p>
 
 *Jerky native scroll → SmoothScroll eased scroll*
