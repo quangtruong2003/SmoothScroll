@@ -7,6 +7,14 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-06-19
+
+### Added
+- add Sentry crash reporting for frontend and backend
+
+### Fixed
+- hardcode base path for before/after GIF assets
+- SEO accessibility fixes and hydration bug
 ## [1.5.1] - 2026-06-12
 
 ### Fixed
