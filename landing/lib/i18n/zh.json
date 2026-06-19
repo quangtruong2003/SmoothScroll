@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": { "github": "GitHub", "stars": "星" },
   "hero": {
     "eyebrow": "适用 Windows",
@@ -43,7 +43,7 @@
     }
   },
   "trayPreview": { "title": "它就住在系统托盘里", "subtitle": "从托盘点击一下即可打开紧凑面板，所需功能一应俱全 —— 一键开关平滑滚动、选择是否随 Windows 启动、直接跳转到按应用排除列表，或在需要微调物理参数时打开完整设置。不会有窗口占据桌面，不会有任务栏图标分散注意力。它静静守在那里，只在你需要它的那一刻出现。" },
-  "stats": { "title": "被信任使用", "githubStars": "GitHub 星星", "downloads": "下载量", "version": "版本", "fallback": { "stars": "—", "downloads": "—", "version": "v1.0.0" } },
+  "stats": { "title": "被信任使用", "githubStars": "GitHub 星星", "version": "版本", "fallback": { "stars": "—", "version": "v1.0.0" } },
   "indie": { "title": "独立开发者出品", "subtitle": "独立，透明、社区驱动。", "points": ["源代码可见许可 (FSL-1.1 → Apache 2.0)——自行审计代码", "零遥测或数据收集", "无广告、无高级版、无推销", "在 GitHub 上公开构建"], "cta": "在 GitHub 查看" },
   "install": { "title": "60 秒开始体验", "subtitle": "下载、运行、感受不同。", "tabs": { "windows": { "label": "Windows", "steps": ["点击下方下载安装包", "运行 .exe——无需安装向导，无需管理员权限", "SmoothScroll 自动启动。搞定。"] }, "macos": { "label": "macOS", "steps": ["点击下方下载 DMG", "将 SmoothScroll 拖到应用程序", "在系统设置 → 隐私与安全 → 辅助功能 中授予辅助功能权限", "完成。"] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "默认保存到 %LOCALAPPDATA%", "macos": "需要辅助功能权限来拦截全局输入" }, "cta": "下载 {os} 版", "ctaMac": "下载 macOS Beta 版" },
   "faq": { "title": "常见问题", "questions": [

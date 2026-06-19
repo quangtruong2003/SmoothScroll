@@ -1,9 +1,9 @@
 'use client'
 
 import { FadeUp } from '@/components/motion/FadeUp'
-import { fetchLatestRelease, formatDownloadCount, fakeDownloadOffset } from '@/lib/github'
+import { fetchLatestRelease } from '@/lib/github'
 import { useGitHubStars } from '@/lib/useGitHubStars'
-import { Star, Download, Tag } from 'lucide-react'
+import { Star, Tag } from 'lucide-react'
 import type { Dictionary } from '@/lib/i18n/dict'
 import { useState, useEffect, useMemo } from 'react'
 
@@ -33,15 +33,12 @@ export function Stats({ dict }: StatsProps) {
   const s = dict?.stats ?? {
     title: '',
     githubStars: '',
-    downloads: '',
     version: '',
-    fallback: { stars: '—', downloads: '—', version: '—' },
+    fallback: { stars: '—', version: '—' },
   }
-  const fb = useMemo(() => s.fallback ?? { stars: '—', downloads: '—', version: '—' }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const fb = useMemo(() => s.fallback ?? { stars: '—', version: '—' }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const liveStars = useGitHubStars()
-  const [downloads, setDownloads] = useState<string>(fb.downloads ?? '—')
-  const [downloadCount, setDownloadCount] = useState<number | null>(null)
   const [version, setVersion] = useState<string>(fb.version ?? '—')
 
   useEffect(() => {
@@ -49,30 +46,10 @@ export function Stats({ dict }: StatsProps) {
 
     fetchLatestRelease()
       .then((releaseData) => {
-        const realDownloads = releaseData.assets.reduce(
-          (sum, a) => sum + (a.download_count ?? 0),
-          0
-        )
-        if (realDownloads > 0) {
-          setDownloadCount(realDownloads + fakeDownloadOffset())
-          setDownloads(formatDownloadCount(realDownloads + fakeDownloadOffset()))
-        }
         setVersion(releaseData.tag_name ?? fallbackVersion)
       })
       .catch(() => {})
   }, [fb])
-
-  useEffect(() => {
-    const onDownloaded = () => {
-      setDownloadCount((prev) => {
-        const next = (prev ?? 0) + 1
-        setDownloads(formatDownloadCount(next))
-        return next
-      })
-    }
-    window.addEventListener('smoothscroll:downloaded', onDownloaded)
-    return () => window.removeEventListener('smoothscroll:downloaded', onDownloaded)
-  }, [])
 
   const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '—')
 
@@ -85,9 +62,8 @@ export function Stats({ dict }: StatsProps) {
           </p>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <div className="grid sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto">
             <StatCard icon={Star} value={starsDisplay} label={s.githubStars ?? ''} />
-            <StatCard icon={Download} value={downloads} label={s.downloads ?? ''} />
             <StatCard icon={Tag} value={version} label={s.version ?? ''} />
           </div>
         </FadeUp>
