@@ -2,12 +2,39 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import i18n from "i18next";
 import { listen } from "@tauri-apps/api/event";
+import * as Sentry from "@sentry/browser";
 import App from "./App";
 import "./index.css";
 import { initI18n, SUPPORTED_LANGS, type Lang } from "./i18n";
 import { tauri } from "./lib/tauri";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
+// Initialize Sentry for crash reporting
+function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+  
+  if (!dsn) {
+    console.debug("[Sentry] Disabled (no VITE_SENTRY_DSN configured)");
+    return;
+  }
+
+  Sentry.init({
+    dsn,
+    release: import.meta.env.VITE_APP_VERSION as string | undefined,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration(),
+    ],
+  });
+
+  console.info("[Sentry] Initialized for crash reporting");
+}
+
+initSentry();
 
 async function bootstrap() {
   let lang: Lang = "en";

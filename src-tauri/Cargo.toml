@@ -36,6 +36,8 @@ hostname = "0.4"
 arc-swap = "1"
 crossbeam-channel = "0.5"
 tauri-plugin-single-instance = "2"
+sentry = { version = "0.32", features = ["backtrace"] }
+sentry-tracing = "0.32"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # tokio is provided transitively by tauri v2

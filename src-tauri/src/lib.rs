@@ -11,6 +11,9 @@ mod settings_persistor;
 mod state;
 mod tray;
 
+#[cfg(test)]
+mod settings_persistor_tests;
+
 use arc_swap::ArcSwap;
 use engine_thread::EngineThread;
 use hook_wiring::EngineSink;
@@ -28,7 +31,14 @@ use tauri::Manager;
 pub fn run() {
     init_logging();
 
-    let platform = smoothscroll_platform::current().expect("build platform");
+    let platform = match smoothscroll_platform::current() {
+        Ok(p) => p,
+        Err(e) => {
+            tracing::error!(error = %e, "failed to initialize platform - SmoothScroll cannot run");
+            eprintln!("SmoothScroll failed to start: {}", e);
+            std::process::exit(1);
+        }
+    };
     let initial_rm = platform.accessibility.reduce_motion_enabled();
 
     #[cfg(windows)]
@@ -172,7 +182,7 @@ pub fn run() {
             // and emits reduce-motion-changed for the UI to update its status line.
             let app_for_rm = app.handle().clone();
             let app_state_for_rm = state_for_setup.clone();
-            let rm_handle = state_for_setup
+            let rm_result = state_for_setup
                 .accessibility
                 .watch(Box::new(move |new_value: bool| {
                     app_state_for_rm
@@ -181,9 +191,15 @@ pub fn run() {
                     let snapshot = app_state_for_rm.settings.read().clone();
                     app_state_for_rm.commit_settings(snapshot);
                     let _ = tauri::Emitter::emit(&app_for_rm, "reduce-motion-changed", new_value);
-                }))
-                .expect("install reduce_motion watcher");
-            *state_for_setup.rm_watch_handle.lock() = Some(rm_handle);
+                }));
+            match rm_result {
+                Ok(handle) => {
+                    *state_for_setup.rm_watch_handle.lock() = Some(handle);
+                }
+                Err(e) => {
+                    tracing::warn!(error = %e, "reduce-motion watcher unavailable - app will run without OS reduce-motion sync");
+                }
+            }
 
             // Bridge classifier transitions to the frontend so it can drop
             // its 1Hz polling and react push-style.
@@ -259,7 +275,11 @@ pub fn run() {
             commands::reset_onboarding,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running Tauri application");
+        .unwrap_or_else(|e| {
+            tracing::error!(error = %e, "Tauri runtime error - shutting down");
+            sentry::capture_error(&e);
+            eprintln!("SmoothScroll encountered an error: {}", e);
+        });
 }
 
 // ---------------------------------------------------------------------------
@@ -268,6 +288,12 @@ pub fn run() {
 
 fn init_logging() {
     prune_old_logs();
+
+    // Initialize Sentry for crash reporting
+    if let Some(guard) = init_sentry() {
+        // Leak the guard so it lives for the program's lifetime.
+        Box::leak(Box::new(guard));
+    }
 
     use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
@@ -285,6 +311,7 @@ fn init_logging() {
 
     let _ = tracing_subscriber::registry()
         .with(filter)
+        .with(sentry_tracing::layer())
         .with(fmt::layer().with_target(false))
         .with(
             fmt::layer()
@@ -293,6 +320,33 @@ fn init_logging() {
                 .with_target(false),
         )
         .try_init();
+}
+
+/// Initialize Sentry for crash reporting.
+/// Returns a guard that must be kept alive for the duration of the program.
+/// In development, Sentry is disabled to avoid noise.
+fn init_sentry() -> Option<sentry::ClientInitGuard> {
+    let dsn = std::env::var("SENTRY_DSN").unwrap_or_default();
+
+    if dsn.is_empty() {
+        tracing::debug!("Sentry disabled (no SENTRY_DSN configured)");
+        return None;
+    }
+
+    let dsn_for_log = dsn.split('@').next().unwrap_or("<hidden>");
+
+    let guard = sentry::init((
+        dsn.clone(),
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            traces_sample_rate: 0.1,
+            ..Default::default()
+        },
+    ));
+
+    tracing::info!(dsn = %dsn_for_log, "Sentry initialized for crash reporting");
+
+    Some(guard)
 }
 
 /// Returns the platform-appropriate log directory. Exposed as `pub(crate)` so

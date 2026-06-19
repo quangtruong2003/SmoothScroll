@@ -4,6 +4,7 @@ import { SettingsPage } from "./routes/Settings";
 import { PermissionGate } from "./components/macos/PermissionGate";
 import { TrayPanel } from "./components/TrayPanel";
 import { ForcedUpdateModal } from "./components/ForcedUpdateModal";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { tauri } from "./lib/tauri";
 import { checkForUpdate } from "./lib/updater";
 import { bootReducer, initialBootState } from "./lib/bootMachine";
@@ -73,6 +74,20 @@ export default function App() {
   }, [state.kind]);
 
   // 4) Render
+  return (
+    <ErrorBoundary>
+      <AppContent state={state} showSplash={showSplash} dispatch={dispatch} />
+    </ErrorBoundary>
+  );
+}
+
+interface AppContentProps {
+  state: ReturnType<typeof bootReducer>;
+  showSplash: boolean;
+  dispatch: React.Dispatch<Parameters<typeof bootReducer>[1]>;
+}
+
+function AppContent({ state, showSplash, dispatch }: AppContentProps) {
   switch (state.kind) {
     case "init":
     case "checking-accessibility":

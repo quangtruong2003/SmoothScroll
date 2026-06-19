@@ -32,3 +32,8 @@ landing/test-results/
 
 .cursor/
 .superpowers/
+
+# Environment
+.env
+.env.local
+.env.*.local

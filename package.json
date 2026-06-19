@@ -24,6 +24,8 @@
     "@radix-ui/react-switch": "^1.1.2",
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@sentry/browser": "^10.57.0",
+    "@sentry/integrations": "^7.114.0",
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-process": "^2",
     "@tauri-apps/plugin-shell": "^2.2.0",
