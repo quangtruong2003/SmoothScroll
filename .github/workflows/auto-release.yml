@@ -236,7 +236,6 @@ jobs:
           echo "dmg_path=$DMG_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload .dmg to Release
-        if: matrix.arch == 'arm64'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.bump.outputs.tag }}
@@ -244,8 +243,70 @@ jobs:
           files: |
             dmg-tmp/*.dmg
 
+  build-linux:
+    needs: bump
+    if: needs.bump.outputs.skipped != 'true'
+    runs-on: ubuntu-22.04
+    env:
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: build-linux
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+            libx11-dev libxi-dev libxtst-dev
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build WASM engine bundle
+        run: pnpm run build:wasm
+
+      - name: Build Tauri app
+        run: pnpm tauri build
+
+      - name: Upload .deb and .AppImage to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.bump.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/appimage/*.AppImage
+
   cleanup-releases:
-    needs: [bump, build-windows]
+    needs: [bump, build-windows, build-linux]
     if: always() && needs.bump.outputs.skipped != 'true' && needs.build-windows.result == 'success'
     runs-on: ubuntu-latest
     permissions:
