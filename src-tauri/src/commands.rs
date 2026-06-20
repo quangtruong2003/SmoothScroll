@@ -353,6 +353,10 @@ fn open_path(path: &std::path::Path) -> std::io::Result<()> {
     {
         std::process::Command::new("open").arg(path).spawn()?;
     }
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open").arg(path).spawn()?;
+    }
     let _ = path;
     Ok(())
 }

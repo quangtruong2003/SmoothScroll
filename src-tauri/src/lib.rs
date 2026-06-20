@@ -47,6 +47,9 @@ pub fn run() {
     #[cfg(target_os = "macos")]
     let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
         Arc::new(smoothscroll_platform::macos::MacosWindowGeometry);
+    #[cfg(target_os = "linux")]
+    let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
+        Arc::new(smoothscroll_platform::linux::LinuxWindowGeometry);
 
     let loaded_settings = settings::load();
     let enabled_initial = loaded_settings.enabled;
@@ -77,6 +80,9 @@ pub fn run() {
     #[cfg(target_os = "macos")]
     let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =
         Arc::new(smoothscroll_platform::macos::MacosFullscreenDetector);
+    #[cfg(target_os = "linux")]
+    let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =
+        Arc::new(smoothscroll_platform::linux::LinuxFullscreenDetector);
 
     let app_state = Arc::new(AppState {
         engine,
