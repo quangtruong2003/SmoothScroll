@@ -10,7 +10,7 @@ use crate::traits::{WheelEmitter, ZoomEmitter};
 use crate::types::{PlatformError, Result};
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex;
+use parking_lot::Mutex;
 use x11::xlib;
 use x11::xtest;
 
@@ -22,7 +22,7 @@ static SUPPRESSING: AtomicBool = AtomicBool::new(false);
 
 /// Check if the current event should be suppressed (self-injected by WheelEmitter).
 pub fn is_suppressed() -> bool {
-    SUPPRESSING.load(Ordering::Relaxed)
+    SUPPRESSING.load(Ordering::Acquire)
 }
 
 const BUTTON_SCROLL_UP: u32 = 4;
@@ -65,10 +65,7 @@ impl LinuxWheelEmitter {
     where
         F: FnOnce(*mut xlib::Display) -> Result<()>,
     {
-        let d = *self
-            .display
-            .lock()
-            .map_err(|_| PlatformError::Os("display lock poisoned".into()))?;
+        let d = *self.display.lock();
         let result = f(d);
         unsafe { xlib::XFlush(d); }
         result
@@ -82,7 +79,7 @@ impl WheelEmitter for LinuxWheelEmitter {
         }
 
         // Set suppression flag to prevent feedback loop
-        SUPPRESSING.store(true, Ordering::Relaxed);
+        SUPPRESSING.store(true, Ordering::Release);
 
         let result = self.emit_with(|d| {
             if vertical_units != 0 {
@@ -117,7 +114,7 @@ impl WheelEmitter for LinuxWheelEmitter {
         });
 
         // Clear suppression flag
-        SUPPRESSING.store(false, Ordering::Relaxed);
+        SUPPRESSING.store(false, Ordering::Release);
         // Brief delay to ensure MouseHook sees the flag change
         std::thread::sleep(std::time::Duration::from_micros(500));
 
@@ -145,7 +142,7 @@ impl ZoomEmitter for LinuxWheelEmitter {
             Ok((keys[4] & 0x20) != 0 || (keys[13] & 0x02) != 0)
         })?;
 
-        SUPPRESSING.store(true, Ordering::Relaxed);
+        SUPPRESSING.store(true, Ordering::Release);
         let ctrl_keycode = self.ctrl_keycode;
 
         let result = self.emit_with(|d| {
@@ -176,9 +173,19 @@ impl ZoomEmitter for LinuxWheelEmitter {
             Ok(())
         });
 
-        SUPPRESSING.store(false, Ordering::Relaxed);
+        SUPPRESSING.store(false, Ordering::Release);
         std::thread::sleep(std::time::Duration::from_micros(500));
 
         result
+    }
+}
+
+impl Drop for LinuxWheelEmitter {
+    fn drop(&mut self) {
+        if let Ok(d) = self.display.lock() {
+            if !(*d).is_null() {
+                unsafe { display::close_display(*d); }
+            }
+        }
     }
 }

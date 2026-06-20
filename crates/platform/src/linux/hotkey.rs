@@ -114,7 +114,8 @@ fn parse_accelerator(raw: &str) -> Result<(u32, String)> {
                 "ctrl" | "control" => mods |= MOD_CONTROL,
                 "alt" => mods |= MOD_ALT,
                 "shift" => mods |= MOD_SHIFT,
-                "super" | "command" | "commandorcontrol" | "cmdorctrl" => mods |= MOD_SUPER,
+                "super" => mods |= MOD_SUPER,
+                "command" | "commandorcontrol" | "cmdorctrl" => mods |= MOD_CONTROL, // Ctrl on Linux, not Super
                 other => return Err(PlatformError::Os(format!("unknown modifier: {other}"))),
             }
         } else {

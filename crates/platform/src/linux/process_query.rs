@@ -19,7 +19,6 @@ const TTL: Duration = Duration::from_millis(100);
 #[derive(Default)]
 struct CacheEntry {
     last_check: Option<Instant>,
-    last_window: u64,
     cached_name: Option<String>,
 }
 
@@ -226,11 +225,13 @@ impl ProcessQuery for LinuxProcessQuery {
         }
         let result = unsafe {
             let d = display::open_display().ok()?;
-            let window = window_under_cursor(d)?;
-            let pid = get_window_pid(d, window)?;
-            let name = process_name_from_pid(pid);
+            let result = (|| {
+                let window = window_under_cursor(d)?;
+                let pid = get_window_pid(d, window)?;
+                Some(process_name_from_pid(pid))
+            })();
             display::close_display(d);
-            name
+            result?
         };
         cache.last_check = Some(now);
         cache.cached_name = result.clone();
@@ -240,10 +241,10 @@ impl ProcessQuery for LinuxProcessQuery {
     fn foreground_process_id(&self) -> Option<u32> {
         unsafe {
             let d = display::open_display().ok()?;
-            let win = active_window(d)?;
-            let pid = get_window_pid(d, win);
+            let result = active_window(d)
+                .and_then(|win| get_window_pid(d, win));
             display::close_display(d);
-            pid
+            result
         }
     }
 

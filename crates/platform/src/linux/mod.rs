@@ -29,11 +29,10 @@ pub use window_geom::LinuxWindowGeometry;
 
 pub fn build() -> Result<Platform> {
     if std::env::var("XDG_SESSION_TYPE").unwrap_or_default() == "wayland" {
-        eprintln!(
-            "SmoothScroll: Wayland session detected. \
-             X11 is required — some features may not work. \
-             Please log out and select 'GNOME on Xorg' or equivalent."
-        );
+        return Err(crate::types::PlatformError::Os(
+            "Wayland session detected. SmoothScroll requires X11. \
+             Please log out and select 'GNOME on Xorg' or equivalent.".into()
+        ));
     }
 
     let wheel_emitter: Arc<LinuxWheelEmitter> = Arc::new(LinuxWheelEmitter::new()?);

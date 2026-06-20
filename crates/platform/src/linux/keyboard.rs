@@ -2,6 +2,7 @@
 //!
 //! Polls at ~60fps, stores Shift/Ctrl/Alt state in atomics
 //! that the mouse hook thread reads cheaply on the hot path.
+//! Keycodes are resolved once at startup via XKeysymToKeycode.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -12,6 +13,37 @@ use x11::xlib;
 use super::display;
 
 const POLL_INTERVAL: Duration = Duration::from_millis(16);
+
+/// Cached keycodes resolved from keysyms at startup.
+struct Keycodes {
+    shift_l: usize,
+    shift_r: usize,
+    ctrl_l: usize,
+    ctrl_r: usize,
+    alt_l: usize,
+    alt_r: usize,
+}
+
+impl Keycodes {
+    /// Resolve all modifier keycodes from the display once.
+    ///
+    /// # Safety
+    /// `display` must be a valid open connection.
+    unsafe fn resolve(display: *mut xlib::Display) -> Self {
+        Self {
+            shift_l: xlib::XKeysymToKeycode(display, xlib::XK_Shift_L) as usize,
+            shift_r: xlib::XKeysymToKeycode(display, xlib::XK_Shift_R) as usize,
+            ctrl_l: xlib::XKeysymToKeycode(display, xlib::XK_Control_L) as usize,
+            ctrl_r: xlib::XKeysymToKeycode(display, xlib::XK_Control_R) as usize,
+            alt_l: xlib::XKeysymToKeycode(display, xlib::XK_Alt_L) as usize,
+            alt_r: xlib::XKeysymToKeycode(display, xlib::XK_Alt_R) as usize,
+        }
+    }
+
+    fn is_pressed(&self, keys: &[u8; 32], kc: usize) -> bool {
+        kc > 0 && kc / 8 < 32 && (keys[kc / 8] & (1 << (kc % 8))) != 0
+    }
+}
 
 #[derive(Default)]
 pub struct ModifierState {
@@ -41,7 +73,13 @@ impl ModifierSampler {
     pub fn start() -> Self {
         let state = Arc::new(ModifierState::default());
         state.running.store(true, Ordering::Relaxed);
-        Self::sample_once(&state);
+
+        // Initial sample with a throwaway display connection
+        if let Ok(d) = display::open_display() {
+            let keycodes = unsafe { Keycodes::resolve(d) };
+            Self::sample_with(d, &state, &keycodes);
+            unsafe { display::close_display(d); }
+        }
 
         let s = state.clone();
         let handle = thread::Builder::new()
@@ -50,8 +88,11 @@ impl ModifierSampler {
                 let Ok(display) = display::open_display() else {
                     return;
                 };
+                // Resolve keycodes once from this thread's display connection
+                let keycodes = unsafe { Keycodes::resolve(display) };
+
                 while s.running.load(Ordering::Relaxed) {
-                    Self::sample_once_on(display, &s);
+                    Self::sample_with(display, &s, &keycodes);
                     thread::sleep(POLL_INTERVAL);
                 }
                 unsafe {
@@ -70,28 +111,17 @@ impl ModifierSampler {
         self.state.clone()
     }
 
-    fn sample_once(state: &ModifierState) {
-        let Ok(display) = display::open_display() else {
-            return;
-        };
-        Self::sample_once_on(display, state);
-        unsafe { display::close_display(display); }
-    }
-
-    fn sample_once_on(display: *mut xlib::Display, state: &ModifierState) {
+    fn sample_with(display: *mut xlib::Display, state: &ModifierState, keycodes: &Keycodes) {
         unsafe {
             let mut keys: [u8; 32] = [0; 32];
             xlib::XQueryKeymap(display, keys.as_mut_ptr());
 
-            // Shift_L: keycode 50 → byte 6, bit 2 (0x04)
-            // Shift_R: keycode 62 → byte 7, bit 6 (0x40)
-            // Control_L: keycode 37 → byte 4, bit 5 (0x20)
-            // Control_R: keycode 105 → byte 13, bit 1 (0x02)
-            // Alt_L: keycode 64 → byte 8, bit 0 (0x01)
-            // Alt_R: keycode 108 → byte 13, bit 4 (0x10)
-            let shift = (keys[6] & 0x04) != 0 || (keys[7] & 0x40) != 0;
-            let ctrl = (keys[4] & 0x20) != 0 || (keys[13] & 0x02) != 0;
-            let alt = (keys[8] & 0x01) != 0 || (keys[13] & 0x10) != 0;
+            let shift = keycodes.is_pressed(&keys, keycodes.shift_l)
+                || keycodes.is_pressed(&keys, keycodes.shift_r);
+            let ctrl = keycodes.is_pressed(&keys, keycodes.ctrl_l)
+                || keycodes.is_pressed(&keys, keycodes.ctrl_r);
+            let alt = keycodes.is_pressed(&keys, keycodes.alt_l)
+                || keycodes.is_pressed(&keys, keycodes.alt_r);
 
             state.shift.store(shift, Ordering::Relaxed);
             state.ctrl.store(ctrl, Ordering::Relaxed);
