@@ -59,7 +59,7 @@ function GameModeSectionInner() {
           </div>
           <div className="flex gap-2">
             <Input
-              placeholder={t("game_mode.placeholder")}
+              placeholder={/Linux/.test(navigator.userAgent) ? 'steam' : t("game_mode.placeholder")}
               value={newGame}
               onChange={(e) => setNewGame(e.target.value)}
             />

@@ -77,12 +77,16 @@ function BehaviorSectionInner() {
     patch({ auto_disable_windows_apps: next });
   };
 
+  const isLinux = /Linux/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t("section.behavior")}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
+        {/* Hide on Linux — no Windows apps to auto-disable */}
+        {!isLinux && (
         <SettingRow
           htmlFor="auto-disable-windows-apps"
           title={t("settings.auto_disable_windows_apps.title")}
@@ -94,6 +98,7 @@ function BehaviorSectionInner() {
             onCheckedChange={onAutoDisableWindowsApps}
           />
         </SettingRow>
+        )}
 
         <SettingRow
           htmlFor="hotkey-toggle"
