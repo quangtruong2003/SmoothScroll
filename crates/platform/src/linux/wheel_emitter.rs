@@ -194,10 +194,11 @@ impl ZoomEmitter for LinuxWheelEmitter {
 
 impl Drop for LinuxWheelEmitter {
     fn drop(&mut self) {
-        if let Ok(d) = self.display.lock() {
-            if !(*d).is_null() {
-                unsafe { display::close_display(*d); }
-            }
+        let d = self.display.lock();
+        if !(*d).is_null() {
+            // SAFETY: d is a MutexGuard holding a valid *mut Display from XOpenDisplay.
+            // The Mutex prevents concurrent access, and Drop runs exactly once.
+            unsafe { display::close_display(*d); }
         }
     }
 }

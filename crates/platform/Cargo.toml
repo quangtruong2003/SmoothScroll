@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "OS abstractions for SmoothScroll (Windows + macOS)"
+description = "OS abstractions for SmoothScroll (Windows, macOS, Linux)"
 
 [dependencies]
 smoothscroll_core = { workspace = true }
