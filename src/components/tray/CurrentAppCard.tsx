@@ -128,7 +128,7 @@ export function CurrentAppCard() {
           <div className="truncate text-sm font-semibold leading-tight">
             {displayName}
           </div>
-          <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+          <div className="mt-0.5 truncate text-[0.846rem] text-muted-foreground">
             {isDisabled
               ? t("tray.current_app.smoothing_off")
               : ctx.suggested_category_label && category !== "Unknown"

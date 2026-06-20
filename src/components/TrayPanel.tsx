@@ -20,7 +20,7 @@ import { CurrentAppCard } from './tray/CurrentAppCard';
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="px-3 pt-3 pb-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <span className="text-[0.77rem] font-semibold uppercase tracking-wider text-muted-foreground">
         {children}
       </span>
     </div>
@@ -210,7 +210,7 @@ export function TrayPanel() {
             }`}
           />
           <span
-            className={`text-[10px] font-medium transition-colors duration-300 ${
+            className={`text-[0.77rem] font-medium transition-colors duration-300 ${
               enabled ? 'text-green-500' : 'text-muted-foreground'
             }`}
           >
@@ -281,8 +281,8 @@ export function TrayPanel() {
 
       {/* Footer */}
       <div className="px-4 py-2 flex items-center justify-between border-t border-border">
-        <span className="text-[10px] text-muted-foreground">SmoothScroll</span>
-        <span className="text-[10px] text-muted-foreground">{appVersion}</span>
+        <span className="text-[0.77rem] text-muted-foreground">SmoothScroll</span>
+        <span className="text-[0.77rem] text-muted-foreground">{appVersion}</span>
       </div>
     </div>
   );

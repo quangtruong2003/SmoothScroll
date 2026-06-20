@@ -91,7 +91,7 @@ export function CheatSheetOverlay() {
                 {row.keys.map((k, j) => (
                   <kbd
                     key={j}
-                    className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[10px] font-mono uppercase tracking-wide"
+                    className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[0.77rem] font-mono uppercase tracking-wide"
                   >
                     {k}
                   </kbd>
@@ -100,7 +100,7 @@ export function CheatSheetOverlay() {
             </li>
           ))}
         </ul>
-        <footer className="mt-4 text-center text-[10px] text-muted-foreground">
+        <footer className="mt-4 text-center text-[0.77rem] text-muted-foreground">
           {t("cheatsheet.hint", "Press ? anywhere to open this sheet")}
         </footer>
       </div>

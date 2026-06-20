@@ -184,7 +184,7 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
         </SelectContent>
       </Select>
       {version && (
-        <div className="px-1 text-center text-[10px] tabular-nums text-muted-foreground">
+        <div className="px-1 text-center text-[0.77rem] tabular-nums text-muted-foreground">
           v{version}
         </div>
       )}
