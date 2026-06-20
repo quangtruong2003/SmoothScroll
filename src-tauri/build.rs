@@ -36,4 +36,12 @@ fn kill_running_instance() {
             .stderr(std::process::Stdio::null())
             .status();
     }
+    #[cfg(target_os = "linux")]
+    {
+        let _ = std::process::Command::new("pkill")
+            .args(["-x", "smoothscroll-app"])
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .status();
+    }
 }

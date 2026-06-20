@@ -47,7 +47,9 @@
       "nsis",
       "msi",
       "app",
-      "dmg"
+      "dmg",
+      "deb",
+      "appimage"
     ],
     "icon": [
       "icons/32x32.png",
@@ -80,6 +82,20 @@
       },
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256"
+    },
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libayatana-appindicator3-1",
+          "libx11-6",
+          "libxi6",
+          "libxtst6"
+        ]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
     },
     "macOS": {
       "frameworks": [],
