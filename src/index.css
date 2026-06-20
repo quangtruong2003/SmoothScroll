@@ -60,7 +60,8 @@
 
 @layer base {
   /* Responsive font size: scales from 13px (small windows) to 18px (4K).
-   * At 1920px: 11 + 0.25*19.2 = ~15.8px. At 800px: 11 + 2 = 13px (clamped). */
+   * At 1920px: 0.25vw = 0.25% × 1920 = 4.8px → 11 + 4.8 = 15.8px.
+   * At 800px: 0.25vw = 2px → 11 + 2 = 13px (clamped min). */
   html {
     font-size: clamp(13px, calc(11px + 0.25vw), 18px);
   }

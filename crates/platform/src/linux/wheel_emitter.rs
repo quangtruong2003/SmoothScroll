@@ -4,6 +4,9 @@
 //! We use a static suppression flag — WheelEmitter sets it before injecting,
 //! and MouseHook skips events while it's set.
 //!
+//! The suppression flag is set/cleared INSIDE the Display mutex to prevent
+//! race conditions where concurrent emit() calls could clear the flag early.
+//!
 //! Uses a persistent Display connection to avoid per-emit open/close overhead.
 
 use crate::traits::{WheelEmitter, ZoomEmitter};
@@ -61,13 +64,23 @@ impl LinuxWheelEmitter {
         })
     }
 
-    fn emit_with<F>(&self, f: F) -> Result<()>
+    /// Run a closure with the Display connection held.
+    ///
+    /// When `suppress` is true, sets the suppression flag INSIDE the mutex
+    /// so no concurrent emit() can clear it prematurely. Cleared after flush.
+    fn emit_with_suppress<F>(&self, suppress: bool, f: F) -> Result<()>
     where
         F: FnOnce(*mut xlib::Display) -> Result<()>,
     {
         let d = *self.display.lock();
+        if suppress {
+            SUPPRESSING.store(true, Ordering::Release);
+        }
         let result = f(d);
         unsafe { xlib::XFlush(d); }
+        if suppress {
+            SUPPRESSING.store(false, Ordering::Release);
+        }
         result
     }
 }
@@ -78,10 +91,7 @@ impl WheelEmitter for LinuxWheelEmitter {
             return Ok(());
         }
 
-        // Set suppression flag to prevent feedback loop
-        SUPPRESSING.store(true, Ordering::Release);
-
-        let result = self.emit_with(|d| {
+        let result = self.emit_with_suppress(true, |d| {
             if vertical_units != 0 {
                 let button = if vertical_units > 0 {
                     BUTTON_SCROLL_UP
@@ -113,9 +123,12 @@ impl WheelEmitter for LinuxWheelEmitter {
             Ok(())
         });
 
-        // Clear suppression flag
-        SUPPRESSING.store(false, Ordering::Release);
-        // Brief delay to ensure MouseHook sees the flag change
+        // Brief delay after releasing mutex to ensure MouseHook thread observes
+        // the flag change before processing next real events. This is a timing
+        // heuristic — on heavily loaded systems the MouseHook thread may not
+        // be scheduled within 500µs, causing potential double-scroll. Acceptable
+        // for a first release; a more robust approach would use aCondvar or
+        // event-based signaling.
         std::thread::sleep(std::time::Duration::from_micros(500));
 
         result
@@ -135,17 +148,17 @@ impl ZoomEmitter for LinuxWheelEmitter {
         };
         let count = units.unsigned_abs();
 
-        // Check if Ctrl is already pressed by the user
-        let ctrl_already_pressed = self.emit_with(|d| -> Result<bool> {
+        // Check if Ctrl is already pressed by the user (no suppression needed
+        // for this read-only query)
+        let ctrl_already_pressed = self.emit_with_suppress(false, |d| -> Result<bool> {
             let mut keys: [u8; 32] = [0; 32];
             unsafe { xlib::XQueryKeymap(d, keys.as_mut_ptr()); }
             Ok((keys[4] & 0x20) != 0 || (keys[13] & 0x02) != 0)
         })?;
 
-        SUPPRESSING.store(true, Ordering::Release);
         let ctrl_keycode = self.ctrl_keycode;
 
-        let result = self.emit_with(|d| {
+        let result = self.emit_with_suppress(true, |d| {
             unsafe {
                 if !ctrl_already_pressed && ctrl_keycode > 0 {
                     xtest::XTestFakeKeyEvent(
@@ -173,7 +186,6 @@ impl ZoomEmitter for LinuxWheelEmitter {
             Ok(())
         });
 
-        SUPPRESSING.store(false, Ordering::Release);
         std::thread::sleep(std::time::Duration::from_micros(500));
 
         result
