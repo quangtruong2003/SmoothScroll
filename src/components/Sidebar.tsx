@@ -15,6 +15,7 @@ import {
 import { useSettingsStore } from "@/stores/settingsStore";
 import { setLanguage, SUPPORTED_LANGS, type Lang } from "@/i18n";
 import { tauri, type ThemeMode } from "@/lib/tauri";
+import { IS_LINUX } from "@/lib/platform";
 import { FlagIcon } from "@/components/FlagIcon";
 import {
   Select,
@@ -38,7 +39,7 @@ interface TabDef {
   icon: ReactNode;
 }
 
-const TABS: TabDef[] = [
+const ALL_TABS: TabDef[] = [
   { key: "scroll", labelKey: "tabs.scroll.label", icon: <Sliders className="h-4 w-4" /> },
   { key: "devices", labelKey: "tabs.devices.label", icon: <Keyboard className="h-4 w-4" /> },
   { key: "advanced", labelKey: "tabs.advanced.label", icon: <Wrench className="h-4 w-4" /> },
@@ -47,6 +48,11 @@ const TABS: TabDef[] = [
   { key: "behavior", labelKey: "tabs.behavior.label", icon: <SettingsIcon className="h-4 w-4" /> },
   { key: "about", labelKey: "tabs.about.label", icon: <Info className="h-4 w-4" /> },
 ];
+
+// Linux: hide apps, gamemode tabs (no foreground app detection, no game process detection)
+const TABS = IS_LINUX
+  ? ALL_TABS.filter((t) => t.key !== "apps" && t.key !== "gamemode")
+  : ALL_TABS;
 
 interface SidebarProps {
   active: TabKey;

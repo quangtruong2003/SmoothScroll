@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { IS_LINUX } from '@/lib/platform';
 import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
 import { CurrentAppCard } from './tray/CurrentAppCard';
@@ -222,8 +223,8 @@ export function TrayPanel() {
       {/* Scrollable content */}
       <div className="overflow-y-auto">
 
-        {/* Current foreground app */}
-        <CurrentAppCard />
+        {/* Current foreground app — hidden on Linux (no foreground app detection) */}
+        {!IS_LINUX && <CurrentAppCard />}
 
         {/* Quick Access */}
         <SectionLabel>{t('tray.quick_access')}</SectionLabel>
@@ -261,11 +262,14 @@ export function TrayPanel() {
             onClick={handleOpenSettings}
             icon={<Settings className="h-4 w-4" />}
           />
+          {/* Excluded Apps — hidden on Linux (no per-app profiles) */}
+          {!IS_LINUX && (
           <MenuItem
             label={t('tray.excluded_apps')}
             onClick={handleOpenExcludedApps}
             icon={<LayoutGrid className="h-4 w-4" />}
           />
+          )}
           <MenuItem
             label={t('tray.open_log')}
             onClick={handleOpenLog}

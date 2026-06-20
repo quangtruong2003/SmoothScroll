@@ -100,6 +100,9 @@ function BehaviorSectionInner() {
         </SettingRow>
         )}
 
+        {/* Global hotkey — hidden on Linux (X11 hotkey support unreliable) */}
+        {!isLinux && (
+        <>
         <SettingRow
           htmlFor="hotkey-toggle"
           title={t("settings.global_hotkey.title")}
@@ -130,6 +133,8 @@ function BehaviorSectionInner() {
             )}
           </div>
         </SettingRow>
+        </>
+        )}
 
         <SettingRow
           htmlFor="autostart"
