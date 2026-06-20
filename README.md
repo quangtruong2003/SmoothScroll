@@ -52,6 +52,36 @@ Grab `SmoothScroll_<version>_x64-setup.exe` (NSIS) or `.msi` from the [Releases 
 
 > **macOS support is in development.** Track progress in [issues](https://github.com/quangtruong2003/SmoothScroll/issues).
 
+### Linux (X11)
+
+> **Note:** Only X11 sessions are currently supported. Wayland is not yet supported.
+
+Download the `.deb` or `.AppImage` from the [Releases page](https://github.com/quangtruong2003/SmoothScroll/releases).
+
+```bash
+# .deb (Ubuntu/Debian)
+sudo dpkg -i smoothscroll_*.deb
+
+# .AppImage (portable)
+chmod +x SmoothScroll-*.AppImage
+./SmoothScroll-*.AppImage
+```
+
+**Build from source (Ubuntu/Debian):**
+
+```bash
+# Install dependencies
+sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
+  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+  libx11-dev libxi-dev libxtst-dev
+
+# Build
+pnpm install
+pnpm tauri build
+```
+
+**Known limitations:** X11 only · Scroll passthrough · GNOME tray may need AppIndicator extension
+
 ## Usage
 
 
