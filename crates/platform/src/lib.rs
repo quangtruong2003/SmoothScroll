@@ -7,6 +7,8 @@ pub mod types;
 pub mod macos;
 #[cfg(windows)]
 pub mod windows;
+#[cfg(target_os = "linux")]
+pub mod linux;
 
 pub use traits::*;
 pub use types::*;
@@ -35,7 +37,11 @@ pub fn current() -> Result<Platform> {
     {
         macos::build()
     }
-    #[cfg(not(any(windows, target_os = "macos")))]
+    #[cfg(target_os = "linux")]
+    {
+        linux::build()
+    }
+    #[cfg(not(any(windows, target_os = "macos", target_os = "linux")))]
     {
         Err(PlatformError::Unsupported)
     }
