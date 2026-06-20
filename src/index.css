@@ -63,7 +63,6 @@
    * At 1920px: 11 + 0.25*19.2 = ~15.8px. At 800px: 11 + 2 = 13px (clamped). */
   html {
     font-size: clamp(13px, calc(11px + 0.25vw), 18px);
-    transition: font-size 150ms ease-out;
   }
   * {
     @apply border-border;
