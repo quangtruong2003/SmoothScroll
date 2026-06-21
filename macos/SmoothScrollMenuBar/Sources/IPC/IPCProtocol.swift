@@ -70,6 +70,10 @@ struct SetPresetParams: Encodable, Sendable {
     let preset: String
 }
 
+struct SetDirectionSyncParams: Encodable, Sendable {
+    let enabled: Bool
+}
+
 struct SaveSettingsParams: Encodable, Sendable {
     let settings: AppSettingsResponse
 }
@@ -79,12 +83,14 @@ struct SaveSettingsParams: Encodable, Sendable {
 enum IpcEvent: Codable, Sendable {
     case scrollStateChanged(enabled: Bool)
     case presetChanged(preset: String)
+    case directionSyncChanged(enabled: Bool)
     case settingsChanged(settings: AppSettingsResponse)
 
     enum CodingKeys: String, CodingKey {
-        case scrollStateChanged
-        case presetChanged
-        case settingsChanged
+        case scrollStateChanged = "ScrollStateChanged"
+        case presetChanged = "PresetChanged"
+        case directionSyncChanged = "DirectionSyncChanged"
+        case settingsChanged = "SettingsChanged"
     }
 }
 
@@ -109,6 +115,7 @@ struct AppSettingsResponse: Codable, Sendable {
     let profiles: [ScrollProfileResponse]
     let appProfiles: [String: String]
     let gameModeEnabled: Bool
+    let directionSyncEnabled: Bool
     
     enum CodingKeys: String, CodingKey {
         case enabled
@@ -129,6 +136,7 @@ struct AppSettingsResponse: Codable, Sendable {
         case profiles
         case appProfiles = "app_profiles"
         case gameModeEnabled = "game_mode_enabled"
+        case directionSyncEnabled = "direction_sync_enabled"
     }
 }
 
