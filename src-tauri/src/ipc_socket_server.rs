@@ -159,8 +159,13 @@ impl IpcServer {
                                         result: None,
                                         error: Some(IpcError { code: -32700, message: "Parse error".into() }),
                                     };
-                                    let _ = writer.write_all(serde_json::to_vec(&resp).unwrap_or_default().as_slice()).await;
-                                    let _ = writer.write_all(b"\n").await;
+                                    let data = serde_json::to_vec(&resp).unwrap_or_default();
+                                    if let Err(_) = writer.write_all(&data).await {
+                                        break; // Client disconnected — exit loop
+                                    }
+                                    if let Err(_) = writer.write_all(b"\n").await {
+                                        break; // Client disconnected — exit loop
+                                    }
                                     continue;
                                 }
                             };
@@ -175,8 +180,12 @@ impl IpcServer {
                                 error: response.1,
                             };
                             if let Ok(data) = serde_json::to_vec(&resp_with_id) {
-                                let _ = writer.write_all(&data).await;
-                                let _ = writer.write_all(b"\n").await;
+                                if let Err(_) = writer.write_all(&data).await {
+                                    break; // Client disconnected — exit loop
+                                }
+                                if let Err(_) = writer.write_all(b"\n").await {
+                                    break; // Client disconnected — exit loop
+                                }
                             }
                         }
                         Ok(None) => break,
@@ -186,8 +195,12 @@ impl IpcServer {
                 event = rx.recv() => {
                     if let Ok(event) = event {
                         if let Ok(msg) = serde_json::to_vec(&event) {
-                            let _ = writer.write_all(msg.as_bytes()).await;
-                            let _ = writer.write_all(b"\n").await;
+                            if let Err(_) = writer.write_all(&msg).await {
+                                break; // Client disconnected — exit loop
+                            }
+                            if let Err(_) = writer.write_all(b"\n").await {
+                                break; // Client disconnected — exit loop
+                            }
                         }
                     }
                 }
