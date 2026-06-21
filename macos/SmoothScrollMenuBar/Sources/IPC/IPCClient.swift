@@ -42,24 +42,43 @@ enum IpcError: Error, Sendable, LocalizedError {
 }
 
 actor IPCClient {
-    static let shared = IPCClient()
+    // FIXED: nonisolated static let for proper actor singleton
+    nonisolated static let shared = IPCClient()
 
-    private var socketFd: Int32 = -1
-    private var isConnected = false
     private var nextId = 1
+    private var pendingRequests: [Int: CheckedContinuation<IpcResponse, Error>] = [:]
+    private var readTask: Task<Void, Never>?
+    private let io = SocketIO()
 
-    private let socketPath: String
-
-    private init() {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        self.socketPath = "\(home)/.smoothscroll/socket"
+    /// Stream that emits when connection is lost. ReconnectionManager subscribes to this.
+    private var connectionLostContinuation: AsyncStream<Void>.Continuation?
+    nonisolated var connectionLost: AsyncStream<Void> {
+        AsyncStream { continuation in
+            Task { await self.setConnectionLostContinuation(continuation) }
+        }
     }
 
+    nonisolated var isConnected: Bool {
+        get async { await io.fd >= 0 }
+    }
+
+    private let socketPath = SocketPath.socket
+    private let logger = Logger(subsystem: "com.SmoothScroll.MenuBar", category: "IPCClient")
+
+    private init() {}  // Private to enforce shared usage
+
+    private func setConnectionLostContinuation(_ cont: AsyncStream<Void>.Continuation) {
+        connectionLostContinuation = cont
+    }
+
+    // MARK: - Connect
+
     func connect() async throws {
-        guard !isConnected else { return }
+        // Check if already connected
+        guard io.fd < 0 else { return }
 
         let fd = Darwin.socket(AF_UNIX, SOCK_STREAM, 0)
-        guard fd >= 0 else { throw .message( "socket() failed") }
+        guard fd >= 0 else { throw IpcError.message("socket() failed") }
 
         var addr = sockaddr_un()
         addr.sun_family = sa_family_t(AF_UNIX)
@@ -82,131 +101,117 @@ actor IPCClient {
 
         if rc < 0 {
             close(fd)
-            throw .message( "connect() failed: \(String(cString: strerror(errno)))")
+            throw IpcError.message("connect() failed: \(String(cString: strerror(errno)))")
         }
 
-        self.socketFd = fd
-        self.isConnected = true
+        io.fd = fd
+        logger.info("Connected to IPC socket at \(self.socketPath)")
 
-        Task {
-            await readLoop()
-        }
+        readTask = Task { await readLoop() }
     }
 
-    func disconnect() async throws {
-        isConnected = false
-        if socketFd >= 0 {
-            close(socketFd)
-            socketFd = -1
+    func disconnect() async {
+        readTask?.cancel()
+        readTask = nil
+        // Resume all pending requests with error
+        for (_, cont) in pendingRequests {
+            cont.resume(throwing: IpcError.message("Disconnected"))
         }
+        pendingRequests.removeAll()
+        if io.fd >= 0 {
+            close(io.fd)
+            io.fd = -1
+        }
+        connectionLostContinuation?.yield()
     }
+
+    // MARK: - Request/Response
+
+    func send<T: Decodable>(_ method: String, params: (any Encodable)? = nil) async throws -> T {
+        guard io.fd >= 0 else { throw IpcError.message("Not connected") }
+
+        let id = nextId; nextId += 1
+        let request = JSONRPCRequest(
+            id: id,
+            method: method,
+            params: params.map { AnyEncodable($0) }
+        )
+
+        let jsonData = try JSONEncoder().encode(request)
+        guard var lineData = jsonData.data(using: .utf8) else {
+            throw IpcError.message("Failed to encode request")
+        }
+        lineData.append(0x0A) // newline
+
+        // Store continuation FIRST (synchronous, no Task hop)
+        let response: IpcResponse = try await withCheckedThrowingContinuation { cont in
+            pendingRequests[id] = cont
+        }
+
+        // Write request (on IO queue to avoid blocking actor)
+        do {
+            try io.queue.sync { try io.write(lineData) }
+        } catch {
+            pendingRequests.removeValue(forKey: id)?
+                .resume(throwing: IpcError.message("Write failed: \(error.localizedDescription)"))
+            throw error
+        }
+
+        // Decode result
+        if let error = response.error {
+            throw IpcError.message(error.message)
+        }
+        guard let result = response.result else {
+            return try JSONDecoder().decode(T.self, from: Data("true".utf8))
+        }
+        let resultData = try JSONSerialization.data(withJSONObject: result.value)
+        return try JSONDecoder().decode(T.self, from: resultData)
+    }
+
+    // MARK: - Read Loop
 
     private func readLoop() async {
-        guard socketFd >= 0 else { return }
-
-        while isConnected {
-            var buffer = [UInt8](repeating: 0, count: 4096)
-            let n = read(socketFd, &buffer, buffer.count)
-            if n <= 0 {
-                isConnected = false
-                break
+        while !Task.isCancelled {
+            let data: Data? = await withCheckedContinuation { (cont: CheckedContinuation<Data?, Never>) in
+                io.queue.async {
+                    cont.resume(returning: self.io.read())
+                }
             }
-            let line = String(decoding: buffer[0..<n], as: UTF8.self)
-            if let data = line.data(using: String.Encoding.utf8),
-               let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
-                await handleEvent(event)
-            }
-        }
-    }
 
-    private func handleEvent(_ event: IpcEvent) async {
-        await MainActor.run {
-            switch event {
-            case .scrollStateChanged(let enabled):
-                SettingsStore.shared.scrollEnabled = enabled
-            case .directionSyncChanged(let enabled):
-                SettingsStore.shared.directionSyncEnabled = enabled
-            case .presetChanged(let preset):
-                SettingsStore.shared.speedPreset = preset
+            guard let data else {
+                logger.warning("IPC socket read returned nil, disconnecting")
+                await disconnect()
+                return
+            }
+            io.readBuffer.append(data)
+
+            while let newlineRange = io.readBuffer.range(of: Data("\n".utf8)) {
+                let lineData = io.readBuffer.subdata(in: io.readBuffer.startIndex..<newlineRange.lowerBound)
+                io.readBuffer.removeSubrange(io.readBuffer.startIndex...newlineRange.lowerBound)
+
+                guard !lineData.isEmpty else { continue }
+                processMessage(lineData)
             }
         }
     }
 
-    private func send<T: Decodable>(_ request: IpcRequest) async throws -> T {
-        guard socketFd >= 0 else {
-            throw .message( "Not connected")
-        }
-
-        let id = nextId
-        nextId += 1
-
-        let (method, params) = requestToMethodAndParams(request)
-        let message = IpcRequestMessage(id: id, method: method, params: params)
-        let data = try JSONEncoder().encode(message)
-        let line = String(data: data, encoding: .utf8)! + "\n"
-
-        try writeLine(line)
-
-        throw .message( "Request/response not implemented — use events for state sync")
-    }
-
-    private func writeLine(_ line: String) throws {
-        guard socketFd >= 0 else { throw .message( "Not connected") }
-        let bytes = Array(line.utf8)
-        var sent = 0
-        while sent < bytes.count {
-            let n = bytes.withUnsafeBytes { rawBuf in
-                let base = rawBuf.bindMemory(to: UInt8.self).baseAddress!
-                return Darwin.write(socketFd, base.advanced(by: sent), bytes.count - sent)
+    private func processMessage(_ data: Data) {
+        guard let response = try? JSONDecoder().decode(IpcResponse.self, from: data) else {
+            if let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
+                Task { @MainActor in
+                    SettingsStore.shared.handleEvent(event)
+                }
             }
-            if n < 0 {
-                throw .message( "write() failed: \(String(cString: strerror(errno)))")
+            return
+        }
+
+        guard let id = response.id else { return }
+        if let cont = pendingRequests.removeValue(forKey: id) {
+            if let error = response.error {
+                cont.resume(throwing: IpcError.message(error.message))
+            } else {
+                cont.resume(returning: response)
             }
-            sent += n
         }
-    }
-
-    private func requestToMethodAndParams(_ request: IpcRequest) -> (String, [String: AnyCodable]?) {
-        switch request {
-        case .getScrollEnabled:
-            return ("get_scroll_enabled", nil)
-        case .setScrollEnabled(let enabled):
-            return ("set_scroll_enabled", ["enabled": AnyCodable(enabled)])
-        case .getDirectionSyncEnabled:
-            return ("get_direction_sync_enabled", nil)
-        case .setDirectionSyncEnabled(let enabled):
-            return ("set_direction_sync_enabled", ["enabled": AnyCodable(enabled)])
-        case .getPreset:
-            return ("get_preset", nil)
-        case .setPreset(let preset):
-            return ("set_preset", ["preset": AnyCodable(preset)])
-        case .quit:
-            return ("quit", nil)
-        default:
-            return ("unknown", nil)
-        }
-    }
-
-    // MARK: - Convenience Methods
-
-    func setScrollEnabled(_ enabled: Bool) async throws {
-        guard isConnected else { return }
-        let line = "{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_scroll_enabled\",\"params\":{\"enabled\":\(enabled)}}\n"
-        nextId += 1
-        try writeLine(line)
-    }
-
-    func setDirectionSyncEnabled(_ enabled: Bool) async throws {
-        guard isConnected else { return }
-        let line = "{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_direction_sync_enabled\",\"params\":{\"enabled\":\(enabled)}}\n"
-        nextId += 1
-        try writeLine(line)
-    }
-
-    func setPreset(_ preset: String) async throws {
-        guard isConnected else { return }
-        let line = "{\"jsonrpc\":\"2.0\",\"id\":\(nextId),\"method\":\"set_preset\",\"params\":{\"preset\":\"\(preset)\"}}\n"
-        nextId += 1
-        try writeLine(line)
     }
 }
