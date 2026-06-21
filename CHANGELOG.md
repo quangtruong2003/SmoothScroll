@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.2] - 2026-06-21
+
+### Fixed
+- fix ioctl macro invocation for nix 0.29
 ## [1.10.1] - 2026-06-21
 
 ### Fixed
