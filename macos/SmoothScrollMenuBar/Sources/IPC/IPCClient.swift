@@ -1,5 +1,45 @@
 import Foundation
 import Darwin
+import os
+
+/// Non-actor wrapper for raw socket I/O. Runs on DispatchQueue to avoid blocking the actor.
+private final class SocketIO: @unchecked Sendable {
+    var fd: Int32 = -1
+    var readBuffer = Data()
+    let queue = DispatchQueue(label: "com.SmoothScroll.IPCClient.IO", qos: .userInitiated)
+
+    func read() -> Data? {
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        let n = Darwin.read(fd, &buffer, buffer.count)
+        guard n > 0 else { return nil }
+        return Data(bytes: buffer, count: n)
+    }
+
+    func write(_ data: Data) throws {
+        try data.withUnsafeBytes { rawBuf in
+            let base = rawBuf.bindMemory(to: UInt8.self).baseAddress!
+            var sent = 0
+            while sent < data.count {
+                let n = Darwin.write(fd, base.advanced(by: sent), data.count - sent)
+                if n < 0 {
+                    throw IpcError.message("write() failed: \(String(cString: strerror(errno)))")
+                }
+                sent += n
+            }
+        }
+    }
+}
+
+enum IpcError: Error, Sendable, LocalizedError {
+    case message(String)
+
+    var errorDescription: String? { message }
+    private var message: String {
+        switch self {
+        case .message(let m): return m
+        }
+    }
+}
 
 actor IPCClient {
     static let shared = IPCClient()
@@ -19,7 +59,7 @@ actor IPCClient {
         guard !isConnected else { return }
 
         let fd = Darwin.socket(AF_UNIX, SOCK_STREAM, 0)
-        guard fd >= 0 else { throw IpcError(message: "socket() failed") }
+        guard fd >= 0 else { throw .message( "socket() failed") }
 
         var addr = sockaddr_un()
         addr.sun_family = sa_family_t(AF_UNIX)
@@ -42,7 +82,7 @@ actor IPCClient {
 
         if rc < 0 {
             close(fd)
-            throw IpcError(message: "connect() failed: \(String(cString: strerror(errno)))")
+            throw .message( "connect() failed: \(String(cString: strerror(errno)))")
         }
 
         self.socketFd = fd
@@ -94,7 +134,7 @@ actor IPCClient {
 
     private func send<T: Decodable>(_ request: IpcRequest) async throws -> T {
         guard socketFd >= 0 else {
-            throw IpcError(message: "Not connected")
+            throw .message( "Not connected")
         }
 
         let id = nextId
@@ -107,11 +147,11 @@ actor IPCClient {
 
         try writeLine(line)
 
-        throw IpcError(message: "Request/response not implemented — use events for state sync")
+        throw .message( "Request/response not implemented — use events for state sync")
     }
 
     private func writeLine(_ line: String) throws {
-        guard socketFd >= 0 else { throw IpcError(message: "Not connected") }
+        guard socketFd >= 0 else { throw .message( "Not connected") }
         let bytes = Array(line.utf8)
         var sent = 0
         while sent < bytes.count {
@@ -120,7 +160,7 @@ actor IPCClient {
                 return Darwin.write(socketFd, base.advanced(by: sent), bytes.count - sent)
             }
             if n < 0 {
-                throw IpcError(message: "write() failed: \(String(cString: strerror(errno)))")
+                throw .message( "write() failed: \(String(cString: strerror(errno)))")
             }
             sent += n
         }
@@ -169,8 +209,4 @@ actor IPCClient {
         nextId += 1
         try writeLine(line)
     }
-}
-
-struct IpcError: Error {
-    let message: String
 }
