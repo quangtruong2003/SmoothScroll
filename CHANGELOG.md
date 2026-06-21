@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.4] - 2026-06-21
+
+### Fixed
+- change BUS_USB from u32 to u16 to match uinput_user_dev struct
 ## [1.10.3] - 2026-06-21
 
 ### Fixed
