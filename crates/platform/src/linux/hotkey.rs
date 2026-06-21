@@ -35,26 +35,40 @@ impl Hotkey for LinuxHotkey {
             .spawn(move || {
                 let d = match display::open_display() {
                     Ok(d) => d,
-                    Err(e) => { let _ = tx.send(Err(e)); return; }
+                    Err(e) => {
+                        let _ = tx.send(Err(e));
+                        return;
+                    }
                 };
                 let root = unsafe { display::root_window(d) };
 
                 let keysym = match display::string_to_keysym(&keysym_name) {
                     Ok(ks) => ks,
-                    Err(e) => { let _ = tx.send(Err(e)); unsafe { display::close_display(d) }; return; }
+                    Err(e) => {
+                        let _ = tx.send(Err(e));
+                        unsafe { display::close_display(d) };
+                        return;
+                    }
                 };
 
                 let keycode = unsafe { display::keysym_to_keycode(d, keysym) };
                 if keycode == 0 {
-                    let _ = tx.send(Err(PlatformError::Os(format!("no keycode for {keysym_name}"))));
+                    let _ = tx.send(Err(PlatformError::Os(format!(
+                        "no keycode for {keysym_name}"
+                    ))));
                     unsafe { display::close_display(d) };
                     return;
                 }
 
                 let grab_status = unsafe {
                     xlib::XGrabKey(
-                        d, keycode as c_int, modifiers, root,
-                        xlib::False, xlib::GrabModeAsync, xlib::GrabModeAsync,
+                        d,
+                        keycode as c_int,
+                        modifiers,
+                        root,
+                        xlib::False,
+                        xlib::GrabModeAsync,
+                        xlib::GrabModeAsync,
                     )
                 };
                 if grab_status != xlib::Success as i32 {
@@ -91,9 +105,13 @@ impl Hotkey for LinuxHotkey {
         rx.recv()
             .map_err(|_| PlatformError::Os("hotkey thread died before grab".into()))??;
 
-        struct Installed { alive: Arc<AtomicBool> }
+        struct Installed {
+            alive: Arc<AtomicBool>,
+        }
         impl Drop for Installed {
-            fn drop(&mut self) { self.alive.store(false, Ordering::SeqCst); }
+            fn drop(&mut self) {
+                self.alive.store(false, Ordering::SeqCst);
+            }
         }
 
         Ok(HotkeyHandle::new(Box::new(Installed { alive })))
@@ -102,7 +120,9 @@ impl Hotkey for LinuxHotkey {
 
 fn parse_accelerator(raw: &str) -> Result<(u32, String)> {
     let parts: Vec<&str> = raw.split('+').map(|s| s.trim()).collect();
-    if parts.is_empty() { return Err(PlatformError::Os("empty accelerator".into())); }
+    if parts.is_empty() {
+        return Err(PlatformError::Os("empty accelerator".into()));
+    }
 
     let mut mods: u32 = 0;
     let mut key_name = String::new();
@@ -129,12 +149,18 @@ fn parse_accelerator(raw: &str) -> Result<(u32, String)> {
                 s if s.len() == 1 => s.to_uppercase(),
                 s => {
                     let upper = s.to_uppercase();
-                    if upper.starts_with('F') && upper.len() <= 3 { upper } else { s.to_string() }
+                    if upper.starts_with('F') && upper.len() <= 3 {
+                        upper
+                    } else {
+                        s.to_string()
+                    }
                 }
             };
         }
     }
 
-    if key_name.is_empty() { return Err(PlatformError::Os("no key in accelerator".into())); }
+    if key_name.is_empty() {
+        return Err(PlatformError::Os("no key in accelerator".into()));
+    }
     Ok((mods, key_name))
 }

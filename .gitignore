@@ -32,6 +32,8 @@ landing/test-results/
 .playwright/
 .playwright-mcp/
 
+videos/
+
 .cursor/
 .superpowers/
 

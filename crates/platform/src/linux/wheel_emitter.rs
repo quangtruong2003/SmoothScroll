@@ -11,9 +11,9 @@
 
 use crate::traits::{WheelEmitter, ZoomEmitter};
 use crate::types::{PlatformError, Result};
+use parking_lot::Mutex;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicBool, Ordering};
-use parking_lot::Mutex;
 use x11::keysym;
 use x11::xlib;
 use x11::xtest;
@@ -93,7 +93,9 @@ impl LinuxWheelEmitter {
             SUPPRESSING.store(true, Ordering::Release);
         }
         let result = f(d);
-        unsafe { xlib::XFlush(d); }
+        unsafe {
+            xlib::XFlush(d);
+        }
         if suppress {
             SUPPRESSING.store(false, Ordering::Release);
         }
@@ -168,7 +170,9 @@ impl ZoomEmitter for LinuxWheelEmitter {
         // for this read-only query)
         let ctrl_already_pressed = self.emit_with_suppress(false, |d| -> Result<bool> {
             let mut keys: [u8; 32] = [0; 32];
-            unsafe { xlib::XQueryKeymap(d, keys.as_mut_ptr() as *mut std::os::raw::c_char); }
+            unsafe {
+                xlib::XQueryKeymap(d, keys.as_mut_ptr() as *mut std::os::raw::c_char);
+            }
             Ok((keys[4] & 0x20) != 0 || (keys[13] & 0x02) != 0)
         })?;
 
@@ -177,12 +181,7 @@ impl ZoomEmitter for LinuxWheelEmitter {
         let result = self.emit_with_suppress(true, |d| {
             unsafe {
                 if !ctrl_already_pressed && ctrl_keycode > 0 {
-                    xtest::XTestFakeKeyEvent(
-                        d,
-                        ctrl_keycode,
-                        xlib::True,
-                        xlib::CurrentTime,
-                    );
+                    xtest::XTestFakeKeyEvent(d, ctrl_keycode, xlib::True, xlib::CurrentTime);
                 }
 
                 for _ in 0..count {
@@ -191,12 +190,7 @@ impl ZoomEmitter for LinuxWheelEmitter {
                 }
 
                 if !ctrl_already_pressed && ctrl_keycode > 0 {
-                    xtest::XTestFakeKeyEvent(
-                        d,
-                        ctrl_keycode,
-                        xlib::False,
-                        xlib::CurrentTime,
-                    );
+                    xtest::XTestFakeKeyEvent(d, ctrl_keycode, xlib::False, xlib::CurrentTime);
                 }
             }
             Ok(())
@@ -214,7 +208,9 @@ impl Drop for LinuxWheelEmitter {
         if !d.is_null() {
             // SAFETY: d is a MutexGuard holding a valid *mut Display from XOpenDisplay.
             // The Mutex prevents concurrent access, and Drop runs exactly once.
-            unsafe { display::close_display(d); }
+            unsafe {
+                display::close_display(d);
+            }
         }
     }
 }

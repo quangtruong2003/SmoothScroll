@@ -44,13 +44,23 @@ impl FullscreenDetector for LinuxFullscreenDetector {
             let mut prop_return: *mut c_uchar = std::ptr::null_mut();
 
             let status = xlib::XGetWindowProperty(
-                d, root, net_active, 0, 1, xlib::False,
+                d,
+                root,
+                net_active,
+                0,
+                1,
+                xlib::False,
                 xlib::XA_WINDOW,
-                &mut actual_type, &mut actual_format,
-                &mut n_items, &mut bytes_after, &mut prop_return,
+                &mut actual_type,
+                &mut actual_format,
+                &mut n_items,
+                &mut bytes_after,
+                &mut prop_return,
             );
             if status != xlib::Success as c_int || prop_return.is_null() || n_items == 0 {
-                if !prop_return.is_null() { xlib::XFree(prop_return as *mut _); }
+                if !prop_return.is_null() {
+                    xlib::XFree(prop_return as *mut _);
+                }
                 display::close_display(d);
                 return false;
             }
@@ -64,18 +74,29 @@ impl FullscreenDetector for LinuxFullscreenDetector {
 
             // Read _NET_WM_STATE
             let status = xlib::XGetWindowProperty(
-                d, win, net_wm_state, 0, 32, xlib::False,
+                d,
+                win,
+                net_wm_state,
+                0,
+                32,
+                xlib::False,
                 xlib::XA_ATOM,
-                &mut actual_type, &mut actual_format,
-                &mut n_items, &mut bytes_after, &mut prop_return,
+                &mut actual_type,
+                &mut actual_format,
+                &mut n_items,
+                &mut bytes_after,
+                &mut prop_return,
             );
             if status != xlib::Success as c_int || prop_return.is_null() || n_items == 0 {
-                if !prop_return.is_null() { xlib::XFree(prop_return as *mut _); }
+                if !prop_return.is_null() {
+                    xlib::XFree(prop_return as *mut _);
+                }
                 display::close_display(d);
                 return false;
             }
 
-            let atoms = std::slice::from_raw_parts(prop_return as *const xlib::Atom, n_items as usize);
+            let atoms =
+                std::slice::from_raw_parts(prop_return as *const xlib::Atom, n_items as usize);
             let fullscreen = atoms.contains(&net_wm_fullscreen);
             xlib::XFree(prop_return as *mut _);
             display::close_display(d);

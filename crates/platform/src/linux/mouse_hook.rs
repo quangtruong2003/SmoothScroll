@@ -25,9 +25,8 @@ impl LinuxMouseHook {
         let d = display::open_display()?;
         let mut major: c_int = 2;
         let mut minor: c_int = 0;
-        let available = unsafe {
-            xinput2::XIQueryVersion(d, &mut major, &mut minor) == xlib::Success as c_int
-        };
+        let available =
+            unsafe { xinput2::XIQueryVersion(d, &mut major, &mut minor) == xlib::Success as c_int };
         unsafe { display::close_display(d) };
         if !available {
             return Err(PlatformError::Os("XInput2 extension not available".into()));
@@ -112,9 +111,7 @@ impl MouseHook for LinuxMouseHook {
                         }
 
                         let xi_event = event.generic_event_cookie.data as *mut xinput2::XIRawEvent;
-                        if xi_event.is_null()
-                            || (*xi_event).evtype != xinput2::XI_RawButtonPress
-                        {
+                        if xi_event.is_null() || (*xi_event).evtype != xinput2::XI_RawButtonPress {
                             xlib::XFreeEventData(d, &mut event.generic_event_cookie);
                             continue;
                         }

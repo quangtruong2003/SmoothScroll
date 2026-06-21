@@ -23,8 +23,15 @@ impl WindowGeometry for LinuxWindowGeometry {
             let mut mask: u32 = 0;
 
             let ok = xlib::XQueryPointer(
-                d, root, &mut root_return, &mut child_return,
-                &mut root_x, &mut root_y, &mut win_x, &mut win_y, &mut mask,
+                d,
+                root,
+                &mut root_return,
+                &mut child_return,
+                &mut root_x,
+                &mut root_y,
+                &mut win_x,
+                &mut win_y,
+                &mut mask,
             );
 
             if ok == 0 {
@@ -32,7 +39,11 @@ impl WindowGeometry for LinuxWindowGeometry {
                 return None;
             }
 
-            let target = if child_return != 0 { child_return } else { root_return };
+            let target = if child_return != 0 {
+                child_return
+            } else {
+                root_return
+            };
 
             let mut attrs: xlib::XWindowAttributes = std::mem::zeroed();
             if xlib::XGetWindowAttributes(d, target, &mut attrs) == 0 {
@@ -43,7 +54,10 @@ impl WindowGeometry for LinuxWindowGeometry {
             display::close_display(d);
 
             Some((
-                Point { x: root_x, y: root_y },
+                Point {
+                    x: root_x,
+                    y: root_y,
+                },
                 WindowRect {
                     left: attrs.x,
                     top: attrs.y,

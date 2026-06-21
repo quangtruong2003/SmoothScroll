@@ -4,12 +4,12 @@
 //! Uses exclusive device grab for scroll interception and uinput for injection.
 
 pub mod evdev_scanner;
+pub mod fullscreen;
+pub mod hotkey;
 pub mod keyboard;
 pub mod mouse_hook;
 pub mod permission;
 pub mod process_query;
-pub mod hotkey;
-pub mod fullscreen;
 pub mod wheel_emitter;
 
 use crate::types::Result;
@@ -19,10 +19,10 @@ use std::sync::Arc;
 pub fn build() -> Result<crate::Platform> {
     // Permissions check
     permission::check_uinput_access()?;
-    
+
     // Create components
     let wheel_emitter = Arc::new(wheel_emitter::WaylandWheelEmitter::new()?);
-    
+
     Ok(crate::Platform {
         mouse_hook: Arc::new(mouse_hook::WaylandMouseHook::new()?),
         wheel_emitter: wheel_emitter.clone(),

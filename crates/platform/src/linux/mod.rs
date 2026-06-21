@@ -3,9 +3,6 @@
 #[cfg(target_os = "linux")]
 mod wayland;
 
-#[cfg(target_os = "linux")]
-pub use wayland;
-
 mod accessibility;
 mod autostart;
 mod fullscreen;
@@ -38,16 +35,15 @@ pub use wheel_emitter::LinuxWheelEmitter;
 pub use window_geom::LinuxWindowGeometry;
 
 use crate::types::Result;
+use crate::Platform;
 use std::sync::Arc;
 
 #[cfg(target_os = "linux")]
 pub fn build() -> Result<Platform> {
     let session_type = std::env::var("XDG_SESSION_TYPE").unwrap_or_default();
-    
+
     match session_type.as_str() {
-        "wayland" => {
-            wayland::build()
-        }
+        "wayland" => wayland::build(),
         _ => {
             // X11 session or unknown - use X11 implementation
             x11_build()

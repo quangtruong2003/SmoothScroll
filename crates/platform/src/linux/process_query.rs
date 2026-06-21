@@ -45,7 +45,9 @@ unsafe fn get_window_pid(display: *mut xlib::Display, mut window: Window) -> Opt
         let name = b"_NET_WM_PID\0".as_ptr() as *const i8;
         xlib::XInternAtom(display, name, xlib::False)
     };
-    if net_wm_pid == 0 { return None; }
+    if net_wm_pid == 0 {
+        return None;
+    }
 
     for _ in 0..10 {
         let mut actual_type: Atom = 0;
@@ -55,10 +57,18 @@ unsafe fn get_window_pid(display: *mut xlib::Display, mut window: Window) -> Opt
         let mut prop_return: *mut c_uchar = std::ptr::null_mut();
 
         let status = xlib::XGetWindowProperty(
-            display, window, net_wm_pid, 0, 1, xlib::False,
+            display,
+            window,
+            net_wm_pid,
+            0,
+            1,
+            xlib::False,
             xlib::XA_CARDINAL,
-            &mut actual_type, &mut actual_format, &mut n_items,
-            &mut bytes_after, &mut prop_return,
+            &mut actual_type,
+            &mut actual_format,
+            &mut n_items,
+            &mut bytes_after,
+            &mut prop_return,
         );
 
         if status == xlib::Success as c_int && !prop_return.is_null() && n_items > 0 {
@@ -66,15 +76,29 @@ unsafe fn get_window_pid(display: *mut xlib::Display, mut window: Window) -> Opt
             xlib::XFree(prop_return as *mut _);
             return Some(pid);
         }
-        if !prop_return.is_null() { xlib::XFree(prop_return as *mut _); }
+        if !prop_return.is_null() {
+            xlib::XFree(prop_return as *mut _);
+        }
 
         let mut root: Window = 0;
         let mut parent: Window = 0;
         let mut children: *mut Window = std::ptr::null_mut();
         let mut n_children: c_uint = 0;
-        if xlib::XQueryTree(display, window, &mut root, &mut parent, &mut children, &mut n_children) != 0 {
-            if !children.is_null() { xlib::XFree(children as *mut _); }
-            if parent == 0 || parent == root { return None; }
+        if xlib::XQueryTree(
+            display,
+            window,
+            &mut root,
+            &mut parent,
+            &mut children,
+            &mut n_children,
+        ) != 0
+        {
+            if !children.is_null() {
+                xlib::XFree(children as *mut _);
+            }
+            if parent == 0 || parent == root {
+                return None;
+            }
             window = parent;
         } else {
             return None;
@@ -113,11 +137,22 @@ unsafe fn window_under_cursor(display: *mut xlib::Display) -> Option<Window> {
     let mut mask: c_uint = 0;
 
     let ok = xlib::XQueryPointer(
-        display, root, &mut root_return, &mut child_return,
-        &mut root_x, &mut root_y, &mut win_x, &mut win_y, &mut mask,
+        display,
+        root,
+        &mut root_return,
+        &mut child_return,
+        &mut root_x,
+        &mut root_y,
+        &mut win_x,
+        &mut win_y,
+        &mut mask,
     );
 
-    if ok != 0 && child_return != 0 { Some(child_return) } else { None }
+    if ok != 0 && child_return != 0 {
+        Some(child_return)
+    } else {
+        None
+    }
 }
 
 /// # Safety
@@ -128,7 +163,9 @@ unsafe fn active_window(display: *mut xlib::Display) -> Option<Window> {
         let name = b"_NET_ACTIVE_WINDOW\0".as_ptr() as *const i8;
         xlib::XInternAtom(display, name, xlib::False)
     };
-    if net_active == 0 { return None; }
+    if net_active == 0 {
+        return None;
+    }
 
     let mut actual_type: Atom = 0;
     let mut actual_format: c_int = 0;
@@ -137,18 +174,32 @@ unsafe fn active_window(display: *mut xlib::Display) -> Option<Window> {
     let mut prop_return: *mut c_uchar = std::ptr::null_mut();
 
     let status = xlib::XGetWindowProperty(
-        display, root, net_active, 0, 1, xlib::False,
+        display,
+        root,
+        net_active,
+        0,
+        1,
+        xlib::False,
         xlib::XA_WINDOW,
-        &mut actual_type, &mut actual_format, &mut n_items,
-        &mut bytes_after, &mut prop_return,
+        &mut actual_type,
+        &mut actual_format,
+        &mut n_items,
+        &mut bytes_after,
+        &mut prop_return,
     );
 
     if status == xlib::Success as c_int && !prop_return.is_null() && n_items > 0 {
         let win = *(prop_return as *const Window);
         xlib::XFree(prop_return as *mut _);
-        if win != 0 { Some(win) } else { None }
+        if win != 0 {
+            Some(win)
+        } else {
+            None
+        }
     } else {
-        if !prop_return.is_null() { xlib::XFree(prop_return as *mut _); }
+        if !prop_return.is_null() {
+            xlib::XFree(prop_return as *mut _);
+        }
         None
     }
 }
@@ -168,10 +219,18 @@ unsafe fn window_title(display: *mut xlib::Display, window: Window) -> Option<St
     let mut prop_return: *mut c_uchar = std::ptr::null_mut();
 
     let status = xlib::XGetWindowProperty(
-        display, window, net_wm_name, 0, 1024, xlib::False,
+        display,
+        window,
+        net_wm_name,
+        0,
+        1024,
+        xlib::False,
         0, // AnyPropertyType — accept any atom type
-        &mut actual_type, &mut actual_format, &mut n_items,
-        &mut bytes_after, &mut prop_return,
+        &mut actual_type,
+        &mut actual_format,
+        &mut n_items,
+        &mut bytes_after,
+        &mut prop_return,
     );
 
     if status == xlib::Success as c_int && !prop_return.is_null() && n_items > 0 {
@@ -180,7 +239,9 @@ unsafe fn window_title(display: *mut xlib::Display, window: Window) -> Option<St
         xlib::XFree(prop_return as *mut _);
         return Some(title);
     }
-    if !prop_return.is_null() { xlib::XFree(prop_return as *mut _); }
+    if !prop_return.is_null() {
+        xlib::XFree(prop_return as *mut _);
+    }
 
     let mut text_prop: xlib::XTextProperty = std::mem::zeroed();
     if xlib::XGetWMName(display, window, &mut text_prop) != 0 && !text_prop.value.is_null() {
@@ -202,7 +263,15 @@ unsafe fn enumerate_windows(display: *mut xlib::Display) -> Vec<Window> {
     let mut children: *mut Window = std::ptr::null_mut();
     let mut n_children: c_uint = 0;
 
-    if xlib::XQueryTree(display, root, &mut root_return, &mut parent, &mut children, &mut n_children) == 0 {
+    if xlib::XQueryTree(
+        display,
+        root,
+        &mut root_return,
+        &mut parent,
+        &mut children,
+        &mut n_children,
+    ) == 0
+    {
         return Vec::new();
     }
     let windows = if !children.is_null() && n_children > 0 {
@@ -210,7 +279,9 @@ unsafe fn enumerate_windows(display: *mut xlib::Display) -> Vec<Window> {
     } else {
         Vec::new()
     };
-    if !children.is_null() { xlib::XFree(children as *mut _); }
+    if !children.is_null() {
+        xlib::XFree(children as *mut _);
+    }
     windows
 }
 
@@ -241,8 +312,7 @@ impl ProcessQuery for LinuxProcessQuery {
     fn foreground_process_id(&self) -> Option<u32> {
         unsafe {
             let d = display::open_display().ok()?;
-            let result = active_window(d)
-                .and_then(|win| get_window_pid(d, win));
+            let result = active_window(d).and_then(|win| get_window_pid(d, win));
             display::close_display(d);
             result
         }
@@ -251,14 +321,24 @@ impl ProcessQuery for LinuxProcessQuery {
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
         let mut results = Vec::new();
         unsafe {
-            let Ok(d) = display::open_display() else { return results; };
+            let Ok(d) = display::open_display() else {
+                return results;
+            };
             let windows = enumerate_windows(d);
             for win in windows {
-                let Some(pid) = get_window_pid(d, win) else { continue; };
+                let Some(pid) = get_window_pid(d, win) else {
+                    continue;
+                };
                 let name = process_name_from_pid(pid).unwrap_or_default();
-                if name.is_empty() { continue; }
+                if name.is_empty() {
+                    continue;
+                }
                 let title = window_title(d, win).unwrap_or_default();
-                results.push(ProcessInfo { pid, name, window_title: title });
+                results.push(ProcessInfo {
+                    pid,
+                    name,
+                    window_title: title,
+                });
             }
             display::close_display(d);
         }

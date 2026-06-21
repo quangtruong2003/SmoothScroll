@@ -9,8 +9,7 @@
 use crate::traits::{Hotkey, HotkeyHandle};
 use crate::types::{Accelerator, Result};
 
-static HOTKEYS_AVAILABLE: std::sync::atomic::AtomicBool = 
-    std::sync::atomic::AtomicBool::new(false);
+static HOTKEYS_AVAILABLE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
 pub struct WaylandHotkey;
 
@@ -28,7 +27,7 @@ impl Hotkey for WaylandHotkey {
                 accel
             );
         }
-        
+
         // Return a no-op handle
         Ok(HotkeyHandle::new(Box::new(())))
     }

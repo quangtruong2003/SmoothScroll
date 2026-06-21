@@ -21,26 +21,24 @@ pub fn check_uinput_access() -> Result<()> {
             "SmoothScroll does not support Flatpak.\n\n\
              Flatpak sandbox blocks access to /dev/uinput which is \
              required for scroll interception.\n\n\
-             Please install SmoothScroll from .deb or .AppImage instead.".into()
+             Please install SmoothScroll from .deb or .AppImage instead."
+                .into(),
         ));
     }
-    
+
     match std::fs::OpenOptions::new().write(true).open("/dev/uinput") {
         Ok(_) => Ok(()),
-        Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {
-            Err(PlatformError::Os(
-                "SmoothScroll needs access to /dev/uinput for scroll smoothing.\n\n\
+        Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => Err(PlatformError::Os(
+            "SmoothScroll needs access to /dev/uinput for scroll smoothing.\n\n\
                  Run the following commands and log out:\n\n\
                    sudo gpasswd -a $USER input\n\
                    sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", \
                  MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > \
                  /etc/udev/rules.d/99-smoothscroll.rules'\n\
                    sudo udevadm control --reload-rules\n\n\
-                 After logging back in, restart SmoothScroll.".into()
-            ))
-        }
-        Err(e) => Err(PlatformError::Os(format!(
-            "Cannot open /dev/uinput: {e}"
-        ))),
+                 After logging back in, restart SmoothScroll."
+                .into(),
+        )),
+        Err(e) => Err(PlatformError::Os(format!("Cannot open /dev/uinput: {e}"))),
     }
 }

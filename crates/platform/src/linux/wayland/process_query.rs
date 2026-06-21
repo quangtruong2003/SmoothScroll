@@ -20,17 +20,17 @@ impl ProcessQuery for WaylandProcessQuery {
         // Wayland doesn't expose this to clients
         None
     }
-    
+
     fn foreground_process_id(&self) -> Option<u32> {
         // Could read from /proc/self or use compositor-specific methods
         None
     }
-    
+
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
         // Not implemented - would require compositor-specific APIs
         Vec::new()
     }
-    
+
     fn is_target_elevated(&self) -> bool {
         // Linux doesn't have UAC-like elevation
         // Check if running as root

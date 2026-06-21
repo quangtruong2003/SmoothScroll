@@ -18,8 +18,7 @@ pub struct LinuxAutostart;
 
 impl LinuxAutostart {
     fn desktop_path() -> Result<PathBuf> {
-        let home = std::env::var("HOME")
-            .map_err(|_| PlatformError::Os("HOME not set".into()))?;
+        let home = std::env::var("HOME").map_err(|_| PlatformError::Os("HOME not set".into()))?;
         Ok(PathBuf::from(home)
             .join(".config")
             .join("autostart")
@@ -35,9 +34,7 @@ impl LinuxAutostart {
 
 impl Autostart for LinuxAutostart {
     fn is_enabled(&self) -> bool {
-        Self::desktop_path()
-            .map(|p| p.exists())
-            .unwrap_or(false)
+        Self::desktop_path().map(|p| p.exists()).unwrap_or(false)
     }
 
     fn set(&self, enabled: bool) -> Result<()> {

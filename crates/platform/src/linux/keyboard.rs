@@ -79,7 +79,9 @@ impl ModifierSampler {
         if let Ok(d) = display::open_display() {
             let keycodes = unsafe { Keycodes::resolve(d) };
             Self::sample_with(d, &state, &keycodes);
-            unsafe { display::close_display(d); }
+            unsafe {
+                display::close_display(d);
+            }
         }
 
         let s = state.clone();

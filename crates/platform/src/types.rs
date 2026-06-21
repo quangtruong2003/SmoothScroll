@@ -28,6 +28,12 @@ pub struct Accelerator {
     pub raw: String,
 }
 
+impl std::fmt::Display for Accelerator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.raw)
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum PlatformError {
     #[error("OS error: {0}")]

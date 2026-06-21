@@ -1,15 +1,15 @@
 //! Mouse wheel interception via evdev with exclusive grab.
 //!
-//! IMPORTANT: This implementation uses GRAB_MODE_EXCLUSIVE which
+//! IMPORTANT: This implementation uses exclusive grab which
 //! prevents other applications from receiving scroll events. Users must
 //! choose SmoothScroll OR other input tools (fusuma, libinput-gestures).
 //!
 //! The grab captures scroll events before they reach the compositor,
 //! allowing SmoothScroll to process and reinject smoothed scroll.
 
+use crate::linux::wayland::{evdev_scanner, wheel_emitter};
 use crate::traits::{HookEventSink, HookHandle, MouseHook};
 use crate::types::{PlatformError, Result};
-use crate::linux::wayland::{evdev_scanner, wheel_emitter};
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -27,10 +27,10 @@ pub struct WaylandMouseHook {
 impl WaylandMouseHook {
     pub fn new() -> Result<Self> {
         let devices = evdev_scanner::find_scroll_devices()?;
-        
+
         let device_paths: Vec<_> = devices.iter().map(|d| d.path.clone()).collect();
         let device_names: Vec<_> = devices.iter().map(|d| d.name.clone()).collect();
-        
+
         Ok(Self {
             device_paths,
             device_names,
@@ -45,69 +45,55 @@ impl MouseHook for WaylandMouseHook {
         let sink = Arc::new(sink);
         let device_paths = self.device_paths.clone();
         let device_names = self.device_names.clone();
-        
+
         // Get modifier state sampler
         let keyboard_state = WaylandKeyboardState::start();
-        
+
         thread::Builder::new()
             .name("ss-wayland-wheel-hook".into())
             .spawn(move || {
-                // Open and grab devices in the thread
-                let mut streams: Vec<_> = Vec::new();
-                
+                // Open, grab, and configure devices in the thread
+                let mut devices: Vec<evdev::Device> = Vec::new();
+
                 for (path, name) in device_paths.iter().zip(device_names.iter()) {
                     match evdev::Device::open(path) {
-                        Ok(device) => {
+                        Ok(mut device) => {
                             // Grab device to intercept scroll events
-                            if let Err(e) = device.grab(evdev::GrabMode::Exclusive) {
-                                eprintln!(
-                                    "ss-wayland-wheel-hook: failed to grab {}: {e}",
-                                    name
-                                );
+                            if let Err(e) = device.grab() {
+                                eprintln!("ss-wayland-wheel-hook: failed to grab {}: {e}", name);
                                 continue;
                             }
-                            
-                            // Get event stream
-                            match device.into_event_stream() {
-                                Ok(stream) => streams.push(stream),
-                                Err(e) => {
-                                    eprintln!(
-                                        "ss-wayland-wheel-hook: failed to create stream for {}: {e}",
-                                        name
-                                    );
-                                }
-                            }
+
+                            // Set non-blocking for polling with stop flag
+                            let _ = device.set_nonblocking(true);
+                            devices.push(device);
                         }
                         Err(e) => {
-                            eprintln!(
-                                "ss-wayland-wheel-hook: failed to open {}: {e}",
-                                name
-                            );
+                            eprintln!("ss-wayland-wheel-hook: failed to open {}: {e}", name);
                         }
                     }
                 }
-                
-                if streams.is_empty() {
+
+                if devices.is_empty() {
                     eprintln!("ss-wayland-wheel-hook: no devices available");
                     return;
                 }
-                
+
                 // Create classifiers
                 let classifier_v = Arc::new(Mutex::new(
-                    smoothscroll_core::input_source::InputClassifier::new()
+                    smoothscroll_core::input_source::InputClassifier::new(),
                 ));
                 let classifier_h = Arc::new(Mutex::new(
-                    smoothscroll_core::input_source::InputClassifier::new()
+                    smoothscroll_core::input_source::InputClassifier::new(),
                 ));
-                
+
                 let epoch = Instant::now();
-                
+
                 // Event loop
                 while alive.load(Ordering::Relaxed) {
-                    for stream in &streams {
-                        // read_event blocks, use timeout
-                        if let Ok(event) = stream.read_event() {
-                            if let Ok(event) = event {
+                    for device in &mut devices {
+                        if let Ok(events) = device.fetch_events() {
+                            for event in events {
                                 Self::process_event(
                                     event,
                                     &classifier_v,
@@ -119,15 +105,15 @@ impl MouseHook for WaylandMouseHook {
                             }
                         }
                     }
-                    
+
                     thread::sleep(Duration::from_micros(100));
                 }
-                
+
                 // Release grabs on exit
                 eprintln!("ss-wayland-wheel-hook: shutting down");
             })
             .map_err(|e| PlatformError::Os(format!("spawn mouse hook: {e}")))?;
-        
+
         Ok(HookHandle::new(Box::new(Installed {
             alive: self.stop_flag.clone(),
         })))
@@ -147,38 +133,41 @@ impl WaylandMouseHook {
         if wheel_emitter::is_suppressing() {
             return;
         }
-        
-        use evdev::EventType;
-        
+
         let event_type = event.event_type();
-        
-        if event_type != EventType::REL_WHEEL 
-            && event_type != EventType::REL_HWHEEL 
-            && event_type != EventType::REL_WHEEL_HI_RES
-            && event_type != EventType::REL_HWHEEL_HI_RES 
-        {
+
+        if event_type != evdev::EventType::RELATIVE {
             return;
         }
-        
+
         let now_ms = epoch.elapsed().as_millis() as u64;
         let mods = keyboard_state.snapshot();
-        
-        match event.kind() {
-            evdev::EventKind::RelWheel { value } => {
-                let source = classifier_v.lock().classify(value, now_ms);
-                sink.on_wheel_ext(value, mods, source);
-            }
-            evdev::EventKind::RelHorizontalWheel { value } => {
-                let source = classifier_h.lock().classify(value, now_ms);
-                sink.on_hwheel_ext(value, source);
-            }
-            evdev::EventKind::RelWheelHiRes { value } => {
-                // Accumulate hi-res units
-                sink.on_wheel_ext(value, mods, smoothscroll_core::input_source::InputSource::HighResWheel);
-            }
-            evdev::EventKind::RelHorizontalWheelHiRes { value } => {
-                sink.on_hwheel_ext(value, smoothscroll_core::input_source::InputSource::HighResWheel);
-            }
+
+        match event.destructure() {
+            evdev::EventSummary::RelativeAxis(_ev, code, value) => match code {
+                evdev::RelativeAxisCode::REL_WHEEL => {
+                    let source = classifier_v.lock().classify(*value, now_ms);
+                    sink.on_wheel_ext(*value, mods, source);
+                }
+                evdev::RelativeAxisCode::REL_HWHEEL => {
+                    let source = classifier_h.lock().classify(*value, now_ms);
+                    sink.on_hwheel_ext(*value, source);
+                }
+                evdev::RelativeAxisCode::REL_WHEEL_HI_RES => {
+                    sink.on_wheel_ext(
+                        *value,
+                        mods,
+                        smoothscroll_core::input_source::InputSource::HighResWheel,
+                    );
+                }
+                evdev::RelativeAxisCode::REL_HWHEEL_HI_RES => {
+                    sink.on_hwheel_ext(
+                        *value,
+                        smoothscroll_core::input_source::InputSource::HighResWheel,
+                    );
+                }
+                _ => {}
+            },
             _ => {}
         }
     }

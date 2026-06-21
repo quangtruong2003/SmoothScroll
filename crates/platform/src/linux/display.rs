@@ -43,8 +43,8 @@ pub unsafe fn keysym_to_keycode(display: *mut xlib::Display, keysym: xlib::KeySy
 
 /// Resolve a string keysym name to a KeySym.
 pub fn string_to_keysym(name: &str) -> Result<xlib::KeySym, PlatformError> {
-    let c_name = std::ffi::CString::new(name)
-        .map_err(|e| PlatformError::Os(format!("keysym name: {e}")))?;
+    let c_name =
+        std::ffi::CString::new(name).map_err(|e| PlatformError::Os(format!("keysym name: {e}")))?;
     let sym = unsafe { xlib::XStringToKeysym(c_name.as_ptr()) };
     if sym == 0 {
         Err(PlatformError::Os(format!("unknown keysym: {name}")))
