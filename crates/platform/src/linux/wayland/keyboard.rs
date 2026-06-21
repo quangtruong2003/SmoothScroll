@@ -108,7 +108,7 @@ impl WaylandKeyboardState {
 
     fn update_modifiers(event: evdev::InputEvent, state: &Arc<ModifierState>) {
         if let evdev::EventSummary::Key(_ev, key, value) = event.destructure() {
-            let pressed = *value == 1;
+            let pressed = value == 1;
 
             match key {
                 evdev::KeyCode::KEY_LEFTSHIFT | evdev::KeyCode::KEY_RIGHTSHIFT => {

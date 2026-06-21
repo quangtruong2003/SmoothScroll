@@ -146,23 +146,23 @@ impl WaylandMouseHook {
         match event.destructure() {
             evdev::EventSummary::RelativeAxis(_ev, code, value) => match code {
                 evdev::RelativeAxisCode::REL_WHEEL => {
-                    let source = classifier_v.lock().classify(*value, now_ms);
-                    sink.on_wheel_ext(*value, mods, source);
+                    let source = classifier_v.lock().classify(value, now_ms);
+                    sink.on_wheel_ext(value, mods, source);
                 }
                 evdev::RelativeAxisCode::REL_HWHEEL => {
-                    let source = classifier_h.lock().classify(*value, now_ms);
-                    sink.on_hwheel_ext(*value, source);
+                    let source = classifier_h.lock().classify(value, now_ms);
+                    sink.on_hwheel_ext(value, source);
                 }
                 evdev::RelativeAxisCode::REL_WHEEL_HI_RES => {
                     sink.on_wheel_ext(
-                        *value,
+                        value,
                         mods,
                         smoothscroll_core::input_source::InputSource::HighResWheel,
                     );
                 }
                 evdev::RelativeAxisCode::REL_HWHEEL_HI_RES => {
                     sink.on_hwheel_ext(
-                        *value,
+                        value,
                         smoothscroll_core::input_source::InputSource::HighResWheel,
                     );
                 }

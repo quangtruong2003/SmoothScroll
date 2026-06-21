@@ -75,16 +75,16 @@ impl WaylandWheelEmitter {
         // Setup virtual mouse device
         unsafe {
             // Enable EV_REL event type
-            ui_set_evbit(fd_raw, EV_REL as i32)?;
+            ui_set_evbit(fd_raw, EV_REL as u64)?;
 
             // Enable wheel events
-            ui_set_relbit(fd_raw, REL_WHEEL as i32)?;
-            ui_set_relbit(fd_raw, REL_HWHEEL as i32)?;
+            ui_set_relbit(fd_raw, REL_WHEEL as u64)?;
+            ui_set_relbit(fd_raw, REL_HWHEEL as u64)?;
 
             // Enable EV_KEY for Ctrl key (zoom)
-            ui_set_evbit(fd_raw, EV_KEY as i32)?;
-            ui_set_keybit(fd_raw, KEY_LEFTCTRL as i32)?;
-            ui_set_keybit(fd_raw, KEY_RIGHTCTRL as i32)?;
+            ui_set_evbit(fd_raw, EV_KEY as u64)?;
+            ui_set_keybit(fd_raw, KEY_LEFTCTRL as u64)?;
+            ui_set_keybit(fd_raw, KEY_RIGHTCTRL as u64)?;
 
             // Create uinput_user_dev structure
             let mut uidev: nix::libc::uinput_user_dev = std::mem::zeroed();
