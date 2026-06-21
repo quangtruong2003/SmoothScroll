@@ -83,7 +83,7 @@ final class SettingsStore: ObservableObject, Sendable {
         scrollEnabled = enabled
         
         do {
-            try await IPCClient.shared.send("set_scroll_enabled", params: SetEnabledParams(enabled: enabled))
+            try await IPCClient.shared.send("set_scroll_enabled", params: SetEnabledParams(enabled: enabled)) as Bool
         } catch {
             logger.error("setScrollEnabled failed, rolling back: \(error.localizedDescription)")
             scrollEnabled = previousValue
@@ -97,7 +97,7 @@ final class SettingsStore: ObservableObject, Sendable {
         speedPreset = preset
         
         do {
-            try await IPCClient.shared.send("set_preset", params: SetPresetParams(preset: preset.rawValue))
+            try await IPCClient.shared.send("set_preset", params: SetPresetParams(preset: preset.rawValue)) as Bool
         } catch {
             logger.error("setPreset failed, rolling back: \(error.localizedDescription)")
             speedPreset = previousValue
@@ -139,7 +139,7 @@ final class SettingsStore: ObservableObject, Sendable {
                 gameModeEnabled: current.gameModeEnabled
             )
 
-            try await IPCClient.shared.send("save_settings", params: SaveSettingsParams(settings: updated))
+            try await IPCClient.shared.send("save_settings", params: SaveSettingsParams(settings: updated)) as Bool
             logger.info("Settings saved successfully")
         } catch {
             logger.error("saveSettings failed: \(error.localizedDescription)")

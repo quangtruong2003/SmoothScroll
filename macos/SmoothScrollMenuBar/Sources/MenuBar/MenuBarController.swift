@@ -60,12 +60,10 @@ final class MenuBarController: NSObject {
     }
 
     private func updateAccessibilityValue() {
-        Task { @MainActor in
-            let enabled = SettingsStore.shared.scrollEnabled
-            statusItem.button?.setAccessibilityValue(
-                enabled ? "Enabled" : "Disabled"
-            )
-        }
+        let enabled = SettingsStore.shared.scrollEnabled
+        statusItem.button?.setAccessibilityValue(
+            enabled ? "Enabled" : "Disabled"
+        )
     }
 
     // MARK: - Popover
@@ -92,28 +90,27 @@ final class MenuBarController: NSObject {
     // MARK: - Observers
 
     private func setupObservers() {
+        // Notification fires on main queue (queue: .main), so no Task wrapper needed.
+        // Using [weak self] to avoid retain cycle.
         settingsObserver = NotificationCenter.default.addObserver(
             forName: .scrollStateDidChange,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                self?.updateIcon()
-                self?.updateAccessibilityValue()
-            }
+            // Already on main queue — safe to access UI directly.
+            self?.updateIcon()
+            self?.updateAccessibilityValue()
         }
     }
 
     private func updateIcon() {
         guard let button = statusItem.button else { return }
-        Task { @MainActor in
-            let enabled = SettingsStore.shared.scrollEnabled
+        let enabled = SettingsStore.shared.scrollEnabled
 
-            if let image = NSImage(systemSymbolName: "scroll", accessibilityDescription: "SmoothScroll") {
-                image.isTemplate = true
-                button.image = image
-                button.alphaValue = enabled ? 1.0 : 0.4
-            }
+        if let image = NSImage(systemSymbolName: "scroll", accessibilityDescription: "SmoothScroll") {
+            image.isTemplate = true
+            button.image = image
+            button.alphaValue = enabled ? 1.0 : 0.4
         }
     }
 }

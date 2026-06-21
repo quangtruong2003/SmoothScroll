@@ -138,9 +138,7 @@ actor IPCClient {
         )
 
         let jsonData = try JSONEncoder().encode(request)
-        guard var lineData = jsonData.data(using: .utf8) else {
-            throw IpcError.message("Failed to encode request")
-        }
+        var lineData = jsonData
         lineData.append(0x0A) // newline
 
         // Store continuation FIRST (synchronous, no Task hop)

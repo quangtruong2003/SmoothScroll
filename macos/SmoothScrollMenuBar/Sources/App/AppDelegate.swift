@@ -34,7 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         Task {
             do {
-                try await IPCClient.shared.send("quit")
+                try await IPCClient.shared.send("quit") as Bool
             } catch {
                 self.logger.warning("IPC quit failed: \(error.localizedDescription)")
             }
