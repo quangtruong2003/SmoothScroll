@@ -247,16 +247,25 @@ impl IpcServer {
                 (Some(serde_json::json!(true)), None)
             }
             "get_direction_sync_enabled" => {
-                // Direction sync is not yet wired into AppState — return default.
-                (Some(serde_json::json!(false)), None)
+                let settings = self.app_state.settings.read();
+                (Some(serde_json::json!(settings.direction_sync_enabled)), None)
             }
             "set_direction_sync_enabled" => {
-                // TODO: wire direction sync into AppState when available.
-                let _enabled = params
+                let enabled = params
                     .as_ref()
                     .and_then(|p| p.get("enabled"))
                     .and_then(|v| v.as_bool())
                     .unwrap_or(false);
+
+                {
+                    let mut settings = self.app_state.settings.write();
+                    settings.direction_sync_enabled = enabled;
+                }
+                let snapshot = self.app_state.settings.read().clone();
+                self.app_state.commit_settings(snapshot);
+                self.app_state.engine_signal.signal();
+
+                let _ = self.event_tx.send(IpcEvent::DirectionSyncChanged { enabled });
                 (Some(serde_json::json!(true)), None)
             }
             "get_preset" => {
