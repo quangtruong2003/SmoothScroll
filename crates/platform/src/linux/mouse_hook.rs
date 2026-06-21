@@ -106,20 +106,20 @@ impl MouseHook for LinuxMouseHook {
                         if event.type_ != xi_event_type {
                             continue;
                         }
-                        if xlib::XGetEventData(d, &mut event.generic_event_cookie.cookie) == 0 {
+                        if xlib::XGetEventData(d, &mut event.generic_event_cookie) == 0 {
                             continue;
                         }
 
-                        let xi_event = event.generic_event_cookie.cookie.data as *mut xinput2::XIRawEvent;
+                        let xi_event = event.generic_event_cookie.data as *mut xinput2::XIRawEvent;
                         if xi_event.is_null()
                             || (*xi_event).evtype != xinput2::XI_RawButtonPress
                         {
-                            xlib::XFreeEventData(d, &mut event.generic_event_cookie.cookie);
+                            xlib::XFreeEventData(d, &mut event.generic_event_cookie);
                             continue;
                         }
 
                         let button = (*xi_event).detail;
-                        xlib::XFreeEventData(d, &mut event.generic_event_cookie.cookie);
+                        xlib::XFreeEventData(d, &mut event.generic_event_cookie);
 
                         // Skip self-injected events from WheelEmitter
                         if super::wheel_emitter::is_suppressed() {
