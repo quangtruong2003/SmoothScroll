@@ -46,7 +46,7 @@ pub struct IpcError {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "event", rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub enum IpcEvent {
     ScrollStateChanged { enabled: bool },
     DirectionSyncChanged { enabled: bool },
