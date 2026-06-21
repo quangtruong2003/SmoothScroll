@@ -117,6 +117,13 @@ impl IpcServer {
             Err(e) => return Err(format!("failed to bind Unix socket at {:?}: {}", self.path, e).into()),
         };
 
+        // Restrict socket permissions to owner only.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = std::fs::set_permissions(&self.path, std::fs::Permissions::from_mode(0o600));
+        }
+
         loop {
             tokio::select! {
                 _ = self.shutdown_rx.changed() => {
