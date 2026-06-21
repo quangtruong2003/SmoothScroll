@@ -29,13 +29,14 @@ const KEY_RIGHTCTRL: u16 = 97;
 
 const BUS_USB: u32 = 0x03;
 
-// ── uinput ioctl request codes (from linux/uinput.h) ─────────────
-// Magic number: 'U' = 0x55, type = 0x40 (write), size = 0
-const UI_SET_EVBIT: u64 = 0x40045564; // write int, request 100
-const UI_SET_RELBIT: u64 = 0x40045565; // write int, request 101
-const UI_SET_KEYBIT: u64 = 0x40045566; // write int, request 102
-const UI_DEV_CREATE: u64 = 0x40045561; // write int, request 1
-const UI_DEV_DESTROY: u64 = 0x40045562; // write int, request 2
+// ── uinput ioctl constants (from linux/uinput.h) ─────────────────
+// ioctl type: 'U' = 0x55
+const UIINPUT_MAGIC: u8 = b'U';
+const UI_SET_EVBIT_NR: u8 = 100;
+const UI_SET_RELBIT_NR: u8 = 101;
+const UI_SET_KEYBIT_NR: u8 = 102;
+const UI_DEV_CREATE_NR: u8 = 1;
+const UI_DEV_DESTROY_NR: u8 = 2;
 
 static SUPPRESSING: AtomicBool = AtomicBool::new(false);
 
@@ -45,11 +46,11 @@ pub fn is_suppressing() -> bool {
 }
 
 // ── uinput ioctls ────────────────────────────────────────────────
-ioctl_write_int!(ui_set_evbit, UI_SET_EVBIT);
-ioctl_write_int!(ui_set_relbit, UI_SET_RELBIT);
-ioctl_write_int!(ui_set_keybit, UI_SET_KEYBIT);
-ioctl_write_int!(ui_dev_create, UI_DEV_CREATE);
-ioctl_write_int!(ui_dev_destroy, UI_DEV_DESTROY);
+ioctl_write_int!(ui_set_evbit, UIINPUT_MAGIC, UI_SET_EVBIT_NR);
+ioctl_write_int!(ui_set_relbit, UIINPUT_MAGIC, UI_SET_RELBIT_NR);
+ioctl_write_int!(ui_set_keybit, UIINPUT_MAGIC, UI_SET_KEYBIT_NR);
+ioctl_write_int!(ui_dev_create, UIINPUT_MAGIC, UI_DEV_CREATE_NR);
+ioctl_write_int!(ui_dev_destroy, UIINPUT_MAGIC, UI_DEV_DESTROY_NR);
 
 // ── Error conversion ─────────────────────────────────────────────
 impl From<nix::errno::Errno> for PlatformError {
