@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-06-21
+
+### Added
+- implement Wayland support design and detailed implementation plan
 ## [1.9.0] - 2026-06-21
 
 ### Added
