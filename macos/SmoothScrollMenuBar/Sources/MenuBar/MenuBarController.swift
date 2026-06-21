@@ -52,14 +52,13 @@ final class MenuBarController: NSObject {
             // Accessibility
             button.setAccessibilityLabel("SmoothScroll")
             button.setAccessibilityRole(.button)
-            updateAccessibilityValue()
+            updateAccessibilityValue(scrollEnabled: false) // Initial state, will update via notification
         }
     }
 
-    func updateAccessibilityValue() {
-        let enabled = SettingsStore.shared.scrollEnabled
+    func updateAccessibilityValue(scrollEnabled: Bool) {
         statusItem.button?.setAccessibilityValue(
-            enabled ? "Enabled" : "Disabled"
+            scrollEnabled ? "Enabled" : "Disabled"
         )
     }
 
@@ -84,14 +83,13 @@ final class MenuBarController: NSObject {
         }
     }
 
-    func updateIcon() {
+    func updateIcon(scrollEnabled: Bool) {
         guard let button = statusItem.button else { return }
-        let enabled = SettingsStore.shared.scrollEnabled
 
         if let image = NSImage(systemSymbolName: "scroll", accessibilityDescription: "SmoothScroll") {
             image.isTemplate = true
             button.image = image
-            button.alphaValue = enabled ? 1.0 : 0.4
+            button.alphaValue = scrollEnabled ? 1.0 : 0.4
         }
     }
 }

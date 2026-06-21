@@ -38,8 +38,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
-                self?.menuBarController?.updateIcon()
-                self?.menuBarController?.updateAccessibilityValue()
+                let enabled = SettingsStore.shared.scrollEnabled
+                self?.menuBarController?.updateIcon(scrollEnabled: enabled)
+                self?.menuBarController?.updateAccessibilityValue(scrollEnabled: enabled)
             }
         }
     }
