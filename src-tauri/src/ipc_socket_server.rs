@@ -211,7 +211,16 @@ impl IpcServer {
                     .and_then(|p| p.get("enabled"))
                     .and_then(|v| v.as_bool())
                     .unwrap_or(false);
-                app_state.enabled.store(enabled, Ordering::Relaxed);
+
+                app_state.enabled.store(enabled, Ordering::Release);
+                if enabled {
+                    app_state.engine_signal.signal();
+                } else {
+                    // Reset engine to default when disabling — matches Tauri command behavior.
+                    let mut e = app_state.engine.lock();
+                    *e = SmoothScrollEngine::default();
+                }
+
                 let _ = event_tx.send(IpcEvent::ScrollStateChanged { enabled });
                 (Some(serde_json::json!(true)), None)
             }
