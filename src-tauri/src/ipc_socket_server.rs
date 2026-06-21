@@ -76,6 +76,7 @@ pub struct IpcServer {
     shutdown_rx: tokio::sync::watch::Receiver<()>,
     event_tx: broadcast::Sender<IpcEvent>,
     app_state: Arc<AppState>,
+    pub quit_tx: tokio::sync::watch::Sender<bool>,
 }
 
 #[cfg(target_os = "macos")]
@@ -86,11 +87,13 @@ impl IpcServer {
         app_state: Arc<AppState>,
     ) -> Self {
         let (event_tx, _) = broadcast::channel(100);
+        let (quit_tx, _) = tokio::sync::watch::channel(false);
         Self {
             path,
             shutdown_rx,
             event_tx,
             app_state,
+            quit_tx,
         }
     }
 
@@ -164,7 +167,7 @@ impl IpcServer {
                             let id = request.get("id").cloned();
                             let method = request.get("method").and_then(|m| m.as_str()).unwrap_or("").to_string();
                             let params = request.get("params").cloned();
-                            let response = Self::process_request(&method, &params, &app_state, &event_tx).await;
+                            let response = Self::process_request(self, &method, &params).await;
                             let resp_with_id = IpcResponse {
                                 jsonrpc: "2.0".into(),
                                 id,
@@ -195,14 +198,13 @@ impl IpcServer {
     type ResponseResult = (Option<serde_json::Value>, Option<IpcError>);
 
     async fn process_request(
+        &self,
         method: &str,
         params: &Option<serde_json::Value>,
-        app_state: &Arc<AppState>,
-        event_tx: &broadcast::Sender<IpcEvent>,
     ) -> ResponseResult {
         match method {
             "get_scroll_enabled" => {
-                let enabled = app_state.enabled.load(Ordering::Relaxed);
+                let enabled = self.app_state.enabled.load(Ordering::Relaxed);
                 (Some(serde_json::json!(enabled)), None)
             }
             "set_scroll_enabled" => {
@@ -212,16 +214,16 @@ impl IpcServer {
                     .and_then(|v| v.as_bool())
                     .unwrap_or(false);
 
-                app_state.enabled.store(enabled, Ordering::Release);
+                self.app_state.enabled.store(enabled, Ordering::Release);
                 if enabled {
-                    app_state.engine_signal.signal();
+                    self.app_state.engine_signal.signal();
                 } else {
                     // Reset engine to default when disabling — matches Tauri command behavior.
-                    let mut e = app_state.engine.lock();
+                    let mut e = self.app_state.engine.lock();
                     *e = SmoothScrollEngine::default();
                 }
 
-                let _ = event_tx.send(IpcEvent::ScrollStateChanged { enabled });
+                let _ = self.event_tx.send(IpcEvent::ScrollStateChanged { enabled });
                 (Some(serde_json::json!(true)), None)
             }
             "get_direction_sync_enabled" => {
@@ -238,7 +240,7 @@ impl IpcServer {
                 (Some(serde_json::json!(true)), None)
             }
             "get_preset" => {
-                let eff = app_state.effective.load();
+                let eff = self.app_state.effective.load();
                 let preset = &eff.active_profile;
                 (Some(serde_json::json!(preset)), None)
             }
@@ -252,33 +254,31 @@ impl IpcServer {
 
                 // Update the active profile in settings and persist.
                 {
-                    let mut s = app_state.settings.write();
+                    let mut s = self.app_state.settings.write();
                     s.active_profile = preset.clone();
                 }
-                let snapshot = app_state.settings.read().clone();
-                app_state.commit_settings(snapshot);
-                app_state.engine_signal.signal();
+                let snapshot = self.app_state.settings.read().clone();
+                self.app_state.commit_settings(snapshot);
+                self.app_state.engine_signal.signal();
 
-                let _ = event_tx.send(IpcEvent::PresetChanged { preset });
+                let _ = self.event_tx.send(IpcEvent::PresetChanged { preset });
                 (Some(serde_json::json!(true)), None)
             }
             "get_settings" => {
-                let settings = app_state.settings.read();
+                let settings = self.app_state.settings.read();
                 let json = serde_json::to_value(&*settings).unwrap_or(serde_json::Value::Null);
                 (Some(json), None)
             }
             "save_settings" => {
                 if let Some(s) = params.as_ref().and_then(|p| p.get("settings")) {
                     if let Ok(updated) = serde_json::from_value::<smoothscroll_core::settings::AppSettings>(s.clone()) {
-                        app_state.commit_settings(updated);
+                        self.app_state.commit_settings(updated);
                     }
                 }
                 (Some(serde_json::json!(true)), None)
             }
             "quit" => {
-                // Signal the app to quit via the existing command.
-                // We can't call tauri commands directly from here, so set a flag.
-                // The tray or a periodic check can respond to this.
+                let _ = self.quit_tx.send(true);
                 (Some(serde_json::json!(true)), None)
             }
             _ => (
@@ -297,7 +297,9 @@ impl IpcServer {
 // ---------------------------------------------------------------------------
 
 #[cfg(not(target_os = "macos"))]
-pub struct IpcServer;
+pub struct IpcServer {
+    pub quit_tx: tokio::sync::watch::Sender<bool>,
+}
 
 #[cfg(not(target_os = "macos"))]
 impl IpcServer {
@@ -306,7 +308,8 @@ impl IpcServer {
         _shutdown_rx: tokio::sync::watch::Receiver<()>,
         _app_state: Arc<AppState>,
     ) -> Self {
-        Self
+        let (quit_tx, _) = tokio::sync::watch::channel(false);
+        Self { quit_tx }
     }
 
     pub async fn run(self: Arc<Self>) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {

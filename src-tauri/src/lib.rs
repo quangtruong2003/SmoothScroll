@@ -214,6 +214,19 @@ pub fn run() {
                 });
 
                 tracing::info!("IPC server spawned at {:?}", socket_path);
+
+                // Monitor quit signal and exit Tauri app when received.
+                let app_handle = app.handle().clone();
+                let quit_rx = ipc_server.quit_tx.subscribe();
+                std::thread::spawn(move || {
+                    let rt = tokio::runtime::Runtime::new().unwrap();
+                    rt.block_on(async move {
+                        let mut quit_rx = quit_rx;
+                        quit_rx.changed().await.ok();
+                        tracing::info!("Quit signal received, exiting app");
+                        app_handle.exit(0);
+                    });
+                });
             }
 
             // Reduce-motion watcher: re-commits settings when OS toggles RM
