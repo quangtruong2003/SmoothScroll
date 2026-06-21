@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.8.6] - 2026-06-21
+
+### Fixed
+- fix 21 pre-existing Linux x11/xlib compilation errors
 ## [1.8.5] - 2026-06-21
 
 ### Fixed
