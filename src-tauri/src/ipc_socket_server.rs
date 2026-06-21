@@ -8,6 +8,19 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use directories::ProjectDirs;
+use crate::state::AppState;
+
+/// Returns the Unix socket path for IPC communication.
+/// MUST match Swift's `SocketPath.socket` constant.
+/// On macOS, ProjectDirs.from("com", "SmoothScroll", "SmoothScroll") produces
+/// ~/Library/Application Support/com.SmoothScroll.SmoothScroll/socket
+pub fn ipc_socket_path() -> PathBuf {
+    let dirs = ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
+        .expect("failed to resolve project directories");
+    dirs.data_dir().join("socket")
+}
+
 #[cfg(target_os = "macos")]
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 #[cfg(target_os = "macos")]
