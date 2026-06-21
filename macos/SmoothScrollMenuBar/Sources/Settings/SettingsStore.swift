@@ -104,6 +104,23 @@ final class SettingsStore: ObservableObject, Sendable {
         }
     }
 
+    // MARK: - Direction Sync
+
+    func setDirectionSyncEnabled(_ enabled: Bool) async {
+        let previousValue = directionSyncEnabled
+        directionSyncEnabled = enabled
+
+        do {
+            try await IPCClient.shared.send(
+                "set_direction_sync_enabled",
+                params: SetDirectionSyncParams(enabled: enabled)
+            ) as Bool
+        } catch {
+            logger.error("setDirectionSyncEnabled failed, rolling back: \(error.localizedDescription)")
+            directionSyncEnabled = previousValue
+        }
+    }
+
     // MARK: - Settings Snapshot
 
     private func saveSettingsSnapshot() async {
@@ -136,7 +153,8 @@ final class SettingsStore: ObservableObject, Sendable {
                 zoomSensitivity: current.zoomSensitivity,
                 profiles: current.profiles,
                 appProfiles: current.appProfiles,
-                gameModeEnabled: current.gameModeEnabled
+                gameModeEnabled: current.gameModeEnabled,
+                directionSyncEnabled: directionSyncEnabled
             )
 
             try await IPCClient.shared.send("save_settings", params: SaveSettingsParams(settings: updated)) as Bool
@@ -158,6 +176,8 @@ final class SettingsStore: ObservableObject, Sendable {
             scrollEnabled = enabled
         case .presetChanged(let preset):
             speedPreset = ScrollPreset(rawValue: preset) ?? .balanced
+        case .directionSyncChanged(let enabled):
+            directionSyncEnabled = enabled
         case .settingsChanged(let settings):
             applySettings(settings, source: .remote)
         }
@@ -171,6 +191,7 @@ final class SettingsStore: ObservableObject, Sendable {
         speedPreset = ScrollPreset(rawValue: settings.activeProfile) ?? .balanced
         horizontalEnabled = settings.horizontalSmoothness
         zoomEnabled = settings.smoothZoom
+        directionSyncEnabled = settings.directionSyncEnabled
     }
     
     func updateConnectionState(_ state: ConnectionState) {
