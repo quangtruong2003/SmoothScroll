@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.8.7] - 2026-06-21
+
+### Fixed
+- fix mouse_hook.rs XEvent cookie access for x11 crate
 ## [1.8.6] - 2026-06-21
 
 ### Fixed
