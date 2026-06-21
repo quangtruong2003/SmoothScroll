@@ -57,7 +57,8 @@ impl MouseHook for LinuxMouseHook {
 
                 // Select XI_RawButtonPress events
                 let mut mask = [0u8; 4];
-                mask[2] |= 1 << (xinput2::XI_RawButtonPress - 16);
+                let ev = xinput2::XI_RawButtonPress as usize;
+                mask[ev / 8] |= 1 << (ev % 8);
 
                 let mut event_mask = xinput2::XIEventMask {
                     deviceid: xinput2::XIAllMasterDevices,
