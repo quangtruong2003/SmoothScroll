@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.5] - 2026-06-21
+
+### Fixed
+- improve touchpad detection and remove duplicate settings
 ## [1.10.4] - 2026-06-21
 
 ### Fixed
