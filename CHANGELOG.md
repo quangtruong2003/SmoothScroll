@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.8.4] - 2026-06-21
+
+### Fixed
+- pass scrollEnabled as param to avoid @MainActor property access
 ## [1.8.3] - 2026-06-21
 
 ### Fixed
