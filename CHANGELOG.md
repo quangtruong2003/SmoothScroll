@@ -7,6 +7,22 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-06-21
+
+### Added
+- limit Linux UI to essential features
+- adapt frontend for Linux platform
+- add Linux platform types in app crate
+- add complete Linux X11 platform implementation
+- convert hardcoded px values to rem for responsive scaling
+- responsive root font-size with clamp for large displays
+
+### Fixed
+- remove unused IS_LINUX import in Settings.tsx
+- Drop impl compile error + Cargo.toml description
+- move suppression flag inside Mutex guard + fix CSS comment
+- address Linux X11 code review findings
+- remove font-size transition, vw scaling is naturally smooth
 ## [1.6.0] - 2026-06-19
 
 ### Added
