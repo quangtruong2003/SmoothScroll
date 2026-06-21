@@ -1,8 +1,8 @@
 # SmoothScroll macOS — Implementation Spec
 
 > **Date:** June 21, 2026
-> **Status:** Implementation Guide
-> **Goal:** Fix all critical bugs + implement clean macOS menu bar UI
+> **Status:** Implementation Guide (v2 - Fixed)
+> **Goal:** Fix all critical bugs + implement clean native macOS menu bar UI
 
 ---
 
@@ -12,7 +12,7 @@
 ┌─────────────────────────────────────────────────────────┐
 │              macOS Menu Bar (NSStatusItem)              │
 │                                                          │
-│   [SmoothScroll]  ← Click → NSPopover                   │
+│   [● SmoothScroll]  ← Status dot + Click → NSPopover    │
 │                            │                            │
 │                            ▼                            │
 │   [SwiftUI PopoverView] ◄──► [Rust IPC Socket]         │
@@ -20,7 +20,7 @@
 │                            ▼                            │
 │   [Rust Engine + CGEventTap]                            │
 │   - Smooth scroll, horizontal, zoom                      │
-│   - Direction sync                                      │
+│   - Direction sync                                     │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -28,25 +28,42 @@
 
 ## 2. UI Specification
 
-### 2.1 Popover Dimensions
-- **Width:** 280pt (standard macOS popover)
-- **Height:** Auto-sizing, ~220pt content
+### 2.1 macOS Conventions
 
-### 2.2 Visual Design
+| Element | Standard macOS Pattern |
+|---------|----------------------|
+| Quit | Menu bar dropdown menu (NSMenu) |
+| Status indicator | Menu bar icon dot (green/gray) |
+| Settings | NSPopover |
+| Controls | Native SwiftUI Toggle, Picker |
+
+### 2.2 Menu Bar Icon
+
+- **Enabled:** Green dot `●` (filled circle)
+- **Disabled:** Gray dot `○` (outline circle)
+
+This replaces any text or emoji in the menu bar.
+
+### 2.3 Popover Dimensions
+- **Width:** 280pt (standard macOS popover)
+- **Height:** Auto-sizing, ~180pt content
+
+### 2.4 Visual Design
 
 | Element | Style |
 |---------|-------|
-| Background | `VisualEffectView(material: .popover)` — native vibrancy |
+| Background | `.ultraThinMaterial` (native vibrancy) |
 | Typography | System font, sizes: 13pt (title), 12pt (labels) |
-| Spacing | 8pt grid, 12pt horizontal padding, 10pt vertical spacing |
-| Colors | `.primary`, `.secondary`, `.accentColor` — system colors |
-| Corner radius | System default (NSPopover handles this) |
+| Spacing | 8pt grid, 12pt horizontal padding, 8pt vertical spacing |
+| Colors | `.primary`, `.secondary` — system colors |
+| Toggle | `.toggleStyle(.switch)` |
+| Preset Picker | `.pickerStyle(.segmented)` |
 
-### 2.3 Layout Structure
+### 2.5 Layout Structure
 
 ```
 ┌──────────────────────────────────────────────┐
-│ SmoothScroll                           ●     │  ← Status dot (green=enabled, gray=disabled)
+│ SmoothScroll                                   │  ← Header (no dot - dot is in menu bar)
 ├──────────────────────────────────────────────┤
 │                                              │
 │  Smooth Scroll                        [  ●  ] │  ← Toggle
@@ -56,18 +73,23 @@
 │  ─────────────────────────────────────────── │
 │                                              │
 │  Horizontal Scroll                     [  ●  ] │  ← Toggle
-│  Zoom                                    [  ●  ] │  ← Toggle
-│  Direction Sync                          [  ●  ] │  ← Toggle
+│  Zoom                                   [  ●  ] │  ← Toggle
+│  Direction Sync                         [  ●  ] │  ← Toggle
 │                                              │
-├──────────────────────────────────────────────┤
-│  Quit                                          │  ← Button
 └──────────────────────────────────────────────┘
+
+Menu Bar Dropdown (standard macOS):
+┌────────────────────────────┐
+│ About SmoothScroll          │
+│ ────────────────────────── │
+│ Quit SmoothScroll      ⌘Q  │
+└────────────────────────────┘
 ```
 
-### 2.4 NO Icons Policy
-- Không dùng emoji hoặc icon cho các toggle items
-- Không có icon trong header
-- Status indicator là dot duy nhất (cần thiết để biết ON/OFF từ xa)
+### 2.6 NO Icons Policy
+- Không dùng emoji hoặc SF Symbols cho các toggle items
+- Status indicator là dot trong menu bar icon (cần thiết cho visual feedback)
+- Quit được đặt trong menu bar dropdown (chuẩn macOS)
 
 ---
 
@@ -77,12 +99,12 @@
 
 | Feature | Implementation | IPC Command |
 |---------|---------------|-------------|
-| Smooth Scroll Toggle | `enabled` state | `set_enabled(bool)` |
-| Speed Preset | `active_profile` setting | `set_preset("balanced"\|"snappy"\|"glide")` |
-| Horizontal Scroll | `enable_horizontal` setting | `set_enable_horizontal(bool)` |
-| Zoom | `enable_zoom` setting | `set_enable_zoom(bool)` |
-| Direction Sync | `reverse_wheel_direction` setting | `set_direction_sync(bool)` |
-| Quit | Terminate app | `quit()` |
+| Smooth Scroll Toggle | `scrollEnabled` state | `set_scroll_enabled(bool)` |
+| Speed Preset | `activeProfile` setting | `set_preset(string)` |
+| Horizontal Scroll | `enableHorizontal` setting | `set_enable_horizontal(bool)` |
+| Zoom | `enableZoom` setting | `set_enable_zoom(bool)` |
+| Direction Sync | `reverseWheelDirection` setting | `set_direction_sync(bool)` |
+| Quit | NSApplication.terminate() via menu | `quit()` |
 
 ### 3.2 State Sync Flow
 
@@ -91,7 +113,7 @@ App Launch:
   Swift ──connect()──► Rust IPC
                          │
                          ▼
-  Swift ◄──init state─── Rust (event: scroll_state_changed, etc.)
+  Swift ◄──init state─── Rust (via get_* queries)
                          │
                          ▼
   SettingsStore.load() ◄──
@@ -106,62 +128,69 @@ User Interaction:
                              Rust receives
                                    │
                                    ▼
-                             Engine updates
+                             Engine + Settings save
                                    │
                                    ▼
                              Broadcast event to all clients
+                                   │
+                                   ▼
+                             All Swift clients update
 ```
 
 ### 3.3 Status Indicator Logic
 
-| State | Dot Color | When |
-|-------|-----------|------|
-| Enabled | `.green` | `scrollEnabled == true` |
-| Disabled | `.gray` | `scrollEnabled == false` |
+| State | Menu Bar Icon | When |
+|-------|--------------|------|
+| Enabled | ● (green filled) | `scrollEnabled == true` |
+| Disabled | ○ (gray outline) | `scrollEnabled == false` |
 
 ---
 
 ## 4. File Changes
 
-### 4.1 New/Modified Swift Files
+### 4.1 Swift File Structure
 
-| File | Action | Changes |
-|------|--------|---------|
-| `SmoothScrollPopover.swift` | Replace | New layout với native macOS controls |
-| `PopoverHeader.swift` | Replace | Simple header với status dot |
-| `SettingsStore.swift` | Replace | Full state management với IPC sync |
-| `IPCClient.swift` | Replace | Auto-connect on init, proper error handling |
-| `MenuBarController.swift` | Modify | Connect IPC on setup |
-| `DirectionSyncSection.swift` | Delete | Not needed — inline vào popover |
-| `SmoothScrollSection.swift` | Delete | Not needed — inline vào popover |
-| `PresetShortcutsView.swift` | Delete | Not needed |
-| `SettingsRow.swift` | Delete | Not needed |
-| `DeviceDirectionCard.swift` | Delete | Not needed |
+```
+macos/SmoothScrollMenuBar/Sources/
+├── main.swift                          # App entry point
+├── AppDelegate.swift                   # App lifecycle + menu bar setup
+├── MenuBarController.swift             # NSStatusItem + NSPopover management
+├── Views/
+│   ├── SmoothScrollPopover.swift       # Main popover content (NEW - replace)
+│   └── VisualEffectBlur.swift          # Keep (for .ultraThinMaterial support)
+├── Stores/
+│   └── SettingsStore.swift             # State management (REPLACE)
+├── Services/
+│   └── IPCClient.swift                 # IPC communication (REPLACE)
+└── Models/
+    └── ScrollSettings.swift            # Preset enum (NEW)
+```
 
-### 4.2 Rust IPC Changes
+### 4.2 Files to DELETE
+
+```
+macos/SmoothScrollMenuBar/Sources/Views/
+  - DirectionSyncSection.swift      ← DELETE
+  - SmoothScrollSection.swift        ← DELETE
+  - PresetShortcutsView.swift        ← DELETE
+  - SettingsRow.swift                 ← DELETE
+  - DeviceDirectionCard.swift        ← DELETE
+```
+
+### 4.3 Rust IPC Changes
 
 | File | Changes |
 |------|---------|
-| `ipc_socket_server.rs` | Fix socket path, implement direction sync, add horizontal/zoom setters |
-| `commands.rs` | Add `set_enable_horizontal`, `set_enable_zoom`, `set_direction_sync` commands |
+| `ipc_socket_server.rs` | Fix socket path, add horizontal/zoom/direction sync commands |
+| `commands.rs` | Sync method names: `set_scroll_enabled`, `get_scroll_enabled` |
 
-### 4.3 Socket Path Convention
+### 4.4 Socket Path Convention
 
 | Platform | Path |
 |----------|------|
 | macOS | `~/Library/Application Support/SmoothScroll/socket` |
 | Linux | `~/.config/smoothscroll/socket` (existing) |
 | Windows | `%APPDATA%/com.SmoothScroll/SmoothScroll/socket` (existing) |
-
-**Implementation note:** Use `directories` crate for cross-platform path:
-
-```rust
-// macOS: ~/Library/Application Support/SmoothScroll/
-let socket_path = directories
-    .data_local_dir()
-    .join("SmoothScroll")
-    .join("socket");
-```
 
 ---
 
@@ -171,8 +200,8 @@ let socket_path = directories
 
 | Method | Params | Returns |
 |--------|--------|---------|
-| `get_enabled` | none | `bool` |
-| `set_enabled` | `{ enabled: bool }` | `bool` |
+| `get_scroll_enabled` | none | `bool` |
+| `set_scroll_enabled` | `{ enabled: bool }` | `bool` |
 | `get_preset` | none | `string` |
 | `set_preset` | `{ preset: string }` | `bool` |
 | `get_enable_horizontal` | none | `bool` |
@@ -193,6 +222,34 @@ let socket_path = directories
 | `zoom_changed` | `{ enabled: bool }` | Zoom toggled |
 | `direction_sync_changed` | `{ enabled: bool }` | Direction sync toggled |
 
+### 5.3 Auto-Reconnect Logic
+
+```swift
+// IPCClient.swift
+actor IPCClient {
+    private var isReconnecting = false
+    
+    func connect() async throws {
+        // ... establish connection ...
+        
+        // Handle disconnect with auto-reconnect
+        Task {
+            await handleReconnectLoop()
+        }
+    }
+    
+    private func handleReconnectLoop() async {
+        while !Task.isCancelled {
+            let disconnected = await waitForDisconnect()
+            if disconnected {
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1s delay
+                try? await self.connect()
+            }
+        }
+    }
+}
+```
+
 ---
 
 ## 6. Implementation Steps
@@ -200,169 +257,335 @@ let socket_path = directories
 ### Phase 1: Fix Critical Bugs
 
 1. **Fix socket path mismatch**
-   - Swift: `~/.smoothscroll/socket` → `~/Library/Application Support/SmoothScroll/socket`
-   - Rust: Update to use `directories` crate
+   - Swift: Update to `~/Library/Application Support/SmoothScroll/socket`
+   - Rust: Use `directories` crate for cross-platform path
 
 2. **Auto-connect IPC on app start**
-   - `MenuBarController.setup()` → call `IPCClient.shared.connect()`
+   - `AppDelegate.applicationDidFinishLaunching` → connect IPC
    - Handle connection errors gracefully
 
-3. **Implement Direction Sync**
-   - Rust: Wire `reverse_wheel_direction` to IPC
-   - Swift: Add `directionSyncEnabled` to SettingsStore
+3. **Implement all IPC commands**
+   - Add `set_enable_horizontal`, `set_enable_zoom`, `set_direction_sync`
+   - Wire Rust settings to IPC
 
-4. **Add Horizontal Scroll + Zoom IPC**
-   - Rust: Add commands for `enable_horizontal` and `enable_zoom`
-   - Swift: Add to SettingsStore
+4. **Menu bar icon update**
+   - Green dot when enabled, gray outline when disabled
+   - Update on `scroll_state_changed` event
 
 ### Phase 2: UI Rewrite
 
 1. **New SmoothScrollPopover.swift**
    - Native SwiftUI layout
-   - No icons, no emojis
-   - Use `Toggle` with `.toggleStyle(.switch)`
-   - Use `Picker` with `.pickerStyle(.segmented)`
+   - No icons/emojis
+   - `@ObservedObject` for singleton (NOT `@StateObject`)
+   - `.ultraThinMaterial` background
 
-2. **Simplified PopoverHeader**
-   - App name only
-   - Status dot (green/gray based on enabled state)
+2. **AppDelegate with standard menu**
+   - About, Quit in menu bar dropdown
+   - ⌘Q shortcut for Quit
 
 3. **Delete unused views**
    - Remove all emoji/icon usage
-   - Remove complex card layouts
 
 ### Phase 3: Polish
 
-1. **Status indicator sync**
-   - Header dot updates when `scrollEnabled` changes
-
-2. **Settings persistence**
+1. **State persistence**
    - On change → IPC → Rust saves to disk
 
-3. **Quit functionality**
-   - `quit()` command → graceful shutdown
+2. **Quit functionality**
+   - Menu bar Quit menu item
+   - ⌘Q keyboard shortcut
 
 ---
 
-## 7. Code Examples
+## 7. Code Examples (Fixed)
 
-### 7.1 New Popover Layout
+### 7.1 Preset Enum
 
 ```swift
+// ScrollSettings.swift
+enum ScrollPreset: String, CaseIterable, Identifiable {
+    case balanced = "balanced"
+    case snappy = "snappy"
+    case glide = "glide"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .balanced: return "Balanced"
+        case .snappy: return "Snappy"
+        case .glide: return "Glide"
+        }
+    }
+}
+```
+
+### 7.2 SettingsStore (Fixed)
+
+```swift
+// SettingsStore.swift
+@MainActor
+class SettingsStore: ObservableObject {
+    static let shared = SettingsStore()
+
+    @Published var scrollEnabled: Bool = false
+    @Published var speedPreset: ScrollPreset = .balanced
+    @Published var horizontalEnabled: Bool = false
+    @Published var zoomEnabled: Bool = false
+    @Published var directionSyncEnabled: Bool = false
+
+    private var isInitializing = true
+
+    private init() {}
+
+    func loadInitialState() async {
+        do {
+            try await IPCClient.shared.connect()
+
+            // Load all settings from Rust
+            scrollEnabled = try await IPCClient.shared.getScrollEnabled()
+            speedPreset = ScrollPreset(rawValue: try await IPCClient.shared.getPreset()) ?? .balanced
+            horizontalEnabled = try await IPCClient.shared.getEnableHorizontal()
+            zoomEnabled = try await IPCClient.shared.getEnableZoom()
+            directionSyncEnabled = try await IPCClient.shared.getDirectionSync()
+
+            isInitializing = false
+        } catch {
+            print("Failed to load initial state: \(error)")
+        }
+    }
+
+    func setScrollEnabled(_ enabled: Bool) async {
+        guard !isInitializing else { return }
+        scrollEnabled = enabled
+        try? await IPCClient.shared.setScrollEnabled(enabled)
+    }
+
+    func setPreset(_ preset: ScrollPreset) async {
+        guard !isInitializing else { return }
+        speedPreset = preset
+        try? await IPCClient.shared.setPreset(preset.rawValue)
+    }
+}
+```
+
+### 7.3 New Popover Layout (Fixed)
+
+```swift
+// SmoothScrollPopover.swift
 struct SmoothScrollPopover: View {
-    @StateObject private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            PopoverHeader(isEnabled: settings.scrollEnabled)
-                .padding(.horizontal, 12)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
+            HStack {
+                Text("SmoothScroll")
+                    .font(.system(size: 13, weight: .semibold))
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
 
             Divider()
                 .padding(.horizontal, 12)
 
             VStack(alignment: .leading, spacing: 12) {
                 // Smooth Scroll Toggle
-                Toggle("Smooth Scroll", isOn: $settings.scrollEnabled)
-                    .toggleStyle(.switch)
+                Toggle("Smooth Scroll", isOn: Binding(
+                    get: { settings.scrollEnabled },
+                    set: { newValue in
+                        Task { await settings.setScrollEnabled(newValue) }
+                    }
+                ))
+                .toggleStyle(.switch)
 
                 // Speed Preset
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Speed")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
-                    Picker("", selection: $settings.speedPreset) {
-                        Text("Balanced").tag("balanced")
-                        Text("Snappy").tag("snappy")
-                        Text("Glide").tag("glide")
+                    Picker("", selection: Binding(
+                        get: { settings.speedPreset },
+                        set: { newValue in
+                            Task { await settings.setPreset(newValue) }
+                        }
+                    )) {
+                        ForEach(ScrollPreset.allCases) { preset in
+                            Text(preset.displayName).tag(preset)
+                        }
                     }
                     .pickerStyle(.segmented)
-                    .onChange(of: settings.speedPreset) { _, newValue in
-                        Task { try? await IPCClient.shared.setPreset(newValue) }
-                    }
                 }
 
                 Divider()
 
                 // Horizontal Scroll
-                Toggle("Horizontal Scroll", isOn: $settings.horizontalEnabled)
-                    .toggleStyle(.switch)
+                Toggle("Horizontal Scroll", isOn: Binding(
+                    get: { settings.horizontalEnabled },
+                    set: { newValue in
+                        Task { await settings.setHorizontalEnabled(newValue) }
+                    }
+                ))
+                .toggleStyle(.switch)
 
                 // Zoom
-                Toggle("Zoom", isOn: $settings.zoomEnabled)
-                    .toggleStyle(.switch)
+                Toggle("Zoom", isOn: Binding(
+                    get: { settings.zoomEnabled },
+                    set: { newValue in
+                        Task { await settings.setZoomEnabled(newValue) }
+                    }
+                ))
+                .toggleStyle(.switch)
 
                 // Direction Sync
-                Toggle("Direction Sync", isOn: $settings.directionSyncEnabled)
-                    .toggleStyle(.switch)
+                Toggle("Direction Sync", isOn: Binding(
+                    get: { settings.directionSyncEnabled },
+                    set: { newValue in
+                        Task { await settings.setDirectionSyncEnabled(newValue) }
+                    }
+                ))
+                .toggleStyle(.switch)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-
-            Divider()
-
-            // Quit Button
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
         }
         .frame(width: 280)
-        .padding(.bottom, 4)
-        .background(VisualEffectBlur(material: .popover, blendingMode: .behindWindow))
+        .background(.ultraThinMaterial)
     }
 }
 ```
 
-### 7.2 Simplified Header
+### 7.4 AppDelegate with Standard Menu
 
 ```swift
-struct PopoverHeader: View {
-    let isEnabled: Bool
+// AppDelegate.swift
+class AppDelegate: NSObject, NSApplicationDelegate {
+    var menuBarController: MenuBarController?
 
-    var body: some View {
-        HStack {
-            Text("SmoothScroll")
-                .font(.system(size: 13, weight: .semibold))
-            Spacer()
-            Circle()
-                .fill(isEnabled ? Color.green : Color.gray)
-                .frame(width: 8, height: 8)
-        }
-    }
-}
-```
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Build standard macOS menu
+        setupMenuBar()
 
-### 7.3 SettingsStore (Full)
+        // Setup menu bar icon + popover
+        menuBarController = MenuBarController()
 
-```swift
-@MainActor
-class SettingsStore: ObservableObject {
-    static let shared = SettingsStore()
-
-    @Published var scrollEnabled: Bool = false
-    @Published var speedPreset: String = "balanced"
-    @Published var horizontalEnabled: Bool = false
-    @Published var zoomEnabled: Bool = false
-    @Published var directionSyncEnabled: Bool = false
-
-    private init() {
+        // Load initial state
         Task {
-            await connectAndLoad()
+            await SettingsStore.shared.loadInitialState()
         }
     }
 
-    func connectAndLoad() async {
-        do {
-            try await IPCClient.shared.connect()
-            // Initial state will come via events
-        } catch {
-            print("IPC connect failed: \(error)")
+    func setupMenuBar() {
+        let mainMenu = NSMenu()
+
+        // App menu
+        let appMenuItem = NSMenuItem()
+        mainMenu.addItem(appMenuItem)
+
+        let appMenu = NSMenu()
+        appMenuItem.submenu = appMenu
+
+        appMenu.addItem(NSMenuItem(
+            title: "About SmoothScroll",
+            action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
+            keyEquivalent: ""
+        ))
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(NSMenuItem(
+            title: "Quit SmoothScroll",
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        ))
+
+        NSApplication.shared.mainMenu = mainMenu
+    }
+
+    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+        return true
+    }
+}
+```
+
+### 7.5 Menu Bar Icon (Status Dot)
+
+```swift
+// MenuBarController.swift
+class MenuBarController: NSObject {
+    private var statusItem: NSStatusItem!
+    private var popover: NSPopover!
+
+    override init() {
+        super.init()
+        setupStatusItem()
+        setupPopover()
+    }
+
+    private func setupStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+
+        if let button = statusItem.button {
+            button.action = #selector(togglePopover)
+            button.target = self
+            updateIcon(isEnabled: false)
+        }
+
+        // Observe scroll state changes
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(scrollStateDidChange),
+            name: .scrollStateDidChange,
+            object: nil
+        )
+    }
+
+    private func setupPopover() {
+        popover = NSPopover()
+        popover.contentSize = NSSize(width: 280, height: 180)
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(rootView: SmoothScrollPopover())
+    }
+
+    func updateIcon(isEnabled: Bool) {
+        guard let button = statusItem.button else { return }
+
+        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+
+        if isEnabled {
+            // Green filled circle
+            let image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: "Enabled")
+            button.image = image?.withSymbolConfiguration(config)
+            button.contentTintColor = .systemGreen
+        } else {
+            // Gray outline circle
+            let image = NSImage(systemSymbolName: "circle", accessibilityDescription: "Disabled")
+            button.image = image?.withSymbolConfiguration(config)
+            button.contentTintColor = .secondaryLabelColor
         }
     }
+
+    @objc private func togglePopover() {
+        if popover.isShown {
+            popover.performClose(nil)
+        } else {
+            if let button = statusItem.button {
+                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            }
+        }
+    }
+
+    @objc private func scrollStateDidChange(_ notification: Notification) {
+        if let isEnabled = notification.userInfo?["isEnabled"] as? Bool {
+            updateIcon(isEnabled: isEnabled)
+        }
+    }
+}
+
+// Notification name
+extension Notification.Name {
+    static let scrollStateDidChange = Notification.Name("scrollStateDidChange")
 }
 ```
 
@@ -370,16 +593,19 @@ class SettingsStore: ObservableObject {
 
 ## 8. Testing Checklist
 
+- [ ] Menu bar icon shows green dot when enabled
+- [ ] Menu bar icon shows gray dot when disabled
 - [ ] Popover opens on menu bar click
-- [ ] Popover closes on click outside
+- [ ] Popover closes on click outside (transient behavior)
 - [ ] Smooth Scroll toggle works (IPC → Rust)
 - [ ] Speed preset picker works
 - [ ] Horizontal Scroll toggle works
 - [ ] Zoom toggle works
 - [ ] Direction Sync toggle works
-- [ ] Quit terminates app
-- [ ] Status dot updates on toggle
+- [ ] Quit from menu bar works (⌘Q)
+- [ ] About panel works
 - [ ] State persists after app restart
+- [ ] Auto-reconnect after Rust restart
 
 ---
 
@@ -387,12 +613,12 @@ class SettingsStore: ObservableObject {
 
 ```
 macos/SmoothScrollMenuBar/Sources/Views/
-  - DirectionSyncSection.swift  ← DELETE
-  - SmoothScrollSection.swift    ← DELETE
-  - PresetShortcutsView.swift    ← DELETE
-  - SettingsRow.swift             ← DELETE
-  - DeviceDirectionCard.swift    ← DELETE
-  - VisualEffectBlur.swift       ← KEEP (still needed)
+  - DirectionSyncSection.swift      ← DELETE
+  - SmoothScrollSection.swift        ← DELETE
+  - PresetShortcutsView.swift        ← DELETE
+  - SettingsRow.swift                 ← DELETE
+  - DeviceDirectionCard.swift        ← DELETE
+  - VisualEffectBlur.swift           ← KEEP
 ```
 
 ---
@@ -401,8 +627,23 @@ macos/SmoothScrollMenuBar/Sources/Views/
 
 | Category | Changes |
 |----------|---------|
-| UI | Rewrite to native macOS, remove all icons/emojis |
-| IPC | Fix socket path, add missing commands |
-| State | Proper sync between Swift ↔ Rust |
-| Features | Add horizontal scroll, zoom, direction sync IPC |
-| Code | Delete 5 unused view files |
+| UI | Native macOS popover, `.ultraThinMaterial`, no icons/emojis |
+| Menu Bar | Status dot icon (green/gray), standard macOS menu dropdown |
+| IPC | Fixed socket path, auto-reconnect, all commands implemented |
+| State | Proper sync, `@ObservedObject` for singleton, type-safe enum |
+| Code | Delete 5 unused view files, add 1 model file |
+
+---
+
+## 11. Key Fixes from v1
+
+| Issue | Fix |
+|-------|-----|
+| `@StateObject` with singleton | Changed to `@ObservedObject` |
+| `VisualEffectBlur` custom view | Changed to `.ultraThinMaterial` |
+| IPC method names mismatch | Fixed to `set_scroll_enabled`, `get_scroll_enabled` |
+| Quit in popover | Moved to standard menu bar dropdown |
+| Status dot in popover | Moved to menu bar icon |
+| No reconnection logic | Added auto-reconnect loop |
+| String-based preset | Added `ScrollPreset` enum |
+| Async init issues | Added `loadInitialState()` method |
