@@ -305,8 +305,8 @@ jobs:
         with:
           tag_name: ${{ needs.bump.outputs.tag }}
           files: |
-            src-tauri/target/release/bundle/deb/*.deb
-            src-tauri/target/release/bundle/appimage/*.AppImage
+            target/release/bundle/deb/*.deb
+            target/release/bundle/appimage/*.AppImage
 
   cleanup-releases:
     needs: [bump, build-windows, build-linux]
