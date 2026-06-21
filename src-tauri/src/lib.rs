@@ -182,7 +182,39 @@ pub fn run() {
         .manage(app_state.clone())
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
-            tray::init(app.handle(), state_for_setup.clone())?;
+            #[cfg(not(target_os = "macos"))]
+            {
+                tray::init(app.handle(), state_for_setup.clone())?;
+            }
+            #[cfg(target_os = "macos")]
+            {
+                // Swift menu bar app owns the tray icon on macOS.
+                // tray::init is skipped — Swift NSStatusItem replaces it.
+                use crate::ipc_socket_server::{ipc_socket_path, IpcServer};
+
+                let socket_path = ipc_socket_path();
+                let (shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(());
+                let ipc_server = Arc::new(IpcServer::new(
+                    socket_path,
+                    shutdown_rx,
+                    state_for_setup.clone(),
+                ));
+
+                // Spawn IPC server on a dedicated tokio runtime.
+                // Tauri v2 doesn't expose its internal runtime for arbitrary async tasks,
+                // so we create a new one on a background thread.
+                let _server_handle = std::thread::spawn(move || {
+                    let rt = tokio::runtime::Runtime::new()
+                        .expect("failed to create IPC tokio runtime");
+                    rt.block_on(async move {
+                        if let Err(e) = ipc_server.run().await {
+                            tracing::error!(error = %e, "IPC server error");
+                        }
+                    });
+                });
+
+                tracing::info!("IPC server spawned at {:?}", socket_path);
+            }
 
             // Reduce-motion watcher: re-commits settings when OS toggles RM
             // and emits reduce-motion-changed for the UI to update its status line.
