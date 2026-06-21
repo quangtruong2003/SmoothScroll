@@ -7,6 +7,14 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-06-21
+
+### Added
+- add Wayland support via evdev+uinput
+- wire direction sync in SettingsStore
+- add direction sync IPC protocol types
+- wire direction_sync_enabled handlers to AppState
+- implement MacosMouseHook using CGEventTap
 ## [1.8.10] - 2026-06-21
 
 ### Fixed
