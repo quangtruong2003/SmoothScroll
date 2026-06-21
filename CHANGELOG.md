@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.3] - 2026-06-21
+
+### Fixed
+- fix type mismatches in evdev ioctl and event handling
 ## [1.10.2] - 2026-06-21
 
 ### Fixed
