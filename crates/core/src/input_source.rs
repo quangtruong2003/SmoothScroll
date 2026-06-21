@@ -1,5 +1,5 @@
 //! Classifies wheel events as Wheel / HighResWheel / Touchpad based on
-//! delta magnitude and event frequency.
+//! delta magnitude, event frequency, and inter-event timing patterns.
 
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -11,8 +11,9 @@ pub enum InputSource {
     Touchpad,
 }
 
-const HISTORY_WINDOW_MS: u64 = 200;
-const TOUCHPAD_EVENT_THRESHOLD: usize = 5;
+const HISTORY_WINDOW_MS: u64 = 300;
+const TOUCHPAD_EVENT_THRESHOLD: usize = 4;
+const TOUCHPAD_MAX_INTERVAL_MS: u64 = 50;
 const STANDARD_NOTCH_DELTA: i32 = 120;
 
 pub struct InputClassifier {
@@ -48,9 +49,29 @@ impl InputClassifier {
         if abs_delta == 0 {
             return InputSource::Wheel;
         }
-        if event_count > TOUCHPAD_EVENT_THRESHOLD && abs_delta < STANDARD_NOTCH_DELTA {
-            return InputSource::Touchpad;
+
+        if abs_delta == STANDARD_NOTCH_DELTA {
+            return InputSource::Wheel;
         }
+
+        if event_count >= 2 {
+            let first_time = self.recent.front().map(|(t, _)| *t).unwrap_or(now_ms);
+            let window_duration = now_ms.saturating_sub(first_time);
+
+            if window_duration > 0 {
+                let events_per_second = (event_count as f64) * 1000.0 / (window_duration as f64);
+                let avg_interval_ms = window_duration as f64 / (event_count.saturating_sub(1) as f64);
+
+                if event_count >= TOUCHPAD_EVENT_THRESHOLD
+                    && abs_delta < STANDARD_NOTCH_DELTA
+                    && avg_interval_ms <= TOUCHPAD_MAX_INTERVAL_MS as f64
+                    && events_per_second >= 30.0
+                {
+                    return InputSource::Touchpad;
+                }
+            }
+        }
+
         if abs_delta < STANDARD_NOTCH_DELTA {
             return InputSource::HighResWheel;
         }

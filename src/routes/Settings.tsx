@@ -140,7 +140,6 @@ export function SettingsPage() {
               description={t("tabs.advanced.description")}
             >
               <AdvancedScrollSection />
-              <TouchpadSection />
             </TabContent>
           )}
 
