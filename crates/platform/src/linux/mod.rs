@@ -1,20 +1,26 @@
-//! Linux X11 platform implementation.
+//! Linux platform implementation (X11 or Wayland).
+
+#[cfg(target_os = "linux")]
+mod wayland;
+
+#[cfg(target_os = "linux")]
+pub use wayland;
 
 mod accessibility;
-mod display;
+mod autostart;
 mod fullscreen;
 mod hotkey;
 mod keyboard;
 mod mouse_hook;
 mod process_query;
 mod timer;
-mod autostart;
-mod wheel_emitter;
 mod window_geom;
 
-use crate::types::Result;
-use crate::Platform;
-use std::sync::Arc;
+#[cfg(target_os = "linux")]
+mod wheel_emitter;
+
+#[cfg(target_os = "linux")]
+mod display;
 
 pub use accessibility::LinuxAccessibilitySignals;
 pub use autostart::LinuxAutostart;
@@ -24,17 +30,33 @@ pub use keyboard::ModifierSampler;
 pub use mouse_hook::LinuxMouseHook;
 pub use process_query::LinuxProcessQuery;
 pub use timer::LinuxHighResTimerGuard;
+
+#[cfg(target_os = "linux")]
 pub use wheel_emitter::LinuxWheelEmitter;
+
+#[cfg(target_os = "linux")]
 pub use window_geom::LinuxWindowGeometry;
 
-pub fn build() -> Result<Platform> {
-    if std::env::var("XDG_SESSION_TYPE").unwrap_or_default() == "wayland" {
-        return Err(crate::types::PlatformError::Os(
-            "Wayland session detected. SmoothScroll requires X11. \
-             Please log out and select 'GNOME on Xorg' or equivalent.".into()
-        ));
-    }
+use crate::types::Result;
+use std::sync::Arc;
 
+#[cfg(target_os = "linux")]
+pub fn build() -> Result<Platform> {
+    let session_type = std::env::var("XDG_SESSION_TYPE").unwrap_or_default();
+    
+    match session_type.as_str() {
+        "wayland" => {
+            wayland::build()
+        }
+        _ => {
+            // X11 session or unknown - use X11 implementation
+            x11_build()
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn x11_build() -> Result<Platform> {
     let wheel_emitter: Arc<LinuxWheelEmitter> = Arc::new(LinuxWheelEmitter::new()?);
     Ok(Platform {
         mouse_hook: Arc::new(LinuxMouseHook::new()?),
