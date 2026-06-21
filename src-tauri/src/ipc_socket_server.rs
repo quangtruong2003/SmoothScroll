@@ -170,8 +170,9 @@ impl IpcServer {
                 event = rx.recv() => {
                     if let Ok(event) = event {
                         if let Ok(msg) = serde_json::to_vec(&event) {
-                        let _ = writer.write_all(msg.as_bytes()).await;
-                        let _ = writer.write_all(b"\n").await;
+                            let _ = writer.write_all(msg.as_bytes()).await;
+                            let _ = writer.write_all(b"\n").await;
+                        }
                     }
                 }
             }
