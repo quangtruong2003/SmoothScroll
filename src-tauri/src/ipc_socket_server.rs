@@ -271,11 +271,28 @@ impl IpcServer {
             }
             "save_settings" => {
                 if let Some(s) = params.as_ref().and_then(|p| p.get("settings")) {
-                    if let Ok(updated) = serde_json::from_value::<smoothscroll_core::settings::AppSettings>(s.clone()) {
-                        self.app_state.commit_settings(updated);
+                    match serde_json::from_value::<smoothscroll_core::settings::AppSettings>(s.clone()) {
+                        Ok(updated) => {
+                            self.app_state.commit_settings(updated);
+                            (Some(serde_json::json!(true)), None)
+                        }
+                        Err(e) => (
+                            None,
+                            Some(IpcError {
+                                code: -32000,
+                                message: format!("Invalid settings: {}", e),
+                            }),
+                        ),
                     }
+                } else {
+                    (
+                        None,
+                        Some(IpcError {
+                            code: -32602,
+                            message: "Missing 'settings' parameter".into(),
+                        }),
+                    )
                 }
-                (Some(serde_json::json!(true)), None)
             }
             "quit" => {
                 let _ = self.quit_tx.send(true);
