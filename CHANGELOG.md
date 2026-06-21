@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.8.9] - 2026-06-21
+
+### Fixed
+- add TAURI_SIGNING_PRIVATE_KEY to Linux build env
 ## [1.8.8] - 2026-06-21
 
 ### Fixed
