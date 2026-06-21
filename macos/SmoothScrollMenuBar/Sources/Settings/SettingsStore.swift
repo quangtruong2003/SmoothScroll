@@ -41,12 +41,10 @@ final class SettingsStore: ObservableObject, Sendable {
     @Published var zoomEnabled: Bool = false {
         didSet { Task { await saveSettingsSnapshot() } }
     }
-    @Published var directionSyncEnabled: Bool = false  // Coming Soon — disabled in UI
+    @Published var directionSyncEnabled: Bool = false
     
-    /// True while a settings mutation is in progress to prevent concurrent saves.
     @Published private(set) var isMutating: Bool = false
 
-    /// Tracks where the last update came from to prevent echo loops.
     private var lastUpdateSource: UpdateSource = .local
     private enum UpdateSource { case local, remote }
 
@@ -174,8 +172,6 @@ final class SettingsStore: ObservableObject, Sendable {
         horizontalEnabled = settings.horizontalSmoothness
         zoomEnabled = settings.smoothZoom
     }
-    
-    // MARK: - Connection State Helpers
     
     func updateConnectionState(_ state: ConnectionState) {
         connectionState = state
