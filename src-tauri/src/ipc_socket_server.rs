@@ -249,6 +249,16 @@ impl IpcServer {
                     .and_then(|v| v.as_str())
                     .unwrap_or("balanced")
                     .to_string();
+
+                // Update the active profile in settings and persist.
+                {
+                    let mut s = app_state.settings.write();
+                    s.active_profile = preset.clone();
+                }
+                let snapshot = app_state.settings.read().clone();
+                app_state.commit_settings(snapshot);
+                app_state.engine_signal.signal();
+
                 let _ = event_tx.send(IpcEvent::PresetChanged { preset });
                 (Some(serde_json::json!(true)), None)
             }
