@@ -32,12 +32,12 @@ impl Keycodes {
     /// `display` must be a valid open connection.
     unsafe fn resolve(display: *mut xlib::Display) -> Self {
         Self {
-            shift_l: xlib::XKeysymToKeycode(display, keysym::XK_Shift_L) as usize,
-            shift_r: xlib::XKeysymToKeycode(display, keysym::XK_Shift_R) as usize,
-            ctrl_l: xlib::XKeysymToKeycode(display, keysym::XK_Control_L) as usize,
-            ctrl_r: xlib::XKeysymToKeycode(display, keysym::XK_Control_R) as usize,
-            alt_l: xlib::XKeysymToKeycode(display, keysym::XK_Alt_L) as usize,
-            alt_r: xlib::XKeysymToKeycode(display, keysym::XK_Alt_R) as usize,
+            shift_l: xlib::XKeysymToKeycode(display, keysym::XK_Shift_L.into()) as usize,
+            shift_r: xlib::XKeysymToKeycode(display, keysym::XK_Shift_R.into()) as usize,
+            ctrl_l: xlib::XKeysymToKeycode(display, keysym::XK_Control_L.into()) as usize,
+            ctrl_r: xlib::XKeysymToKeycode(display, keysym::XK_Control_R.into()) as usize,
+            alt_l: xlib::XKeysymToKeycode(display, keysym::XK_Alt_L.into()) as usize,
+            alt_r: xlib::XKeysymToKeycode(display, keysym::XK_Alt_R.into()) as usize,
         }
     }
 
@@ -115,7 +115,7 @@ impl ModifierSampler {
     fn sample_with(display: *mut xlib::Display, state: &ModifierState, keycodes: &Keycodes) {
         unsafe {
             let mut keys: [u8; 32] = [0; 32];
-            xlib::XQueryKeymap(display, keys.as_mut_ptr());
+            xlib::XQueryKeymap(display, keys.as_mut_ptr() as *mut std::os::raw::c_char);
 
             let shift = keycodes.is_pressed(&keys, keycodes.shift_l)
                 || keycodes.is_pressed(&keys, keycodes.shift_r);

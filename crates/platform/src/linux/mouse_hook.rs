@@ -21,7 +21,7 @@ use super::display;
 pub struct LinuxMouseHook;
 
 impl LinuxMouseHook {
-    pub fn new() -> Result<Self, PlatformError> {
+    pub fn new() -> Result<Self> {
         let d = display::open_display()?;
         let mut major: c_int = 2;
         let mut minor: c_int = 0;
@@ -106,20 +106,20 @@ impl MouseHook for LinuxMouseHook {
                         if event.type_ != xi_event_type {
                             continue;
                         }
-                        if xlib::XGetEventData(d, &mut event.cookie) == 0 {
+                        if xlib::XGetEventData(d, &mut event.generic_event_cookie.cookie) == 0 {
                             continue;
                         }
 
-                        let xi_event = event.cookie.data as *mut xinput2::XIRawEvent;
+                        let xi_event = event.generic_event_cookie.cookie.data as *mut xinput2::XIRawEvent;
                         if xi_event.is_null()
                             || (*xi_event).evtype != xinput2::XI_RawButtonPress
                         {
-                            xlib::XFreeEventData(d, &mut event.cookie);
+                            xlib::XFreeEventData(d, &mut event.generic_event_cookie.cookie);
                             continue;
                         }
 
                         let button = (*xi_event).detail;
-                        xlib::XFreeEventData(d, &mut event.cookie);
+                        xlib::XFreeEventData(d, &mut event.generic_event_cookie.cookie);
 
                         // Skip self-injected events from WheelEmitter
                         if super::wheel_emitter::is_suppressed() {

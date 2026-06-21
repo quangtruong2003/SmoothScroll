@@ -20,6 +20,21 @@ use x11::xtest;
 
 use super::display;
 
+/// Wrapper to make `*mut xlib::Display` thread-safe.
+///
+/// # Safety
+/// X11 Display connections are NOT thread-safe at the protocol level.
+/// Each subsystem opens its own Display (see `display.rs` comments).
+/// The Mutex ensures only one thread accesses this connection at a time.
+struct SendDisplay(*mut xlib::Display);
+
+// SAFETY: Each LinuxWheelEmitter owns its own Display connection
+// opened via XOpenDisplay. The Mutex<*mut Display> guarantees
+// exclusive access. No two threads call xlib functions on the
+// same pointer simultaneously.
+unsafe impl Send for SendDisplay {}
+unsafe impl Sync for SendDisplay {}
+
 /// Global suppression flag. WheelEmitter sets this before injecting events.
 /// MouseHook checks and skips events while this is true.
 static SUPPRESSING: AtomicBool = AtomicBool::new(false);
@@ -35,12 +50,12 @@ const BUTTON_SCROLL_LEFT: u32 = 6;
 const BUTTON_SCROLL_RIGHT: u32 = 7;
 
 pub struct LinuxWheelEmitter {
-    display: Mutex<*mut xlib::Display>,
+    display: Mutex<SendDisplay>,
     ctrl_keycode: u32,
 }
 
 impl LinuxWheelEmitter {
-    pub fn new() -> Result<Self, PlatformError> {
+    pub fn new() -> Result<Self> {
         let d = display::open_display()?;
 
         // Verify XTest is available
@@ -57,10 +72,10 @@ impl LinuxWheelEmitter {
         }
 
         // Resolve Ctrl keycode at runtime (not hardcoded!)
-        let ctrl_keycode = unsafe { display::keysym_to_keycode(d, keysym::XK_Control_L) };
+        let ctrl_keycode = unsafe { display::keysym_to_keycode(d, keysym::XK_Control_L.into()) };
 
         Ok(Self {
-            display: Mutex::new(d),
+            display: Mutex::new(SendDisplay(d)),
             ctrl_keycode,
         })
     }
@@ -69,11 +84,11 @@ impl LinuxWheelEmitter {
     ///
     /// When `suppress` is true, sets the suppression flag INSIDE the mutex
     /// so no concurrent emit() can clear it prematurely. Cleared after flush.
-    fn emit_with_suppress<F>(&self, suppress: bool, f: F) -> Result<()>
+    fn emit_with_suppress<T, F>(&self, suppress: bool, f: F) -> Result<T>
     where
-        F: FnOnce(*mut xlib::Display) -> Result<()>,
+        F: FnOnce(*mut xlib::Display) -> Result<T>,
     {
-        let d = *self.display.lock();
+        let SendDisplay(d) = *self.display.lock();
         if suppress {
             SUPPRESSING.store(true, Ordering::Release);
         }
@@ -153,7 +168,7 @@ impl ZoomEmitter for LinuxWheelEmitter {
         // for this read-only query)
         let ctrl_already_pressed = self.emit_with_suppress(false, |d| -> Result<bool> {
             let mut keys: [u8; 32] = [0; 32];
-            unsafe { xlib::XQueryKeymap(d, keys.as_mut_ptr()); }
+            unsafe { xlib::XQueryKeymap(d, keys.as_mut_ptr() as *mut std::os::raw::c_char); }
             Ok((keys[4] & 0x20) != 0 || (keys[13] & 0x02) != 0)
         })?;
 
@@ -164,7 +179,7 @@ impl ZoomEmitter for LinuxWheelEmitter {
                 if !ctrl_already_pressed && ctrl_keycode > 0 {
                     xtest::XTestFakeKeyEvent(
                         d,
-                        ctrl_keycode as c_int,
+                        ctrl_keycode,
                         xlib::True,
                         xlib::CurrentTime,
                     );
@@ -178,7 +193,7 @@ impl ZoomEmitter for LinuxWheelEmitter {
                 if !ctrl_already_pressed && ctrl_keycode > 0 {
                     xtest::XTestFakeKeyEvent(
                         d,
-                        ctrl_keycode as c_int,
+                        ctrl_keycode,
                         xlib::False,
                         xlib::CurrentTime,
                     );
@@ -195,11 +210,11 @@ impl ZoomEmitter for LinuxWheelEmitter {
 
 impl Drop for LinuxWheelEmitter {
     fn drop(&mut self) {
-        let d = self.display.lock();
-        if !(*d).is_null() {
+        let SendDisplay(d) = *self.display.lock();
+        if !d.is_null() {
             // SAFETY: d is a MutexGuard holding a valid *mut Display from XOpenDisplay.
             // The Mutex prevents concurrent access, and Drop runs exactly once.
-            unsafe { display::close_display(*d); }
+            unsafe { display::close_display(d); }
         }
     }
 }

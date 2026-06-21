@@ -169,7 +169,7 @@ unsafe fn window_title(display: *mut xlib::Display, window: Window) -> Option<St
 
     let status = xlib::XGetWindowProperty(
         display, window, net_wm_name, 0, 1024, xlib::False,
-        xlib::XA_ANY,
+        0, // AnyPropertyType — accept any atom type
         &mut actual_type, &mut actual_format, &mut n_items,
         &mut bytes_after, &mut prop_return,
     );
