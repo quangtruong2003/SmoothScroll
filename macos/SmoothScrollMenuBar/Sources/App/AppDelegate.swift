@@ -5,6 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
     private var reconnectionManager: ReconnectionManager?
     private var activity: NSObjectProtocol?
+    private var settingsObserver: NSObjectProtocol?
     private let logger = Logger(subsystem: "com.SmoothScroll.MenuBar", category: "AppDelegate")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -28,6 +29,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Post notification so MenuBarController updates icon
             NotificationCenter.default.post(name: .scrollStateDidChange, object: nil)
         }
+
+        // Notification observer — lives in AppDelegate (which is @MainActor via NSApplicationDelegate)
+        // to avoid Sendable capture issues with MenuBarController's non-Sendable stored properties.
+        settingsObserver = NotificationCenter.default.addObserver(
+            forName: .scrollStateDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.menuBarController?.updateIcon()
+                self?.menuBarController?.updateAccessibilityValue()
+            }
+        }
     }
 
     /// Graceful shutdown: send IPC quit to Rust, wait briefly, then terminate.
@@ -46,6 +60,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // Remove notification observer
+        if let observer = settingsObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+
         // Stop reconnection manager first
         reconnectionManager?.stop()
         

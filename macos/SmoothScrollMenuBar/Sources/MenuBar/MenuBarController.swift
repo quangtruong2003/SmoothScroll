@@ -2,25 +2,21 @@ import AppKit
 import SwiftUI
 import os
 
-@MainActor
 final class MenuBarController: NSObject {
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
     private var hostingController: NSHostingController<SmoothScrollPopover>!
-    private var settingsObserver: NSObjectProtocol?
     private let logger = Logger(subsystem: "com.SmoothScroll.MenuBar", category: "MenuBarController")
 
     func setup() {
         setupAppMenu()  // Must come first — enables ⌘Q
         setupStatusItem()
         setupPopover()
-        setupObservers()
+        // NOTE: Notification observer is in AppDelegate — avoids @MainActor/Sendable conflict.
     }
 
     func teardown() {
-        if let observer = settingsObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
+        // No observers to remove — notification observer lives in AppDelegate.
     }
 
     // MARK: - App Menu (enables ⌘Q for LSUIElement apps)
@@ -60,7 +56,7 @@ final class MenuBarController: NSObject {
         }
     }
 
-    private func updateAccessibilityValue() {
+    func updateAccessibilityValue() {
         let enabled = SettingsStore.shared.scrollEnabled
         statusItem.button?.setAccessibilityValue(
             enabled ? "Enabled" : "Disabled"
@@ -88,24 +84,7 @@ final class MenuBarController: NSObject {
         }
     }
 
-    // MARK: - Observers
-
-    private func setupObservers() {
-        // Notification fires on main queue (queue: .main).
-        // Task { @MainActor in } ensures proper actor isolation for @MainActor methods.
-        settingsObserver = NotificationCenter.default.addObserver(
-            forName: .scrollStateDidChange,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.updateIcon()
-                self?.updateAccessibilityValue()
-            }
-        }
-    }
-
-    private func updateIcon() {
+    func updateIcon() {
         guard let button = statusItem.button else { return }
         let enabled = SettingsStore.shared.scrollEnabled
 
