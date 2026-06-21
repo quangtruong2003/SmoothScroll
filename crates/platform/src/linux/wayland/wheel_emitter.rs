@@ -27,7 +27,7 @@ const REL_HWHEEL: u16 = 0x06;
 const KEY_LEFTCTRL: u16 = 29;
 const KEY_RIGHTCTRL: u16 = 97;
 
-const BUS_USB: u32 = 0x03;
+const BUS_USB: u16 = 0x03;
 
 // ── uinput ioctl constants (from linux/uinput.h) ─────────────────
 // ioctl type: 'U' = 0x55
