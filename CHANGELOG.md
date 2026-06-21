@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.1] - 2026-06-21
+
+### Fixed
+- fix 73 build errors in smoothscroll_platform for Wayland support
 ## [1.10.0] - 2026-06-21
 
 ### Added
