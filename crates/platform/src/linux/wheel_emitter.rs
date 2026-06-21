@@ -14,6 +14,7 @@ use crate::types::{PlatformError, Result};
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicBool, Ordering};
 use parking_lot::Mutex;
+use x11::keysym;
 use x11::xlib;
 use x11::xtest;
 
@@ -56,7 +57,7 @@ impl LinuxWheelEmitter {
         }
 
         // Resolve Ctrl keycode at runtime (not hardcoded!)
-        let ctrl_keycode = unsafe { display::keysym_to_keycode(d, xlib::XK_Control_L) };
+        let ctrl_keycode = unsafe { display::keysym_to_keycode(d, keysym::XK_Control_L) };
 
         Ok(Self {
             display: Mutex::new(d),

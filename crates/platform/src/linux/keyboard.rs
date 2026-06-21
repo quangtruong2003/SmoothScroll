@@ -8,6 +8,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
+use x11::keysym;
 use x11::xlib;
 
 use super::display;
@@ -31,12 +32,12 @@ impl Keycodes {
     /// `display` must be a valid open connection.
     unsafe fn resolve(display: *mut xlib::Display) -> Self {
         Self {
-            shift_l: xlib::XKeysymToKeycode(display, xlib::XK_Shift_L) as usize,
-            shift_r: xlib::XKeysymToKeycode(display, xlib::XK_Shift_R) as usize,
-            ctrl_l: xlib::XKeysymToKeycode(display, xlib::XK_Control_L) as usize,
-            ctrl_r: xlib::XKeysymToKeycode(display, xlib::XK_Control_R) as usize,
-            alt_l: xlib::XKeysymToKeycode(display, xlib::XK_Alt_L) as usize,
-            alt_r: xlib::XKeysymToKeycode(display, xlib::XK_Alt_R) as usize,
+            shift_l: xlib::XKeysymToKeycode(display, keysym::XK_Shift_L) as usize,
+            shift_r: xlib::XKeysymToKeycode(display, keysym::XK_Shift_R) as usize,
+            ctrl_l: xlib::XKeysymToKeycode(display, keysym::XK_Control_L) as usize,
+            ctrl_r: xlib::XKeysymToKeycode(display, keysym::XK_Control_R) as usize,
+            alt_l: xlib::XKeysymToKeycode(display, keysym::XK_Alt_L) as usize,
+            alt_r: xlib::XKeysymToKeycode(display, keysym::XK_Alt_R) as usize,
         }
     }
 

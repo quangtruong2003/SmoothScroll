@@ -13,6 +13,7 @@ use std::os::raw::c_int;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
+use x11::xinput2;
 use x11::xlib;
 
 use super::display;
@@ -25,7 +26,7 @@ impl LinuxMouseHook {
         let mut major: c_int = 2;
         let mut minor: c_int = 0;
         let available = unsafe {
-            x11::xi2::XIQueryVersion(d, &mut major, &mut minor) == xlib::Success as c_int
+            xinput2::XIQueryVersion(d, &mut major, &mut minor) == xlib::Success as c_int
         };
         unsafe { display::close_display(d) };
         if !available {
@@ -56,15 +57,15 @@ impl MouseHook for LinuxMouseHook {
 
                 // Select XI_RawButtonPress events
                 let mut mask = [0u8; 4];
-                mask[2] |= 1 << (x11::xi2::XI_RawButtonPress - 16);
+                mask[2] |= 1 << (xinput2::XI_RawButtonPress - 16);
 
-                let mut event_mask = x11::xi2::XIEventMask {
-                    deviceid: x11::xi2::XIAllMasterDevices,
+                let mut event_mask = xinput2::XIEventMask {
+                    deviceid: xinput2::XIAllMasterDevices,
                     mask_len: mask.len() as c_int,
                     mask: mask.as_mut_ptr(),
                 };
 
-                if unsafe { x11::xi2::XISelectEvents(d, root, &mut event_mask, 1) }
+                if unsafe { xinput2::XISelectEvents(d, root, &mut event_mask, 1) }
                     != xlib::Success as c_int
                 {
                     eprintln!("ss-mouse-hook: failed to select XInput2 events");
@@ -109,9 +110,9 @@ impl MouseHook for LinuxMouseHook {
                             continue;
                         }
 
-                        let xi_event = event.cookie.data as *mut x11::xi2::XIRawEvent;
+                        let xi_event = event.cookie.data as *mut xinput2::XIRawEvent;
                         if xi_event.is_null()
-                            || (*xi_event).evtype != x11::xi2::XI_RawButtonPress
+                            || (*xi_event).evtype != xinput2::XI_RawButtonPress
                         {
                             xlib::XFreeEventData(d, &mut event.cookie);
                             continue;
