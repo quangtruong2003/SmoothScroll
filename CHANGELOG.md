@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.8.5] - 2026-06-21
+
+### Fixed
+- fix Linux x11 module paths + macOS DMG race condition
 ## [1.8.4] - 2026-06-21
 
 ### Fixed
