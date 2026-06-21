@@ -18,7 +18,6 @@ import { AboutSection } from "@/components/settings/AboutSection";
 // import { SupportSection } from "@/components/settings/SupportSection";
 import { BackupSection } from "@/components/settings/BackupSection";
 import { TabContent } from "@/components/settings/TabContent";
-import { IS_LINUX } from "@/lib/platform";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { CheatSheetOverlay } from "@/components/CheatSheetOverlay";
 import { WhatsNewModal } from "@/components/WhatsNewModal";
