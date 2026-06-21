@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import os
 
+@MainActor
 final class MenuBarController: NSObject {
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
@@ -90,16 +91,17 @@ final class MenuBarController: NSObject {
     // MARK: - Observers
 
     private func setupObservers() {
-        // Notification fires on main queue (queue: .main), so no Task wrapper needed.
-        // Using [weak self] to avoid retain cycle.
+        // Notification fires on main queue (queue: .main).
+        // Task { @MainActor in } ensures proper actor isolation for @MainActor methods.
         settingsObserver = NotificationCenter.default.addObserver(
             forName: .scrollStateDidChange,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            // Already on main queue — safe to access UI directly.
-            self?.updateIcon()
-            self?.updateAccessibilityValue()
+            Task { @MainActor in
+                self?.updateIcon()
+                self?.updateAccessibilityValue()
+            }
         }
     }
 
