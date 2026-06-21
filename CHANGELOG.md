@@ -7,6 +7,30 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-06-21
+
+### Added
+- add AppDelegate with graceful shutdown
+- add MenuBarController with NSStatusItem and NSPopover
+- add SmoothScrollPopover with connection status UI
+- add SettingsStore with rollback and mutation guard
+- add ScrollPreset enum
+- add ReconnectionManager with AsyncStream reconnect
+- implement IPCClient actor with DispatchQueue I/O
+- add SocketIO wrapper for POSIX I/O on DispatchQueue
+- add JSON-RPC protocol types and AppSettingsResponse
+- add SocketPath constant with defensive path resolution
+- add quit handler with watch channel to exit Tauri app
+- wire IpcServer into Tauri app, skip tray icon
+- add ipc_socket_path() using directories crate
+
+### Fixed
+- break loop on write_all error in handle_client
+- return error on save_settings deserialization failure
+- persist preset and signal engine in set_preset handler
+- reset engine to default when scroll disabled
+- change IpcEvent serialization to camelCase without tag wrapper
+- add missing closing brace in handle_client event arm
 ## [1.7.0] - 2026-06-21
 
 ### Added
