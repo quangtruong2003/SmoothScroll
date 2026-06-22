@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.6] - 2026-06-22
+
+### Fixed
+- add platform status command and permission error UI
 ## [1.10.5] - 2026-06-21
 
 ### Fixed
