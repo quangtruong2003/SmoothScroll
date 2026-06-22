@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.10.7] - 2026-06-22
+
+### Fixed
+- make wayland module pub for cross-crate access
 ## [1.10.6] - 2026-06-22
 
 ### Fixed
