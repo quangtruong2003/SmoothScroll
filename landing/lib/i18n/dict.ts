@@ -19,11 +19,13 @@ export interface Dictionary {
   }
   hero?: {
     eyebrow?: string
+    eyebrowLinux?: string
     eyebrowMac?: string
     title?: string
     titleAccent?: string
     subtitle?: string
     cta?: string
+    ctaLinux?: string
     ctaMac?: string
     ctaFallback?: string
     trustLine?: string
@@ -72,11 +74,13 @@ export interface Dictionary {
     tabs?: {
       windows?: { label?: string; steps?: string[] }
       macos?: { label?: string; steps?: string[] }
+      linux?: { label?: string; steps?: string[] }
     }
     filename?: string
-    note?: { windows?: string; macos?: string }
+    note?: { windows?: string; macos?: string; linux?: string }
     cta?: string
     ctaMac?: string
+    ctaLinux?: string
   }
   faq?: {
     title?: string
@@ -86,6 +90,7 @@ export interface Dictionary {
     title?: string
     description?: string
     cta?: string
+    ctaLinux?: string
     ctaMac?: string
     ctaSub?: string
     comingSoon?: string
@@ -94,6 +99,7 @@ export interface Dictionary {
     title?: string
     message?: string
     cta?: string
+    ctaLinux?: string
     ctaMac?: string
   }
   beta?: {

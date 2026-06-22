@@ -2,11 +2,13 @@
   "nav": { "github": "GitHub", "stars": "星" },
   "hero": {
     "eyebrow": "适用 Windows",
+    "eyebrowLinux": "适用 Linux",
     "eyebrowMac": "适用 macOS (Beta)",
     "title": "滚动如",
     "titleAccent": "行云流水",
     "subtitle": "SmoothScroll 让每次滚轮都丝般顺滑——就像在使用高端触控板。无需学习，无臃肿软件，就是顺。",
     "cta": "下载 Windows 版",
+    "ctaLinux": "下载 Linux 版",
     "ctaMac": "下载 macOS Beta 版",
     "ctaFallback": "立即下载",
     "trustLine": "免费，无遥测。源代码可见许可。",
@@ -45,7 +47,7 @@
   "trayPreview": { "title": "它就住在系统托盘里", "subtitle": "从托盘点击一下即可打开紧凑面板，所需功能一应俱全 —— 一键开关平滑滚动、选择是否随 Windows 启动、直接跳转到按应用排除列表，或在需要微调物理参数时打开完整设置。不会有窗口占据桌面，不会有任务栏图标分散注意力。它静静守在那里，只在你需要它的那一刻出现。" },
   "stats": { "title": "被信任使用", "githubStars": "GitHub 星星", "version": "版本", "fallback": { "stars": "—", "version": "v1.0.0" } },
   "indie": { "title": "独立开发者出品", "subtitle": "独立，透明、社区驱动。", "points": ["源代码可见许可 (FSL-1.1 → Apache 2.0)——自行审计代码", "零遥测或数据收集", "无广告、无高级版、无推销", "在 GitHub 上公开构建"], "cta": "在 GitHub 查看" },
-  "install": { "title": "60 秒开始体验", "subtitle": "下载、运行、感受不同。", "tabs": { "windows": { "label": "Windows", "steps": ["点击下方下载安装包", "运行 .exe——无需安装向导，无需管理员权限", "SmoothScroll 自动启动。搞定。"] }, "macos": { "label": "macOS", "steps": ["点击下方下载 DMG", "将 SmoothScroll 拖到应用程序", "在系统设置 → 隐私与安全 → 辅助功能 中授予辅助功能权限", "完成。"] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "默认保存到 %LOCALAPPDATA%", "macos": "需要辅助功能权限来拦截全局输入" }, "cta": "下载 {os} 版", "ctaMac": "下载 macOS Beta 版" },
+  "install": { "title": "60 秒开始体验", "subtitle": "下载、运行、感受不同。", "tabs": { "windows": { "label": "Windows", "steps": ["点击下方下载安装包", "运行 .exe——无需安装向导，无需管理员权限", "SmoothScroll 自动启动。搞定。"] }, "linux": { "label": "Linux", "steps": ["点击下方下载 AppImage", "赋予执行权限：chmod +x SmoothScroll_*.AppImage", "运行文件——无需 root 或安装", "完成。应用会出现在系统托盘。"] }, "macos": { "label": "macOS", "steps": ["点击下方下载 DMG", "将 SmoothScroll 拖到应用程序", "在系统设置 → 隐私与安全 → 辅助功能 中授予辅助功能权限", "完成。"] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "默认保存到 %LOCALAPPDATA%", "linux": "AppImage 支持 Ubuntu、Debian、Fedora 及大多数其他发行版", "macos": "需要辅助功能权限来拦截全局输入" }, "cta": "下载 {os} 版", "ctaMac": "下载 macOS Beta 版", "ctaLinux": "下载 Linux 版" },
   "faq": { "title": "常见问题", "questions": [
     { "q": "所有应用都支持吗？", "a": "SmoothScroll 在滚轮输入到达任何应用之前就拦截了，所以几乎支持所有应用——Chrome、VS Code、文件资源管理器、Adobe 全家桶等。" },
     { "q": "会耗电吗？", "a": "不会。SmoothScroll 空闲时 CPU 几乎为零，只在滚动事件时处理。大多数用户感受不到电池影响。" },
@@ -54,12 +56,13 @@
     { "q": "游戏鼠标或高 DPI 设备能用吗？", "a": "能。SmoothScroll 尊重硬件原始滚动增量并在其上应用平滑处理。已测试各种鼠标，包括高刷新率和游戏鼠标。" },
     { "q": "可以针对特定应用关闭吗？", "a": "可以。内置了按应用排除配置文件。打开托盘面板，将应用添加到排除列表即可。" },
     { "q": "支持哪些 Windows 版本？", "a": "Windows 10 和 Windows 11 完全支持。" },
+    { "q": "有 Linux 版本吗？", "a": "有！SmoothScroll for Linux 以 AppImage 形式提供。支持 Ubuntu、Debian、Fedora 及大多数其他发行版。安装只需 chmod 文件后运行即可。" },
     { "q": "如何卸载？", "a": "直接删除可执行文件即可。无需卸载程序——系统里没有别的东西。" }
   ]},
-  "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaMac": "下载 SmoothScroll Beta", "ctaSub": "目前免费。源代码可见许可。", "comingSoon": "即将推出" },
+  "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaLinux": "下载 Linux 版", "ctaMac": "下载 SmoothScroll Beta", "ctaSub": "目前免费。源代码可见许可。", "comingSoon": "即将推出" },
   "beta": { "badge": "BETA", "notice": "macOS 版本仍处于 Beta 阶段，可能存在缺陷。", "reportPrefix": "发现问题？", "reportLink": "在 GitHub 上反馈" },
   "footer": { "tagline": "Windows 流畅滚动。", "links": { "github": "GitHub", "license": "许可证" } },
-  "exitIntent": { "title": "等等，先别走！", "message": "下载 SmoothScroll，让每次滚动都自然流畅。", "cta": "免费下载", "ctaMac": "免费下载 Beta" },
+  "exitIntent": { "title": "等等，先别走！", "message": "下载 SmoothScroll，让每次滚动都自然流畅。", "cta": "免费下载", "ctaLinux": "免费下载 Linux 版", "ctaMac": "免费下载 Beta" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },
   "howItWorks": {
     "seo": {

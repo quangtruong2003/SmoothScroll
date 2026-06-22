@@ -15,16 +15,16 @@ interface HeroProps {
 }
 
 export function Hero({ dict, locale }: HeroProps) {
-  const h = dict?.hero ?? { eyebrow: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download', ctaMac: 'Download Beta for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
+  const h = dict?.hero ?? { eyebrow: '', eyebrowLinux: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download', ctaLinux: 'Download for Linux', ctaMac: 'Download Beta for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
   const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
   const f = dict?.finalCta ?? { comingSoon: 'Coming Soon' }
 
-  const [isMac, setIsMac] = useState(false)
+  const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
   useEffect(() => {
-    setIsMac(detectOS() === 'mac')
+    setOs(detectOS())
   }, [])
 
-  const eyebrow = isMac && h.eyebrowMac ? h.eyebrowMac : h.eyebrow
+  const eyebrow = os === 'mac' && h.eyebrowMac ? h.eyebrowMac : os === 'linux' && h.eyebrowLinux ? h.eyebrowLinux : h.eyebrow
 
   return (
     <section className="min-h-screen flex items-center pt-24 pb-20 px-4">

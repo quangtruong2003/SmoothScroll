@@ -5,11 +5,13 @@
   },
   "hero": {
     "eyebrow": "For Windows",
+    "eyebrowLinux": "For Linux",
     "eyebrowMac": "For macOS (Beta)",
     "title": "Scroll that feels",
     "titleAccent": "natural",
     "subtitle": "SmoothScroll makes every mouse wheel movement feel silky — like you're using a premium trackpad. No learning curve. No bloat. Just smooth.",
     "cta": "Download for Windows",
+    "ctaLinux": "Download for Linux",
     "ctaMac": "Download Beta for macOS",
     "ctaFallback": "Download",
     "trustLine": "Free, no telemetry. Source-available license.",
@@ -85,15 +87,18 @@
     "subtitle": "Download, run, feel the difference.",
     "tabs": {
       "windows": { "label": "Windows", "steps": ["Download the installer below", "Run the .exe — no install wizard, no admin required", "SmoothScroll starts automatically. You're done."] },
+      "linux": { "label": "Linux", "steps": ["Download the AppImage below", "Make it executable: chmod +x SmoothScroll_*.AppImage", "Run the file — no root or install required", "Done. The app will appear in your system tray."] },
       "macos": { "label": "macOS", "steps": ["Download the DMG below", "Drag SmoothScroll to Applications", "Grant Accessibility permission in System Settings → Privacy → Accessibility", "Done."] }
     },
     "filename": "SmoothScrollSetup.exe",
     "note": {
       "windows": "Saved to %LOCALAPPDATA% by default",
+      "linux": "AppImage works on Ubuntu, Debian, Fedora, and most other distros",
       "macos": "Accessibility permission is required for global input interception"
     },
     "cta": "Download for {os}",
-    "ctaMac": "Download Beta for macOS"
+    "ctaMac": "Download Beta for macOS",
+    "ctaLinux": "Download for Linux"
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -105,6 +110,7 @@
       { "q": "Does it work with gaming mice or high-DPI devices?", "a": "Yes. SmoothScroll respects the actual scroll delta from your hardware and applies smoothing on top. Works with all mice tested so far, including high-refresh and gaming mice." },
       { "q": "Can I disable it for specific apps?", "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list." },
       { "q": "What Windows versions are supported?", "a": "Windows 10 and Windows 11 are fully supported." },
+      { "q": "Is there a Linux version?", "a": "Yes! SmoothScroll for Linux is available as an AppImage. It works on Ubuntu, Debian, Fedora, and most other distributions. The installation is as simple as making the AppImage executable and running it." },
       { "q": "How do I uninstall?", "a": "Just delete the executable. No uninstaller needed — there is nothing else on your system." }
     ]
   },
@@ -112,6 +118,7 @@
     "title": "Ready to feel the difference?",
     "subtitle": "Join thousands of developers and designers who scroll better.",
     "cta": "Download SmoothScroll",
+    "ctaLinux": "Download for Linux",
     "ctaMac": "Download SmoothScroll Beta",
     "ctaSub": "Currently free. Source-available license.",
     "comingSoon": "Coming Soon"
@@ -133,6 +140,7 @@
     "title": "Wait — before you go!",
     "message": "Get SmoothScroll and make every scroll feel natural.",
     "cta": "Download free",
+    "ctaLinux": "Download Linux free",
     "ctaMac": "Download Beta free"
   },
   "langSwitcher": {

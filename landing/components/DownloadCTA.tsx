@@ -23,7 +23,7 @@ export function DownloadCTA({
   size = 'xl',
   className,
 }: DownloadCTAProps) {
-  const { url, filename, isBeta, isMac } = useDownloadUrl()
+  const { url, filename, isBeta, isMac, isLinux } = useDownloadUrl()
   const displayLabel = isBeta && labelMac ? labelMac : label
 
   if (isMac) {
@@ -64,7 +64,12 @@ export function DownloadCTA({
       >
         <Download className="h-5 w-5 mr-2" />
         {displayLabel}
-        {isBeta && (
+        {isLinux && (
+          <span className="ml-2 inline-flex items-center rounded-md bg-green-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-green-500 ring-1 ring-inset ring-green-500/40">
+            NEW
+          </span>
+        )}
+        {isBeta && !isLinux && (
           <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
             {betaBadge}
           </span>

@@ -15,6 +15,7 @@ export interface DownloadInfo {
   release: Release | null
   isBeta: boolean
   isMac: boolean
+  isLinux: boolean
 }
 
 const REPO_BASE = 'https://github.com/quangtruong2003/SmoothScroll/releases'
@@ -37,6 +38,10 @@ function buildDefaultUrl(os: OS, version: string): { url: string; filename: stri
   }
   if (os === 'mac') {
     const filename = `SmoothScroll_${ver}_aarch64.dmg`
+    return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
+  }
+  if (os === 'linux') {
+    const filename = `SmoothScroll_${ver}_amd64.AppImage`
     return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
   }
   return { url: FALLBACK_URL, filename: '' }
@@ -63,6 +68,14 @@ export function findInstallerUrl(release: Release, os: OS): string | null {
     return null
   }
 
+  if (os === 'linux') {
+    const appimage = installables.find((a) => a.name.toLowerCase().endsWith('.appimage'))
+    if (appimage) return appimage.browser_download_url
+    const deb = installables.find((a) => a.name.toLowerCase().endsWith('.deb'))
+    if (deb) return deb.browser_download_url
+    return null
+  }
+
   return null
 }
 
@@ -80,6 +93,7 @@ export function useDownloadUrl(): DownloadInfo {
       release: null,
       isBeta: false,
       isMac: false,
+      isLinux: false,
     }
   })
 
@@ -96,6 +110,7 @@ export function useDownloadUrl(): DownloadInfo {
       ctaLabel: `Download for ${getOSLabel(os)}`,
       isBeta,
       isMac: os === 'mac',
+      isLinux: os === 'linux',
     }))
 
     fetchLatestRelease().then((release) => {
@@ -129,6 +144,7 @@ export function useDownloadUrl(): DownloadInfo {
         release,
         isBeta,
         isMac: os === 'mac',
+        isLinux: os === 'linux',
       })
     })
   }, [])

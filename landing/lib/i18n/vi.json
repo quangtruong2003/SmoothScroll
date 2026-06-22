@@ -2,11 +2,13 @@
   "nav": { "github": "GitHub", "stars": "sao" },
   "hero": {
     "eyebrow": "Cho Windows",
+    "eyebrowLinux": "Cho Linux",
     "eyebrowMac": "Cho macOS (Beta)",
     "title": "Cuộn mượt như",
     "titleAccent": "tự nhiên",
     "subtitle": "SmoothScroll giúp mọi lần cuộn chuột đều mượt mà — như đang dùng trackpad cao cấp. Không cần học cách dùng, không cần cài thêm gì.",
     "cta": "Tải cho Windows",
+    "ctaLinux": "Tải cho Linux",
     "ctaMac": "Tải bản Beta cho macOS",
     "ctaFallback": "Tải xuống",
     "trustLine": "Miễn phí, không thu thập dữ liệu. Giấy phép source-available.",
@@ -45,7 +47,7 @@
   "trayPreview": { "title": "Nó sống trong khay hệ thống", "subtitle": "Một cú click từ khay hệ thống là mở ra panel gọn nhẹ với mọi thứ bạn cần — bật tắt smoothing, quyết định SmoothScroll có khởi động cùng Windows hay không, nhảy thẳng vào danh sách loại trừ theo từng ứng dụng, hoặc mở cài đặt đầy đủ khi muốn tinh chỉnh sâu hơn. Không có cửa sổ choán màn hình, không có icon taskbar gây xao nhãng. Nó đứng yên trong khay cho đến đúng khoảnh khắc bạn cần đến." },
   "stats": { "title": "Được tin dùng bởi", "githubStars": "Sao GitHub", "version": "Phiên bản", "fallback": { "stars": "—", "version": "v1.0.0" } },
   "indie": { "title": "Tạo bởi một lập trình viên indie", "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.", "points": ["Giấy phép source-available (FSL-1.1 → Apache 2.0) — tự kiểm tra code", "Không telemetry hay thu thập dữ liệu", "Không quảng cáo, không premium, không upsell", "Xây dựng công khai trên GitHub"], "cta": "Xem trên GitHub" },
-  "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe — không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho {os}", "ctaMac": "Tải bản Beta cho macOS" },
+  "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe — không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "linux": { "label": "Linux", "steps": ["Tải AppImage bên dưới", "Cho phép chạy: chmod +x SmoothScroll_*.AppImage", "Chạy file — không cần root hay cài đặt", "Xong. App sẽ xuất hiện trong khay hệ thống."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "linux": "AppImage hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các distro khác", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho {os}", "ctaMac": "Tải bản Beta cho macOS", "ctaLinux": "Tải cho Linux" },
   "faq": { "title": "Câu hỏi thường gặp", "questions": [
     { "q": "Có hoạt động với mọi ứng dụng không?", "a": "SmoothScroll chặn input wheel từ chuột trước khi đến ứng dụng, nên hoạt động với hầu hết mọi thứ — Chrome, VS Code, File Explorer, Adobe apps." },
     { "q": "Có tốn pin không?", "a": "Không. SmoothScroll gần như không dùng CPU khi rảnh rỗi và chỉ xử lý khi có sự kiện cuộn." },
@@ -54,12 +56,13 @@
     { "q": "Có hoạt động với chuột gaming không?", "a": "Có. SmoothScroll tôn trọng delta thực từ phần cứng và áp dụng làm mượt bên trên." },
     { "q": "Có thể tắt cho ứng dụng cụ thể không?", "a": "Có. Có hồ sơ loại trừ theo ứng dụng. Mở tray panel và thêm ứng dụng vào danh sách loại trừ." },
     { "q": "Hỗ trợ Windows phiên bản nào?", "a": "Windows 10 và Windows 11 được hỗ trợ đầy đủ." },
+    { "q": "Có bản Linux không?", "a": "Có! SmoothScroll cho Linux có sẵn dưới dạng AppImage. Hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các bản phân phối khác. Cài đặt đơn giản như chmod file và chạy." },
     { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller — không có gì khác trên hệ thống." }
   ]},
-  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaMac": "Tải SmoothScroll Beta", "ctaSub": "Hiện tại đang miễn phí. Giấy phép source-available.", "comingSoon": "Sắp ra mắt" },
+  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaLinux": "Tải cho Linux", "ctaMac": "Tải SmoothScroll Beta", "ctaSub": "Hiện tại đang miễn phí. Giấy phép source-available.", "comingSoon": "Sắp ra mắt" },
   "beta": { "badge": "BETA", "notice": "Bản macOS đang trong giai đoạn Beta và có thể có lỗi.", "reportPrefix": "Gặp lỗi?", "reportLink": "Báo cáo trên GitHub" },
   "footer": { "tagline": "Cuộn mượt cho Windows.", "links": { "github": "GitHub", "license": "Giấy phép" } },
-  "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí", "ctaMac": "Tải bản Beta miễn phí" },
+  "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí", "ctaLinux": "Tải Linux miễn phí", "ctaMac": "Tải bản Beta miễn phí" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },
   "howItWorks": {
     "seo": {

@@ -32,16 +32,17 @@ export function Install({ dict }: InstallProps) {
   const i = dict?.install ?? {
     title: '',
     subtitle: '',
-    tabs: { windows: { label: '', steps: [] }, macos: { label: '', steps: [] } },
+    tabs: { windows: { label: '', steps: [] }, macos: { label: '', steps: [] }, linux: { label: '', steps: [] } },
     filename: '',
-    note: { windows: '', macos: '' },
+    note: { windows: '', macos: '', linux: '' },
     cta: '',
     ctaMac: '',
+    ctaLinux: '',
   }
   const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
-  const { os, ctaLabel, isMac } = useDownloadUrl()
+  const { os, ctaLabel, isMac, isLinux } = useDownloadUrl()
 
-  const defaultTab = os === 'mac' ? 'macos' : 'windows'
+  const defaultTab = os === 'mac' ? 'macos' : os === 'linux' ? 'linux' : 'windows'
 
   return (
     <section id="install" className="py-20 px-4 scroll-mt-20">
@@ -52,8 +53,9 @@ export function Install({ dict }: InstallProps) {
         </div>
 
         <Tabs defaultValue={defaultTab} className="max-w-2xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="windows">{i.tabs?.windows?.label ?? ''}</TabsTrigger>
+            <TabsTrigger value="linux">{i.tabs?.linux?.label ?? ''}</TabsTrigger>
             <TabsTrigger value="macos">{i.tabs?.macos?.label ?? ''}</TabsTrigger>
           </TabsList>
 
@@ -77,6 +79,23 @@ export function Install({ dict }: InstallProps) {
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <span className="text-yellow-500">&#9888;</span>
               {i.note?.windows ?? ''}
+            </p>
+          </TabsContent>
+
+          <TabsContent value="linux" className="space-y-6">
+            <ol className="space-y-4">
+              {(i.tabs?.linux?.steps ?? []).map((step, idx) => (
+                <li key={idx} className="flex gap-4">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+                    {idx + 1}
+                  </span>
+                  <span className="pt-1 text-foreground">{step}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+              <span className="text-yellow-500">&#9888;</span>
+              {i.note?.linux ?? ''}
             </p>
           </TabsContent>
 
@@ -114,7 +133,7 @@ export function Install({ dict }: InstallProps) {
             </Button>
           ) : (
             <DownloadCTA
-              label={ctaLabel}
+              label={isLinux ? (i.ctaLinux || ctaLabel) : ctaLabel}
               labelMac={i.ctaMac}
               betaBadge={b.badge ?? 'BETA'}
               variant="brand"

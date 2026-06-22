@@ -19,8 +19,32 @@ describe('os.ts', () => {
     expect(detectOS()).toBe('mac')
   })
 
+  it('returns linux for Linux UA (x86_64)', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('linux')
+  })
+
+  it('returns linux for Ubuntu UA', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36' }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('linux')
+  })
+
+  it('returns linux for Fedora UA', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36' }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('linux')
+  })
+
+  it('returns linux for Debian UA', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (X11; Debian; Linux x86_64) AppleWebKit/537.36' }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('linux')
+  })
+
   it('returns other for unknown UA', () => {
-    const mockNavigator = { userAgent: 'Mozilla/5.0 (X11; Linux x86_64)' }
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (compatible; Googlebot/2.1)' }
     vi.stubGlobal('navigator', mockNavigator)
     expect(detectOS()).toBe('other')
   })
@@ -35,6 +59,7 @@ describe('os.ts', () => {
     it('returns correct labels', () => {
       expect(getOSLabel('win')).toBe('Windows')
       expect(getOSLabel('mac')).toBe('macOS')
+      expect(getOSLabel('linux')).toBe('Linux')
       expect(getOSLabel('other')).toBe('your OS')
     })
   })
