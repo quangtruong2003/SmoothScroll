@@ -1,7 +1,7 @@
 //! Linux platform implementation (X11 or Wayland).
 
 #[cfg(target_os = "linux")]
-mod wayland;
+pub mod wayland;
 
 mod accessibility;
 mod autostart;
