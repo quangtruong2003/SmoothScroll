@@ -60,7 +60,7 @@
     { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller — không có gì khác trên hệ thống." }
   ]},
   "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaLinux": "Tải cho Linux", "ctaMac": "Tải SmoothScroll Beta", "ctaSub": "Hiện tại đang miễn phí. Giấy phép source-available.", "comingSoon": "Sắp ra mắt" },
-  "beta": { "badge": "BETA", "notice": "Bản macOS đang trong giai đoạn Beta và có thể có lỗi.", "reportPrefix": "Gặp lỗi?", "reportLink": "Báo cáo trên GitHub" },
+  "beta": { "badge": "BETA", "notice": "Bản này vẫn đang trong giai đoạn Beta — có thể crash bất cứ lúc nào.", "reportPrefix": "Gặp lỗi?", "reportLink": "Báo cáo trên GitHub" },
   "footer": { "tagline": "Cuộn mượt cho Windows.", "links": { "github": "GitHub", "license": "Giấy phép" } },
   "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí", "ctaLinux": "Tải Linux miễn phí", "ctaMac": "Tải bản Beta miễn phí" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },

@@ -125,7 +125,7 @@
   },
   "beta": {
     "badge": "BETA",
-    "notice": "macOS build is still in beta and may have bugs.",
+    "notice": "This build is still in beta — it may crash at any time.",
     "reportPrefix": "Found an issue?",
     "reportLink": "Report it on GitHub"
   },

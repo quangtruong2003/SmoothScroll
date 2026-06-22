@@ -11,9 +11,6 @@ interface BetaNoticeProps {
   align?: 'center' | 'left'
 }
 
-const ISSUE_URL =
-  'https://github.com/quangtruong2003/SmoothScroll/issues/new?labels=macos%2Cbeta&template=bug_report.md'
-
 export function BetaNotice({
   notice,
   reportPrefix,
@@ -21,8 +18,8 @@ export function BetaNotice({
   className = '',
   align = 'center',
 }: BetaNoticeProps) {
-  const { isBeta } = useDownloadUrl()
-  if (!isBeta) return null
+  const { isBeta, isLinux } = useDownloadUrl()
+  if (!isBeta && !isLinux) return null
 
   const justify = align === 'center' ? 'justify-center' : 'justify-start'
 
@@ -36,7 +33,7 @@ export function BetaNotice({
         <span>
           {notice}{' '}
           <a
-            href={ISSUE_URL}
+            href="https://github.com/quangtruong2003/SmoothScroll/issues/new?labels=bug&template=bug_report.md"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-200"
