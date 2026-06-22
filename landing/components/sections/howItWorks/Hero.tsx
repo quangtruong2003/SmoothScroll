@@ -10,12 +10,13 @@ import type { Dictionary, Locale } from '@/lib/i18n/dict'
 interface HowItWorksHeroProps {
   locale: Locale
   hero: NonNullable<NonNullable<Dictionary['howItWorks']>['hero']>
+  ctaLinuxLabel?: string
   ctaMacLabel?: string
   betaBadge?: string
   comingSoonLabel?: string
 }
 
-export function HowItWorksHero({ locale, hero, ctaMacLabel, betaBadge, comingSoonLabel }: HowItWorksHeroProps) {
+export function HowItWorksHero({ locale, hero, ctaLinuxLabel, ctaMacLabel, betaBadge, comingSoonLabel }: HowItWorksHeroProps) {
   return (
     <section className="relative pt-28 pb-12 px-4 overflow-hidden">
       <div className="container max-w-5xl">
@@ -51,6 +52,7 @@ export function HowItWorksHero({ locale, hero, ctaMacLabel, betaBadge, comingSoo
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
               <DownloadCTA
                 label={hero.ctaPrimary ?? 'Download'}
+                labelLinux={ctaLinuxLabel}
                 labelMac={ctaMacLabel}
                 betaBadge={betaBadge}
                 comingSoonLabel={comingSoonLabel}

@@ -22,6 +22,7 @@ export function FinalCTA({ dict }: FinalCTAProps) {
           <p className="text-lg text-muted-foreground">{f.description}</p>
           <DownloadCTA
             label={f.cta ?? 'Download'}
+            labelLinux={f.ctaLinux}
             labelMac={f.ctaMac}
             betaBadge={b.badge ?? 'BETA'}
             comingSoonLabel={f.comingSoon ?? 'Coming Soon'}

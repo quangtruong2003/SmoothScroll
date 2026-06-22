@@ -134,6 +134,7 @@ export function Install({ dict }: InstallProps) {
           ) : (
             <DownloadCTA
               label={isLinux ? (i.ctaLinux || ctaLabel) : ctaLabel}
+              labelLinux={i.ctaLinux}
               labelMac={i.ctaMac}
               betaBadge={b.badge ?? 'BETA'}
               variant="brand"

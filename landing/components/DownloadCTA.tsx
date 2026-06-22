@@ -6,6 +6,7 @@ import { Download } from 'lucide-react'
 
 interface DownloadCTAProps {
   label: string
+  labelLinux?: string
   labelMac?: string
   betaBadge?: string
   comingSoonLabel?: string
@@ -16,6 +17,7 @@ interface DownloadCTAProps {
 
 export function DownloadCTA({
   label,
+  labelLinux,
   labelMac,
   betaBadge = 'BETA',
   comingSoonLabel = 'Coming Soon',
@@ -24,7 +26,7 @@ export function DownloadCTA({
   className,
 }: DownloadCTAProps) {
   const { url, filename, isBeta, isMac, isLinux } = useDownloadUrl()
-  const displayLabel = isBeta && labelMac ? labelMac : label
+  const displayLabel = isLinux && labelLinux ? labelLinux : isBeta && labelMac ? labelMac : label
 
   if (isMac) {
     return (

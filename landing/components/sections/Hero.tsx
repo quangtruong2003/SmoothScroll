@@ -47,6 +47,7 @@ export function Hero({ dict, locale }: HeroProps) {
             <div className="flex flex-col sm:flex-row gap-3">
               <DownloadCTA
                 label={h.cta ?? 'Download'}
+                labelLinux={h.ctaLinux}
                 labelMac={h.ctaMac}
                 betaBadge={b.badge ?? 'BETA'}
                 comingSoonLabel={f.comingSoon}

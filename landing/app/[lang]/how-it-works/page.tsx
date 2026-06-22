@@ -88,6 +88,7 @@ export default async function HowItWorksPage({
       <HowItWorksHero
         locale={locale}
         hero={h.hero}
+        ctaLinuxLabel={dict.hero?.ctaLinux}
         ctaMacLabel={dict.hero?.ctaMac}
         betaBadge={dict.beta?.badge}
         comingSoonLabel={dict.finalCta?.comingSoon}
@@ -101,6 +102,7 @@ export default async function HowItWorksPage({
       <Privacy privacy={h.privacy} />
       <FinalCTA
         finalCta={h.finalCta}
+        ctaLinuxLabel={dict.hero?.ctaLinux}
         ctaMacLabel={dict.hero?.ctaMac}
         betaBadge={dict.beta?.badge}
         comingSoonLabel={dict.finalCta?.comingSoon}
