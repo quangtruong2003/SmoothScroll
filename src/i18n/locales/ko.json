@@ -27,7 +27,13 @@
     "title": "접근성 권한 필요",
     "body": "SmoothScroll이 마우스 휠 이벤트를 캡처하고 부드러운 애니메이션으로 다시 보내려면 Accessibility 권한이 필요합니다. System Settings → Privacy & Security → Accessibility 를 열고 SmoothScroll을 활성화하세요.",
     "open": "권한 요청",
-    "polling": "권한이 부여되면 자동으로 감지하고 계속 진행합니다."
+    "polling": "권한이 부여되면 자동으로 감지하고 계속 진행합니다.",
+    "linux_uinput_title": "접근 권한 필요",
+    "linux_uinput_body": "SmoothScroll은 스크롤 부드럽게 하기 위해 /dev/uinput 접근이 필요합니다.\n\n다음 명령을 실행하고 로그아웃하세요:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\n다시 로그인한 후 SmoothScroll을 다시 시작하세요.",
+    "linux_uinput_hint": "위의 명령을 실행한 후 로그아웃했다가 다시 로그인한 다음 SmoothScroll을 다시 시작하세요.",
+    "linux_flatpak_title": "SmoothScroll은 Flatpak을 지원하지 않습니다",
+    "linux_flatpak_body": "Flatpak 샌드박스가 스크롤 가로채기에 필요한 /dev/uinput 접근을 차단합니다. .deb 또는 .AppImage에서 SmoothScroll을 설치하세요.",
+    "linux_flatpak_hint": ".deb 또는 .AppImage에서 SmoothScroll을 설치하세요."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "빠른 접근",
     "smooth_scrolling": "부드러운 스크롤",
     "start_with_windows": "Windows와 함께 시작",
+    "start_with_system": "시스템 시작 시 실행",
     "start_minimized": "최소화하여 시작",
     "actions": "작업",
     "open_settings": "설정 열기",

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { useSettingsStore, useGameModeFields } from "@/stores/settingsStore";
 import { tauri } from "@/lib/tauri";
+import { IS_LINUX } from "@/lib/platform";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +60,7 @@ function GameModeSectionInner() {
           </div>
           <div className="flex gap-2">
             <Input
-              placeholder={/Linux/.test(navigator.userAgent) ? 'steam' : t("game_mode.placeholder")}
+              placeholder={IS_LINUX ? 'steam' : t("game_mode.placeholder")}
               value={newGame}
               onChange={(e) => setNewGame(e.target.value)}
             />

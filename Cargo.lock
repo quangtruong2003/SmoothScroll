@@ -4280,6 +4280,7 @@ dependencies = [
  "uuid",
  "windows 0.58.0",
  "windows-sys 0.59.0",
+ "x11",
 ]
 
 [[package]]

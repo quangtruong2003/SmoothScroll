@@ -27,7 +27,13 @@
     "title": "Akses Aksesibilitas diperlukan",
     "body": "SmoothScroll membutuhkan izin Accessibility untuk menangkap event roda mouse dan mengirim ulang dengan animasi mulus. Buka System Settings → Privacy & Security → Accessibility lalu aktifkan SmoothScroll.",
     "open": "Minta izin",
-    "polling": "Saya akan mendeteksi saat Anda memberi izin dan melanjutkan."
+    "polling": "Saya akan mendeteksi saat Anda memberi izin dan melanjutkan.",
+    "linux_uinput_title": "Izin akses diperlukan",
+    "linux_uinput_body": "SmoothScroll membutuhkan akses ke /dev/uinput untuk menghaluskan gulir.\n\nJalankan perintah berikut dan keluar:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nSetelah masuk kembali, mulai ulang SmoothScroll.",
+    "linux_uinput_hint": "Setelah menjalankan perintah di atas, keluar dan masuk kembali, lalu mulai ulang SmoothScroll.",
+    "linux_flatpak_title": "SmoothScroll tidak mendukung Flatpak",
+    "linux_flatpak_body": "Sandbox Flatpak memblokir akses ke /dev/uinput yang diperlukan untuk intersepsi gulir. Harap instal SmoothScroll dari .deb atau .AppImage.",
+    "linux_flatpak_hint": "Harap instal SmoothScroll dari .deb atau .AppImage."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "Akses Cepat",
     "smooth_scrolling": "Smooth Scrolling",
     "start_with_windows": "Mulai bersama Windows",
+    "start_with_system": "Mulai dengan sistem",
     "start_minimized": "Mulai terminimalisasi",
     "actions": "Aksi",
     "open_settings": "Buka Pengaturan",

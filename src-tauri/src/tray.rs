@@ -51,7 +51,39 @@ fn cursor_position() -> PhysicalPosition<i32> {
         }
         PhysicalPosition::new(960, 540)
     }
-    #[cfg(not(windows))]
+    #[cfg(target_os = "linux")]
+    {
+        use x11::xlib;
+        let d = unsafe { xlib::XOpenDisplay(std::ptr::null()) };
+        if d.is_null() {
+            return PhysicalPosition::new(960, 540);
+        }
+        let mut root: xlib::Window = 0;
+        let mut child: xlib::Window = 0;
+        let mut root_x: i32 = 0;
+        let mut root_y: i32 = 0;
+        let mut win_x: i32 = 0;
+        let mut win_y: i32 = 0;
+        let mut mask: u32 = 0;
+        let mut ev: xlib::XEvent = unsafe { std::mem::zeroed() };
+        let _ = unsafe {
+            xlib::XQueryPointer(
+                d,
+                xlib::XDefaultRootWindow(d),
+                &mut root,
+                &mut child,
+                &mut root_x,
+                &mut root_y,
+                &mut win_x,
+                &mut win_y,
+                &mut mask,
+            )
+        };
+        let pos = PhysicalPosition::new(root_x, root_y);
+        unsafe { xlib::XCloseDisplay(d) };
+        pos
+    }
+    #[cfg(target_os = "macos")]
     {
         PhysicalPosition::new(960, 540)
     }

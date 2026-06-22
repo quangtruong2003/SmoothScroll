@@ -27,7 +27,13 @@
     "title": "Требуется доступ к Универсальному доступу",
     "body": "SmoothScroll нужен доступ Accessibility, чтобы перехватывать события колеса мыши и заново отправлять их с плавной анимацией. Откройте System Settings → Privacy & Security → Accessibility и включите SmoothScroll.",
     "open": "Запросить разрешение",
-    "polling": "Я обнаружу момент, когда вы предоставите доступ, и продолжу."
+    "polling": "Я обнаружу момент, когда вы предоставите доступ, и продолжу.",
+    "linux_uinput_title": "Требуется разрешение на доступ",
+    "linux_uinput_body": "SmoothScroll требуется доступ к /dev/uinput для сглаживания прокрутки.\n\nВыполните следующие команды и выйдите из системы:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nПосле повторного входа перезапустите SmoothScroll.",
+    "linux_uinput_hint": "После выполнения вышеуказанных команд выйдите из системы и войдите снова, затем перезапустите SmoothScroll.",
+    "linux_flatpak_title": "SmoothScroll не поддерживает Flatpak",
+    "linux_flatpak_body": "Песочница Flatpak блокирует доступ к /dev/uinput, необходимый для перехвата прокрутки. Установите SmoothScroll из .deb или .AppImage.",
+    "linux_flatpak_hint": "Установите SmoothScroll из .deb или .AppImage."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "Быстрый доступ",
     "smooth_scrolling": "Плавная прокрутка",
     "start_with_windows": "Запускать вместе с Windows",
+    "start_with_system": "Запускать с системой",
     "start_minimized": "Запускать свёрнутым",
     "actions": "Действия",
     "open_settings": "Открыть настройки",

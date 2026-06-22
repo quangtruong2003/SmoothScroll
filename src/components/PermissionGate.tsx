@@ -1,19 +1,37 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { invoke } from "@tauri-apps/api/core";
 import { tauri } from "@/lib/tauri";
+import { IS_LINUX, IS_MAC } from "@/lib/platform";
 import { Button } from "@/components/ui/button";
 
 type GateStatus = "idle" | "polling" | "checking" | "denied";
 
+interface PlatformStatus {
+  accessible: boolean;
+  flatpak: boolean;
+  session_type: string;
+  error_message: string | null;
+}
+
 export function PermissionGate({ onGranted }: { onGranted: () => void }) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<GateStatus>("idle");
+  const [platformStatus, setPlatformStatus] = useState<PlatformStatus | null>(null);
 
-  // Active polling with backoff. Once user clicks "Request permission" we
-  // poll quickly first, then back off to keep CPU low if the user takes a
-  // while in System Settings.
   useEffect(() => {
-    if (status !== "polling") return;
+    if (IS_LINUX) {
+      invoke<PlatformStatus>("get_platform_status")
+        .then(setPlatformStatus)
+        .catch(() => {
+          // ignore errors, platformStatus stays null
+        });
+    }
+  }, []);
+
+  // macOS: active polling with backoff
+  useEffect(() => {
+    if (!IS_MAC || status !== "polling") return;
     let attempts = 0;
     let timer: number | null = null;
     const tick = async () => {
@@ -48,6 +66,28 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
     window.setTimeout(() => setStatus((s) => (s === "denied" ? "polling" : s)), 1500);
   }, [onGranted]);
 
+  // Linux permission error display
+  if (IS_LINUX && platformStatus && !platformStatus.accessible) {
+    return (
+      <div className="container max-w-md py-12 space-y-4">
+        <h1 className="text-2xl font-semibold">
+          {platformStatus.flatpak
+            ? t("permission.linux_flatpak_title", "SmoothScroll does not support Flatpak")
+            : t("permission.linux_uinput_title", "Permission access required")}
+        </h1>
+        <p className="text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-muted p-4 rounded">
+          {platformStatus.error_message || t("permission.linux_uinput_body")}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {platformStatus.flatpak
+            ? t("permission.linux_flatpak_hint", "Please install SmoothScroll from .deb or .AppImage instead.")
+            : t("permission.linux_uinput_hint", "After running the commands above, log out and back in, then restart SmoothScroll.")}
+        </p>
+      </div>
+    );
+  }
+
+  // macOS permission gate
   return (
     <div className="container max-w-md py-12 space-y-4">
       <h1 className="text-2xl font-semibold">

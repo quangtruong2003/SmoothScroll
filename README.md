@@ -52,35 +52,28 @@ Grab `SmoothScroll_<version>_x64-setup.exe` (NSIS) or `.msi` from the [Releases 
 
 > **macOS support is in development.** Track progress in [issues](https://github.com/quangtruong2003/SmoothScroll/issues).
 
-### Linux (X11)
+### Linux (X11 and Wayland)
 
-> **Note:** Only X11 sessions are currently supported. Wayland is not yet supported.
+SmoothScroll supports both X11 and Wayland sessions on Linux.
 
-Download the `.deb` or `.AppImage` from the [Releases page](https://github.com/quangtruong2003/SmoothScroll/releases).
+**X11:** Uses `libxinput2` for wheel event interception.
 
+**Wayland:** Uses `/dev/uinput` (requires membership in the `input` group) and `libevdev` for scroll event capture. **Flatpak is not supported.**
+
+**Requirements:**
+- libwebkit2gtk-4.1-0
+- libayatana-appindicator3-1 (for system tray)
+- libx11-6, libxi6, libxtst6 (X11 only)
+
+**Setup for Wayland:**
 ```bash
-# .deb (Ubuntu/Debian)
-sudo dpkg -i smoothscroll_*.deb
-
-# .AppImage (portable)
-chmod +x SmoothScroll-*.AppImage
-./SmoothScroll-*.AppImage
+sudo gpasswd -a $USER input
+sudo bash -c 'echo "KERNEL==\"uinput\", GROUP=\"input\", MODE=\"0660\", OPTIONS+=\"static_node=uinput\"" > /etc/udev/rules.d/99-smoothscroll.rules'
+sudo udevadm control --reload-rules
+# Log out and back in, then restart SmoothScroll
 ```
 
-**Build from source (Ubuntu/Debian):**
-
-```bash
-# Install dependencies
-sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
-  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
-  libx11-dev libxi-dev libxtst-dev
-
-# Build
-pnpm install
-pnpm tauri build
-```
-
-**Known limitations:** X11 only · Scroll passthrough · GNOME tray may need AppIndicator extension
+**Known limitations:** Wayland scroll passthrough behavior varies by compositor. GNOME tray may need AppIndicator extension.
 
 ## Usage
 
@@ -209,7 +202,7 @@ SmoothScroll uses standard Windows `SetWindowsHookEx` API — the same API used 
 
 ### Does SmoothScroll work on Linux?
 
-Not yet. Linux support requires X11 / Wayland event interception, which is on the roadmap. Track progress in [issues](https://github.com/quangtruong2003/SmoothScroll/issues).
+Yes! SmoothScroll supports both X11 and Wayland on Linux. For Wayland, you'll need to add yourself to the `input` group and set up udev rules for `/dev/uinput` access. See the Linux section above for setup instructions.
 
 ## Contributing
 

@@ -29,7 +29,13 @@
     "check_now": "I just granted it — check now",
     "checking": "Checking…",
     "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
-    "polling": "Watching for permission. I'll continue automatically once granted."
+    "polling": "Watching for permission. I'll continue automatically once granted.",
+    "linux_uinput_title": "Permission access required",
+    "linux_uinput_body": "SmoothScroll needs access to /dev/uinput for scroll smoothing.\n\nRun the following commands and log out:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nAfter logging back in, restart SmoothScroll.",
+    "linux_uinput_hint": "After running the commands above, log out and back in, then restart SmoothScroll.",
+    "linux_flatpak_title": "SmoothScroll does not support Flatpak",
+    "linux_flatpak_body": "Flatpak sandbox blocks access to /dev/uinput which is required for scroll interception. Please install SmoothScroll from .deb or .AppImage instead.",
+    "linux_flatpak_hint": "Please install SmoothScroll from .deb or .AppImage instead."
   },
   "feel": {
     "anim": {
@@ -436,6 +442,7 @@
     "quick_access": "Quick Access",
     "smooth_scrolling": "Smooth Scrolling",
     "start_with_windows": "Start with Windows",
+    "start_with_system": "Start with system",
     "start_minimized": "Start minimized",
     "actions": "Actions",
     "open_settings": "Open Settings",

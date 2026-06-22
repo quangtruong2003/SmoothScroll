@@ -27,7 +27,13 @@
     "title": "एक्सेसिबिलिटी एक्सेस आवश्यक",
     "body": "SmoothScroll को माउस-व्हील ईवेंट कैप्चर करने और स्मूथ एनिमेशन के साथ पुनः उत्सर्जित करने के लिए Accessibility अनुमति चाहिए। System Settings → Privacy & Security → Accessibility खोलें और SmoothScroll को सक्षम करें।",
     "open": "अनुमति का अनुरोध करें",
-    "polling": "जब आप अनुमति देंगे, मैं स्वयं पहचान कर आगे बढ़ूँगा।"
+    "polling": "जब आप अनुमति देंगे, मैं स्वयं पहचान कर आगे बढ़ूँगा।",
+    "linux_uinput_title": "एक्सेस अनुमति आवश्यक",
+    "linux_uinput_body": "SmoothScroll को स्क्रॉल स्मूथिंग के लिए /dev/uinput तक एक्सेस चाहिए।\n\nनिम्न कमांड चलाएं और लॉग आउट करें:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nलॉग इन करने के बाद, SmoothScroll को रीस्टार्ट करें।",
+    "linux_uinput_hint": "उपरोक्त कमांड चलाने के बाद, लॉग आउट करें और वापस लॉग इन करें, फिर SmoothScroll को रीस्टार्ट करें।",
+    "linux_flatpak_title": "SmoothScroll Flatpak का समर्थन नहीं करता",
+    "linux_flatpak_body": "Flatpak सैंडबॉक्स /dev/uinput एक्सेस को ब्लॉक करता है जो स्क्रॉल इंटरसेप्शन के लिए आवश्यक है। कृपया .deb या .AppImage से SmoothScroll इंस्टॉल करें।",
+    "linux_flatpak_hint": "कृपया .deb या .AppImage से SmoothScroll इंस्टॉल करें।"
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "त्वरित पहुँच",
     "smooth_scrolling": "स्मूथ स्क्रॉलिंग",
     "start_with_windows": "Windows के साथ शुरू करें",
+    "start_with_system": "सिस्टम के साथ शुरू करें",
     "start_minimized": "मिनिमाइज़ शुरू करें",
     "actions": "क्रियाएँ",
     "open_settings": "सेटिंग्स खोलें",

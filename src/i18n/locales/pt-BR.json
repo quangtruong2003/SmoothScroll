@@ -27,7 +27,13 @@
     "title": "Permissão de Acessibilidade necessária",
     "body": "O SmoothScroll precisa da permissão Accessibility para capturar eventos da roda do mouse e reemiti-los com animação suave. Abra System Settings → Privacy & Security → Accessibility e ative o SmoothScroll.",
     "open": "Solicitar permissão",
-    "polling": "Vou detectar quando você conceder a permissão e continuar."
+    "polling": "Vou detectar quando você conceder a permissão e continuar.",
+    "linux_uinput_title": "Permissão de acesso necessária",
+    "linux_uinput_body": "O SmoothScroll precisa de acesso ao /dev/uinput para suavizar a rolagem.\n\nExecute os seguintes comandos e saia:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nApós fazer login novamente, reinicie o SmoothScroll.",
+    "linux_uinput_hint": "Após executar os comandos acima, saia e faça login novamente, depois reinicie o SmoothScroll.",
+    "linux_flatpak_title": "SmoothScroll não suporta Flatpak",
+    "linux_flatpak_body": "O sandbox Flatpak bloqueia o acesso ao /dev/uinput necessário para interceptação de rolagem. Instale o SmoothScroll de .deb ou .AppImage.",
+    "linux_flatpak_hint": "Instale o SmoothScroll de .deb ou .AppImage."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "Acesso rápido",
     "smooth_scrolling": "Rolagem suave",
     "start_with_windows": "Iniciar com o Windows",
+    "start_with_system": "Iniciar com o sistema",
     "start_minimized": "Iniciar minimizado",
     "actions": "Ações",
     "open_settings": "Abrir configurações",

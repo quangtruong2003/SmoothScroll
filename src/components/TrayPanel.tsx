@@ -237,8 +237,8 @@ export function TrayPanel() {
             icon={<MousePointer2 className="h-4 w-4" />}
           />
           <MenuItem
-            label={navigator.userAgent.includes('Linux')
-              ? t('tray.start_with_system', 'Start with system')
+            label={IS_LINUX
+              ? t('tray.start_with_system')
               : t('tray.start_with_windows')}
             toggle
             checked={autostart}

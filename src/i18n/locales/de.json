@@ -27,7 +27,13 @@
     "title": "Bedienungshilfen-Zugriff erforderlich",
     "body": "SmoothScroll benötigt die Accessibility-Berechtigung, um Mausrad-Ereignisse zu erfassen und mit sanfter Animation erneut auszulösen. Öffnen Sie System Settings → Privacy & Security → Accessibility und aktivieren Sie SmoothScroll.",
     "open": "Berechtigung anfordern",
-    "polling": "Sobald Sie die Berechtigung erteilen, erkenne ich es und mache weiter."
+    "polling": "Sobald Sie die Berechtigung erteilen, erkenne ich es und mache weiter.",
+    "linux_uinput_title": "Zugriffsberechtigung erforderlich",
+    "linux_uinput_body": "SmoothScroll benötigt Zugriff auf /dev/uinput für Scroll-Glättung.\n\nFühren Sie die folgenden Befehle aus und melden Sie sich ab:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nMelden Sie sich nach dem Abmelden erneut an und starten Sie SmoothScroll neu.",
+    "linux_uinput_hint": "Nachdem Sie die oben genannten Befehle ausgeführt haben, melden Sie sich ab und wieder an, dann starten Sie SmoothScroll neu.",
+    "linux_flatpak_title": "SmoothScroll unterstützt Flatpak nicht",
+    "linux_flatpak_body": "Die Flatpak-Sandbox blockiert den Zugriff auf /dev/uinput, der für Scroll-Interception erforderlich ist. Bitte installieren Sie SmoothScroll von .deb oder .AppImage.",
+    "linux_flatpak_hint": "Bitte installieren Sie SmoothScroll von .deb oder .AppImage."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "Schnellzugriff",
     "smooth_scrolling": "Sanftes Scrollen",
     "start_with_windows": "Mit Windows starten",
+    "start_with_system": "Mit System starten",
     "start_minimized": "Minimiert starten",
     "actions": "Aktionen",
     "open_settings": "Einstellungen öffnen",

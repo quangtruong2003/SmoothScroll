@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { SettingsPage } from "./routes/Settings";
-import { PermissionGate } from "./components/macos/PermissionGate";
+import { PermissionGate } from "./components/PermissionGate";
 import { TrayPanel } from "./components/TrayPanel";
 import { ForcedUpdateModal } from "./components/ForcedUpdateModal";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -16,8 +16,14 @@ export default function App() {
 
   // 1) Detect window label once.
   useEffect(() => {
-    const label = getCurrentWindow().label;
-    dispatch({ type: "WINDOW_DETECTED", label });
+    try {
+      const win = getCurrentWindow();
+      if (win?.label) {
+        dispatch({ type: "WINDOW_DETECTED", label: win.label });
+      }
+    } catch {
+      // getCurrentWindow may fail in dev HMR context before Tauri runtime is ready
+    }
   }, []);
 
   // 2) Accessibility check (only on main window, only when entering that state).

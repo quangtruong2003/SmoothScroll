@@ -31,7 +31,13 @@
     "check_now": "Tôi vừa cấp xong — kiểm tra ngay",
     "checking": "Đang kiểm tra…",
     "still_denied": "Vẫn chưa được cấp. Hãy chắc chắn SmoothScroll đã BẬT trong System Settings.",
-    "polling": "Đang theo dõi quyền. Tôi sẽ tự tiếp tục khi được cấp."
+    "polling": "Đang theo dõi quyền. Tôi sẽ tự tiếp tục khi được cấp.",
+    "linux_uinput_title": "Yêu cầu quyền truy cập",
+    "linux_uinput_body": "SmoothScroll cần quyền truy cập /dev/uinput để làm mượt cuộn.\n\nChạy các lệnh sau và đăng xuất:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nSau khi đăng nhập lại, khởi động lại SmoothScroll.",
+    "linux_uinput_hint": "Sau khi chạy các lệnh trên, đăng xuất và đăng nhập lại, sau đó khởi động lại SmoothScroll.",
+    "linux_flatpak_title": "SmoothScroll không hỗ trợ Flatpak",
+    "linux_flatpak_body": "Flatpak sandbox chặn truy cập /dev/uinput cần thiết cho việc chặn cuộn. Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage.",
+    "linux_flatpak_hint": "Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage."
   },
   "feel": {
     "anim": {
@@ -443,6 +449,7 @@
     "quick_access": "Truy cập nhanh",
     "smooth_scrolling": "Cuộn mượt",
     "start_with_windows": "Khởi động cùng Windows",
+    "start_with_system": "Khởi động cùng hệ thống",
     "start_minimized": "Khởi động ẩn",
     "actions": "Thao tác",
     "open_settings": "Mở cài đặt",

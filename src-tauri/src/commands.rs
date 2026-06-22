@@ -284,6 +284,83 @@ pub fn app_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
 
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct PlatformStatus {
+    pub accessible: bool,
+    pub flatpak: bool,
+    pub session_type: String,
+    pub error_message: Option<String>,
+}
+
+#[tauri::command]
+pub fn get_platform_status() -> PlatformStatus {
+    #[cfg(target_os = "linux")]
+    {
+        use smoothscroll_platform::linux::wayland::permission;
+
+        let session_type = match std::env::var("XDG_SESSION_TYPE").unwrap_or_default().as_str() {
+            "wayland" => "wayland",
+            _ => "x11",
+        };
+
+        if permission::is_flatpak() {
+            return PlatformStatus {
+                accessible: false,
+                flatpak: true,
+                session_type: session_type.to_string(),
+                error_message: Some(
+                    "SmoothScroll does not support Flatpak.\n\n\
+                     Flatpak sandbox blocks access to /dev/uinput which is \
+                     required for scroll interception.\n\n\
+                     Please install SmoothScroll from .deb or .AppImage instead."
+                        .to_string(),
+                ),
+            };
+        }
+
+        match std::fs::OpenOptions::new().write(true).open("/dev/uinput") {
+            Ok(_) => PlatformStatus {
+                accessible: true,
+                flatpak: false,
+                session_type: session_type.to_string(),
+                error_message: None,
+            },
+            Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => PlatformStatus {
+                accessible: false,
+                flatpak: false,
+                session_type: session_type.to_string(),
+                error_message: Some(
+                    "SmoothScroll needs access to /dev/uinput for scroll smoothing.\n\n\
+                     Run the following commands and log out:\n\n\
+                       sudo gpasswd -a $USER input\n\
+                       sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", \
+                     MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > \
+                     /etc/udev/rules.d/99-smoothscroll.rules'\n\
+                       sudo udevadm control --reload-rules\n\n\
+                     After logging back in, restart SmoothScroll."
+                        .to_string(),
+                ),
+            },
+            Err(e) => PlatformStatus {
+                accessible: false,
+                flatpak: false,
+                session_type: session_type.to_string(),
+                error_message: Some(format!("Cannot open /dev/uinput: {}", e)),
+            },
+        }
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        PlatformStatus {
+            accessible: true,
+            flatpak: false,
+            session_type: String::new(),
+            error_message: None,
+        }
+    }
+}
+
 /// Returns true if the current machine's hostname matches one in the
 /// comma-separated list compiled into the binary via the
 /// `SMOOTHSCROLL_TRUSTED_HOSTS` env var at build time. When the env var is

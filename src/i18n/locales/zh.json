@@ -27,7 +27,13 @@
     "title": "需要辅助功能权限",
     "body": "SmoothScroll 需要 Accessibility 权限来捕获鼠标滚轮事件并以平滑动画重新发送。打开 System Settings → Privacy & Security → Accessibility 并启用 SmoothScroll。",
     "open": "请求权限",
-    "polling": "授予权限后，我会自动检测并继续。"
+    "polling": "授予权限后，我会自动检测并继续。",
+    "linux_uinput_title": "需要访问权限",
+    "linux_uinput_body": "SmoothScroll 需要访问 /dev/uinput 以实现滚动平滑化。\n\n运行以下命令并注销：\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\n重新登录后，重启 SmoothScroll。",
+    "linux_uinput_hint": "运行上述命令后，注销并重新登录，然后重启 SmoothScroll。",
+    "linux_flatpak_title": "SmoothScroll 不支持 Flatpak",
+    "linux_flatpak_body": "Flatpak 沙盒阻止访问 /dev/uinput，这是滚动拦截所必需的。请从 .deb 或 .AppImage 安装 SmoothScroll。",
+    "linux_flatpak_hint": "请从 .deb 或 .AppImage 安装 SmoothScroll。"
   },
   "tabs": {
     "scroll": {
@@ -494,6 +500,7 @@
     "quick_access": "快速访问",
     "smooth_scrolling": "平滑滚动",
     "start_with_windows": "开机启动",
+    "start_with_system": "开机启动",
     "start_minimized": "启动时最小化",
     "actions": "操作",
     "open_settings": "打开设置",

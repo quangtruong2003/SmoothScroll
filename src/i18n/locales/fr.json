@@ -27,7 +27,13 @@
     "title": "Autorisation d'accessibilité requise",
     "body": "SmoothScroll a besoin de l'autorisation Accessibility pour capturer les événements de la molette et les rejouer avec une animation fluide. Ouvrez System Settings → Privacy & Security → Accessibility et activez SmoothScroll.",
     "open": "Demander l'autorisation",
-    "polling": "Je détecterai l'octroi de l'autorisation et continuerai."
+    "polling": "Je détecterai l'octroi de l'autorisation et continuerai.",
+    "linux_uinput_title": "Autorisation d'accès requise",
+    "linux_uinput_body": "SmoothScroll a besoin d'un accès à /dev/uinput pour lisser le défilement.\n\nExécutez les commandes suivantes et déconnectez-vous:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nAprès vous être reconnecté, redémarrez SmoothScroll.",
+    "linux_uinput_hint": "Après avoir exécuté les commandes ci-dessus, déconnectez-vous et reconnectez-vous, puis redémarrez SmoothScroll.",
+    "linux_flatpak_title": "SmoothScroll ne prend pas en charge Flatpak",
+    "linux_flatpak_body": "Le sandbox Flatpak bloque l'accès à /dev/uinput nécessaire à l'interception du défilement. Installez SmoothScroll depuis .deb ou .AppImage.",
+    "linux_flatpak_hint": "Installez SmoothScroll depuis .deb ou .AppImage."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "Accès rapide",
     "smooth_scrolling": "Défilement fluide",
     "start_with_windows": "Démarrer avec Windows",
+    "start_with_system": "Démarrer avec le système",
     "start_minimized": "Démarrer réduit",
     "actions": "Actions",
     "open_settings": "Ouvrir les paramètres",

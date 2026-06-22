@@ -27,7 +27,13 @@
     "title": "Erişilebilirlik izni gerekli",
     "body": "SmoothScroll, fare tekerleği olaylarını yakalayıp yumuşak animasyonla yeniden yayımlamak için Accessibility iznine ihtiyaç duyar. System Settings → Privacy & Security → Accessibility yolunu açıp SmoothScroll'u etkinleştirin.",
     "open": "İzin iste",
-    "polling": "İzni verdiğinizde algılayıp devam edeceğim."
+    "polling": "İzni verdiğinizde algılayıp devam edeceğim.",
+    "linux_uinput_title": "Erişim izni gerekli",
+    "linux_uinput_body": "SmoothScroll'un kaydırmayı yumuşatması için /dev/uinput erişimi gerekiyor.\n\nŞu komutları çalıştırın ve çıkış yapın:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nYeniden giriş yaptıktan sonra SmoothScroll'u yeniden başlatın.",
+    "linux_uinput_hint": "Yukarıdaki komutları çalıştırdıktan sonra çıkış yapın ve tekrar giriş yapın, ardından SmoothScroll'u yeniden başlatın.",
+    "linux_flatpak_title": "SmoothScroll Flatpak'ı desteklemiyor",
+    "linux_flatpak_body": "Flatpak korumalı alanı, kaydırma ele geçirme için gerekli /dev/uinput erişimini engelliyor. SmoothScroll'u .deb veya .AppImage'den kurun.",
+    "linux_flatpak_hint": "SmoothScroll'u .deb veya .AppImage'den kurun."
   },
   "tabs": {
     "scroll": {
@@ -352,6 +358,7 @@
     "quick_access": "Hızlı erişim",
     "smooth_scrolling": "Yumuşak kaydırma",
     "start_with_windows": "Windows ile başlat",
+    "start_with_system": "Sistemle birlikte başlat",
     "start_minimized": "Küçültülmüş başlat",
     "actions": "Eylemler",
     "open_settings": "Ayarları aç",
