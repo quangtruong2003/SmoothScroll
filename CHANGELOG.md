@@ -7,6 +7,15 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-07-03
+
+### Added
+- native UI theming + platform bugfixes
+- show beta warning for Linux and macOS users
+- add Linux support to download page
+
+### Fixed
+- show correct download label for Linux users
 ## [1.10.7] - 2026-06-22
 
 ### Fixed
