@@ -12,10 +12,11 @@ use core_foundation::string::CFStringRef;
 use core_foundation::runloop::kCFRunLoopDefaultMode;
 use core_foundation_sys::base::{CFAllocatorRef, kCFAllocatorDefault, CFRelease};
 use core_foundation_sys::runloop::{
-    CFRunLoopGetCurrent, CFRunLoopRunInMode, CFRunLoopSourceInvalidate, CFRunLoopRef,
-    CFRunLoopSourceRef,
+    CFRunLoopAddSource, CFRunLoopGetMain, CFRunLoopRef, CFRunLoopRemoveSource,
+    CFRunLoopSourceInvalidate, CFRunLoopSourceRef, CFRunLoopWakeUp,
 };
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
+use std::sync::mpsc;
 use std::sync::Arc;
 
 // ---------------------------------------------------------------------------
@@ -54,9 +55,6 @@ extern "C" {
         tap: CFMachPortRef,
         order: isize,
     ) -> CFRunLoopSourceRef;
-
-    fn CFRunLoopAddSource(rl: CFRunLoopRef, source: CFRunLoopSourceRef, mode: CFStringRef);
-    fn CFRunLoopRemoveSource(rl: CFRunLoopRef, source: CFRunLoopSourceRef, mode: CFStringRef);
 
     fn CGEventGetIntegerValueField(event: CGEventRef, field: i64) -> i64;
     fn CGEventGetFlags(event: CGEventRef) -> u32;
@@ -169,11 +167,69 @@ unsafe extern "C" fn event_callback(
 }
 
 /// Creates and runs the event tap. Blocks until `stop` is set to true.
-/// MUST be called from the main thread (or a thread with a proper CFRunLoop).
+///
+/// IMPORTANT: macOS's `kCGHIDEventTap` only reliably delivers events when
+/// the tap is created on the **main thread** AND its source is registered
+/// against the **main thread's** `CFRunLoop`. Tauri's macOS embed runs
+/// `NSApp` on the main thread, and the Tauri setup hook fires on that
+/// same thread BEFORE the NSApp event loop starts pumping.
+///
+/// Two-stage design to keep the tap on the main thread safely:
+///
+/// 1. The caller (Tauri's setup callback) invokes
+///    [`install_on_main_thread`] synchronously on the main thread. That
+///    creates the tap, attaches its source to `CFRunLoopGetMain()`, and
+///    returns the run-loop source plus an `Arc<AtomicBool>` "running"
+///    flag to the caller.
+/// 2. The caller then spawns `run_event_loop` on a background thread,
+///    passing the source and flag. The background thread only blocks on
+///    `stop` and on the running flag. Teardown is scheduled back onto
+///    the main thread via `dispatch_async`.
+///
+/// Tauri's `NSApp` loop pumps the main run loop while we sit on the
+/// background thread, so the CFMachPort source fires callbacks on the
+/// main thread.
 pub fn run_event_loop(
-    sink: Arc<dyn HookEventSink>,
+    source_addr: usize,
+    running: Arc<AtomicBool>,
     stop: Arc<AtomicBool>,
 ) -> Result<()> {
+    // SAFETY: the source was allocated on the main thread by
+    // `install_on_main_thread` and remains alive for the duration of this
+    // function (Tauri's NSApp is still running; teardown on the main thread
+    // happens at the bottom). We pass the address across the thread
+    // boundary as `usize` because `CFRunLoopSourceRef` (a raw pointer) is
+    // not `Send`.
+    let source: CFRunLoopSourceRef = source_addr as *mut core_foundation_sys::runloop::__CFRunLoopSource;
+
+    // Block on `stop`. Tauri's NSApp pumps the main run loop (and the
+    // event tap source attached to it) on the main thread, while we
+    // wait here.
+    while !stop.load(Ordering::SeqCst) && running.load(Ordering::SeqCst) {
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+
+    // Schedule teardown on the main thread; safe because main loop is
+    // still pumping.
+    let (done_tx, done_rx) = mpsc::channel::<()>();
+    unsafe {
+        teardown_on_main_thread(source, done_tx);
+    }
+    let _ = done_rx.recv();
+
+    Ok(())
+}
+
+/// Install the event tap on the main thread. **Must** be invoked from
+/// the main thread (e.g. inside Tauri's `setup` callback). Returns the
+/// run-loop source so the caller can hand it to the background pumping
+/// thread, plus a "running" flag the background thread polls.
+///
+/// The caller must drop the returned `Tap` (or call [`teardown_on_main_thread`])
+/// after the background thread finishes.
+pub unsafe fn install_on_main_thread(
+    sink: Arc<dyn HookEventSink>,
+) -> Result<InstalledTap> {
     // kCGEventScrollWheel = 22
     let events_of_interest: u64 = 1 << 22;
 
@@ -213,29 +269,73 @@ pub fn run_event_loop(
 
     unsafe {
         CGEventTapEnable(tap, true);
-        let run_loop = CFRunLoopGetCurrent();
-        CFRunLoopAddSource(run_loop, run_loop_source, kCFRunLoopDefaultMode);
+        let main_run_loop = CFRunLoopGetMain();
+        CFRunLoopAddSource(main_run_loop, run_loop_source, kCFRunLoopDefaultMode);
     }
 
-    while !stop.load(Ordering::SeqCst) {
-        // CFRunLoopRunInMode takes Boolean (u8): false = 0
+    Ok(InstalledTap {
+        source: run_loop_source,
+        tap,
+        running: Arc::new(AtomicBool::new(true)),
+    })
+}
+
+/// Bundles the resources returned by [`install_on_main_thread`].
+pub struct InstalledTap {
+    pub source: CFRunLoopSourceRef,
+    pub tap: CFMachPortRef,
+    pub running: Arc<AtomicBool>,
+}
+
+unsafe impl Send for InstalledTap {}
+unsafe impl Sync for InstalledTap {}
+
+/// Dispatched onto the main thread via libdispatch. Removes the source
+/// from the main run loop, invalidates it, releases the tap, and frees
+/// the callback box.
+unsafe fn teardown_on_main_thread(source: CFRunLoopSourceRef, done_tx: mpsc::Sender<()>) {
+    extern "C" {
+        fn dispatch_get_main_queue() -> *mut std::os::raw::c_void;
+        fn dispatch_async_f(
+            queue: *mut std::os::raw::c_void,
+            context: *mut std::os::raw::c_void,
+            work: unsafe extern "C" fn(*mut std::os::raw::c_void),
+        );
+    }
+
+    struct Ctx {
+        source: CFRunLoopSourceRef,
+        done_tx: mpsc::Sender<()>,
+    }
+
+    unsafe extern "C" fn worker(ctx_ptr: *mut std::os::raw::c_void) {
+        let ctx = unsafe { Box::from_raw(ctx_ptr as *mut Ctx) };
+
         unsafe {
-            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.016, 0);
+            // Invalidate the source BEFORE clearing CALLBACK_PTR so that any
+            // in-flight callback that fires right now still finds valid data.
+            // After source invalidation the tap stops delivering events, so
+            // subsequent callbacks are impossible.
+            let main_run_loop = CFRunLoopGetMain();
+            CFRunLoopWakeUp(main_run_loop);
+            CFRunLoopRemoveSource(main_run_loop, ctx.source, kCFRunLoopDefaultMode);
+            CFRunLoopSourceInvalidate(ctx.source);
         }
+
+        // Now that the tap is shut down, clear CALLBACK_PTR so any
+        // hypothetical racing callback sees null and returns early.
+        CALLBACK_PTR.store(std::ptr::null_mut(), Ordering::SeqCst);
+
+        let _ = ctx.done_tx.send(());
     }
 
+    let ctx = Box::new(Ctx { source, done_tx });
+    let main_q = unsafe { dispatch_get_main_queue() };
     unsafe {
-        let run_loop = CFRunLoopGetCurrent();
-        CFRunLoopRemoveSource(run_loop, run_loop_source, kCFRunLoopDefaultMode);
-        CFRunLoopSourceInvalidate(run_loop_source);
-
-        CGEventTapEnable(tap, false);
-        CFMachPortInvalidate(tap);
-        CFRelease(tap as *const _);
-
-        let _ = Box::from_raw(cb_ptr);
+        dispatch_async_f(
+            main_q,
+            Box::into_raw(ctx) as *mut _,
+            worker,
+        );
     }
-    CALLBACK_PTR.store(std::ptr::null_mut(), Ordering::SeqCst);
-
-    Ok(())
 }

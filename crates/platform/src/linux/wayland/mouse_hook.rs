@@ -18,6 +18,37 @@ use std::time::{Duration, Instant};
 
 use super::keyboard::WaylandKeyboardState;
 
+/// Shared shutdown flag for the Wayland wheel-hook thread. SIGTERM/SIGINT
+/// flips this so the exclusive evdev grab is released even when the
+/// process is killed without going through Tauri/Rust's normal drop
+/// path. Without this, a force-killed SmoothScroll would leave the
+/// mouse/touchpad grabbed until the user logs out.
+static SIG_SHUTDOWN: AtomicBool = AtomicBool::new(false);
+
+/// One-time signal handler installation, scoped to the lifetime of any
+/// `WaylandMouseHook` instance.
+fn install_signal_handlers() {
+    use std::sync::Once;
+    static ONCE: Once = Once::new();
+
+    ONCE.call_once(|| {
+        // SAFETY: We're installing a C signal handler. The handler only
+        // touches an `AtomicBool`, which is async-signal-safe.
+        unsafe extern "C" fn handler(_sig: libc::c_int) {
+            SIG_SHUTDOWN.store(true, Ordering::SeqCst);
+        }
+
+        // SIGTERM is what systemd / process managers send to gracefully
+        // stop the app. SIGINT covers Ctrl+C in a terminal session.
+        // We intentionally do NOT catch SIGKILL/SIGSTOP.
+        unsafe {
+            libc::signal(libc::SIGTERM, handler as libc::sighandler_t);
+            libc::signal(libc::SIGINT, handler as libc::sighandler_t);
+            libc::signal(libc::SIGHUP, handler as libc::sighandler_t);
+        }
+    });
+}
+
 pub struct WaylandMouseHook {
     device_paths: Vec<std::path::PathBuf>,
     device_names: Vec<String>,
@@ -41,6 +72,8 @@ impl WaylandMouseHook {
 
 impl MouseHook for WaylandMouseHook {
     fn install(&self, sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
+        install_signal_handlers();
+
         let alive = self.stop_flag.clone();
         let sink = Arc::new(sink);
         let device_paths = self.device_paths.clone();
@@ -89,8 +122,14 @@ impl MouseHook for WaylandMouseHook {
 
                 let epoch = Instant::now();
 
-                // Event loop
-                while alive.load(Ordering::Relaxed) {
+                // Event loop. We check BOTH the per-instance `alive`
+                // (normal shutdown via HookHandle drop) and the
+                // global SIG_SHUTDOWN (process signal). The latter
+                // catches SIGTERM / SIGINT / SIGHUP even when no
+                // graceful drop is possible.
+                while alive.load(Ordering::Relaxed)
+                    && !SIG_SHUTDOWN.load(Ordering::SeqCst)
+                {
                     for device in &mut devices {
                         if let Ok(events) = device.fetch_events() {
                             for event in events {
@@ -109,7 +148,13 @@ impl MouseHook for WaylandMouseHook {
                     thread::sleep(Duration::from_micros(100));
                 }
 
-                // Release grabs on exit
+                // Explicitly drop devices to release evdev grabs. The
+                // `evdev::Device` Drop impl closes the file descriptor
+                // which the kernel uses to release the exclusive grab.
+                // Without this, killing the process leaves the device
+                // grabbed until the user logs out.
+                devices.clear();
+
                 eprintln!("ss-wayland-wheel-hook: shutting down");
             })
             .map_err(|e| PlatformError::Os(format!("spawn mouse hook: {e}")))?;

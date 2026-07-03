@@ -9,11 +9,21 @@ import { initI18n, SUPPORTED_LANGS, type Lang } from "./i18n";
 import { tauri } from "./lib/tauri";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { IS_LINUX, IS_MAC, IS_WINDOWS } from "@/lib/platform";
+
+// Set `body[data-platform]` so the stylesheet can apply platform-native
+// tokens (fonts, colors, panel material, titlebar geometry). Windows
+// keeps the default Tailwind look; macOS and Linux branch off via the
+// selectors in index.css.
+function tagPlatform() {
+  const platform = IS_MAC ? "mac" : IS_LINUX ? "linux" : IS_WINDOWS ? "win" : "unknown";
+  document.body.setAttribute("data-platform", platform);
+}
 
 // Initialize Sentry for crash reporting
 function initSentry() {
   const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
-  
+
   if (!dsn) {
     console.debug("[Sentry] Disabled (no VITE_SENTRY_DSN configured)");
     return;
@@ -35,6 +45,7 @@ function initSentry() {
 }
 
 initSentry();
+tagPlatform();
 
 async function bootstrap() {
   let lang: Lang = "en";

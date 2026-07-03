@@ -182,14 +182,24 @@ pub fn run() {
         .manage(app_state.clone())
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
+            // Initialize system tray on all platforms (including macOS).
+            // On macOS, we use Tauri tray instead of a Swift companion app
+            // since the Swift app was not implemented.
             #[cfg(not(target_os = "macos"))]
             {
                 tray::init(app.handle(), state_for_setup.clone())?;
             }
             #[cfg(target_os = "macos")]
             {
-                // Swift menu bar app owns the tray icon on macOS.
-                // tray::init is skipped — Swift NSStatusItem replaces it.
+                if let Err(e) = tray::init(app.handle(), state_for_setup.clone()) {
+                    tracing::warn!(error = %e, "failed to initialize tray on macOS");
+                }
+            }
+
+            #[cfg(target_os = "macos")]
+            {
+                // IPC server for potential future Swift companion app communication.
+                // Even with Tauri tray, we keep the IPC server available.
                 use crate::ipc_socket_server::{ipc_socket_path, IpcServer};
 
                 let socket_path = ipc_socket_path();
@@ -208,7 +218,7 @@ pub fn run() {
                         .expect("failed to create IPC tokio runtime");
                     rt.block_on(async move {
                         if let Err(e) = ipc_server.run().await {
-                            tracing::error!(error = %e, "IPC server error");
+                            tracing::debug!(error = %e, "IPC server error (non-critical)");
                         }
                     });
                 });

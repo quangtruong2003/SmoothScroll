@@ -69,9 +69,22 @@ fn is_virtual_device(device: &evdev::Device) -> bool {
 }
 
 fn has_scroll_capability(device: &evdev::Device) -> bool {
-    use evdev::EventType;
+    use evdev::{EventType, RelativeAxisCode};
 
-    device.supported_events().contains(EventType::RELATIVE)
+    // Many input devices (touchpads, joysticks, ACPI buttons, headphone
+    // media keys, some keyboards' extra axes) report RELATIVE events but
+    // have NO wheel axis. If we blindly grab anything with RELATIVE, we
+    // would steal those devices' events and break unrelated input.
+    // Only consider devices that actually expose a wheel axis.
+    if !device.supported_events().contains(EventType::RELATIVE) {
+        return false;
+    }
+
+    let axes = device.supported_relative_axes();
+    axes.contains(RelativeAxisCode::REL_WHEEL)
+        || axes.contains(RelativeAxisCode::REL_HWHEEL)
+        || axes.contains(RelativeAxisCode::REL_WHEEL_HI_RES)
+        || axes.contains(RelativeAxisCode::REL_HWHEEL_HI_RES)
 }
 
 #[derive(Debug, Clone)]

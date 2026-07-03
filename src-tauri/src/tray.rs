@@ -36,9 +36,24 @@ fn icon_for<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Image<'static> {
     }
 }
 
-/// Get the current cursor position. Falls back to center of primary monitor
-/// if unavailable.
-fn cursor_position() -> PhysicalPosition<i32> {
+/// Get the current cursor position using Tauri's built-in API when available,
+/// with platform-specific fallbacks.
+fn cursor_position<R: Runtime>(app: &AppHandle<R>) -> PhysicalPosition<i32> {
+    // Try Tauri's built-in cursor_position API first (works on all platforms)
+    // Note: cursor_position returns PhysicalPosition<f64>, we convert to i32
+    if let Ok(pos) = app.cursor_position() {
+        return PhysicalPosition::new(pos.x as i32, pos.y as i32);
+    }
+
+    // Platform-specific fallbacks. Note: Tauri's built-in cursor_position
+    // already handles multi-monitor coordinate conversion correctly on
+    // macOS (it uses NSEvent.mouseLocation under the hood). The CoreGraphics
+    // CGEventCreate fallback we used to ship here produced wrong coords
+    // for cursors on secondary displays because CGEventGetLocation returns
+    // bottom-left-origin coordinates relative to the main display's
+    // bottom-left corner, and CGDisplayBounds(main) only covers the main
+    // display. If Tauri's API fails we fall through to a safe default
+    // rather than producing bad coordinates.
     #[cfg(windows)]
     {
         use windows::Win32::Foundation::POINT;
@@ -49,13 +64,15 @@ fn cursor_position() -> PhysicalPosition<i32> {
                 return PhysicalPosition::new(point.x, point.y);
             }
         }
-        PhysicalPosition::new(960, 540)
     }
+
     #[cfg(target_os = "linux")]
     {
         use x11::xlib;
         let d = unsafe { xlib::XOpenDisplay(std::ptr::null()) };
         if d.is_null() {
+            // X11 not available (Wayland session) - use fallback
+            tracing::debug!("X11 not available, using fallback cursor position");
             return PhysicalPosition::new(960, 540);
         }
         let mut root: xlib::Window = 0;
@@ -65,7 +82,6 @@ fn cursor_position() -> PhysicalPosition<i32> {
         let mut win_x: i32 = 0;
         let mut win_y: i32 = 0;
         let mut mask: u32 = 0;
-        let mut ev: xlib::XEvent = unsafe { std::mem::zeroed() };
         let _ = unsafe {
             xlib::XQueryPointer(
                 d,
@@ -81,12 +97,11 @@ fn cursor_position() -> PhysicalPosition<i32> {
         };
         let pos = PhysicalPosition::new(root_x, root_y);
         unsafe { xlib::XCloseDisplay(d) };
-        pos
+        return pos;
     }
-    #[cfg(target_os = "macos")]
-    {
-        PhysicalPosition::new(960, 540)
-    }
+
+    // Final fallback: center of primary monitor
+    PhysicalPosition::new(960, 540)
 }
 
 /// Position the panel window near the cursor, anchored to the taskbar edge
@@ -94,7 +109,7 @@ fn cursor_position() -> PhysicalPosition<i32> {
 /// actual current height (which the frontend resizes to fit content) so
 /// the bottom edge stays glued to the taskbar regardless of content size.
 fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
-    let cursor = cursor_position();
+    let cursor = cursor_position(app);
     let panel_w = 260;
     let panel_h = win.outer_size().map(|s| s.height as i32).unwrap_or(480);
     let edge_gap = 2;
@@ -112,6 +127,12 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
         .as_ref()
         .map(|w| w.size.height as i32)
         .unwrap_or(1080);
+
+    // Tauri's AppHandle::cursor_position returns top-left-origin coordinates
+    // on every platform (NSEvent.mouseLocation flipped on macOS, XQueryPointer
+    // on Linux, GetCursorPos on Windows). No platform-specific conversion
+    // is needed here — see cursor_position() above for the fallback policy.
+    let cursor = cursor;
 
     // Anchor vertically to the bottom edge of the work area (just above taskbar).
     let mut y = work_y + work_h - panel_h - edge_gap;
@@ -138,16 +159,7 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, height: u32) {
         return;
     };
 
-    // Clamp to a sane range so a measurement glitch can't shrink the panel
-    // to nothing or push it off-screen.
-    let monitor = app.primary_monitor().ok().flatten();
-    let work_h = monitor
-        .as_ref()
-        .map(|m| m.work_area().size.height)
-        .unwrap_or(1080);
-    let max_h = work_h.saturating_sub(40);
-    let height = height.clamp(120, max_h);
-
+    // Get current window position first - we'll use it for repositioning
     let Ok(cur_pos) = win.outer_position() else {
         return;
     };
@@ -155,17 +167,32 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, height: u32) {
         return;
     };
 
+    // Clamp to a sane range so a measurement glitch can't shrink the panel
+    // to nothing or push it off-screen.
+    let monitor = app.primary_monitor().ok().flatten();
+    let work_area = monitor.as_ref().and_then(|m| Some(m.work_area()));
+
+    let max_h = work_area
+        .map(|w| w.size.height.saturating_sub(40))
+        .unwrap_or(800);
+    let min_h = 120u32;
+    let clamped_height = height.clamp(min_h, max_h);
+
     // Pin the bottom edge: new top = previous bottom - new height.
     let bottom = cur_pos.y + cur_size.height as i32;
-    let new_y = bottom - height as i32;
+    let new_y = bottom - clamped_height as i32;
+
+    // Clamp the new Y position to keep panel on screen
+    let work_y = work_area.map(|w| w.position.y).unwrap_or(0);
+    let final_y = new_y.max(work_y);
 
     let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
         width: cur_size.width,
-        height,
+        height: clamped_height,
     }));
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition {
         x: cur_pos.x,
-        y: new_y,
+        y: final_y,
     }));
 }
 
@@ -209,7 +236,21 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                         button_state: MouseButtonState::Up,
                         ..
                     } => {
-                        // Left-click: toggle enabled
+                        // Left-click on Windows/Linux toggles enabled. On
+                        // macOS we intentionally ignore the single Left-Up:
+                        // the tray driver delivers BOTH Click { Up } and
+                        // DoubleClick for the same double-click gesture, and
+                        // macOS only sends ONE Click-Up before the
+                        // DoubleClick (not the two paired Ups that Windows
+                        // emits, which cancel each other out). Handling
+                        // single Left-Up on macOS would flip the enabled
+                        // flag every time the user double-clicks to open
+                        // settings. macOS users get a dedicated
+                        // DoubleClick path below; the quick toggle is
+                        // reachable via Right-click → tray panel.
+                        if cfg!(target_os = "macos") {
+                            return;
+                        }
                         let new_enabled = !state.enabled.load(std::sync::atomic::Ordering::Relaxed);
                         state
                             .enabled
@@ -245,6 +286,11 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                         button: MouseButton::Left,
                         ..
                     } => {
+                        // On macOS this is the only path to open settings
+                        // (Left-Up is intentionally ignored above). On
+                        // Windows/Linux the driver still emits the paired
+                        // Click-Ups around this DoubleClick, so this branch
+                        // fires AFTER both ups have cancelled out.
                         if let Some(win) = app.get_webview_window("main") {
                             let _ = win.show();
                             let _ = win.set_focus();

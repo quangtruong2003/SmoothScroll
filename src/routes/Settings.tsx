@@ -5,6 +5,7 @@ import { useSettingsStore, useTheme } from "@/stores/settingsStore";
 import { applyTheme, watchSystemTheme } from "@/lib/theme";
 import { tauri } from "@/lib/tauri";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
+import { WindowChrome } from "@/components/WindowChrome";
 import { EnableHeader } from "@/components/settings/EnableHeader";
 import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
@@ -105,9 +106,11 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar active={tab} onChange={setTab} t={t} />
-      <main className="flex-1 overflow-hidden px-6 py-5">
+    <div className="main-root flex h-screen flex-col overflow-hidden">
+      <WindowChrome />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar active={tab} onChange={setTab} t={t} />
+        <main className="main-content flex-1 overflow-hidden px-6 py-5">
         <div
           key={tab}
           className="mx-auto h-full max-w-2xl animate-tab-in"
@@ -184,6 +187,7 @@ export function SettingsPage() {
           )}
         </div>
       </main>
+      </div>
       {wizardOpen && <OnboardingWizard onClose={() => setWizardOpen(false)} />}
       <CheatSheetOverlay />
       <WhatsNewModal />

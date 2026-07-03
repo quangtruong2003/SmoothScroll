@@ -13,20 +13,23 @@ import {
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { IS_LINUX } from '@/lib/platform';
+import { IS_LINUX, IS_MAC } from '@/lib/platform';
 import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
 import { CurrentAppCard } from './tray/CurrentAppCard';
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="px-3 pt-3 pb-1">
-      <span className="text-[0.77rem] font-semibold uppercase tracking-wider text-muted-foreground">
-        {children}
-      </span>
-    </div>
-  );
-}
+// Tray panel styling intentionally follows each platform's tray-menu
+// convention rather than the broader web design system:
+//
+//   - macOS NSMenu / NSPopover: tight vertical rhythm (≈ 22px rows),
+//     single-line text aligned to leading edge, status indicator uses
+//     the system green/grey; section headers are uppercase & tighter.
+//   - Linux Adwaita popover: 32px rows, status indicator uses libadwaita
+//     accent, section headers are sentence-case but in caption weight.
+//   - Windows: stays on the legacy Tailwind look (--panel-radius etc.)
+//
+// Each variant is implemented as a separate styled class so we don't
+// fight the global tokens from index.css.
 
 interface MenuItemProps {
   icon?: React.ReactNode;
@@ -48,41 +51,37 @@ function MenuItem({
   variant = 'default',
 }: MenuItemProps) {
   const variantClasses = {
-    default: 'text-foreground hover:bg-accent active:bg-accent',
-    destructive: 'text-destructive hover:bg-accent active:bg-accent',
-    muted: 'text-muted-foreground hover:bg-accent active:bg-accent',
+    default: 'menu-item-default',
+    destructive: 'menu-item-destructive',
+    muted: 'menu-item-muted',
   };
 
-  const baseClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${variantClasses[variant]}`;
+  const baseClass = `menu-item ${variantClasses[variant]}`;
 
   if (toggle !== undefined) {
     const isOn = checked ?? false;
     return (
-      <label className={`${baseClass} cursor-pointer`}>
-        {icon && (
-          <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-muted-foreground">
-            {icon}
-          </span>
-        )}
-        <span className="flex-1 text-left">{label}</span>
+      <label className={`${baseClass} menu-item-toggle`}>
+        {icon && <span className="menu-item-icon">{icon}</span>}
+        <span className="menu-item-label">{label}</span>
         <Switch checked={isOn} onCheckedChange={(v) => onToggle?.(v)} />
       </label>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={baseClass}
-    >
-      {icon && (
-        <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-muted-foreground">
-          {icon}
-        </span>
-      )}
-      <span className="flex-1 text-left">{label}</span>
+    <button type="button" onClick={onClick} className={baseClass}>
+      {icon && <span className="menu-item-icon">{icon}</span>}
+      <span className="menu-item-label">{label}</span>
     </button>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="tray-section-label">
+      <span>{children}</span>
+    </div>
   );
 }
 
@@ -197,23 +196,17 @@ export function TrayPanel() {
   }, []);
 
   return (
-    <div
-      ref={rootRef}
-      className="tray-panel-root flex flex-col select-none overflow-hidden rounded-xl border bg-background/95 text-foreground shadow-2xl backdrop-blur"
-    >
+    <div ref={rootRef} className="tray-panel-root tray-panel-flex">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
-        <span className="text-sm font-semibold leading-none">SmoothScroll</span>
-        <div className="ml-auto flex items-center gap-1.5">
-          <div
-            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-              enabled ? 'bg-green-500' : 'bg-muted-foreground'
-            }`}
+      <div className="tray-header">
+        <span className="tray-header-title">SmoothScroll</span>
+        <div className="tray-header-status">
+          <span
+            className={`tray-status-dot ${enabled ? 'tray-status-dot-on' : 'tray-status-dot-off'}`}
+            aria-hidden
           />
           <span
-            className={`text-[0.77rem] font-medium transition-colors duration-300 ${
-              enabled ? 'text-green-500' : 'text-muted-foreground'
-            }`}
+            className={`tray-status-text ${enabled ? 'tray-status-text-on' : 'tray-status-text-off'}`}
           >
             {enabled ? t('tray.status_on') : t('tray.status_off')}
           </span>
@@ -221,14 +214,14 @@ export function TrayPanel() {
       </div>
 
       {/* Scrollable content */}
-      <div className="overflow-y-auto">
+      <div className="tray-content">
 
         {/* Current foreground app — hidden on Linux (no foreground app detection) */}
         {!IS_LINUX && <CurrentAppCard />}
 
         {/* Quick Access */}
         <SectionLabel>{t('tray.quick_access')}</SectionLabel>
-        <div className="px-2 pb-2 space-y-0.5">
+        <div className="tray-section">
           <MenuItem
             label={t('tray.smooth_scrolling')}
             toggle
@@ -237,9 +230,13 @@ export function TrayPanel() {
             icon={<MousePointer2 className="h-4 w-4" />}
           />
           <MenuItem
-            label={IS_LINUX
-              ? t('tray.start_with_system')
-              : t('tray.start_with_windows')}
+            label={
+              IS_LINUX
+                ? t('tray.start_with_system')
+                : IS_MAC
+                  ? t('tray.start_with_macos', 'Start at Login')
+                  : t('tray.start_with_windows', 'Start with Windows')
+            }
             toggle
             checked={autostart}
             onToggle={handleSetAutostart}
@@ -256,7 +253,7 @@ export function TrayPanel() {
 
         {/* Actions */}
         <SectionLabel>{t('tray.actions')}</SectionLabel>
-        <div className="px-2 pb-2 space-y-0.5">
+        <div className="tray-section tray-section-last">
           <MenuItem
             label={t('tray.open_settings')}
             onClick={handleOpenSettings}
@@ -286,9 +283,9 @@ export function TrayPanel() {
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2 flex items-center justify-between border-t border-border">
-        <span className="text-[0.77rem] text-muted-foreground">SmoothScroll</span>
-        <span className="text-[0.77rem] text-muted-foreground">{appVersion}</span>
+      <div className="tray-footer">
+        <span>SmoothScroll</span>
+        <span>{appVersion}</span>
       </div>
     </div>
   );

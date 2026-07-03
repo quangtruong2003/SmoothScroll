@@ -134,7 +134,8 @@ impl IpcServer {
                     let (socket, _) = accept_result?;
                     let tx = self.event_tx.clone();
                     let state = self.app_state.clone();
-                    tokio::spawn(Self::handle_client(socket, tx, state));
+                    let me = self.clone();
+                    tokio::spawn(Self::handle_client(me, socket, tx, state));
                 }
             }
         }
@@ -143,6 +144,7 @@ impl IpcServer {
     }
 
     async fn handle_client(
+        self: Arc<Self>,
         socket: tokio::net::UnixStream,
         event_tx: broadcast::Sender<IpcEvent>,
         app_state: Arc<AppState>,
@@ -179,7 +181,7 @@ impl IpcServer {
                             let id = request.get("id").cloned();
                             let method = request.get("method").and_then(|m| m.as_str()).unwrap_or("").to_string();
                             let params = request.get("params").cloned();
-                            let response = Self::process_request(self, &method, &params).await;
+                            let response = self.process_request(&method, &params).await;
                             let resp_with_id = IpcResponse {
                                 jsonrpc: "2.0".into(),
                                 id,

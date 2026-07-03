@@ -64,14 +64,14 @@ export function AboutSection() {
         <CardTitle>{t("section.about")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
-        <div className="flex items-center justify-between">
+        <div className="about-version-row flex items-center justify-between">
           <span className="text-muted-foreground">{t("about.version")}</span>
           <span className="flex items-center gap-2 font-medium tabular-nums">
             {version}
             <BetaBadge />
           </span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="about-author-row flex items-center justify-between">
           <span className="text-muted-foreground">{t("about.author")}</span>
           <a
             href="https://github.com/quangtruong2003"
@@ -84,7 +84,7 @@ export function AboutSection() {
             Nguyễn Quang Trường
           </a>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="about-homepage-row flex items-center justify-between">
           <span className="text-muted-foreground">{t("about.homepage")}</span>
           <a
             href={t("about.homepage_url")}

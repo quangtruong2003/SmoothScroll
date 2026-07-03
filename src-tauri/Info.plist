@@ -2,11 +2,70 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- LSUIElement=true makes the app a tray/agent — no Dock icon and
+         no menu bar (the Tauri tray menu provides the entry points).
+         Setting to false would show a Dock icon AND a menubar — which
+         is fine if you want standard macOS app chrome, but for a
+         always-running utility we want it invisible until the user
+         explicitly opens settings. -->
     <key>LSUIElement</key>
-    <false/>
+    <true/>
+
+    <!-- Copyright shown in the Finder Get Info panel and About dialog. -->
     <key>NSHumanReadableCopyright</key>
     <string>© 2026 SmoothScroll contributors</string>
+
+    <!-- Accessibility permission rationale. macOS shows this string in
+         the Accessibility pane of System Settings when the user clicks
+         the (?) help icon. Keep it concise and explain the actual need. -->
     <key>NSAccessibilityUsageDescription</key>
     <string>SmoothScroll needs Accessibility access to capture mouse-wheel events and re-emit them with smooth animation.</string>
+
+    <!-- Minimum macOS version we support. Tauri itself requires 10.15+
+         for WebKit; we keep 10.15 (Catalina) as the floor to match. -->
+    <key>LSMinimumSystemVersion</key>
+    <string>10.15</string>
+
+    <!-- Identifier must be globally unique. We use reverse-DNS style
+         matching the LaunchAgent label so users see the same app id
+         across all macOS UIs. -->
+    <key>CFBundleIdentifier</key>
+    <string>com.smoothscroll.app</string>
+
+    <!-- macOS 26/27 "Liquid Glass" / NSApplicationCategory. Categorising
+         the app as Utilities makes it appear under the right Spotlight
+         bucket and shows the proper section in Launchpad. -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.utilities</string>
+
+    <!-- Standard document type declaration. Even though we don't open
+         documents, declaring we don't lets Quick Look / Finder
+         inspector behave correctly. -->
+    <key>CFBundleDocumentTypes</key>
+    <array/>
+
+    <!-- High-resolution capable so the tray icon and the settings window
+         render sharp on Retina displays. -->
+    <key>NSHighResolutionCapable</key>
+    <true/>
+
+    <!-- Dark mode support. macOS 10.14+ reads this automatically. -->
+    <key>NSRequiresAquaSystemAppearance</key>
+    <false/>
+
+    <!-- App sandbox is intentionally NOT enabled — we need raw mouse
+         event access (CGEventTap) which is incompatible with sandboxing.
+         This is acceptable because SmoothScroll is distributed outside
+         the Mac App Store. -->
+
+    <!-- The bundle name shown to users in Finder and Spotlight. -->
+    <key>CFBundleName</key>
+    <string>SmoothScroll</string>
+    <key>CFBundleDisplayName</key>
+    <string>SmoothScroll</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.10.7</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
 </dict>
 </plist>

@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* -------------------------------------------------------------------------
+ * Platform-native theming.
+ *
+ * The webview-based UI renders identically on Windows, macOS, and Linux, but
+ * users expect each platform's "feel". We achieve that via CSS variables
+ * scoped to `body[data-platform="mac"]` and `body[data-platform="linux"]`
+ * that override the default Tailwind tokens with platform-native values:
+ *
+ *   - macOS: SF Pro stack, NSColor-equivalent HSL values, vibrancy material
+ *     for floating panels (NSVisualEffectView "Popover"), Aqua-style focus
+ *     rings, native Switch/Slider geometry.
+ *   - Linux: Cantarell / Ubuntu / system-ui stack, Adwaita HSL values
+ *     (matching libadwaita 1.4+), GNOME-style header bar height, GTK-style
+ *     rounded corners (no oversized radii), legacy Win/mac default for
+ *     everything else.
+ *
+ * Tauri sets `body[data-platform]` at startup (see main.tsx).
+ * ----------------------------------------------------------------------- */
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -24,6 +43,18 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+
+    /* Platform-neutral defaults. Overridden per-platform below. */
+    --font-sans:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+      Arial, sans-serif;
+    --font-mono:
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --panel-radius: 12px;
+    --panel-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.25);
+    --focus-ring: 0 0 0 3px hsl(212 100% 50% / 0.4);
+    --titlebar-h: 28px;
+    --control-radius: 6px;
   }
 
   .dark {
@@ -46,6 +77,150 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+  }
+
+  /* -----------------------------------------------------------------------
+   * macOS — Apple System Colors (HSL approximations of NSColor) +
+   * SF Pro typography + NSVisualEffectView "Popover" material for
+   * floating panels.
+   * --------------------------------------------------------------------- */
+  body[data-platform="mac"] {
+    /* SF Pro is the system font on macOS 10.11+. We declare the full
+     * Apple stack so older releases still look right. */
+    --font-sans:
+      -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+      "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-mono:
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas,
+      monospace;
+
+    /* macOS uses tighter radii than web defaults. Aqua HIG discourages
+     * anything more than ~10px. */
+    --radius: 0.4rem;
+    --control-radius: 4px;
+    --panel-radius: 10px;
+    --panel-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 18px 40px -12px rgba(0, 0, 0, 0.28);
+
+    /* Aqua focus ring is the systemAccentColor @ 50% alpha, ~6px wide.
+     * We approximate with the macOS blue accent. */
+    --focus-ring: 0 0 0 3px hsl(211 100% 50% / 0.45);
+
+    /* NSColor values (HSL) — light mode */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 14%;
+    --primary: 211 100% 50%; /* macOS systemBlue */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 14%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 47%;
+    --accent: 0 0% 92%;
+    --accent-foreground: 0 0% 14%;
+    --destructive: 0 73% 57%; /* macOS systemRed */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 86%;
+    --input: 0 0% 86%;
+    --ring: 211 100% 50%;
+    --titlebar-h: 28px;
+  }
+
+  body[data-platform="mac"].dark {
+    --background: 240 5% 8%;
+    --foreground: 0 0% 98%;
+    --card: 240 5% 11%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5% 14%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 211 100% 60%; /* slightly brighter on dark */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 5% 22%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 73% 57%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 22%;
+    --input: 240 4% 22%;
+    --ring: 211 100% 60%;
+  }
+
+  /* -----------------------------------------------------------------------
+   * Linux — Adwaita / libadwaita 1.4+ system colors + Cantarell typography.
+   * --------------------------------------------------------------------- */
+  body[data-platform="linux"] {
+    /* GNOME ships Cantarell; KDE Plasma uses Noto Sans / Ubuntu; many
+     * distros (Pop!_OS, elementary) ship their own. Falling back to
+     * system-ui lets the compositor pick the active one. */
+    --font-sans:
+      Cantarell, "Ubuntu", "Noto Sans", "Liberation Sans", system-ui,
+      "Segoe UI", sans-serif;
+    --font-mono:
+      "Ubuntu Mono", "DejaVu Sans Mono", "Liberation Mono", Consolas,
+      monospace;
+
+    /* Adwaita uses small radii (6px) for most controls and 12px for
+     * popovers/cards. */
+    --radius: 0.375rem;
+    --control-radius: 6px;
+    --panel-radius: 12px;
+    --panel-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 16px 32px -8px rgba(0, 0, 0, 0.22);
+
+    /* Adwaita focus ring is the accent color @ ~40% alpha, 3px. */
+    --focus-ring: 0 0 0 3px hsl(217 100% 56% / 0.35);
+
+    /* Adwaita light palette — see libadwaita stylesheet. */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 217 100% 56%; /* Adwaita blue3 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 0 0% 12%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 0 0% 47%;
+    --accent: 220 14% 92%;
+    --accent-foreground: 0 0% 12%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 217 100% 56%;
+    --titlebar-h: 38px; /* GNOME headerbar default */
+  }
+
+  body[data-platform="linux"].dark {
+    --background: 220 7% 12%;
+    --foreground: 0 0% 98%;
+    --card: 220 6% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 6% 18%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 100% 65%; /* Adwaita dark blue3 */
+    --primary-foreground: 0 0% 12%;
+    --secondary: 220 6% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 6% 20%;
+    --muted-foreground: 220 7% 70%;
+    --accent: 220 6% 26%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 6% 24%;
+    --input: 220 6% 24%;
+    --ring: 217 100% 65%;
   }
 }
 
@@ -81,6 +256,24 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    /* macOS uses tighter line-height for system fonts. */
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body[data-platform="mac"] {
+    /* SF Pro kerning + Slight emphasis on small sizes for legibility */
+    font-feature-settings: "ss01", "ss02";
+    letter-spacing: -0.011em;
+  }
+  body[data-platform="linux"] {
+    /* Adwaita expects text rendering hint "subpixel-antialiased" */
+    text-rendering: optimizeLegibility;
+  }
+  /* Mono fonts inherit platform stack so logs/diffs render natively. */
+  code, pre, .font-mono, [class*="font-mono"] {
+    font-family: var(--font-mono);
   }
 }
 
@@ -105,4 +298,715 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: #52525b;
+}
+
+/* -----------------------------------------------------------------------
+ * Platform-native window chrome.
+ *
+ * main-root (settings window) and tray-panel-root get platform-correct
+ * backgrounds, corners, and shadows via platform-scoped CSS. We avoid
+ * `bg-background/95 backdrop-blur` from the previous design — that gave
+ * a translucent web feel, not the platform-native material look users
+ * expect.
+ * --------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------
+ * Tray panel — small floating window near the tray icon.
+ *
+ * - macOS: NSVisualEffectView Popover material. We approximate via
+ *   translucent surface + subtle border + heavy backdrop-blur. WKWebView
+ *   supports `-webkit-backdrop-filter` on macOS 10.14+.
+ * - Linux: libadwaita "popover" surface. Solid background with rounded
+ *   corners and a subtle border. No translucency on Linux because
+ *   portal/window managers don't reliably composite over it.
+ * ------------------------------------------------------------------- */
+.tray-panel-root {
+  border-radius: var(--panel-radius);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: var(--panel-shadow);
+  border: 1px solid hsl(var(--border));
+  font-family: var(--font-sans);
+}
+
+body[data-platform="mac"] .tray-panel-root {
+  /* NSVisualEffectView Popover: translucent white/black over desktop.
+   * On dark mode the panel adopts the system vibrancy tint. */
+  background: hsl(0 0% 100% / 0.72);
+  border: 0.5px solid hsl(0 0% 0% / 0.12);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  /* Sharp top corners (macOS tray popovers have rounded bottom corners
+   * that animate toward the tray icon). We keep all corners round but
+   * flatten the top slightly to mimic the standard menubar popover. */
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  border-bottom-left-radius: var(--panel-radius);
+  border-bottom-right-radius: var(--panel-radius);
+}
+body[data-platform="mac"].dark .tray-panel-root {
+  background: hsl(240 5% 14% / 0.62);
+  border-color: hsl(0 0% 100% / 0.08);
+}
+
+body[data-platform="linux"] .tray-panel-root {
+  /* libadwaita popover: opaque Adwaita bg with 12px corners and a
+   * 1px alpha border. No blur. */
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px hsl(0 0% 0% / 0.04),
+    0 8px 24px -4px hsl(0 0% 0% / 0.18);
+}
+
+/* ---------------------------------------------------------------------
+ * Settings window — main root.
+ *
+ * - macOS: window with native sidebar (NSVisualEffectView Sidebar) +
+ *   content area. Sidebar uses translucent material; content uses
+ *   standard window background.
+ * - Linux: Adwaita style with sidebar list (NavigationSidebar) +
+ *   content area. Header bar height matches GNOME default (38px).
+ * ------------------------------------------------------------------- */
+.main-root {
+  font-family: var(--font-sans);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+body[data-platform="mac"] .main-root {
+  /* Native macOS window background (NSWindow defaultBackgroundColor). */
+  background: hsl(0 0% 100%);
+}
+body[data-platform="mac"].dark .main-root {
+  background: hsl(240 6% 12%);
+}
+
+/* macOS sidebar uses NSVisualEffectView Sidebar material. */
+body[data-platform="mac"] .native-sidebar {
+  background: hsl(0 0% 100% / 0.6);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border-right: 0.5px solid hsl(0 0% 0% / 0.12);
+}
+body[data-platform="mac"].dark .native-sidebar {
+  background: hsl(240 6% 14% / 0.55);
+  border-right-color: hsl(0 0% 100% / 0.06);
+}
+
+/* macOS uses filled (pillow) sidebar selection, like Finder/Notes. */
+body[data-platform="mac"] .native-sidebar .sidebar-item {
+  border-radius: 5px;
+  padding-top: 0.34rem;
+  padding-bottom: 0.34rem;
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
+}
+body[data-platform="mac"] .native-sidebar .sidebar-item[aria-current="page"] {
+  background: hsl(211 100% 50% / 0.14);
+  color: hsl(211 100% 40%);
+}
+body[data-platform="mac"].dark .native-sidebar .sidebar-item[aria-current="page"] {
+  background: hsl(211 100% 60% / 0.22);
+  color: hsl(211 100% 80%);
+}
+
+/* Linux sidebar — Adwaita ListBox style (NavigationSidebar). */
+body[data-platform="linux"] .native-sidebar {
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+}
+body[data-platform="linux"] .native-sidebar .sidebar-item {
+  border-radius: 6px;
+  padding: 0.42rem 0.65rem;
+  margin: 1px 0;
+}
+body[data-platform="linux"] .native-sidebar .sidebar-item[aria-current="page"] {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+/* ---------------------------------------------------------------------
+ * Titlebar — the thin strip at the top of the settings window.
+ *
+ * - macOS: the title bar is the OS native chrome (we set decorations:true
+ *   and use titleBarStyle:Overlay + transparent content under it). The
+ *   webview doesn't paint under the titlebar — the OS does.
+ * - Linux: a CSD header bar (Adwaita WindowHandle) at the top of the
+ *   webview. We paint a 38px tall bar with optional window controls.
+ * ------------------------------------------------------------------- */
+.titlebar-spacer {
+  height: var(--titlebar-h);
+  flex-shrink: 0;
+}
+
+body[data-platform="mac"] .linux-csd-header,
+body[data-platform="linux"] .mac-titlebar-overlay {
+  display: none !important;
+}
+
+/* Linux CSD header bar — Adwaita style. */
+body[data-platform="linux"] .linux-csd-header {
+  display: flex;
+  height: var(--titlebar-h);
+  align-items: center;
+  padding: 0 12px;
+  background: hsl(var(--card));
+  border-bottom: 1px solid hsl(var(--border));
+  -webkit-app-region: drag;
+  user-select: none;
+}
+body[data-platform="linux"] .linux-csd-header button,
+body[data-platform="linux"] .linux-csd-header input,
+body[data-platform="linux"] .linux-csd-header select {
+  -webkit-app-region: no-drag;
+}
+body[data-platform="linux"] .linux-csd-header .csd-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: -0.005em;
+}
+body[data-platform="linux"] .linux-csd-header .csd-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+/* macOS titlebar overlay — when decorations=true and titleBarStyle=Overlay,
+ * the webview is allowed to paint under the title bar. We add a top
+ * spacer that contains the window title and any inline controls. */
+body[data-platform="mac"] .mac-titlebar-overlay {
+  display: flex;
+  height: var(--titlebar-h);
+  align-items: center;
+  justify-content: center;
+  padding: 0 80px; /* leave room for traffic-light buttons */
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: hsl(var(--foreground));
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+/* ---------------------------------------------------------------------
+ * Focus ring — Aqua / Adwaita style accent.
+ * ------------------------------------------------------------------- */
+:where(button, [role="button"], a, input, select, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--control-radius);
+}
+
+/* ---------------------------------------------------------------------
+ * Tray panel — layout primitives shared by all platforms.
+ *
+ * Windows keeps the existing 4xl radius + 95% backdrop. macOS and Linux
+ * override the shell (above) for the panel itself; the layout below
+ * uses each platform's natural row height and section spacing.
+ * ------------------------------------------------------------------- */
+.tray-panel-flex {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  user-select: none;
+  overflow: hidden;
+}
+.tray-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 14px;
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+}
+.tray-header-title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.tray-header-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+.tray-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 200ms ease-out;
+}
+.tray-status-dot-on {
+  background: hsl(140 60% 45%);
+  box-shadow: 0 0 0 2px hsl(140 60% 45% / 0.18);
+}
+.tray-status-dot-off {
+  background: hsl(var(--muted-foreground));
+}
+.tray-status-text {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: color 200ms ease-out;
+}
+.tray-status-text-on {
+  color: hsl(140 60% 38%);
+}
+.tray-status-text-off {
+  color: hsl(var(--muted-foreground));
+}
+.tray-content {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.tray-section {
+  padding: 2px 6px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.tray-section-last {
+  padding-bottom: 6px;
+}
+.tray-section-label {
+  padding: 12px 14px 4px;
+}
+.tray-section-label span {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+.tray-footer {
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Menu item primitive — shared shape, platform tweaks via overrides below. */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0 10px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: hsl(var(--foreground));
+  border-radius: 5px;
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+.menu-item-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+.menu-item-label {
+  flex: 1 1 auto;
+}
+.menu-item-default:hover,
+.menu-item-muted:hover,
+.menu-item-destructive:hover {
+  background: hsl(var(--accent));
+}
+.menu-item-muted {
+  color: hsl(var(--muted-foreground));
+}
+.menu-item-destructive {
+  color: hsl(var(--destructive));
+}
+
+/* ---------------------------------------------------------------------
+ * Windows default — kept for legacy look.
+ * ------------------------------------------------------------------- */
+body[data-platform="win"] .tray-panel-root {
+  background: hsl(var(--background) / 0.95);
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.25);
+}
+body[data-platform="win"] .tray-header {
+  padding: 12px 16px;
+  gap: 0.6rem;
+}
+body[data-platform="win"] .tray-header-title {
+  font-size: 0.86rem;
+}
+body[data-platform="win"] .tray-content {
+  padding: 0;
+}
+body[data-platform="win"] .tray-section {
+  padding: 4px 8px 8px;
+  gap: 2px;
+}
+body[data-platform="win"] .tray-section-label {
+  padding: 12px 16px 4px;
+}
+body[data-platform="win"] .tray-section-label span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+body[data-platform="win"] .tray-footer {
+  padding: 8px 16px;
+}
+body[data-platform="win"] .menu-item {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 0.84rem;
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------------
+ * macOS — NSMenu/NSPopover geometry.
+ *
+ * - Header 38px, light backdrop fill, separator below.
+ * - Menu items 22px tall (compact NSMenu), icon + label + control.
+ * - Section labels use SF Pro Caption, uppercase, ~9px tracking.
+ * - Status dot is system green; in dark mode shifts to NSColor.systemGreen.
+ * ------------------------------------------------------------------- */
+body[data-platform="mac"] .tray-panel-root {
+  width: 264px;
+}
+body[data-platform="mac"] .tray-header {
+  height: 38px;
+  padding: 0 14px;
+  background: hsl(0 0% 100% / 0.5);
+}
+body[data-platform="mac"].dark .tray-header {
+  background: hsl(0 0% 100% / 0.04);
+}
+body[data-platform="mac"] .tray-header-title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+body[data-platform="mac"] .tray-header-status {
+  gap: 0.32rem;
+}
+body[data-platform="mac"] .tray-status-dot-on {
+  background: hsl(140 65% 47%);
+  box-shadow: 0 0 0 2.5px hsl(140 65% 47% / 0.22);
+}
+body[data-platform="mac"] .tray-status-text-on {
+  color: hsl(140 70% 35%);
+}
+body[data-platform="mac"].dark .tray-status-text-on {
+  color: hsl(140 60% 60%);
+}
+body[data-platform="mac"] .tray-content {
+  padding: 4px 0;
+}
+body[data-platform="mac"] .tray-section {
+  padding: 0 6px;
+  gap: 0;
+}
+body[data-platform="mac"] .tray-section + .tray-section {
+  margin-top: 2px;
+  border-top: 0.5px solid hsl(0 0% 0% / 0.08);
+  padding-top: 6px;
+}
+body[data-platform="mac"].dark .tray-section + .tray-section {
+  border-top-color: hsl(0 0% 100% / 0.08);
+}
+body[data-platform="mac"] .tray-section-label {
+  padding: 8px 14px 4px;
+}
+body[data-platform="mac"] .tray-section-label span {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(0 0% 47%);
+}
+body[data-platform="mac"].dark .tray-section-label span {
+  color: hsl(0 0% 60%);
+}
+body[data-platform="mac"] .menu-item {
+  min-height: 22px;
+  padding: 0 8px;
+  font-size: 0.81rem;
+  font-weight: 400;
+  border-radius: 4px;
+  letter-spacing: -0.008em;
+}
+body[data-platform="mac"] .menu-item:hover {
+  background: hsl(211 100% 50%);
+  color: hsl(0 0% 100%);
+}
+body[data-platform="mac"] .menu-item:hover .menu-item-icon {
+  color: hsl(0 0% 100%);
+}
+body[data-platform="mac"] .menu-item-destructive {
+  color: hsl(0 73% 50%);
+}
+body[data-platform="mac"] .menu-item-destructive:hover {
+  background: hsl(0 73% 50%);
+  color: hsl(0 0% 100%);
+}
+body[data-platform="mac"] .menu-item-muted {
+  color: hsl(0 0% 47%);
+}
+body[data-platform="mac"] .menu-item-toggle {
+  cursor: pointer;
+}
+body[data-platform="mac"] .tray-footer {
+  padding: 6px 14px;
+  font-size: 0.66rem;
+  font-weight: 500;
+  background: hsl(0 0% 100% / 0.4);
+  border-top: 0.5px solid hsl(0 0% 0% / 0.08);
+}
+body[data-platform="mac"].dark .tray-footer {
+  background: hsl(0 0% 100% / 0.04);
+  border-top-color: hsl(0 0% 100% / 0.08);
+}
+
+/* ---------------------------------------------------------------------
+ * Linux (Adwaita) — popover with NavigationSidebar aesthetics.
+ *
+ * - Header 36px solid Adwaita bg.
+ * - Menu items 28px tall (Adwaita row height).
+ * - Section labels are uppercase-ish, in caption weight.
+ * - Status dot uses libadwaita success green.
+ * ------------------------------------------------------------------- */
+body[data-platform="linux"] .tray-panel-root {
+  width: 268px;
+}
+body[data-platform="linux"] .tray-header {
+  height: 36px;
+  padding: 0 12px;
+}
+body[data-platform="linux"] .tray-header-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+body[data-platform="linux"] .tray-content {
+  padding: 6px 0;
+}
+body[data-platform="linux"] .tray-section {
+  padding: 2px 8px;
+}
+body[data-platform="linux"] .tray-section + .tray-section {
+  margin-top: 4px;
+}
+body[data-platform="linux"] .tray-section-label {
+  padding: 6px 12px 2px;
+}
+body[data-platform="linux"] .tray-section-label span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+body[data-platform="linux"] .menu-item {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 6px;
+}
+body[data-platform="linux"] .menu-item:hover {
+  background: hsl(var(--primary) / 0.1);
+}
+body[data-platform="linux"] .menu-item-destructive {
+  color: hsl(var(--destructive));
+}
+body[data-platform="linux"] .menu-item-destructive:hover {
+  background: hsl(var(--destructive) / 0.12);
+}
+body[data-platform="linux"] .menu-item-muted {
+  color: hsl(var(--muted-foreground));
+}
+body[data-platform="linux"] .tray-footer {
+  padding: 6px 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------
+ * Switch — Re-skin platform-native switch inside tray panel.
+ *
+ * The shadcn Switch component uses Tailwind classes directly. We
+ * re-paint only inside the tray panel where it sits inline with text.
+ * Outside the panel the existing component stays untouched.
+ * ------------------------------------------------------------------- */
+body[data-platform="mac"] .tray-panel-root [data-state="checked"] {
+  background: hsl(140 65% 47%) !important;
+}
+body[data-platform="linux"] .tray-panel-root [data-state="checked"] {
+  background: hsl(var(--primary)) !important;
+}
+
+/* ---------------------------------------------------------------------
+ * Settings window content area.
+ *
+ * - macOS: ~12px left/right padding, smaller title font (SF Pro Title 3
+ *   weight), more whitespace around section cards.
+ * - Linux: Adwaita style — clean sectioning with bold captions,
+ *   generous whitespace.
+ * ------------------------------------------------------------------- */
+.main-content {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+body[data-platform="mac"] .main-content {
+  padding-top: 18px;
+}
+body[data-platform="mac"] .main-content h1,
+body[data-platform="mac"] .main-content h2 {
+  letter-spacing: -0.018em;
+  font-weight: 600;
+}
+body[data-platform="linux"] .main-content {
+  padding-top: 16px;
+}
+body[data-platform="linux"] .main-content h1,
+body[data-platform="linux"] .main-content h2 {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* ---------------------------------------------------------------------
+ * Permission Gate — platform-native error styles.
+ *
+ * The component-level classes (.permission-container, .permission-badge,
+ * .permission-error-badge, etc.) provide stable hooks. Platform-specific
+ * overrides below adjust the look without changing component logic.
+ * ------------------------------------------------------------------- */
+body[data-platform="mac"] .native-permission-container {
+  /* macOS Aqua: subtle gradient card with rounded corners. */
+  background: hsl(0 0% 100% / 0.65);
+  border: 1px solid hsl(0 0% 0% / 0.08);
+  border-radius: 12px;
+  padding: 28px 28px 32px;
+  box-shadow: 0 18px 40px -16px hsl(0 0% 0% / 0.18);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+body[data-platform="mac"].dark .native-permission-container {
+  background: hsl(240 6% 14% / 0.6);
+  border-color: hsl(0 0% 100% / 0.06);
+}
+body[data-platform="mac"] .native-permission-container .permission-badge {
+  background: hsl(211 100% 50% / 0.15) !important;
+  border-radius: 50%;
+}
+body[data-platform="mac"] .native-permission-container .permission-badge svg {
+  color: hsl(211 100% 50%);
+}
+
+body[data-platform="mac"] .native-permission-error .permission-error-badge-flatpak {
+  background: hsl(34 90% 50% / 0.16) !important;
+  border-radius: 50%;
+}
+body[data-platform="mac"] .native-permission-error .permission-error-badge-generic {
+  background: hsl(0 73% 50% / 0.14) !important;
+  border-radius: 50%;
+}
+body[data-platform="mac"] .native-permission-error .permission-error-icon-flatpak {
+  color: hsl(34 80% 42%);
+}
+body[data-platform="mac"] .native-permission-error .permission-error-icon-generic {
+  color: hsl(0 73% 50%);
+}
+body[data-platform="mac"] .native-permission-error .permission-error-pre {
+  background: hsl(240 6% 94% / 0.85) !important;
+  border: 1px solid hsl(0 0% 0% / 0.06) !important;
+  border-radius: 8px !important;
+  font-family: var(--font-mono);
+}
+
+body[data-platform="linux"] .native-permission-container {
+  /* Adwaita: high-contrast flat panel with a 1px border. */
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 0 0 1px hsl(0 0% 0% / 0.04), 0 12px 28px -8px hsl(0 0% 0% / 0.2);
+}
+body[data-platform="linux"] .native-permission-container .permission-badge {
+  background: hsl(var(--primary) / 0.16) !important;
+  border-radius: 9999px;
+}
+body[data-platform="linux"] .native-permission-container .permission-badge svg {
+  color: hsl(var(--primary));
+}
+body[data-platform="linux"] .native-permission-error .permission-error-badge-flatpak {
+  background: hsl(34 90% 50% / 0.18) !important;
+  border-radius: 9999px;
+}
+body[data-platform="linux"] .native-permission-error .permission-error-badge-generic {
+  background: hsl(var(--destructive) / 0.18) !important;
+  border-radius: 9999px;
+}
+body[data-platform="linux"] .native-permission-error .permission-error-icon-flatpak {
+  color: hsl(34 80% 38%);
+}
+body[data-platform="linux"] .native-permission-error .permission-error-icon-generic {
+  color: hsl(var(--destructive));
+}
+body[data-platform="linux"] .native-permission-error .permission-error-pre {
+  background: hsl(var(--muted)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 6px !important;
+  font-family: var(--font-mono);
+}
+
+/* ---------------------------------------------------------------------
+ * About section — platform-native row styling.
+ *
+ * macOS uses a divider-separated key/value list (like System Settings
+ * → General → About). Linux uses an Adwaita ListBox with subtle
+ * separators.
+ * ------------------------------------------------------------------- */
+body[data-platform="mac"] .about-version-row,
+body[data-platform="mac"] .about-author-row,
+body[data-platform="mac"] .about-homepage-row {
+  padding: 6px 0;
+  border-bottom: 0.5px solid hsl(0 0% 0% / 0.08);
+  font-size: 0.84rem;
+}
+body[data-platform="mac"].dark .about-version-row,
+body[data-platform="mac"].dark .about-author-row,
+body[data-platform="mac"].dark .about-homepage-row {
+  border-bottom-color: hsl(0 0% 100% / 0.06);
+}
+
+body[data-platform="linux"] .about-version-row,
+body[data-platform="linux"] .about-author-row,
+body[data-platform="linux"] .about-homepage-row {
+  padding: 4px 0;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Buttons in the About section adopt platform text-button styling. */
+body[data-platform="mac"] button[class*="rounded-md"][variant="outline"],
+body[data-platform="mac"] [data-slot="button"]:where([data-variant="outline"]) {
+  border-radius: 5px;
+  font-weight: 500;
+  letter-spacing: -0.008em;
+}
+body[data-platform="linux"] [data-slot="button"]:where([data-variant="outline"]) {
+  border-radius: 6px;
+  font-weight: 600;
 }

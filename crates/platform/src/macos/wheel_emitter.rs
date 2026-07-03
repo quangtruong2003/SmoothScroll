@@ -14,8 +14,17 @@ use crate::traits::{WheelEmitter, ZoomEmitter};
 const kCGEventScrollWheel: u32 = 22;
 const kCGHIDSystemTap: u32 = 0;
 
+// Scroll event field keys. Numeric values are stable Apple SDK constants
+// for the relevant CGEventField enum cases.
+const kCGScrollWheelEventDeltaAxis1: i64 = 11;
+const kCGScrollWheelEventDeltaAxis2: i64 = 12;
 const kCGScrollWheelEventPointDeltaAxis1: i64 = 126;
 const kCGScrollWheelEventPointDeltaAxis2: i64 = 127;
+// 96 = kCGScrollWheelEventIsContinuous. Apps use this flag to pick the
+// trackpad-style smooth-scroll code path; without it our synthetic
+// events look like discrete mouse-wheel ticks and break momentum scroll
+// in Safari/Notes/Pages.
+const kCGScrollWheelEventIsContinuous: i64 = 96;
 const kCGEventFlagMaskControl: u32 = 0x00040000;
 
 #[link(name = "CoreGraphics", kind = "framework")]
@@ -66,11 +75,25 @@ impl MacosWheelEmitter {
         CGEventSetType(event, kCGEventScrollWheel);
         CGEventSetSource(event, source);
 
+        // Mark the event as a continuous (trackpad-style) scroll so
+        // receiving apps route through their smooth-scroll code path.
+        // Apps that distinguish trackpad vs mouse via IsContinuous
+        // (Safari, Notes, Pages, TextEdit, etc.) otherwise treat our
+        // pulses as discrete mouse-wheel ticks.
+        CGEventSetIntegerValueField(event, kCGScrollWheelEventIsContinuous, 1);
+
         if vertical != 0 {
+            // Apple asks callers to set BOTH the legacy PointDelta axis
+            // (most apps) and the new Delta axis (trackpad-aware code
+            // paths). Setting only PointDelta leaves trackpad handlers
+            // with no signal, which surfaces as scroll not advancing on
+            // a few sites (notably custom WebKit hosts).
             CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis2, vertical);
+            CGEventSetIntegerValueField(event, kCGScrollWheelEventDeltaAxis2, vertical);
         }
         if horizontal != 0 {
             CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis1, horizontal);
+            CGEventSetIntegerValueField(event, kCGScrollWheelEventDeltaAxis1, horizontal);
         }
         if zoom {
             CGEventSetFlags(event, kCGEventFlagMaskControl);
