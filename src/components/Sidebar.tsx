@@ -66,7 +66,7 @@ export function Sidebar({ active, onChange, t }: SidebarProps) {
       aria-label={t("sidebar.tabs_aria")}
       className="native-sidebar flex h-full w-44 shrink-0 flex-col p-2"
     >
-      <div className="native-sidebar-list flex flex-col">
+      <div className="native-sidebar-list flex flex-col gap-0.5">
         {TABS.map((tab) => {
           const isActive = active === tab.key;
           return (
@@ -75,7 +75,12 @@ export function Sidebar({ active, onChange, t }: SidebarProps) {
               type="button"
               onClick={() => onChange(tab.key)}
               aria-current={isActive ? "page" : undefined}
-              className="sidebar-item relative flex items-center gap-2 text-left text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className={cn(
+                "sidebar-item relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                isActive
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
             >
               {tab.icon}
               <span>{t(tab.labelKey)}</span>
