@@ -205,7 +205,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     for (const app of NATIVE_SEED) {
       if (current.app_profiles[app] === "__disabled__") {
         try {
-          await tauri.unassignAppProfile(app);
+          await get().unassignAppProfile(app);
         } catch (e) {
           console.error("cleanupNativeDisabledApps failed for", app, e);
         }

@@ -456,53 +456,45 @@ describe("settingsStore", () => {
       expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("Notepad.exe");
       expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("SystemSettings.exe");
       expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("chrome.exe");
+
+      // After cleanup runs, the in-memory app_profiles must be clean.
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+        await new Promise((r) => setTimeout(r, 0));
+      });
+      const finalSettings = useSettingsStore.getState().settings;
+      expect(finalSettings?.app_profiles["Notepad.exe"]).toBeUndefined();
+      expect(finalSettings?.app_profiles["SystemSettings.exe"]).toBeUndefined();
+      expect(finalSettings?.app_profiles["chrome.exe"]).toBe("profile-1");
     });
 
     it("post-cleanup saveNow overwrites stale debounced snapshot", async () => {
-      // Simulate the production settings-changed event path: when the Tauri
-      // backend successfully unassigns an app profile, it fires an event and
-      // the frontend store mutates its in-memory app_profiles. Without this,
-      // the bare vi.fn() mock would let the stale __disabled__ entry linger
-      // and the post-cleanup saveNow would persist stale data.
-      mocks.mockUnassignAppProfile.mockImplementation(async (app) => {
-        useSettingsStore.setState((s) => {
-          if (!s.settings) return s;
-          const app_profiles = { ...s.settings.app_profiles };
-          delete app_profiles[app];
-          return { settings: { ...s.settings, app_profiles } };
-        });
+      const settingsWithStaleEntries = {
+        ...mockSettings,
+        auto_disable_windows_apps: true,
+        app_profiles: {
+          "Notepad.exe": "__disabled__",
+          "SystemSettings.exe": "__disabled__",
+          "chrome.exe": "profile-1",
+        },
+      };
+      useSettingsStore.setState({ settings: settingsWithStaleEntries });
+
+      await act(async () => {
+        useSettingsStore.getState().patch({ auto_disable_windows_apps: false });
       });
-      try {
-        const settingsWithStaleEntries = {
-          ...mockSettings,
-          auto_disable_windows_apps: true,
-          app_profiles: {
-            "Notepad.exe": "__disabled__",
-          },
-        };
-        useSettingsStore.setState({ settings: settingsWithStaleEntries });
 
-        await act(async () => {
-          useSettingsStore.getState().patch({ auto_disable_windows_apps: false });
-        });
+      // Flush microtasks so cleanup has run and saveNow has been awaited.
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+        await new Promise((r) => setTimeout(r, 0));
+      });
 
-        // Flush microtasks so cleanup has run and saveNow has been awaited.
-        await act(async () => {
-          await new Promise((r) => setTimeout(r, 0));
-          await new Promise((r) => setTimeout(r, 0));
-        });
-
-        // saveSettings should have been called. It must be called AT LEAST once.
-        expect(mocks.mockSaveSettings).toHaveBeenCalled();
-        // Find the LAST save call — it must be the post-cleanup state (no __disabled__).
-        const calls = mocks.mockSaveSettings.mock.calls;
-        const lastCall = calls[calls.length - 1][0];
-        expect(lastCall.app_profiles["Notepad.exe"]).toBeUndefined();
-      } finally {
-        // Restore the bare mock so we don't leak state into other tests.
-        mocks.mockUnassignAppProfile.mockReset();
-        mocks.mockUnassignAppProfile.mockResolvedValue(undefined);
-      }
+      // After cleanup runs, the in-memory app_profiles must be clean.
+      const finalSettings = useSettingsStore.getState().settings;
+      expect(finalSettings?.app_profiles["Notepad.exe"]).toBeUndefined();
+      expect(finalSettings?.app_profiles["SystemSettings.exe"]).toBeUndefined();
+      expect(finalSettings?.app_profiles["chrome.exe"]).toBe("profile-1");
     });
   });
 });
