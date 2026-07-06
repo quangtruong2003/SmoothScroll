@@ -44,7 +44,16 @@ interface SettingsStore {
 // UI feedback. See spec § 4 B3 for rationale.
 const SAVE_DEBOUNCE_MS = 350;
 
-const debouncedPersist = debounce(async (settings: AppSettings) => {
+// Counter-based invalidation for the debounced persist. Each `patch` bumps
+// `persistCounter` and captures the value when scheduling the timer; if the
+// counter has moved by the time the timer fires, the snapshot is stale
+// (e.g. cleanupNativeDisabledApps already wrote a fresh one via saveNow)
+// and the write is skipped. This avoids a stale debounced snapshot racing
+// past a fresh explicit save.
+let persistCounter = 0;
+
+const debouncedPersist = debounce(async (settings: AppSettings, scheduledAt: number) => {
+  if (scheduledAt !== persistCounter) return;
   try {
     await tauri.saveSettings(settings);
   } catch (e) {
@@ -81,13 +90,19 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       applyTheme(patch.theme);
     }
     set({ settings: next });
-    debouncedPersist(next);
+    persistCounter++;
+    const myCounter = persistCounter;
+    debouncedPersist(next, myCounter);
 
     if (
       patch.auto_disable_windows_apps === false &&
       current.auto_disable_windows_apps === true
     ) {
-      void get().cleanupNativeDisabledApps();
+      void (async () => {
+        await get().cleanupNativeDisabledApps();
+        persistCounter++;
+        await get().saveNow();
+      })();
     }
   },
 
