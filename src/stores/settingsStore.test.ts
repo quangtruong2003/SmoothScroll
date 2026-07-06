@@ -428,4 +428,34 @@ describe("settingsStore", () => {
       expect(state.settings?.game_mode_known_apps).toEqual([]);
     });
   });
+
+  describe("auto-disable Windows apps toggle cleanup", () => {
+    beforeEach(async () => {
+      await act(async () => {
+        await useSettingsStore.getState().load();
+      });
+    });
+
+    it("removes stale __disabled__ entries from NATIVE_SMOOTH_SEED apps on toggle OFF", async () => {
+      const settingsWithStaleEntries = {
+        ...mockSettings,
+        auto_disable_windows_apps: true,
+        app_profiles: {
+          "Notepad.exe": "__disabled__",
+          "SystemSettings.exe": "__disabled__",
+          "chrome.exe": "profile-1",
+        },
+      };
+      useSettingsStore.setState({ settings: settingsWithStaleEntries });
+
+      await act(async () => {
+        useSettingsStore.getState().patch({ auto_disable_windows_apps: false });
+        await Promise.resolve();
+      });
+
+      expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("Notepad.exe");
+      expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("SystemSettings.exe");
+      expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("chrome.exe");
+    });
+  });
 });

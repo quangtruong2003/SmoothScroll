@@ -33,6 +33,10 @@ interface SettingsStore {
   deleteProfile: (profileId: string) => Promise<void>;
   assignAppProfile: (processName: string, profileId: string | null) => Promise<void>;
   unassignAppProfile: (processName: string) => Promise<void>;
+  /** Cleanup stale __disabled__ entries for Windows native-smooth apps
+   *  (legacy leftover from before seed_native_smooth_excludes became a no-op).
+   *  No-op when auto_disable_windows_apps is true. */
+  cleanupNativeDisabledApps: () => Promise<void>;
 }
 
 // 350ms debounce: covers a typical slider drag (~200-300ms) so a continuous
@@ -78,6 +82,13 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     }
     set({ settings: next });
     debouncedPersist(next);
+
+    if (
+      patch.auto_disable_windows_apps === false &&
+      current.auto_disable_windows_apps === true
+    ) {
+      void get().cleanupNativeDisabledApps();
+    }
   },
 
   setAll: (snapshot) => {
@@ -161,6 +172,29 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       const app_profiles = { ...current.app_profiles };
       delete app_profiles[processName];
       set({ settings: { ...current, app_profiles } });
+    }
+  },
+
+  cleanupNativeDisabledApps: async () => {
+    const current = get().settings;
+    if (!current || current.auto_disable_windows_apps) return;
+    const NATIVE_SEED = [
+      "Notepad.exe",
+      "SystemSettings.exe",
+      "ApplicationFrameHost.exe",
+      "CalculatorApp.exe",
+      "Photos.exe",
+      "WinStore.App.exe",
+      "msedge.exe",
+    ];
+    for (const app of NATIVE_SEED) {
+      if (current.app_profiles[app] === "__disabled__") {
+        try {
+          await tauri.unassignAppProfile(app);
+        } catch (e) {
+          console.error("cleanupNativeDisabledApps failed for", app, e);
+        }
+      }
     }
   },
 }));
