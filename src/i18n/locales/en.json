@@ -178,9 +178,9 @@
       "title": "Animation time",
       "desc": "How long each scroll movement lasts"
     },
-    "accel_window": {
-      "title": "Acceleration window",
-      "desc": "Notches within this window stack momentum"
+    "max_velocity": {
+      "title": "Max velocity",
+      "desc": "Maximum scroll speed before acceleration reaches its peak"
     },
     "accel_max": {
       "title": "Max acceleration",

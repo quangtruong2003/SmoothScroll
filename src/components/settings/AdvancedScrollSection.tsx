@@ -90,24 +90,24 @@ function AdvancedScrollSectionInner() {
         </SettingRow>
 
         <SettingRow
-          htmlFor="accel-delta"
-          title={t("settings.accel_window.title")}
-          description={t("settings.accel_window.desc")}
-          trailing={`${fields.acceleration_delta_ms}ms`}
+          htmlFor="max-velocity"
+          title={t("settings.max_velocity.title")}
+          description={t("settings.max_velocity.desc")}
+          trailing={`${fields.max_velocity}`}
         >
           <Slider
-            id="accel-delta"
-            value={[fields.acceleration_delta_ms]}
-            min={0}
-            max={300}
-            step={5}
+            id="max-velocity"
+            value={[fields.max_velocity]}
+            min={5}
+            max={50}
+            step={1}
             className="w-40"
-            onValueChange={([v]) => patch({ acceleration_delta_ms: v })}
+            onValueChange={([v]) => patch({ max_velocity: v })}
           />
           {defaults && (
             <ResetButton
-              onClick={() => patch({ acceleration_delta_ms: defaults.acceleration_delta_ms })}
-              disabled={fields.acceleration_delta_ms === defaults.acceleration_delta_ms}
+              onClick={() => patch({ max_velocity: defaults.max_velocity })}
+              disabled={fields.max_velocity === defaults.max_velocity}
             />
           )}
         </SettingRow>

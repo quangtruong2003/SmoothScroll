@@ -23,7 +23,7 @@ pub struct EngineOutput {
 struct Axis {
     remaining_px: f64,
     last_notch_ms: u64,
-    accel_factor: i32,
+    velocity: f64,
     unit_accum: f64,
 }
 
@@ -51,28 +51,49 @@ impl Axis {
     }
 
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
-        let elapsed = now_ms.saturating_sub(self.last_notch_ms);
-        if (elapsed as i64) <= settings.acceleration_delta_ms as i64 {
-            self.accel_factor = (self.accel_factor + 2)
-                .clamp(1, settings.acceleration_max)
-                .max(1);
+        let notches = delta as f64 / WHEEL_DELTA as f64;
+
+        // Compute instantaneous velocity from inter-notch interval
+        let instant_velocity = if self.last_notch_ms > 0 {
+            let dt = (now_ms - self.last_notch_ms) as f64;
+            if dt > 0.0 && dt < 500.0 {
+                1000.0 / dt
+            } else {
+                0.0
+            }
         } else {
-            self.accel_factor = 1;
-        }
+            0.0
+        };
+
+        // Exponential moving average (alpha=0.3)
+        const ALPHA: f64 = 0.3;
+        self.velocity = ALPHA * instant_velocity + (1.0 - ALPHA) * self.velocity;
         self.last_notch_ms = now_ms;
 
-        let notches = delta as f64 / WHEEL_DELTA as f64;
-        let pixels = notches * settings.step_size_px as f64 * self.accel_factor as f64;
+        // Compute acceleration factor from velocity (quadratic curve)
+        let velocity_ratio = (self.velocity / settings.max_velocity).min(1.0);
+        let accel_factor = 1.0 + velocity_ratio * velocity_ratio
+            * (settings.acceleration_max as f64 - 1.0);
+
+        let pixels = notches * settings.step_size_px as f64 * accel_factor;
         self.remaining_px += pixels;
     }
 
     fn register_pixels(&mut self, px: f64, now_ms: u64, multiplier: f64) {
         self.last_notch_ms = now_ms;
-        self.accel_factor = 1;
+        self.velocity = 0.0;
         self.remaining_px += px * multiplier;
     }
 
     fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> i32 {
+        // Decay velocity when no new notches (half-life ~200ms)
+        const DECAY_HALF_LIFE_MS: f64 = 200.0;
+        let decay = (-0.693 * dt_ms / DECAY_HALF_LIFE_MS).exp();
+        self.velocity *= decay;
+        if self.velocity < 0.1 {
+            self.velocity = 0.0;
+        }
+
         if self.remaining_px.abs() < 0.1 {
             self.remaining_px = 0.0;
             self.unit_accum = 0.0;

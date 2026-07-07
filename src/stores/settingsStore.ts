@@ -235,7 +235,7 @@ export const useScrollFields = () =>
       return {
         step_size_px: set.step_size_px,
         animation_time_ms: set.animation_time_ms,
-        acceleration_delta_ms: set.acceleration_delta_ms,
+        max_velocity: set.max_velocity,
         acceleration_max: set.acceleration_max,
         tail_to_head_ratio: set.tail_to_head_ratio,
       };

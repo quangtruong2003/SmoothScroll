@@ -66,7 +66,6 @@ pub fn apply_preset(s: &mut AppSettings, use_case: UseCase, feel: Feel) {
 fn default_baseline(s: &mut AppSettings) {
     s.step_size_px = 144;
     s.animation_time_ms = 220;
-    s.acceleration_delta_ms = 70;
     s.acceleration_max = 10;
     s.easing_mode = EasingMode::ExponentialOut;
     s.animation_easing = true;
@@ -74,7 +73,6 @@ fn default_baseline(s: &mut AppSettings) {
 fn mac_like(s: &mut AppSettings) {
     s.step_size_px = 100;
     s.animation_time_ms = 500;
-    s.acceleration_delta_ms = 80;
     s.acceleration_max = 6;
     s.easing_mode = EasingMode::ExponentialOut;
     s.animation_easing = true;
@@ -82,7 +80,6 @@ fn mac_like(s: &mut AppSettings) {
 fn fast(s: &mut AppSettings) {
     s.step_size_px = 160;
     s.animation_time_ms = 220;
-    s.acceleration_delta_ms = 50;
     s.acceleration_max = 10;
     s.easing_mode = EasingMode::ExponentialOut;
     s.animation_easing = true;
@@ -90,7 +87,6 @@ fn fast(s: &mut AppSettings) {
 fn snappy(s: &mut AppSettings) {
     s.step_size_px = 200;
     s.animation_time_ms = 200;
-    s.acceleration_delta_ms = 30;
     s.acceleration_max = 14;
     s.easing_mode = EasingMode::ExponentialOut;
     s.animation_easing = true;

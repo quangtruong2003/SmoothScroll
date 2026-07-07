@@ -51,37 +51,37 @@ fn reverse_direction_inverts_pending_sign() {
 }
 
 #[test]
-fn rapid_notches_within_accel_window_increase_acceleration() {
+fn rapid_notches_increase_total_distance() {
     let eff = eff();
-    let mut e = SmoothScrollEngine::new();
+    let mut engine = SmoothScrollEngine::new();
     let now = 1_000;
-    on_wheel(&mut e, 120, now, &eff);
-    on_wheel(&mut e, 120, now + 50, &eff);
-    on_wheel(&mut e, 120, now + 100, &eff);
+    for i in 0..10 {
+        engine.on_wheel_with_source(120, now + i as u64 * 50, InputSource::Wheel, &eff);
+    }
+    let total_v = drain_vertical(&mut engine, &eff);
 
-    let total_v = drain_vertical(&mut e, &eff);
+    let mut engine2 = SmoothScrollEngine::new();
+    for i in 0..10 {
+        engine2.on_wheel_with_source(120, now + i as u64 * 500, InputSource::Wheel, &eff);
+    }
+    let total_v2 = drain_vertical(&mut engine2, &eff);
 
-    let abs = total_v.abs();
-    assert!(
-        (1260..=1320).contains(&abs),
-        "expected approx 1296 emitted wheel units, got {total_v}"
-    );
+    assert!(total_v.abs() > total_v2.abs(),
+        "rapid {} should exceed slow {}", total_v, total_v2);
 }
 
 #[test]
-fn notches_outside_accel_window_reset_factor() {
+fn slow_notches_no_acceleration() {
     let eff = eff();
-    let mut e = SmoothScrollEngine::new();
-    on_wheel(&mut e, 120, 0, &eff);
-    let _ = drain_vertical(&mut e, &eff);
-    on_wheel(&mut e, 120, 10_000, &eff);
-
-    let total_v = drain_vertical(&mut e, &eff);
+    let mut engine = SmoothScrollEngine::new();
+    let now = 1_000;
+    for i in 0..3 {
+        engine.on_wheel_with_source(120, now + i as u64 * 500, InputSource::Wheel, &eff);
+    }
+    let total_v = drain_vertical(&mut engine, &eff);
     let abs = total_v.abs();
-    assert!(
-        (132..=156).contains(&abs),
-        "expected approx 144 emitted wheel units, got {total_v}"
-    );
+    assert!((390..=510).contains(&abs),
+        "slow notches should have minimal accel, got {}", abs);
 }
 
 #[test]
@@ -282,4 +282,16 @@ fn deterministic_fixture_output() {
         total_v.abs() > 100,
         "expected meaningful output, got {total_v}"
     );
+}
+
+#[test]
+fn velocity_tracking_smooth_acceleration() {
+    let eff = eff();
+    let mut engine = SmoothScrollEngine::new();
+    let now = 1_000;
+    engine.on_wheel_with_source(120, now, InputSource::Wheel, &eff);
+    for i in 0..5 {
+        engine.on_wheel_with_source(120, now + 50 + i as u64 * 50, InputSource::Wheel, &eff);
+    }
+    assert!(engine.has_pending_work());
 }

@@ -51,7 +51,7 @@ export function SettingsPage() {
     const tweaked =
       settings.step_size_px !== 144 ||
       settings.animation_time_ms !== 220 ||
-      settings.acceleration_delta_ms !== 70 ||
+      settings.max_velocity !== 20 ||
       settings.acceleration_max !== 10;
     if (tweaked) {
       void tauri.skipOnboarding();

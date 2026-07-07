@@ -32,7 +32,6 @@ fn general_balanced_matches_default_baseline() {
     apply_preset(&mut s, UseCase::General, Feel::Balanced);
     assert_eq!(s.step_size_px, 144);
     assert_eq!(s.animation_time_ms, 220);
-    assert_eq!(s.acceleration_delta_ms, 70);
     assert_eq!(s.acceleration_max, 10);
 }
 

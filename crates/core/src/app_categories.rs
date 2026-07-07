@@ -185,50 +185,50 @@ pub fn preset_for_category(cat: AppCategory) -> SuggestedPreset {
         AppCategory::Browser => {
             p.step_size_px = 120;
             p.animation_time_ms = 360;
-            p.acceleration_delta_ms = 70;
+
             p.acceleration_max = 7;
         }
         AppCategory::Ide => {
             p.step_size_px = 100;
             p.animation_time_ms = 250;
-            p.acceleration_delta_ms = 40;
+
             p.acceleration_max = 10;
         }
         AppCategory::Office => {
             p.step_size_px = 100;
             p.animation_time_ms = 400;
-            p.acceleration_delta_ms = 80;
+
             p.acceleration_max = 6;
         }
         AppCategory::Pdf => {
             p.step_size_px = 140;
             p.animation_time_ms = 500;
-            p.acceleration_delta_ms = 80;
+
             p.acceleration_max = 6;
         }
         AppCategory::Terminal => {
             p.step_size_px = 80;
             p.animation_time_ms = 200;
-            p.acceleration_delta_ms = 30;
+
             p.acceleration_max = 12;
         }
         AppCategory::Chat => {
             p.step_size_px = 120;
             p.animation_time_ms = 300;
-            p.acceleration_delta_ms = 60;
+
             p.acceleration_max = 8;
         }
         AppCategory::Media => {
             p.step_size_px = 100;
             p.animation_time_ms = 350;
-            p.acceleration_delta_ms = 70;
+
             p.acceleration_max = 7;
         }
         AppCategory::Game => return SuggestedPreset::Disabled,
         AppCategory::Unknown => {
             p.step_size_px = 120;
             p.animation_time_ms = 360;
-            p.acceleration_delta_ms = 70;
+
             p.acceleration_max = 7;
         }
     }

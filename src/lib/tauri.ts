@@ -26,7 +26,7 @@ export interface ScrollProfile {
   name: string;
   step_size_px: number;
   animation_time_ms: number;
-  acceleration_delta_ms: number;
+  max_velocity: number;
   acceleration_max: number;
   tail_to_head_ratio: number;
   animation_easing: boolean;
@@ -39,7 +39,7 @@ export interface AppSettings {
   enabled: boolean;
   step_size_px: number;
   animation_time_ms: number;
-  acceleration_delta_ms: number;
+  max_velocity: number;
   acceleration_max: number;
   tail_to_head_ratio: number;
   animation_easing: boolean;

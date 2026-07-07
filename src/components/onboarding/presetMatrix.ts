@@ -14,25 +14,21 @@ export function applyPresetUI(
   const macLike = () => {
     s.step_size_px = 100;
     s.animation_time_ms = 500;
-    s.acceleration_delta_ms = 80;
     s.acceleration_max = 6;
   };
   const fast = () => {
     s.step_size_px = 160;
     s.animation_time_ms = 280;
-    s.acceleration_delta_ms = 50;
     s.acceleration_max = 10;
   };
   const snappy = () => {
     s.step_size_px = 200;
     s.animation_time_ms = 200;
-    s.acceleration_delta_ms = 30;
     s.acceleration_max = 14;
   };
   const def = () => {
     s.step_size_px = 144;
     s.animation_time_ms = 280;
-    s.acceleration_delta_ms = 70;
     s.acceleration_max = 10;
   };
   const enableMP = () => {

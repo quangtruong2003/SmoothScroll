@@ -71,7 +71,6 @@ pub struct ScrollProfile {
     pub name: String,
     pub step_size_px: i32,
     pub animation_time_ms: i32,
-    pub acceleration_delta_ms: i32,
     pub acceleration_max: i32,
     pub tail_to_head_ratio: i32,
     pub animation_easing: bool,
@@ -88,7 +87,6 @@ impl ScrollProfile {
             name: name.into(),
             step_size_px: 144,
             animation_time_ms: 220,
-            acceleration_delta_ms: 70,
             acceleration_max: 10,
             tail_to_head_ratio: 5,
             animation_easing: true,
@@ -102,7 +100,6 @@ impl ScrollProfile {
     pub fn clamp(&mut self) {
         self.step_size_px = self.step_size_px.clamp(10, 500);
         self.animation_time_ms = self.animation_time_ms.clamp(10, 2000);
-        self.acceleration_delta_ms = self.acceleration_delta_ms.clamp(0, 500);
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
     }
@@ -152,8 +149,8 @@ pub struct AppSettings {
     // Scroll
     pub step_size_px: i32,
     pub animation_time_ms: i32,
-    pub acceleration_delta_ms: i32,
     pub acceleration_max: i32,
+    pub max_velocity: f64,
     pub tail_to_head_ratio: i32,
     pub animation_easing: bool,
     pub easing_mode: EasingMode,
@@ -222,8 +219,8 @@ impl Default for AppSettings {
             enabled: true,
             step_size_px: 144,
             animation_time_ms: 220,
-            acceleration_delta_ms: 70,
             acceleration_max: 10,
+            max_velocity: 20.0,
             tail_to_head_ratio: 5,
             animation_easing: true,
             easing_mode: EasingMode::QuinticOut,
@@ -266,8 +263,8 @@ impl AppSettings {
     pub fn clamp(&mut self) {
         self.step_size_px = self.step_size_px.clamp(10, 500);
         self.animation_time_ms = self.animation_time_ms.clamp(10, 2000);
-        self.acceleration_delta_ms = self.acceleration_delta_ms.clamp(0, 500);
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
+        self.max_velocity = self.max_velocity.clamp(5.0, 50.0);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
 
         self.touchpad_pixel_multiplier = self.touchpad_pixel_multiplier.clamp(0.1, 5.0);
@@ -394,7 +391,7 @@ impl AppSettings {
 pub struct EffectiveSettings {
     pub step_size_px: i32,
     pub animation_time_ms: i32,
-    pub acceleration_delta_ms: i32,
+    pub max_velocity: f64,
     pub acceleration_max: i32,
     pub tail_to_head_ratio: i32,
     pub animation_easing: bool,
@@ -421,7 +418,7 @@ impl EffectiveSettings {
         Self {
             step_size_px: s.step_size_px,
             animation_time_ms: s.animation_time_ms,
-            acceleration_delta_ms: s.acceleration_delta_ms,
+            max_velocity: s.max_velocity,
             acceleration_max: s.acceleration_max,
             tail_to_head_ratio: s.tail_to_head_ratio,
             animation_easing: s.animation_easing,
@@ -448,7 +445,7 @@ impl EffectiveSettings {
         Self {
             step_size_px: profile.step_size_px,
             animation_time_ms: profile.animation_time_ms,
-            acceleration_delta_ms: profile.acceleration_delta_ms,
+            max_velocity: base.max_velocity,
             acceleration_max: profile.acceleration_max,
             tail_to_head_ratio: profile.tail_to_head_ratio,
             animation_easing: profile.animation_easing,

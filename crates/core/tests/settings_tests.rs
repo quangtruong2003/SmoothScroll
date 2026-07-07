@@ -40,15 +40,15 @@ fn animation_time_clamps_to_inclusive_range() {
 }
 
 #[test]
-fn acceleration_delta_clamps_to_zero_through_500() {
+fn max_velocity_clamps_to_5_through_50() {
     let mut s = AppSettings::default();
-    s.acceleration_delta_ms = -50;
+    s.max_velocity = 0.0;
     s.clamp();
-    assert_eq!(s.acceleration_delta_ms, 0);
+    assert_eq!(s.max_velocity, 5.0);
 
-    s.acceleration_delta_ms = 9_999;
+    s.max_velocity = 99.0;
     s.clamp();
-    assert_eq!(s.acceleration_delta_ms, 500);
+    assert_eq!(s.max_velocity, 50.0);
 }
 
 #[test]
@@ -204,7 +204,7 @@ fn effective_settings_from_settings_copies_all_fields() {
     let mut s = AppSettings::default();
     s.step_size_px = 240;
     s.animation_time_ms = 500;
-    s.acceleration_delta_ms = 100;
+    s.max_velocity = 15.0;
     s.acceleration_max = 10;
     s.tail_to_head_ratio = 5;
     s.animation_easing = false;
@@ -219,7 +219,7 @@ fn effective_settings_from_settings_copies_all_fields() {
 
     assert_eq!(eff.step_size_px, 240);
     assert_eq!(eff.animation_time_ms, 500);
-    assert_eq!(eff.acceleration_delta_ms, 100);
+    assert_eq!(eff.max_velocity, 15.0);
     assert_eq!(eff.acceleration_max, 10);
     assert_eq!(eff.tail_to_head_ratio, 5);
     assert!(!eff.animation_easing);

@@ -112,23 +112,6 @@ export function ProfileEditor({ profile, onClose }: Props) {
             </SettingRow>
 
             <SettingRow
-              htmlFor="profile-accel-delta"
-              title={t("settings.accel_window.title")}
-              description={t("settings.accel_window.desc")}
-              trailing={`${draft.acceleration_delta_ms}ms`}
-            >
-              <Slider
-                id="profile-accel-delta"
-                value={[draft.acceleration_delta_ms]}
-                min={0}
-                max={300}
-                step={5}
-                className="w-48"
-                onValueChange={([v]) => patch({ acceleration_delta_ms: v })}
-              />
-            </SettingRow>
-
-            <SettingRow
               htmlFor="profile-accel-max"
               title={t("settings.accel_max.title")}
               description={t("settings.accel_max.desc")}

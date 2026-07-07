@@ -9,7 +9,7 @@ import { tauri, type AppSettings } from "@/lib/tauri";
 const REQUIRED_KEYS: readonly (keyof AppSettings)[] = [
   "step_size_px",
   "animation_time_ms",
-  "acceleration_delta_ms",
+  "max_velocity",
   "acceleration_max",
   "tail_to_head_ratio",
   "language",
