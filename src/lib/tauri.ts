@@ -104,6 +104,16 @@ export interface ForegroundAppContext {
   is_excluded: boolean;
 }
 
+export interface DailyStats {
+  date: string;
+  total_scroll_distance_px: number;
+  total_notches: number;
+  active_time_ms: number;
+  app_distances: Record<string, number>;
+  profile_switches: number;
+  peak_velocity: number;
+}
+
 export const tauri = {
   ping: () => invoke<string>("ping"),
 
@@ -178,4 +188,6 @@ export const tauri = {
     invoke<null>("apply_onboarding_preset", { useCase, feel }),
   skipOnboarding: () => invoke<null>("skip_onboarding"),
   resetOnboarding: () => invoke<null>("reset_onboarding"),
+
+  getDailyStats: () => invoke<DailyStats>("get_daily_stats"),
 };

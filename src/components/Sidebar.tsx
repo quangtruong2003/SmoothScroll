@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {
   AppWindow,
+  BarChart3,
   Gamepad2,
   Info,
   Keyboard,
@@ -31,6 +32,7 @@ export type TabKey =
   | "apps"
   | "gamemode"
   | "behavior"
+  | "stats"
   | "about";
 
 interface TabDef {
@@ -46,6 +48,7 @@ const ALL_TABS: TabDef[] = [
   { key: "apps", labelKey: "tabs.apps.label", icon: <AppWindow className="h-4 w-4" /> },
   { key: "gamemode", labelKey: "tabs.gamemode.label", icon: <Gamepad2 className="h-4 w-4" /> },
   { key: "behavior", labelKey: "tabs.behavior.label", icon: <SettingsIcon className="h-4 w-4" /> },
+  { key: "stats", labelKey: "tabs.stats.label", icon: <BarChart3 className="h-4 w-4" /> },
   { key: "about", labelKey: "tabs.about.label", icon: <Info className="h-4 w-4" /> },
 ];
 

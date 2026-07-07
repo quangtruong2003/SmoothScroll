@@ -56,6 +56,16 @@ pub fn run() {
     let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
         Arc::new(smoothscroll_platform::linux::LinuxWindowGeometry);
 
+    #[cfg(windows)]
+    let monitor_enum: Arc<dyn smoothscroll_platform::traits::MonitorEnumeration> =
+        Arc::new(smoothscroll_platform::windows::WindowsWindowGeometry);
+    #[cfg(target_os = "macos")]
+    let monitor_enum: Arc<dyn smoothscroll_platform::traits::MonitorEnumeration> =
+        Arc::new(smoothscroll_platform::macos::MacosWindowGeometry);
+    #[cfg(target_os = "linux")]
+    let monitor_enum: Arc<dyn smoothscroll_platform::traits::MonitorEnumeration> =
+        Arc::new(smoothscroll_platform::linux::LinuxWindowGeometry);
+
     let loaded_settings = settings::load();
     let enabled_initial = loaded_settings.enabled;
     let engine = Arc::new(Mutex::new(SmoothScrollEngine::new()));
@@ -78,6 +88,11 @@ pub fn run() {
     let effective_per_profile_arc = Arc::new(RwLock::new(effective_per_profile));
 
     let persistor = Arc::new(SettingsPersistor::spawn());
+
+    let config_dir = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
+        .map(|d| d.config_dir().to_path_buf())
+        .unwrap_or_else(std::env::temp_dir);
+    let stats_collector = smoothscroll_core::stats::StatsCollector::new(config_dir.join("stats.json"));
 
     #[cfg(windows)]
     let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =
@@ -106,12 +121,14 @@ pub fn run() {
         game_mode_active: Arc::new(AtomicBool::new(false)),
         fullscreen_detector,
         window_geom,
+        monitor_enum,
         last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
         persistor,
         reduce_motion: Arc::new(AtomicBool::new(initial_rm)),
         accessibility: platform.accessibility.clone(),
         rm_watch_handle: Arc::new(Mutex::new(None)),
         last_foreground_at_tray_open: Arc::new(Mutex::new(None)),
+        stats: stats_collector,
     });
 
     // Apply the OS Reduce Motion signal to the initial effective snapshot.
@@ -340,6 +357,8 @@ pub fn run() {
             commands::apply_onboarding_preset,
             commands::skip_onboarding,
             commands::reset_onboarding,
+            commands::list_monitors,
+            commands::get_daily_stats,
         ])
         .run(tauri::generate_context!())
         .unwrap_or_else(|e| {

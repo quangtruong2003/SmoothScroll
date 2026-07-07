@@ -716,6 +716,17 @@ fn now_unix() -> u64 {
         .unwrap_or(0)
 }
 
+#[tauri::command]
+pub fn get_daily_stats(state: State<'_, Arc<AppState>>) -> smoothscroll_core::stats::DailyStats {
+    state.stats.periodic_save();
+    state.stats.snapshot()
+}
+
+#[tauri::command]
+pub fn list_monitors(state: State<'_, Arc<AppState>>) -> Vec<smoothscroll_platform::traits::MonitorInfo> {
+    state.monitor_enum.list_monitors()
+}
+
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ForegroundAppContext {
     pub process_name: Option<String>,

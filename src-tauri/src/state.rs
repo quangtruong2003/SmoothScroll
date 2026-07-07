@@ -5,8 +5,8 @@ use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
 use smoothscroll_platform::traits::{
-    Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter,
-    WindowGeometry, ZoomEmitter,
+    Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MonitorEnumeration, MouseHook,
+    ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
@@ -48,6 +48,7 @@ pub struct AppState {
     pub game_mode_active: Arc<AtomicBool>,
     pub fullscreen_detector: Arc<dyn FullscreenDetector>,
     pub window_geom: Arc<dyn WindowGeometry>,
+    pub monitor_enum: Arc<dyn MonitorEnumeration>,
     pub last_input_source: Arc<AtomicU8>,
     pub persistor: Arc<crate::settings_persistor::SettingsPersistor>,
     // Accessibility
@@ -59,6 +60,7 @@ pub struct AppState {
     /// (taken) by `get_foreground_app_context` so a stale value does not leak
     /// between tray opens.
     pub last_foreground_at_tray_open: Arc<Mutex<Option<String>>>,
+    pub stats: smoothscroll_core::stats::StatsCollector,
 }
 
 impl AppState {

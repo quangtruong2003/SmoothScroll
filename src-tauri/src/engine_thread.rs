@@ -85,6 +85,14 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
 
         let eff = state.effective.load_full();
         let output = state.engine.lock().step(dt_ms, &eff);
+        if output.vertical != 0 || output.horizontal != 0 || output.zoom != 0 {
+            let distance = (output.vertical.abs() + output.horizontal.abs()) as f64;
+            if distance > 0.0 {
+                let fg_name = state.processes.foreground_process_name().unwrap_or_default();
+                state.stats.record_distance(distance, &fg_name);
+                state.stats.record_active_time(dt_ms as u64);
+            }
+        }
         if output.vertical != 0 || output.horizontal != 0 {
             if let Err(e) = state.emitter.emit(output.vertical, output.horizontal) {
                 tracing::warn!(error = %e, "wheel emit failed");

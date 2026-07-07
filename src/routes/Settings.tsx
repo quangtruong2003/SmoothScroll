@@ -18,6 +18,7 @@ import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
 // import { SupportSection } from "@/components/settings/SupportSection";
 import { BackupSection } from "@/components/settings/BackupSection";
+import { StatsTab } from "@/components/settings/StatsTab";
 import { TabContent } from "@/components/settings/TabContent";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { CheatSheetOverlay } from "@/components/CheatSheetOverlay";
@@ -171,6 +172,15 @@ export function SettingsPage() {
               description={t("tabs.behavior.description")}
             >
               <BehaviorSection />
+            </TabContent>
+          )}
+
+          {tab === "stats" && (
+            <TabContent
+              title={t("tabs.stats.title")}
+              description={t("tabs.stats.description")}
+            >
+              <StatsTab />
             </TabContent>
           )}
 

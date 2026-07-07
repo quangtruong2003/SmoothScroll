@@ -107,7 +107,11 @@ impl EngineSink {
 
         let should_lookup_processes = {
             let s = self.state.settings.read();
-            !s.excluded_apps.is_empty() || !s.app_profiles.is_empty() || s.auto_disable_windows_apps
+            !s.excluded_apps.is_empty()
+                || !s.app_profiles.is_empty()
+                || s.auto_disable_windows_apps
+                || !s.monitor_profiles.is_empty()
+                || s.force_enable_all_apps
         };
 
         if !should_lookup_processes {
@@ -128,7 +132,17 @@ impl EngineSink {
         let s = self.state.settings.read();
 
         if let Some(process_name) = under_cursor.as_deref() {
-            if s.is_excluded(process_name) || s.should_auto_disable_windows_app(process_name) {
+            if s.is_excluded(process_name) {
+                if tracing::enabled!(tracing::Level::DEBUG) {
+                    let elapsed = start.elapsed();
+                    if elapsed > Duration::from_millis(2) {
+                        tracing::debug!(?elapsed, process = %process_name, "resolve_active excluded pass-through");
+                    }
+                }
+                return None;
+            }
+
+            if s.should_auto_disable_windows_app(process_name) && !s.force_enable_all_apps {
                 if tracing::enabled!(tracing::Level::DEBUG) {
                     let elapsed = start.elapsed();
                     if elapsed > Duration::from_millis(2) {
@@ -158,7 +172,7 @@ impl EngineSink {
         }
 
         if let Some(process_name) = foreground.as_deref() {
-            if s.should_auto_disable_windows_app(process_name) {
+            if s.should_auto_disable_windows_app(process_name) && !s.force_enable_all_apps {
                 if tracing::enabled!(tracing::Level::DEBUG) {
                     let elapsed = start.elapsed();
                     if elapsed > Duration::from_millis(2) {
@@ -166,6 +180,41 @@ impl EngineSink {
                     }
                 }
                 return None;
+            }
+        }
+
+        // Per-monitor profile resolution (priority: per-app > per-monitor > global)
+        if !s.monitor_profiles.is_empty() {
+            #[cfg(windows)]
+            {
+                use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+                let fg_hwnd = unsafe { GetForegroundWindow() };
+                if !fg_hwnd.is_null() {
+                    if let Some(monitor_name) =
+                        self.state.window_geom.monitor_for_hwnd(fg_hwnd as isize)
+                    {
+                        if let Some(mp) = s
+                            .monitor_profiles
+                            .iter()
+                            .find(|mp| mp.device_name == monitor_name)
+                        {
+                            if mp.profile_id == "__default__" {
+                                drop(s);
+                                return Some(self.state.effective.load_full());
+                            }
+                            if let Some(profile) =
+                                s.profiles.iter().find(|p| p.id == mp.profile_id)
+                            {
+                                let eff =
+                                    smoothscroll_core::settings::EffectiveSettings::with_profile(
+                                        &s, profile,
+                                    );
+                                drop(s);
+                                return Some(Arc::new(eff));
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -258,6 +307,7 @@ impl EngineSink {
             engine.on_wheel_with_source(delta, now, source, &eff);
         }
         drop(engine);
+        self.state.stats.record_notch();
         self.state.engine_signal.signal();
         HookDecision::Swallow
     }
@@ -346,8 +396,9 @@ mod tests {
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
     use smoothscroll_platform::traits::{
-        Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle, MouseHook,
-        ProcessInfo, ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
+        Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
+        MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter, WindowGeometry,
+        ZoomEmitter,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
@@ -413,6 +464,12 @@ mod tests {
             None
         }
     }
+    struct StubMonitorEnum;
+    impl MonitorEnumeration for StubMonitorEnum {
+        fn list_monitors(&self) -> Vec<smoothscroll_platform::traits::MonitorInfo> {
+            Vec::new()
+        }
+    }
     struct StubAccessibility;
     impl smoothscroll_platform::traits::AccessibilitySignals for StubAccessibility {
         fn reduce_motion_enabled(&self) -> bool {
@@ -446,12 +503,14 @@ mod tests {
             game_mode_active: Arc::new(AtomicBool::new(false)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
+            monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats.json")),
         })
     }
 
@@ -524,12 +583,14 @@ mod tests {
             game_mode_active: Arc::new(AtomicBool::new(false)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
+            monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats-elevated.json")),
         })
     }
 
@@ -563,12 +624,14 @@ mod tests {
             game_mode_active: Arc::new(AtomicBool::new(false)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
+            monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
             persistor: Arc::new(SettingsPersistor::spawn()),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats-processes.json")),
         })
     }
 

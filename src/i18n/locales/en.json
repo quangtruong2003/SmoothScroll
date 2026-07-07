@@ -119,7 +119,15 @@
     "sessions": "Sessions",
     "using_for": "Using for",
     "reset": "Reset stats",
-    "confirm_reset": "This will clear all locally-stored statistics. Continue?"
+    "confirm_reset": "This will clear all locally-stored statistics. Continue?",
+    "today": "Today's Scroll Stats",
+    "distance": "Distance",
+    "active_time": "Active",
+    "notches": "Notches",
+    "top_apps": "Top Apps",
+    "peak_velocity": "Peak velocity",
+    "profile_switches": "Profile switches",
+    "notches_sec": "notches/sec"
   },
   "battery": {
     "low_hint": "Battery is low. Smooth scrolling adds a small CPU cost — consider turning it off temporarily."
@@ -159,6 +167,11 @@
       "label": "Game mode",
       "title": "Game mode",
       "description": "Auto-disable smooth scrolling for known games."
+    },
+    "stats": {
+      "label": "Stats",
+      "title": "Scroll Statistics",
+      "description": "Daily scroll analytics and per-app breakdown."
     }
   },
   "presets": {
