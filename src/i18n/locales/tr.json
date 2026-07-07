@@ -323,7 +323,8 @@
     "install_now": "Şimdi yükle",
     "downloading": "İndiriliyor… {{pct}}%",
     "ready_to_restart": "Güncelleme yüklendi. Uygulamak için yeniden başlatın.",
-    "restart_now": "Şimdi yeniden başlat"
+    "restart_now": "Şimdi yeniden başlat",
+    "show_release_notes": "Sürüm notlarını göster"
   },
   "support": {
     "title": "Bu projeyi destekle",
@@ -415,15 +416,11 @@
     "version_label": "Sürüm {{version}}",
     "tagline": "SmoothScroll'u son açmanızdan bu yana neler değişti.",
     "view_changelog": "Tüm değişiklik günlüğünü görüntüle",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding: yeni tek tıkla «Just smooth it» yolu",
-        "permission": "İzin akışı: aktif yeniden denetleme düğmesi + daha akıllı yoklama",
-        "feel_hints": "Kaydırıcılar artık okunaklı his ipuçları gösteriyor (çevik / dengeli / süzülme)",
-        "cheatsheet": "Klavye kısayol panelini açmak için herhangi bir yerde ?'a basın",
-        "backup": "Yedekleme ve geri yükleme — ayarları JSON olarak dışa/içe aktar"
-      }
-    }
+    "section_added": "Eklendi",
+    "section_fixed": "Düzeltildi",
+    "section_performance": "Performans",
+    "section_changed": "Değiştirildi",
+    "minor_fixes_only": "Bazı hata düzeltmeleri ve küçük iyileştirmeler."
   },
   "backup": {
     "title": "Yedekleme ve geri yükleme",

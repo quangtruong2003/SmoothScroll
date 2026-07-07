@@ -323,7 +323,8 @@
     "install_now": "Installa ora",
     "downloading": "Download in corso… {{pct}}%",
     "ready_to_restart": "Aggiornamento installato. Riavvia per applicare.",
-    "restart_now": "Riavvia ora"
+    "restart_now": "Riavvia ora",
+    "show_release_notes": "Mostra note di rilascio"
   },
   "support": {
     "title": "Supporta questo progetto",
@@ -415,15 +416,11 @@
     "version_label": "Versione {{version}}",
     "tagline": "Ecco cosa è cambiato dall'ultima volta che hai aperto SmoothScroll.",
     "view_changelog": "Visualizza changelog completo",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding: nuovo percorso «Just smooth it» con un clic",
-        "permission": "Flusso permessi: pulsante di ricontrollo attivo + polling più intelligente",
-        "feel_hints": "Gli slider mostrano ora suggerimenti leggibili (reattivo / bilanciato / scorrevole)",
-        "cheatsheet": "Premi ? ovunque per aprire il pannello delle scorciatoie",
-        "backup": "Backup e ripristino — esporta e importa le impostazioni come JSON"
-      }
-    }
+    "section_added": "Aggiunto",
+    "section_fixed": "Corretto",
+    "section_performance": "Prestazioni",
+    "section_changed": "Modificato",
+    "minor_fixes_only": "Alcune correzioni di bug e piccoli miglioramenti."
   },
   "backup": {
     "title": "Backup e ripristino",

@@ -323,7 +323,8 @@
     "install_now": "Installer maintenant",
     "downloading": "Téléchargement… {{pct}}%",
     "ready_to_restart": "Mise à jour installée. Redémarrez pour appliquer.",
-    "restart_now": "Redémarrer"
+    "restart_now": "Redémarrer",
+    "show_release_notes": "Afficher les notes de version"
   },
   "support": {
     "title": "Soutenir ce projet",
@@ -415,15 +416,11 @@
     "version_label": "Version {{version}}",
     "tagline": "Voici ce qui a changé depuis votre dernière ouverture de SmoothScroll.",
     "view_changelog": "Voir le journal complet",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding : nouveau chemin « Just smooth it » en un clic",
-        "permission": "Flux d'autorisation : bouton de revérification active + polling plus intelligent",
-        "feel_hints": "Les curseurs affichent maintenant des indices de ressenti lisibles (vif / équilibré / glissant)",
-        "cheatsheet": "Appuyez sur ? n'importe où pour ouvrir le panneau de raccourcis",
-        "backup": "Sauvegarde et restauration — exporter et importer les paramètres en JSON"
-      }
-    }
+    "section_added": "Ajouté",
+    "section_fixed": "Corrigé",
+    "section_performance": "Performance",
+    "section_changed": "Modifié",
+    "minor_fixes_only": "Quelques corrections de bugs et petites améliorations."
   },
   "backup": {
     "title": "Sauvegarde et restauration",

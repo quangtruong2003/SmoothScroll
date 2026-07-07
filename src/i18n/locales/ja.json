@@ -323,7 +323,8 @@
     "install_now": "今すぐインストール",
     "downloading": "ダウンロード中… {{pct}}%",
     "ready_to_restart": "アップデートをインストールしました。適用するには再起動してください。",
-    "restart_now": "今すぐ再起動"
+    "restart_now": "今すぐ再起動",
+    "show_release_notes": "リリースノートを表示"
   },
   "support": {
     "title": "このプロジェクトをサポート",
@@ -415,15 +416,11 @@
     "version_label": "バージョン {{version}}",
     "tagline": "前回 SmoothScroll を開いてからの変更点です。",
     "view_changelog": "完全な更新履歴を表示",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "オンボーディング: 新しいワンクリック「Just smooth it」",
-        "permission": "権限フロー: アクティブな再チェックボタン + よりスマートなポーリング",
-        "feel_hints": "スライダーが分かりやすい感覚ヒントを表示 (キビキビ / バランス / グライド)",
-        "cheatsheet": "どこでも ? を押すとキーボードショートカットパネルが開きます",
-        "backup": "バックアップと復元 — 設定を JSON で書き出し/読み込み"
-      }
-    }
+    "section_added": "追加",
+    "section_fixed": "修正",
+    "section_performance": "パフォーマンス",
+    "section_changed": "変更",
+    "minor_fixes_only": "いくつかのバグ修正と小さな改善。"
   },
   "backup": {
     "title": "バックアップと復元",

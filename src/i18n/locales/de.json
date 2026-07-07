@@ -323,7 +323,8 @@
     "install_now": "Jetzt installieren",
     "downloading": "Wird heruntergeladen… {{pct}}%",
     "ready_to_restart": "Update installiert. Neustart zur Anwendung erforderlich.",
-    "restart_now": "Jetzt neu starten"
+    "restart_now": "Jetzt neu starten",
+    "show_release_notes": "Versionshinweise anzeigen"
   },
   "support": {
     "title": "Dieses Projekt unterstützen",
@@ -415,15 +416,11 @@
     "version_label": "Version {{version}}",
     "tagline": "Das hat sich seit dem letzten Öffnen von SmoothScroll geändert.",
     "view_changelog": "Vollständigen Changelog anzeigen",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding: neuer Ein-Klick-Pfad „Just smooth it“",
-        "permission": "Berechtigungs-Workflow: aktive Wieder-Prüfen-Schaltfläche + intelligenteres Polling",
-        "feel_hints": "Schieberegler zeigen jetzt verständliche Gefühlshinweise (reaktionsschnell / ausgewogen / gleitend)",
-        "cheatsheet": "Drücken Sie überall ?, um die Tastatur-Übersicht zu öffnen",
-        "backup": "Sicherung & Wiederherstellung — Einstellungen als JSON exportieren und importieren"
-      }
-    }
+    "section_added": "Hinzugefügt",
+    "section_fixed": "Behoben",
+    "section_performance": "Leistung",
+    "section_changed": "Geändert",
+    "minor_fixes_only": "Einige Fehlerbehebungen und kleine Verbesserungen."
   },
   "backup": {
     "title": "Sicherung & Wiederherstellung",

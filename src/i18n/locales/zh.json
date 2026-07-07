@@ -325,7 +325,8 @@
     "ready_to_restart": "已安装更新。重新启动以应用。",
     "restart_now": "立即重启",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS 版本未经签名，在配置 Apple Developer ID 之前运行在 beta 通道。"
+    "beta_badge_tooltip": "macOS 版本未经签名，在配置 Apple Developer ID 之前运行在 beta 通道。",
+    "show_release_notes": "查看发行说明"
   },
   "support": {
     "title": "支持这个项目",
@@ -393,15 +394,11 @@
     "version_label": "版本 {{version}}",
     "tagline": "这是您上次打开 SmoothScroll 后的更新内容。",
     "view_changelog": "查看完整更新日志",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "新手引导：新增「一键平滑」快速通道",
-        "permission": "权限流程：主动重新检查按钮 + 更智能的轮询",
-        "feel_hints": "滑杆现在显示易懂的手感提示（迅捷 / 平衡 / 滑行）",
-        "cheatsheet": "在任何位置按 ? 打开键盘快捷键面板",
-        "backup": "备份与恢复 — 以 JSON 形式导出与导入设置"
-      }
-    }
+    "section_added": "新增",
+    "section_fixed": "修复",
+    "section_performance": "性能",
+    "section_changed": "变更",
+    "minor_fixes_only": "一些错误修复和小幅改进。"
   },
   "backup": {
     "title": "备份与恢复",

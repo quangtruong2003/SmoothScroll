@@ -323,7 +323,8 @@
     "install_now": "지금 설치",
     "downloading": "다운로드 중… {{pct}}%",
     "ready_to_restart": "업데이트가 설치되었습니다. 적용하려면 다시 시작하세요.",
-    "restart_now": "지금 다시 시작"
+    "restart_now": "지금 다시 시작",
+    "show_release_notes": "릴리스 노트 표시"
   },
   "support": {
     "title": "이 프로젝트 후원하기",
@@ -415,15 +416,11 @@
     "version_label": "버전 {{version}}",
     "tagline": "마지막으로 SmoothScroll을 연 후 변경된 사항입니다.",
     "view_changelog": "전체 변경 로그 보기",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "온보딩: 새로운 원클릭 「Just smooth it」 경로",
-        "permission": "권한 흐름: 능동적 재확인 버튼 + 더 똑똑한 폴링",
-        "feel_hints": "슬라이더가 이제 사람이 읽기 쉬운 느낌 힌트(민첩/균형/활공)를 표시",
-        "cheatsheet": "어디서나 ?를 누르면 키보드 단축키 패널이 열립니다",
-        "backup": "백업 및 복원 — 설정을 JSON으로 내보내기/불러오기"
-      }
-    }
+    "section_added": "추가",
+    "section_fixed": "수정",
+    "section_performance": "성능",
+    "section_changed": "변경",
+    "minor_fixes_only": "일부 버그 수정 및 소소한 개선."
   },
   "backup": {
     "title": "백업 및 복원",

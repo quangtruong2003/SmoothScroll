@@ -323,7 +323,8 @@
     "install_now": "Pasang sekarang",
     "downloading": "Mengunduh… {{pct}}%",
     "ready_to_restart": "Pembaruan dipasang. Mulai ulang untuk menerapkan.",
-    "restart_now": "Mulai ulang"
+    "restart_now": "Mulai ulang",
+    "show_release_notes": "Lihat catatan rilis"
   },
   "support": {
     "title": "Dukung proyek ini",
@@ -415,15 +416,11 @@
     "version_label": "Versi {{version}}",
     "tagline": "Inilah yang berubah sejak terakhir kali Anda membuka SmoothScroll.",
     "view_changelog": "Lihat changelog lengkap",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding: jalur «Just smooth it» satu klik baru",
-        "permission": "Alur izin: tombol pemeriksaan ulang aktif + polling lebih cerdas",
-        "feel_hints": "Slider kini menampilkan petunjuk rasa yang mudah dibaca (tegas / seimbang / meluncur)",
-        "cheatsheet": "Tekan ? di mana saja untuk membuka panel pintasan keyboard",
-        "backup": "Cadangkan & pulihkan — ekspor dan impor pengaturan dalam JSON"
-      }
-    }
+    "section_added": "Ditambahkan",
+    "section_fixed": "Diperbaiki",
+    "section_performance": "Performa",
+    "section_changed": "Diubah",
+    "minor_fixes_only": "Beberapa perbaikan bug dan peningkatan kecil."
   },
   "backup": {
     "title": "Cadangkan & pulihkan",
