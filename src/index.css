@@ -571,16 +571,6 @@ body[data-platform="mac"] .mac-titlebar-overlay {
 .tray-section-last {
   padding-bottom: 6px;
 }
-.tray-footer {
-  padding: 6px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid hsl(var(--border));
-  flex-shrink: 0;
-  font-size: 0.66rem;
-  color: hsl(var(--muted-foreground));
-}
 
 /* Menu item primitive — shared shape, platform tweaks via overrides below. */
 .menu-item {
@@ -645,9 +635,6 @@ body[data-platform="win"] .tray-content {
 body[data-platform="win"] .tray-section {
   padding: 4px 8px 8px;
   gap: 2px;
-}
-body[data-platform="win"] .tray-footer {
-  padding: 8px 16px;
 }
 body[data-platform="win"] .menu-item {
   min-height: 36px;
@@ -736,17 +723,6 @@ body[data-platform="mac"] .menu-item-muted {
 body[data-platform="mac"] .menu-item-toggle {
   cursor: pointer;
 }
-body[data-platform="mac"] .tray-footer {
-  padding: 6px 14px;
-  font-size: 0.66rem;
-  font-weight: 500;
-  background: hsl(0 0% 100% / 0.4);
-  border-top: 0.5px solid hsl(0 0% 0% / 0.08);
-}
-body[data-platform="mac"].dark .tray-footer {
-  background: hsl(0 0% 100% / 0.04);
-  border-top-color: hsl(0 0% 100% / 0.08);
-}
 
 /* ---------------------------------------------------------------------
  * Linux (Adwaita) — popover with NavigationSidebar aesthetics.
@@ -795,11 +771,6 @@ body[data-platform="linux"] .menu-item-destructive:hover {
 }
 body[data-platform="linux"] .menu-item-muted {
   color: hsl(var(--muted-foreground));
-}
-body[data-platform="linux"] .tray-footer {
-  padding: 6px 12px;
-  font-size: 0.7rem;
-  font-weight: 500;
 }
 
 /* ---------------------------------------------------------------------
