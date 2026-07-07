@@ -12,6 +12,7 @@ pub mod engine;
 pub mod input_source;
 pub mod onboarding;
 pub mod settings;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod stats;
 
 #[cfg(all(target_arch = "wasm32", feature = "wasm"))]
