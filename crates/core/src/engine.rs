@@ -23,7 +23,7 @@ pub struct EngineOutput {
 struct Axis {
     remaining_px: f64,
     last_notch_ms: u64,
-    velocity: f64,
+    pub(crate) velocity: f64,
     unit_accum: f64,
 }
 
