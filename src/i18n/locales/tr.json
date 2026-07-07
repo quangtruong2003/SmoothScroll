@@ -10,6 +10,7 @@
     "direction": "Yön",
     "behavior": "Davranış",
     "excluded_apps": "Hariç tutulan uygulamalar",
+    "monitor_profiles": "Monitör Profilleri",
     "profiles": "Kaydırma profilleri",
     "app_profiles": "Uygulama başına atamalar",
     "language": "Dil",
@@ -78,7 +79,8 @@
     "fast": "Hızlı",
     "snappy": "Çevik",
     "mac_like": "Mac tarzı",
-    "linear": "Doğrusal"
+    "linear": "Doğrusal",
+    "currently": "Şu an: {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "İvme faktörü",
         "desc": "Büyük hareketleri güçlendir. 0 ivmeyi devre dışı bırakır."
       }
+    },
+    "force_enable_all": {
+      "title": "Tüm uygulamalarda kaydırmayı zorla",
+      "desc": "Windows yerel uygulamaları için otomatik devre dışı bırakmayı geçersiz kıl"
+    },
+    "max_velocity": {
+      "title": "Maks hız",
+      "desc": "İvme maksimuma ulaşmadan önceki maksimum kaydırma hızı"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "Hızlı, az atalet ile."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "Belirli monitörlere kaydırma profilleri atayın. Uygulama profilleri her zaman önceliklidir.",
+    "global_default": "Varsayılan (genel)",
+    "saved": "{{device}} için monitör profili kaydedildi"
   }
 }

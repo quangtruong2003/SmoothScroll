@@ -10,6 +10,7 @@
     "direction": "Richtung",
     "behavior": "Verhalten",
     "excluded_apps": "Ausgeschlossene Apps",
+    "monitor_profiles": "Bildschirmprofile",
     "profiles": "Scroll-Profile",
     "app_profiles": "Pro-App-Zuweisungen",
     "language": "Sprache",
@@ -78,7 +79,8 @@
     "fast": "Schnell",
     "snappy": "Reaktionsschnell",
     "mac_like": "Mac-Stil",
-    "linear": "Linear"
+    "linear": "Linear",
+    "currently": "Aktuell: {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "Beschleunigungsfaktor",
         "desc": "Schnelle Wischbewegungen verstärken. 0 deaktiviert die Beschleunigung."
       }
+    },
+    "force_enable_all": {
+      "title": "Glätten für alle Apps erzwingen",
+      "desc": "Automatische Deaktivierung für Windows-native Apps aufheben"
+    },
+    "max_velocity": {
+      "title": "Maximale Geschwindigkeit",
+      "desc": "Maximale Scrollgeschwindigkeit bevor die Beschleunigung ihr Maximum erreicht"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "Schnell, kaum Trägheit."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "Weisen Sie Bildschirmen Scrollprofile zu. App-Profil haben immer Vorrang.",
+    "global_default": "Standard (global)",
+    "saved": "Bildschirmprofil für {{device}} gespeichert"
   }
 }

@@ -10,6 +10,7 @@
     "direction": "方向",
     "behavior": "動作",
     "excluded_apps": "除外アプリ",
+    "monitor_profiles": "モニタープロファイル",
     "profiles": "スクロールプロファイル",
     "app_profiles": "アプリ別の割り当て",
     "language": "言語",
@@ -78,7 +79,8 @@
     "fast": "速い",
     "snappy": "キビキビ",
     "mac_like": "Macライク",
-    "linear": "リニア"
+    "linear": "リニア",
+    "currently": "現在：{{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "加速係数",
         "desc": "大きなフリックを強調。0で加速を無効化。"
       }
+    },
+    "force_enable_all": {
+      "title": "全アプリにスムーズスクロールを強制",
+      "desc": "Windows ネイティブアプリの自動無効化を上書き"
+    },
+    "max_velocity": {
+      "title": "最大速度",
+      "desc": "加速度がピークに達する前の最大スクロール速度"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "速く、慣性が少ない。"
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "特定のモニターにスクロールプロファイルを割り当てます。アプリプロファイルが常に優先されます。",
+    "global_default": "デフォルト（グローバル）",
+    "saved": "{{device}} のモニタープロファイルを保存しました"
   }
 }

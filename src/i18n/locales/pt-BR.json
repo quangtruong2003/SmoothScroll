@@ -10,6 +10,7 @@
     "direction": "Direção",
     "behavior": "Comportamento",
     "excluded_apps": "Aplicativos excluídos",
+    "monitor_profiles": "Perfis de Monitor",
     "profiles": "Perfis de rolagem",
     "app_profiles": "Atribuições por aplicativo",
     "language": "Idioma",
@@ -78,7 +79,8 @@
     "fast": "Rápido",
     "snappy": "Ágil",
     "mac_like": "Estilo Mac",
-    "linear": "Linear"
+    "linear": "Linear",
+    "currently": "Atualmente: {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "Fator de aceleração",
         "desc": "Amplificar gestos rápidos. 0 desativa a aceleração."
       }
+    },
+    "force_enable_all": {
+      "title": "Forçar suavização em todos os apps",
+      "desc": "Sobrescrever desativação automática para apps nativos do Windows"
+    },
+    "max_velocity": {
+      "title": "Velocidade máxima",
+      "desc": "Velocidade máxima de rolagem antes da aceleração atingir o pico"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "Rápido, com pouca inércia."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "Atribua perfis de rolagem a monitores específicos. Perfis de aplicativo sempre têm prioridade.",
+    "global_default": "Padrão (global)",
+    "saved": "Perfil de monitor salvo para {{device}}"
   }
 }

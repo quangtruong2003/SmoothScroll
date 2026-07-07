@@ -10,6 +10,7 @@
     "direction": "Direction",
     "behavior": "Comportement",
     "excluded_apps": "Applications exclues",
+    "monitor_profiles": "Profils d'écran",
     "profiles": "Profils de défilement",
     "app_profiles": "Affectations par application",
     "language": "Langue",
@@ -78,7 +79,8 @@
     "fast": "Rapide",
     "snappy": "Vif",
     "mac_like": "Style Mac",
-    "linear": "Linéaire"
+    "linear": "Linéaire",
+    "currently": "Actuellement : {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "Facteur d'accélération",
         "desc": "Amplifier les gestes rapides. 0 désactive l'accélération."
       }
+    },
+    "force_enable_all": {
+      "title": "Forcer le lissage sur toutes les apps",
+      "desc": "Remplacer la désactivation auto pour les apps natives Windows"
+    },
+    "max_velocity": {
+      "title": "Vitesse maximale",
+      "desc": "Vitesse de défilement maximale avant que l'accélération n'atteigne son pic"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "Rapide, peu d'inertie."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "Attribuez des profils de défilement à des écrans spécifiques. Les profils d'application ont toujours la priorité.",
+    "global_default": "Par défaut (global)",
+    "saved": "Profil d'écran enregistré pour {{device}}"
   }
 }

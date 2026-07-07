@@ -10,6 +10,7 @@
     "direction": "Arah",
     "behavior": "Perilaku",
     "excluded_apps": "Aplikasi dikecualikan",
+    "monitor_profiles": "Profil Monitor",
     "profiles": "Profil scroll",
     "app_profiles": "Penugasan per aplikasi",
     "language": "Bahasa",
@@ -78,7 +79,8 @@
     "fast": "Cepat",
     "snappy": "Tegas",
     "mac_like": "Gaya Mac",
-    "linear": "Linear"
+    "linear": "Linear",
+    "currently": "Saat ini: {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "Faktor akselerasi",
         "desc": "Tingkatkan flick besar. 0 menonaktifkan akselerasi."
       }
+    },
+    "force_enable_all": {
+      "title": "Paksa Haluskan Semua Aplikasi",
+      "desc": "Override auto-nonaktif untuk aplikasi Windows native"
+    },
+    "max_velocity": {
+      "title": "Kecepatan maks",
+      "desc": "Kecepatan gulir maksimum sebelum akselerasi mencapai puncaknya"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "Cepat dengan sedikit inersia."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "Tetapkan profil gulir ke monitor tertentu. Profil aplikasi selalu diutamakan.",
+    "global_default": "Default (global)",
+    "saved": "Profil monitor disimpan untuk {{device}}"
   }
 }

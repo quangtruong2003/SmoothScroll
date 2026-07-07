@@ -10,6 +10,7 @@
     "direction": "方向",
     "behavior": "行为",
     "excluded_apps": "排除的应用",
+    "monitor_profiles": "监视器配置",
     "profiles": "滚动配置",
     "app_profiles": "应用对应配置",
     "language": "语言",
@@ -78,7 +79,8 @@
     "fast": "快速",
     "snappy": "极速",
     "mac_like": "Mac 风格",
-    "linear": "线性"
+    "linear": "线性",
+    "currently": "当前：{{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "加速系数",
         "desc": "增强快速滑动。0 表示禁用加速。"
       }
+    },
+    "force_enable_all": {
+      "title": "强制为所有应用启用平滑",
+      "desc": "覆盖 Windows 原生应用的自动禁用（记事本、Edge 等）"
+    },
+    "max_velocity": {
+      "title": "最大速度",
+      "desc": "加速度达到峰值前的最大滚动速度"
     }
   },
   "excluded": {
@@ -506,5 +516,10 @@
     "quit": "退出 SmoothScroll",
     "status_on": "开",
     "status_off": "关"
+  },
+  "monitor_profiles": {
+    "description": "为特定监视器分配滚动配置文件。应用配置文件始终优先。",
+    "global_default": "默认（全局）",
+    "saved": "已保存监视器 {{device}} 的配置"
   }
 }

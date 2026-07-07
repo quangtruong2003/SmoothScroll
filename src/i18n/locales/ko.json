@@ -10,6 +10,7 @@
     "direction": "방향",
     "behavior": "동작",
     "excluded_apps": "제외된 앱",
+    "monitor_profiles": "모니터 프로필",
     "profiles": "스크롤 프로필",
     "app_profiles": "앱별 할당",
     "language": "언어",
@@ -78,7 +79,8 @@
     "fast": "빠름",
     "snappy": "민첩",
     "mac_like": "맥 스타일",
-    "linear": "선형"
+    "linear": "선형",
+    "currently": "현재: {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "가속 계수",
         "desc": "큰 플릭을 강조합니다. 0이면 가속 비활성화."
       }
+    },
+    "force_enable_all": {
+      "title": "모든 앱에 스무딩 강제 적용",
+      "desc": "Windows 네이티브 앱의 자동 비활성화를 재정의"
+    },
+    "max_velocity": {
+      "title": "최대 속도",
+      "desc": "가속도가 최대에 도달하기 전의 최대 스크롤 속도"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "빠르고 관성이 적음."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "특정 모니터에 스크롤 프로필을 할당합니다. 앱 프로필이 항상 우선합니다.",
+    "global_default": "기본 (전역)",
+    "saved": "{{device}} 의 모니터 프로필이 저장되었습니다"
   }
 }

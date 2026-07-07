@@ -10,6 +10,7 @@
     "direction": "Direzione",
     "behavior": "Comportamento",
     "excluded_apps": "App escluse",
+    "monitor_profiles": "Profili Monitor",
     "profiles": "Profili di scorrimento",
     "app_profiles": "Assegnazioni per app",
     "language": "Lingua",
@@ -78,7 +79,8 @@
     "fast": "Veloce",
     "snappy": "Reattivo",
     "mac_like": "Stile Mac",
-    "linear": "Lineare"
+    "linear": "Lineare",
+    "currently": "Attualmente: {{preset}}"
   },
   "settings": {
     "step_size": {
@@ -195,6 +197,14 @@
         "title": "Fattore di accelerazione",
         "desc": "Amplifica i gesti rapidi. 0 disabilita l'accelerazione."
       }
+    },
+    "force_enable_all": {
+      "title": "Forza liscio su tutte le app",
+      "desc": "Sovrascrivi la disattivazione automatica per le app native Windows"
+    },
+    "max_velocity": {
+      "title": "Velocità massima",
+      "desc": "Velocità di scorrimento massima prima che l'accelerazione raggiunga il picco"
     }
   },
   "excluded": {
@@ -514,5 +524,10 @@
         "help": "Veloce, con poca inerzia."
       }
     }
+  },
+  "monitor_profiles": {
+    "description": "Assegna profili di scorrimento a monitor specifici. I profili app hanno sempre la priorità.",
+    "global_default": "Predefinito (globale)",
+    "saved": "Profil monitor salvato per {{device}}"
   }
 }
