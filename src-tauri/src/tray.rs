@@ -110,7 +110,7 @@ fn cursor_position<R: Runtime>(app: &AppHandle<R>) -> PhysicalPosition<i32> {
 /// the bottom edge stays glued to the taskbar regardless of content size.
 fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
     let cursor = cursor_position(app);
-    let panel_w = 260;
+    let panel_w = win.outer_size().map(|s| s.width as i32).unwrap_or(260);
     let panel_h = win.outer_size().map(|s| s.height as i32).unwrap_or(480);
     let edge_gap = 2;
 
@@ -154,7 +154,7 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
 
 /// Resize the tray panel to match content height, keeping the bottom edge
 /// pinned to the taskbar. Frontend invokes this through ResizeObserver.
-pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, height: u32) {
+pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, width: u32, height: u32) {
     let Some(win) = app.get_webview_window(PANEL_LABEL) else {
         return;
     };
@@ -186,8 +186,12 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, height: u32) {
     let work_y = work_area.map(|w| w.position.y).unwrap_or(0);
     let final_y = new_y.max(work_y);
 
+    let min_w = 200u32;
+    let max_w = 400u32;
+    let clamped_width = width.clamp(min_w, max_w);
+
     let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
-        width: cur_size.width,
+        width: clamped_width,
         height: clamped_height,
     }));
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition {

@@ -28,7 +28,7 @@
       {
         "label": "tray-panel",
         "title": "",
-        "width": 260,
+        "width": 220,
         "height": 600,
         "resizable": false,
         "decorations": false,

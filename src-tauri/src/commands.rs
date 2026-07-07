@@ -397,8 +397,8 @@ pub fn close_tray_panel<R: tauri::Runtime>(app: AppHandle<R>) {
 }
 
 #[tauri::command]
-pub fn resize_tray_panel<R: tauri::Runtime>(app: AppHandle<R>, height: u32) {
-    crate::tray::resize_panel(&app, height);
+pub fn resize_tray_panel<R: tauri::Runtime>(app: AppHandle<R>, width: u32, height: u32) {
+    crate::tray::resize_panel(&app, width, height);
 }
 
 #[tauri::command]

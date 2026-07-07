@@ -121,25 +121,33 @@ export function TrayPanel() {
   useEffect(() => {
     const el = rootRef.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
-    let lastSent = 0;
-    const sync = (h: number) => {
-      const rounded = Math.round(h);
-      if (rounded === lastSent || rounded < 50) return;
-      lastSent = rounded;
+    let lastSentH = 0;
+    let lastSentW = 0;
+    const sync = (w: number, h: number) => {
+      const roundedH = Math.round(h);
+      const roundedW = Math.round(w);
+      if (roundedH === lastSentH && roundedW === lastSentW) return;
+      if (roundedH < 50) return;
+      lastSentH = roundedH;
+      lastSentW = roundedW;
       void invoke('resize_tray_panel', {
-        height: Math.round(rounded * window.devicePixelRatio),
+        width: Math.round(roundedW * window.devicePixelRatio),
+        height: Math.round(roundedH * window.devicePixelRatio),
       }).catch(() => {
         // ignore
       });
     };
     const obs = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        sync(entry.contentRect.height);
+        sync(entry.contentRect.width, entry.contentRect.height);
       }
     });
     obs.observe(el);
     // Initial sync after layout settles.
-    requestAnimationFrame(() => sync(el.getBoundingClientRect().height));
+    requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect();
+      sync(rect.width, rect.height);
+    });
     return () => obs.disconnect();
   }, []);
 
