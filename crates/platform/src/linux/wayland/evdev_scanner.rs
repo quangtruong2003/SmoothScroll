@@ -80,7 +80,10 @@ fn has_scroll_capability(device: &evdev::Device) -> bool {
         return false;
     }
 
-    let axes = device.supported_relative_axes();
+    let axes = match device.supported_relative_axes() {
+        Some(a) => a,
+        None => return false,
+    };
     axes.contains(RelativeAxisCode::REL_WHEEL)
         || axes.contains(RelativeAxisCode::REL_HWHEEL)
         || axes.contains(RelativeAxisCode::REL_WHEEL_HI_RES)

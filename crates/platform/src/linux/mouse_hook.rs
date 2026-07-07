@@ -7,7 +7,7 @@
 //! alongside smooth scroll. Documented known limitation.
 
 use crate::traits::{HookEventSink, HookHandle, MouseHook};
-use crate::types::{HookDecision, PlatformError, Result};
+use crate::types::{PlatformError, Result};
 use parking_lot::Mutex;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -88,9 +88,9 @@ impl MouseHook for LinuxMouseHook {
                 };
 
                 let epoch = std::time::Instant::now();
-                let mut classifier_v =
+                let classifier_v =
                     Mutex::new(smoothscroll_core::input_source::InputClassifier::new());
-                let mut classifier_h =
+                let classifier_h =
                     Mutex::new(smoothscroll_core::input_source::InputClassifier::new());
 
                 while alive_thread.load(Ordering::Relaxed) {

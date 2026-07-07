@@ -45,7 +45,7 @@ impl WaylandKeyboardState {
         thread::Builder::new()
             .name("ss-wayland-keyboard".into())
             .spawn(move || {
-                if let Some(mut device) = Self::find_keyboard() {
+                if let Some(device) = Self::find_keyboard() {
                     let _ = device.set_nonblocking(true);
                     Self::sample_loop(device, &state_clone, &stop_clone);
                 }

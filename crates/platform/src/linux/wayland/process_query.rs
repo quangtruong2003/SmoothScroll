@@ -5,8 +5,6 @@
 //! functionality via /proc filesystem.
 
 use crate::traits::{ProcessInfo, ProcessQuery};
-use crate::types::Result;
-
 pub struct WaylandProcessQuery;
 
 impl WaylandProcessQuery {
