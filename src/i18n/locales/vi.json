@@ -159,7 +159,8 @@
     "fast": "Nhanh",
     "snappy": "Nhanh tức thì",
     "mac_like": "Kiểu Mac",
-    "linear": "Tuyến tính"
+    "linear": "Tuyến tính",
+    "currently": "Đang dùng: {{preset}}"
   },
   "settings": {
     "step_size": {

@@ -181,7 +181,8 @@
     "fast": "Fast",
     "snappy": "Snappy",
     "mac_like": "Mac-like",
-    "linear": "Linear"
+    "linear": "Linear",
+    "currently": "Currently: {{preset}}"
   },
   "settings": {
     "step_size": {
