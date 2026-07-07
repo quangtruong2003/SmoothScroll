@@ -5,10 +5,7 @@ import { invoke } from '@tauri-apps/api/core';
 import {
   MousePointer2,
   Monitor,
-  Minimize2,
   Settings,
-  LayoutGrid,
-  FileText,
   Power,
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
@@ -82,13 +79,10 @@ export function TrayPanel() {
 
   const settings = useSettingsStore((s) => s.settings);
   const load = useSettingsStore((s) => s.load);
-  const patch = useSettingsStore((s) => s.patch);
 
   const [enabled, setEnabledState] = useState(false);
   const [autostart, setAutostartState] = useState(false);
   const [appVersion, setAppVersion] = useState('0.1.0');
-
-  const startMinimized = settings?.start_minimized ?? false;
 
   useEffect(() => {
     invoke<boolean>('get_enabled').then(setEnabledState, () => {
@@ -167,24 +161,9 @@ export function TrayPanel() {
     await invoke('set_autostart', { enabled: v });
   }, []);
 
-  const handleSetStartMinimized = useCallback((v: boolean) => {
-    patch({ start_minimized: v });
-  }, [patch]);
-
   const handleOpenSettings = useCallback(async () => {
     await invoke('close_tray_panel');
     await invoke('show_main_window');
-  }, []);
-
-  const handleOpenExcludedApps = useCallback(async () => {
-    await invoke('close_tray_panel');
-    await invoke('show_main_window');
-    await invoke('navigate_to', { section: 'excluded-apps' });
-  }, []);
-
-  const handleOpenLog = useCallback(async () => {
-    await invoke('close_tray_panel');
-    await invoke('open_log_dir');
   }, []);
 
   const handleQuit = useCallback(async () => {
@@ -238,13 +217,6 @@ export function TrayPanel() {
             onToggle={handleSetAutostart}
             icon={<Monitor className="h-4 w-4" />}
           />
-          <MenuItem
-            label={t('tray.start_minimized')}
-            toggle
-            checked={startMinimized}
-            onToggle={handleSetStartMinimized}
-            icon={<Minimize2 className="h-4 w-4" />}
-          />
         </div>
 
         {/* Actions */}
@@ -253,19 +225,6 @@ export function TrayPanel() {
             label={t('tray.open_settings')}
             onClick={handleOpenSettings}
             icon={<Settings className="h-4 w-4" />}
-          />
-          {/* Excluded Apps — hidden on Linux (no per-app profiles) */}
-          {!IS_LINUX && (
-          <MenuItem
-            label={t('tray.excluded_apps')}
-            onClick={handleOpenExcludedApps}
-            icon={<LayoutGrid className="h-4 w-4" />}
-          />
-          )}
-          <MenuItem
-            label={t('tray.open_log')}
-            onClick={handleOpenLog}
-            icon={<FileText className="h-4 w-4" />}
           />
           <MenuItem
             label={t('tray.quit')}
