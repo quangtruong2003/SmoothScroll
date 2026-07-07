@@ -77,14 +77,6 @@ function MenuItem({
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="tray-section-label">
-      <span>{children}</span>
-    </div>
-  );
-}
-
 export function TrayPanel() {
   const { t } = useTranslation();
 
@@ -225,7 +217,6 @@ export function TrayPanel() {
         {!IS_LINUX && <CurrentAppCard />}
 
         {/* Quick Access */}
-        <SectionLabel>{t('tray.quick_access')}</SectionLabel>
         <div className="tray-section">
           <MenuItem
             label={t('tray.smooth_scrolling')}
@@ -257,7 +248,6 @@ export function TrayPanel() {
         </div>
 
         {/* Actions */}
-        <SectionLabel>{t('tray.actions')}</SectionLabel>
         <div className="tray-section tray-section-last">
           <MenuItem
             label={t('tray.open_settings')}
