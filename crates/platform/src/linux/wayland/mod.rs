@@ -31,5 +31,6 @@ pub fn build() -> Result<crate::Platform> {
         autostart: Arc::new(crate::linux::LinuxAutostart),
         hotkey: Arc::new(hotkey::WaylandHotkey),
         accessibility: Arc::new(crate::linux::LinuxAccessibilitySignals),
+        display: Arc::new(crate::linux::LinuxDisplayQuery),
     })
 }

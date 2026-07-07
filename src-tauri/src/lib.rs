@@ -41,6 +41,11 @@ pub fn run() {
     };
     let initial_rm = platform.accessibility.reduce_motion_enabled();
 
+    let refresh_hz = platform.display.primary_refresh_rate_hz();
+    let frame_ms = 1000.0 / refresh_hz as f64;
+    tracing::info!("Display refresh rate: {refresh_hz}Hz, frame interval: {frame_ms:.2}ms");
+    let timer_period: u32 = if refresh_hz <= 75 { 2 } else { 1 };
+
     #[cfg(windows)]
     let window_geom: Arc<dyn smoothscroll_platform::traits::WindowGeometry> =
         Arc::new(smoothscroll_platform::windows::WindowsWindowGeometry);
@@ -114,7 +119,7 @@ pub fn run() {
     // settings or the RM watcher fires.
     app_state.commit_settings(loaded_settings.clone());
 
-    let engine_thread = EngineThread::spawn(app_state.clone());
+    let engine_thread = EngineThread::spawn(app_state.clone(), frame_ms);
     edge_scroll_thread::spawn(app_state.clone());
 
     let sink = EngineSink::new(app_state.clone());
@@ -164,7 +169,7 @@ pub fn run() {
         _engine: engine_thread,
         _hook: hook_result.ok(),
         #[cfg(windows)]
-        _timer: smoothscroll_platform::windows::HighResTimerGuard::begin(1),
+        _timer: smoothscroll_platform::windows::HighResTimerGuard::begin(timer_period),
     };
 
     tauri::Builder::default()

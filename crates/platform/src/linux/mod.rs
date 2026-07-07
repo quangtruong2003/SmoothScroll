@@ -19,6 +19,9 @@ mod wheel_emitter;
 #[cfg(target_os = "linux")]
 mod display;
 
+#[cfg(target_os = "linux")]
+mod refresh_rate;
+
 pub use accessibility::LinuxAccessibilitySignals;
 pub use autostart::LinuxAutostart;
 pub use fullscreen::LinuxFullscreenDetector;
@@ -26,6 +29,8 @@ pub use hotkey::LinuxHotkey;
 pub use keyboard::ModifierSampler;
 pub use mouse_hook::LinuxMouseHook;
 pub use process_query::LinuxProcessQuery;
+#[cfg(target_os = "linux")]
+pub use refresh_rate::LinuxDisplayQuery;
 pub use timer::LinuxHighResTimerGuard;
 
 #[cfg(target_os = "linux")]
@@ -62,5 +67,6 @@ fn x11_build() -> Result<Platform> {
         autostart: Arc::new(LinuxAutostart),
         hotkey: Arc::new(LinuxHotkey),
         accessibility: Arc::new(LinuxAccessibilitySignals),
+        display: Arc::new(LinuxDisplayQuery),
     })
 }

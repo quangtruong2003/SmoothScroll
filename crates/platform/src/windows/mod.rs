@@ -4,6 +4,7 @@
 
 mod accessibility;
 mod autostart;
+mod display;
 pub mod fullscreen;
 mod hotkey;
 mod keyboard;
@@ -20,6 +21,7 @@ use std::sync::Arc;
 
 pub use accessibility::WindowsAccessibilitySignals;
 pub use autostart::WindowsAutostart;
+pub use display::WindowsDisplayQuery;
 pub use fullscreen::WindowsFullscreenDetector;
 pub use hotkey::WindowsHotkey;
 pub use mouse_hook::WindowsMouseHook;
@@ -39,5 +41,6 @@ pub fn build() -> Result<Platform> {
         autostart: Arc::new(WindowsAutostart),
         hotkey: Arc::new(WindowsHotkey),
         accessibility: Arc::new(WindowsAccessibilitySignals),
+        display: Arc::new(WindowsDisplayQuery),
     })
 }

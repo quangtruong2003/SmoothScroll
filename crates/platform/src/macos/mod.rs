@@ -4,6 +4,7 @@
 
 mod accessibility;
 mod autostart;
+mod display;
 pub mod event_tap;
 pub mod fullscreen;
 mod hotkey;
@@ -15,6 +16,7 @@ pub mod window_geom;
 
 pub use accessibility::MacosAccessibilitySignals;
 pub use autostart::MacosAutostart;
+pub use display::MacosDisplayQuery;
 pub use event_tap::{run_event_loop, ScrollInputSource};
 pub use fullscreen::MacosFullscreenDetector;
 pub use hotkey::MacosHotkey;
@@ -38,5 +40,6 @@ pub fn build() -> Result<Platform> {
         autostart: Arc::new(MacosAutostart),
         hotkey: Arc::new(MacosHotkey),
         accessibility: Arc::new(MacosAccessibilitySignals),
+        display: Arc::new(MacosDisplayQuery),
     })
 }

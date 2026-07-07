@@ -7,7 +7,6 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
-const FRAME_MS_DEFAULT: f64 = 1000.0 / 120.0;
 const IDLE_TIMEOUT: Duration = Duration::from_secs(2);
 const IDLE_FRAME_MS: f64 = 1000.0 / 60.0;
 const WAIT_TIMEOUT: Duration = Duration::from_millis(100);
@@ -18,11 +17,11 @@ pub struct EngineThread {
 }
 
 impl EngineThread {
-    pub fn spawn(state: Arc<AppState>) -> Self {
+    pub fn spawn(state: Arc<AppState>, frame_ms: f64) -> Self {
         let s = state.clone();
         let handle = thread::Builder::new()
             .name("ss-engine".into())
-            .spawn(move || worker(s))
+            .spawn(move || worker(s, frame_ms))
             .expect("spawn engine thread");
         Self {
             handle: Some(handle),
@@ -42,7 +41,7 @@ impl Drop for EngineThread {
 }
 
 #[allow(unused_assignments)]
-fn worker(state: Arc<AppState>) {
+fn worker(state: Arc<AppState>, frame_ms: f64) {
     let mut last_frame = Instant::now();
     let mut last_work = Instant::now();
 
@@ -82,7 +81,7 @@ fn worker(state: Arc<AppState>) {
         let dt_ms = dt_ms.max(1.0);
         last_frame = now;
 
-        let frame_ms = adaptive_frame_ms(last_work);
+        let frame_ms = adaptive_frame_ms(last_work, frame_ms);
 
         let eff = state.effective.load_full();
         let output = state.engine.lock().step(dt_ms, &eff);
@@ -107,10 +106,10 @@ fn worker(state: Arc<AppState>) {
     }
 }
 
-fn adaptive_frame_ms(last_work: Instant) -> f64 {
+fn adaptive_frame_ms(last_work: Instant, frame_ms: f64) -> f64 {
     if last_work.elapsed() >= IDLE_TIMEOUT {
         IDLE_FRAME_MS
     } else {
-        FRAME_MS_DEFAULT
+        frame_ms
     }
 }

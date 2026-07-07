@@ -128,3 +128,9 @@ pub trait AccessibilitySignals: Send + Sync {
     /// stops the subscription.
     fn watch(&self, on_change: Box<dyn Fn(bool) + Send + Sync>) -> Result<HookHandle>;
 }
+
+/// Returns the primary monitor's current refresh rate in Hz.
+/// Returns 60 if detection fails (safe fallback).
+pub trait DisplayQuery: Send + Sync {
+    fn primary_refresh_rate_hz(&self) -> u32;
+}
