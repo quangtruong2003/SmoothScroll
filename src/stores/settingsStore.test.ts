@@ -114,7 +114,6 @@ const mockProfile: ScrollProfile = {
   easing_mode: "QuinticOut",
   reverse_wheel_direction: false,
   horizontal_smoothness: true,
-  max_velocity: 20,
 };
 
 describe("settingsStore", () => {

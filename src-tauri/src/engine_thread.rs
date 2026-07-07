@@ -84,7 +84,15 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         let frame_ms = adaptive_frame_ms(last_work, frame_ms);
 
         let eff = state.effective.load_full();
-        let output = state.engine.lock().step(dt_ms, &eff);
+        let (output, vel) = {
+            let mut engine = state.engine.lock();
+            let out = engine.step(dt_ms, &eff);
+            let v = engine.last_velocity();
+            (out, v)
+        };
+        if vel > 0.0 {
+            state.stats.record_velocity(vel);
+        }
         if output.vertical != 0 || output.horizontal != 0 || output.zoom != 0 {
             let distance = (output.vertical.abs() + output.horizontal.abs()) as f64;
             if distance > 0.0 {

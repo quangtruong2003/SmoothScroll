@@ -263,6 +263,11 @@ impl SmoothScrollEngine {
             || self.z.remaining_px.abs() >= 0.1
     }
 
+    /// Returns the current vertical axis velocity (notches/sec) for stats tracking.
+    pub fn last_velocity(&self) -> f64 {
+        self.v.velocity
+    }
+
     /// Discard any pending pixels and unit accumulator on all axes. Used by
     /// the modifier-passthrough hot path to clear inertia the moment a
     /// precision modifier (Ctrl/Alt) is pressed, so zoom feels immediate.

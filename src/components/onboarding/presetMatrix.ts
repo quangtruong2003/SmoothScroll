@@ -15,21 +15,25 @@ export function applyPresetUI(
     s.step_size_px = 100;
     s.animation_time_ms = 500;
     s.acceleration_max = 6;
+    s.max_velocity = 15;
   };
   const fast = () => {
     s.step_size_px = 160;
     s.animation_time_ms = 280;
     s.acceleration_max = 10;
+    s.max_velocity = 25;
   };
   const snappy = () => {
     s.step_size_px = 200;
     s.animation_time_ms = 200;
     s.acceleration_max = 14;
+    s.max_velocity = 30;
   };
   const def = () => {
     s.step_size_px = 144;
     s.animation_time_ms = 280;
     s.acceleration_max = 10;
+    s.max_velocity = 20;
   };
   const enableMP = () => {
     s.modifier_passthrough = {

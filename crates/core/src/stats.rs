@@ -1,7 +1,7 @@
+use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Mutex;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DailyStats {
@@ -36,47 +36,50 @@ impl StatsCollector {
     }
 
     pub fn record_distance(&self, px: f64, process_name: &str) {
-        let mut s = self.today.lock().unwrap();
+        let mut s = self.today.lock();
         s.total_scroll_distance_px += px.abs();
         *s.app_distances.entry(process_name.to_string()).or_default() += px.abs();
     }
 
     pub fn record_active_time(&self, dt_ms: u64) {
-        self.today.lock().unwrap().active_time_ms += dt_ms;
+        self.today.lock().active_time_ms += dt_ms;
     }
 
     pub fn record_notch(&self) {
-        self.today.lock().unwrap().total_notches += 1;
+        self.today.lock().total_notches += 1;
     }
 
     pub fn record_profile_switch(&self) {
-        self.today.lock().unwrap().profile_switches += 1;
+        self.today.lock().profile_switches += 1;
     }
 
     pub fn record_velocity(&self, velocity: f64) {
-        let mut s = self.today.lock().unwrap();
+        let mut s = self.today.lock();
         if velocity > s.peak_velocity {
             s.peak_velocity = velocity;
         }
     }
 
     pub fn snapshot(&self) -> DailyStats {
-        self.today.lock().unwrap().clone()
+        self.today.lock().clone()
     }
 
+    /// Called periodically. Checks date rollover, saves to disk.
+    /// Clones data under lock, releases lock before I/O to avoid
+    /// blocking the engine thread on disk stalls.
     pub fn periodic_save(&self) {
         let today_str = chrono::Local::now().format("%Y-%m-%d").to_string();
-        {
-            let mut s = self.today.lock().unwrap();
+        let snapshot = {
+            let mut s = self.today.lock();
             if s.date != today_str {
                 *s = DailyStats {
                     date: today_str,
                     ..Default::default()
                 };
             }
-        }
-        let s = self.today.lock().unwrap();
-        if let Ok(json) = serde_json::to_string_pretty(&*s) {
+            s.clone()
+        };
+        if let Ok(json) = serde_json::to_string_pretty(&snapshot) {
             let tmp = self.save_path.with_extension("tmp");
             if std::fs::write(&tmp, &json).is_ok() {
                 let _ = std::fs::rename(&tmp, &self.save_path);
