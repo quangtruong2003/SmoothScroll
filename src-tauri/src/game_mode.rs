@@ -17,7 +17,12 @@ pub fn spawn<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) -> thread::Joi
 }
 
 fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
+    use std::sync::atomic::{AtomicBool, AtomicU32};
+
+    let last_fg_pid: AtomicU32 = AtomicU32::new(0);
+    let last_known_game: AtomicBool = AtomicBool::new(false);
     let mut last_active = false;
+
     loop {
         thread::sleep(Duration::from_secs(1));
 
@@ -32,37 +37,30 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
             continue;
         }
 
-        let foreground_pid = state.processes.foreground_process_id();
-        let foreground_proc = foreground_pid.and_then(|pid| {
-            state
-                .processes
-                .list_visible_processes()
-                .into_iter()
-                .find(|p| p.pid == pid)
-                .map(|p| p.name)
-        });
-        let known_match = foreground_proc
-            .as_ref()
-            .map(|n| {
-                s.game_mode_known_apps
-                    .iter()
-                    .any(|g| g.eq_ignore_ascii_case(n))
-            })
-            .unwrap_or(false);
-        drop(s);
+        let fg_pid = state.processes.foreground_process_id().unwrap_or(0);
 
-        let fs = state.fullscreen_detector.is_foreground_fullscreen();
-        let now_active = fs || known_match;
+        let now_active = if fg_pid == last_fg_pid.load(Ordering::Relaxed) {
+            // PID unchanged: only re-check fullscreen (cheap — single HWND + monitor rect)
+            let fullscreen = state.fullscreen_detector.is_foreground_fullscreen();
+            let known = last_known_game.load(Ordering::Relaxed);
+            fullscreen || known
+        } else {
+            // PID changed: resolve name via foreground_process_name (O(1) cached)
+            last_fg_pid.store(fg_pid, Ordering::Relaxed);
+            let fg_name = state.processes.foreground_process_name().unwrap_or_default();
+            let known = s.game_mode_known_apps
+                .iter()
+                .any(|g| g.eq_ignore_ascii_case(&fg_name));
+            last_known_game.store(known, Ordering::Relaxed);
+            let fullscreen = state.fullscreen_detector.is_foreground_fullscreen();
+            fullscreen || known
+        };
+        drop(s);
 
         if now_active != last_active {
             state.game_mode_active.store(now_active, Ordering::Relaxed);
             let _ = app.emit("game-mode-changed", now_active);
-            tracing::info!(
-                active = now_active,
-                fullscreen = fs,
-                known = known_match,
-                "game mode toggled"
-            );
+            tracing::info!(active = now_active, "game mode toggled");
             last_active = now_active;
         }
     }
