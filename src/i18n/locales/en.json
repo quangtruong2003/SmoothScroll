@@ -84,15 +84,11 @@
     "version_label": "Version {{version}}",
     "tagline": "Here's what changed since you last opened SmoothScroll.",
     "view_changelog": "View full changelog",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding: new \"Just smooth it\" one-click path",
-        "permission": "Permission flow: active recheck button + smarter polling",
-        "feel_hints": "Sliders now show human-readable feel hints (snappy / balanced / glide)",
-        "cheatsheet": "Press ? anywhere to open the keyboard cheat sheet",
-        "backup": "Backup & restore — export and import settings as JSON"
-      }
-    }
+    "section_added": "Added",
+    "section_fixed": "Fixed",
+    "section_performance": "Performance",
+    "section_changed": "Changed",
+    "minor_fixes_only": "Some bug fixes and small improvements."
   },
   "backup": {
     "title": "Backup & restore",
@@ -417,7 +413,8 @@
     "ready_to_restart": "Update installed. Restart to apply.",
     "restart_now": "Restart now",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up."
+    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "show_release_notes": "Show release notes"
   },
   "support": {
     "title": "Support this project",

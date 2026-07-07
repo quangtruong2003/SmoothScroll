@@ -76,15 +76,11 @@
     "version_label": "Phiên bản {{version}}",
     "tagline": "Đây là những thay đổi kể từ lần bạn mở SmoothScroll trước.",
     "view_changelog": "Xem changelog đầy đủ",
-    "highlights": {
-      "0_2_0": {
-        "onboarding": "Onboarding: thêm lối tắt \"Cuộn mượt ngay\" chỉ một cú nhấp",
-        "permission": "Quy trình cấp quyền: nút kiểm tra lại + polling thông minh hơn",
-        "feel_hints": "Slider hiển thị gợi ý cảm giác dễ hiểu (tức thì / cân bằng / lướt nhẹ)",
-        "cheatsheet": "Bấm ? ở bất kỳ đâu để mở bảng phím tắt",
-        "backup": "Sao lưu & phục hồi — xuất/nhập cài đặt dạng JSON"
-      }
-    }
+    "section_added": "Đã thêm",
+    "section_fixed": "Đã sửa",
+    "section_performance": "Hiệu năng",
+    "section_changed": "Thay đổi",
+    "minor_fixes_only": "Một số sửa lỗi và cải thiện nhỏ."
   },
   "backup": {
     "title": "Sao lưu & phục hồi",
@@ -414,7 +410,8 @@
     "ready_to_restart": "Đã cài đặt. Khởi động lại để áp dụng.",
     "restart_now": "Khởi động lại",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "Bản macOS chưa được ký số và chạy trên kênh beta cho đến khi có chứng chỉ Apple Developer ID."
+    "beta_badge_tooltip": "Bản macOS chưa được ký số và chạy trên kênh beta cho đến khi có chứng chỉ Apple Developer ID.",
+    "show_release_notes": "Xem ghi chú phát hành"
   },
   "support": {
     "title": "Ủng hộ dự án",
