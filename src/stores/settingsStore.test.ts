@@ -94,6 +94,8 @@ const mockSettings: AppSettings = {
   zoom_sensitivity: 1,
   onboarding_completed_at: null,
   auto_disable_windows_apps: true,
+  monitor_profiles: [],
+  force_enable_all_apps: false,
 };
 
 const mockDefaults: AppSettings = {
