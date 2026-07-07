@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.14.1] - 2026-07-07
+
+### Fixed
+- gate stats module behind cfg(not(wasm32)) to fix WASM build
 ## [1.14.0] - 2026-07-07
 
 ### Added
