@@ -7,6 +7,25 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-07-07
+
+### Added
+- per-monitor scroll profiles and UWP force-enable toggle
+- per-monitor scroll profiles and UWP force-enable toggle
+- scroll analytics dashboard — daily stats with top apps and peak velocity
+- add winget package auto-update workflow
+- display refresh rate sync — engine frame rate matches primary monitor
+- velocity-based scroll acceleration replaces step-based
+
+### Fixed
+- add missing translation keys for monitor profiles, force enable, max velocity, and presets
+- add preset selection label, hide stats tab, add presets.currently i18n key
+- address code review findings — parking_lot Mutex, clone-before-IO, wire record_velocity, fix ScrollProfile schema
+- add max_velocity to mock profile in settingsStore test
+
+### Performance
+- add edge-case benchmarks — direction change, multi-axis, idle recovery, burst, easing
+- game mode — skip EnumWindows when foreground PID unchanged
 ## [1.13.0] - 2026-07-07
 
 ### Added
