@@ -33,7 +33,7 @@ interface RawEntry {
 }
 
 function findAllEntries(raw: string): RawEntry[] {
-  const lines = raw.split("\n");
+  const lines = raw.split(/\r?\n/);
   const entries: RawEntry[] = [];
   for (const line of lines) {
     const m = HEADER_RE.exec(line);
@@ -87,7 +87,7 @@ export function parseChangelog(
   const selected = selectEntry(entries, targetVersion);
   if (!selected) return null;
 
-  const lines = raw.split("\n");
+  const lines = raw.split(/\r?\n/);
   const endLine =
     entries
       .filter((e) => e.startLine > selected.startLine)

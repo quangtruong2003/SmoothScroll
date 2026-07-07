@@ -109,4 +109,23 @@ describe("parseChangelog", () => {
       { kind: "Fixed", items: ["make wayland module pub for cross-crate access"] },
     ]);
   });
+
+  it("parses bullets from CRLF input (Windows line endings)", () => {
+    const mdCRLF = [
+      "# Changelog",
+      "",
+      "## [1.0.0] - 2026-01-01",
+      "",
+      "### Added",
+      "- feature one",
+      "- feature two",
+      "",
+    ].join("\r\n");
+
+    const result = parseChangelog(mdCRLF, "1.0.0");
+    expect(result).not.toBeNull();
+    expect(result!.sections).toEqual([
+      { kind: "Added", items: ["feature one", "feature two"] },
+    ]);
+  });
 });
