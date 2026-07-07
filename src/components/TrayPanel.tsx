@@ -118,6 +118,9 @@ export function TrayPanel() {
       if (s && typeof s.start_with_os === 'boolean') {
         setAutostartState(s.start_with_os);
       }
+      if (s && typeof s.theme === 'string') {
+        applyTheme(s.theme);
+      }
     });
 
     return () => {
@@ -156,9 +159,11 @@ export function TrayPanel() {
     return () => obs.disconnect();
   }, []);
 
+  // Apply theme once settings load and whenever the theme choice changes,
+  // so the tray panel matches light/dark from the very first paint.
   useEffect(() => {
     if (settings) applyTheme(settings.theme);
-  }, [settings?.theme]);
+  }, [settings]);
 
   const handleSetEnabled = useCallback(async (v: boolean) => {
     setEnabledState(v);
