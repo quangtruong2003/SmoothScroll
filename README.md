@@ -44,6 +44,14 @@ Most mice and trackpads emit discrete wheel ticks that feel jagged on apps witho
 
 ### Windows
 
+#### Winget (Recommended)
+
+```bash
+winget install SmoothScroll
+```
+
+#### Manual install
+
 Grab `SmoothScroll_<version>_x64-setup.exe` (NSIS) or `.msi` from the [Releases page](https://github.com/quangtruong2003/SmoothScroll/releases) and run it. Installation is per-user — no administrator privileges required.
 
 **Requirements:** Windows 10/11 with WebView2 runtime (preinstalled on Windows 11).
