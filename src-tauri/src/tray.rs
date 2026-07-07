@@ -187,7 +187,7 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, width: u32, height: u32) {
     let final_y = new_y.max(work_y);
 
     let min_w = 200u32;
-    let max_w = 400u32;
+    let max_w = 480u32;
     let clamped_width = width.clamp(min_w, max_w);
 
     let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
