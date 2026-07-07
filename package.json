@@ -4,7 +4,9 @@
   "version": "1.11.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/sync-changelog.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/sync-changelog.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
