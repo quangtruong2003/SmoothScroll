@@ -10,6 +10,7 @@
     "direction": "Direction",
     "behavior": "Behavior",
     "excluded_apps": "Excluded apps",
+    "monitor_profiles": "Monitor profiles",
     "profiles": "Scroll profiles",
     "app_profiles": "Per-app assignments",
     "language": "Language",
@@ -267,6 +268,10 @@
     "title": "Auto-disable in Windows apps",
     "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
   },
+  "force_enable_all": {
+    "title": "Force Smooth on All Apps",
+    "desc": "Override auto-disable for Windows native apps"
+  },
   "reduce_motion": {
       "title": "Respect system Reduce Motion",
       "desc": "When the system requests reduced motion, scroll becomes instant instead of smooth",
@@ -363,6 +368,10 @@
       "desc": "Pick the profile to use, then choose which app to assign it to.",
       "select_profile": "Profile to assign"
     }
+  },
+  "monitor_profiles": {
+    "description": "Assign a scroll profile to each monitor. When you move to a different monitor, SmoothScroll switches automatically.",
+    "global_default": "Global default"
   },
   "game_mode": {
     "auto_disable": "Auto-disable in games",

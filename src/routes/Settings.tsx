@@ -13,6 +13,7 @@ import { DirectionSection } from "@/components/settings/DirectionSection";
 import { TouchpadSection } from "@/components/settings/TouchpadSection";
 import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
+import { MonitorProfiles } from "@/components/settings/MonitorProfiles";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
@@ -153,6 +154,7 @@ export function SettingsPage() {
               description={t("tabs.apps.description")}
             >
               <ProfilesSection />
+              <MonitorProfiles />
               <ExcludedAppsSection />
             </TabContent>
           )}

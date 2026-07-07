@@ -77,6 +77,10 @@ function BehaviorSectionInner() {
     patch({ auto_disable_windows_apps: next });
   };
 
+  const onForceEnableAllApps = (next: boolean) => {
+    patch({ force_enable_all_apps: next });
+  };
+
   const isLinux = /Linux/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
 
   return (
@@ -87,6 +91,18 @@ function BehaviorSectionInner() {
       <CardContent className="divide-y">
         {/* Hide on Linux — no Windows apps to auto-disable */}
         {!isLinux && (
+        <>
+        <SettingRow
+          htmlFor="force-enable-all-apps"
+          title={t("settings.force_enable_all.title")}
+          description={t("settings.force_enable_all.desc")}
+        >
+          <Switch
+            id="force-enable-all-apps"
+            checked={fields.force_enable_all_apps}
+            onCheckedChange={onForceEnableAllApps}
+          />
+        </SettingRow>
         <SettingRow
           htmlFor="auto-disable-windows-apps"
           title={t("settings.auto_disable_windows_apps.title")}
@@ -98,6 +114,7 @@ function BehaviorSectionInner() {
             onCheckedChange={onAutoDisableWindowsApps}
           />
         </SettingRow>
+        </>
         )}
 
         {/* Global hotkey — hidden on Linux (X11 hotkey support unreliable) */}

@@ -1,6 +1,6 @@
 //! Cursor position relative to window via XQueryPointer.
 
-use crate::traits::WindowGeometry;
+use crate::traits::{MonitorEnumeration, MonitorInfo, WindowGeometry};
 use crate::types::{Point, WindowRect};
 use x11::xlib;
 
@@ -66,5 +66,11 @@ impl WindowGeometry for LinuxWindowGeometry {
                 },
             ))
         }
+    }
+}
+
+impl MonitorEnumeration for LinuxWindowGeometry {
+    fn list_monitors(&self) -> Vec<MonitorInfo> {
+        Vec::new()
     }
 }

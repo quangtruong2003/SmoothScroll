@@ -74,12 +74,26 @@ export interface AppSettings {
   zoom_sensitivity: number;
   onboarding_completed_at: number | null;
   auto_disable_windows_apps: boolean;
+  monitor_profiles: MonitorProfileEntry[];
+  force_enable_all_apps: boolean;
 }
 
 export interface ProcessInfo {
   pid: number;
   name: string;
   window_title: string;
+}
+
+export interface MonitorInfo {
+  device_name: string;
+  friendly_name: string;
+  rect: { left: number; top: number; right: number; bottom: number };
+}
+
+export interface MonitorProfileEntry {
+  device_name: string;
+  friendly_name: string;
+  profile_id: string;
 }
 
 export type AppCategory =
@@ -168,6 +182,9 @@ export const tauri = {
 
   suggestProfileForApp: (name: string) =>
     invoke<ProfileSuggestion>("suggest_profile_for_app", { name }),
+
+  // Monitor enumeration
+  listMonitors: () => invoke<MonitorInfo[]>("list_monitors"),
 
   // Game mode
   addKnownGame: (name: string) =>

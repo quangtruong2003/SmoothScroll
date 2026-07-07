@@ -4288,6 +4288,7 @@ name = "smoothscroll_core"
 version = "1.13.0"
 dependencies = [
  "approx",
+ "chrono",
  "criterion",
  "directories",
  "serde",

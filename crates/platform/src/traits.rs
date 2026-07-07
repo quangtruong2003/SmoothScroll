@@ -116,6 +116,21 @@ pub trait FullscreenDetector: Send + Sync {
 
 pub trait WindowGeometry: Send + Sync {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)>;
+
+    fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
+        None // default — platforms override
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct MonitorInfo {
+    pub device_name: String,
+    pub friendly_name: String,
+    pub rect: crate::types::WindowRect,
+}
+
+pub trait MonitorEnumeration: Send + Sync {
+    fn list_monitors(&self) -> Vec<MonitorInfo>;
 }
 
 /// OS-level accessibility signals that influence engine behaviour.

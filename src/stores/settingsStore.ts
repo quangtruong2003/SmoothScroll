@@ -296,6 +296,7 @@ export const useBehaviorFields = () =>
         show_tray_icon_state: set.show_tray_icon_state,
         respect_reduce_motion: set.respect_reduce_motion,
         auto_disable_windows_apps: set.auto_disable_windows_apps,
+        force_enable_all_apps: set.force_enable_all_apps,
       };
     })
   );

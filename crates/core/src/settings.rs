@@ -137,6 +137,24 @@ impl Default for ModifierPassthrough {
     }
 }
 
+/// Assignment of a scroll profile to a specific monitor (by device name).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MonitorProfile {
+    pub device_name: String,
+    pub friendly_name: String,
+    pub profile_id: String,
+}
+
+impl Default for MonitorProfile {
+    fn default() -> Self {
+        Self {
+            device_name: String::new(),
+            friendly_name: String::new(),
+            profile_id: "__default__".to_string(),
+        }
+    }
+}
+
 /// Persisted user settings.
 ///
 /// Field defaults are produced via `Default::default()` and apply when
@@ -211,6 +229,12 @@ pub struct AppSettings {
 
     // Auto-disable: Windows apps that already have native smooth scrolling.
     pub auto_disable_windows_apps: bool,
+
+    // Per-monitor scroll profiles
+    pub monitor_profiles: Vec<MonitorProfile>,
+
+    // UWP force enable: override auto-disable for Windows native apps
+    pub force_enable_all_apps: bool,
 }
 
 impl Default for AppSettings {
@@ -255,6 +279,8 @@ impl Default for AppSettings {
             zoom_sensitivity: 1.0,
             onboarding_completed_at: None,
             auto_disable_windows_apps: true,
+            monitor_profiles: Vec::new(),
+            force_enable_all_apps: false,
         }
     }
 }

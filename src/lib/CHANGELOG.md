@@ -7,6 +7,20 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-07-07
+
+### Added
+- implement per-version highlights in WhatsNewModal using CHANGELOG.md
+- add 'Show release notes' button
+- auto-pull highlights from bundled CHANGELOG.md
+- add pure markdown changelog parser with tests
+
+### Fixed
+- handle CRLF line endings in CHANGELOG.md parser
+- route cleanupNativeDisabledApps through store action for in-memory sync
+- ensure post-cleanup saveNow overrides stale debounced persist
+- cleanup stale native-app __disabled__ entries on toggle OFF
+- give sidebar items proper spacing and active state
 ## [1.11.0] - 2026-07-03
 
 ### Added
