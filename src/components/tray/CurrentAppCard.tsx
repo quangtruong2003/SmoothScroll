@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import {
@@ -15,18 +14,8 @@ import {
   Ban,
   type LucideIcon,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { tauri, type ForegroundAppContext, type AppSettings, type AppCategory } from "@/lib/tauri";
-import { useSettingsStore } from "@/stores/settingsStore";
-
-const DISABLED_PROFILE_ID = "__disabled__";
-const DEFAULT_VALUE = "__default__";
+import { Switch } from "@/components/ui/switch";
+import { tauri, type ForegroundAppContext, type AppCategory } from "@/lib/tauri";
 
 const CATEGORY_ICON: Record<AppCategory, LucideIcon> = {
   Browser: Globe,
@@ -55,10 +44,6 @@ function prettifyProcessName(raw: string): string {
 }
 
 export function CurrentAppCard() {
-  const { t } = useTranslation();
-  const settings = useSettingsStore((s) => s.settings) as AppSettings | null;
-  const profiles = settings?.profiles ?? [];
-
   const [ctx, setCtx] = useState<ForegroundAppContext | null>(null);
 
   const refresh = useCallback(async () => {
@@ -84,30 +69,23 @@ export function CurrentAppCard() {
 
   if (!ctx?.process_name) return null;
 
-  const currentValue = ctx.is_excluded
-    ? DISABLED_PROFILE_ID
-    : (ctx.current_profile_id ?? DEFAULT_VALUE);
-
+  const isDisabled = ctx.is_excluded;
   const category = ctx.suggested_category ?? "Unknown";
   const Icon = CATEGORY_ICON[category];
-  const isDisabled = currentValue === DISABLED_PROFILE_ID;
   const displayName = prettifyProcessName(ctx.process_name);
 
-  const onSelect = async (value: string) => {
+  const handleToggle = async (enabled: boolean) => {
     const name = ctx.process_name;
     if (!name) return;
-    if (value === DEFAULT_VALUE) {
-      await invoke("unassign_app_profile", { processName: name });
+    if (enabled) {
       await invoke("remove_excluded_app", { name }).catch(() => {
         // ignore
       });
-    } else if (value === DISABLED_PROFILE_ID) {
+    } else {
       await invoke("assign_app_profile", {
         processName: name,
-        profileId: DISABLED_PROFILE_ID,
+        profileId: "__disabled__",
       });
-    } else {
-      await invoke("assign_app_profile", { processName: name, profileId: value });
     }
     await refresh();
   };
@@ -128,35 +106,11 @@ export function CurrentAppCard() {
           <div className="truncate text-sm font-semibold leading-tight">
             {displayName}
           </div>
-          <div className="mt-0.5 truncate text-[0.846rem] text-muted-foreground">
-            {isDisabled
-              ? t("tray.current_app.smoothing_off")
-              : ctx.suggested_category_label && category !== "Unknown"
-                ? ctx.suggested_category_label
-                : t("tray.current_app.smoothing_on")}
-          </div>
         </div>
-      </div>
-
-      <div className="px-3 pb-3">
-        <Select value={currentValue} onValueChange={onSelect}>
-          <SelectTrigger className="h-8 w-full text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={DEFAULT_VALUE}>
-              {t("tray.current_app.default")}
-            </SelectItem>
-            <SelectItem value={DISABLED_PROFILE_ID}>
-              {t("tray.current_app.disabled")}
-            </SelectItem>
-            {profiles.length > 0 && profiles.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Switch
+          checked={!isDisabled}
+          onCheckedChange={handleToggle}
+        />
       </div>
     </div>
   );
