@@ -571,16 +571,6 @@ body[data-platform="mac"] .mac-titlebar-overlay {
 .tray-section-last {
   padding-bottom: 6px;
 }
-.tray-section-label {
-  padding: 12px 14px 4px;
-}
-.tray-section-label span {
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: hsl(var(--muted-foreground));
-}
 .tray-footer {
   padding: 6px 14px;
   display: flex;
@@ -656,14 +646,6 @@ body[data-platform="win"] .tray-section {
   padding: 4px 8px 8px;
   gap: 2px;
 }
-body[data-platform="win"] .tray-section-label {
-  padding: 12px 16px 4px;
-}
-body[data-platform="win"] .tray-section-label span {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
 body[data-platform="win"] .tray-footer {
   padding: 8px 16px;
 }
@@ -725,19 +707,6 @@ body[data-platform="mac"] .tray-section + .tray-section {
 }
 body[data-platform="mac"].dark .tray-section + .tray-section {
   border-top-color: hsl(0 0% 100% / 0.08);
-}
-body[data-platform="mac"] .tray-section-label {
-  padding: 8px 14px 4px;
-}
-body[data-platform="mac"] .tray-section-label span {
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: hsl(0 0% 47%);
-}
-body[data-platform="mac"].dark .tray-section-label span {
-  color: hsl(0 0% 60%);
 }
 body[data-platform="mac"] .menu-item {
   min-height: 22px;
@@ -807,16 +776,6 @@ body[data-platform="linux"] .tray-section {
 }
 body[data-platform="linux"] .tray-section + .tray-section {
   margin-top: 4px;
-}
-body[data-platform="linux"] .tray-section-label {
-  padding: 6px 12px 2px;
-}
-body[data-platform="linux"] .tray-section-label span {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: hsl(var(--muted-foreground));
 }
 body[data-platform="linux"] .menu-item {
   min-height: 30px;
