@@ -615,6 +615,53 @@ body[data-platform="mac"] .mac-titlebar-overlay {
 }
 
 /* ---------------------------------------------------------------------
+ * Tray row — CSS Grid layout for perfect alignment.
+ *
+ * Grid columns: icon (28px) | label (1fr) | toggle/action (auto)
+ * Ensures all toggles align at the same horizontal position.
+ * ------------------------------------------------------------------- */
+.tray-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 0 10px;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  border-radius: 8px;
+  transition: background-color 120ms ease-out;
+}
+.tray-row:hover {
+  background: hsl(var(--accent));
+}
+.tray-row-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+}
+.tray-row-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tray-row-action {
+  cursor: pointer;
+}
+.tray-row-destructive {
+  color: hsl(var(--destructive));
+}
+.tray-divider {
+  height: 1px;
+  background: hsl(var(--border));
+  margin: 4px 12px;
+}
+
+/* ---------------------------------------------------------------------
  * Windows default — kept for legacy look.
  * ------------------------------------------------------------------- */
 body[data-platform="win"] .tray-panel-root {

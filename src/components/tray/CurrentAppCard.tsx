@@ -28,7 +28,6 @@ const CATEGORY_ICON: Record<AppCategory, LucideIcon> = {
   Unknown: AppWindow,
 };
 
-/** Turn `smoothscroll-app.exe` into `SmoothScroll App`. */
 function prettifyProcessName(raw: string): string {
   const stem = raw.replace(/\.exe$/i, "");
   return stem
@@ -90,15 +89,12 @@ export function CurrentAppCard() {
   };
 
   return (
-    <label className="menu-item menu-item-toggle">
-      <span className="menu-item-icon">
+    <div className="tray-row">
+      <span className="tray-row-icon">
         <Icon className="h-4 w-4" />
       </span>
-      <span className="menu-item-label">{displayName}</span>
-      <Switch
-        checked={!isDisabled}
-        onCheckedChange={handleToggle}
-      />
-    </label>
+      <span className="tray-row-label">{displayName}</span>
+      <Switch checked={!isDisabled} onCheckedChange={handleToggle} />
+    </div>
   );
 }

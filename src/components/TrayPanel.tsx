@@ -15,19 +15,6 @@ import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
 import { CurrentAppCard } from './tray/CurrentAppCard';
 
-// Tray panel styling intentionally follows each platform's tray-menu
-// convention rather than the broader web design system:
-//
-//   - macOS NSMenu / NSPopover: tight vertical rhythm (≈ 22px rows),
-//     single-line text aligned to leading edge, status indicator uses
-//     the system green/grey; section headers are uppercase & tighter.
-//   - Linux Adwaita popover: 32px rows, status indicator uses libadwaita
-//     accent, section headers are sentence-case but in caption weight.
-//   - Windows: stays on the legacy Tailwind look (--panel-radius etc.)
-//
-// Each variant is implemented as a separate styled class so we don't
-// fight the global tokens from index.css.
-
 interface MenuItemProps {
   icon?: React.ReactNode;
   label: string;
@@ -47,30 +34,24 @@ function MenuItem({
   onClick,
   variant = 'default',
 }: MenuItemProps) {
-  const variantClasses = {
-    default: 'menu-item-default',
-    destructive: 'menu-item-destructive',
-    muted: 'menu-item-muted',
-  };
-
-  const baseClass = `menu-item ${variantClasses[variant]}`;
+  const rowClass = `tray-row ${variant === 'destructive' ? 'tray-row-destructive' : ''}`;
 
   if (toggle !== undefined) {
     const isOn = checked ?? false;
     return (
-      <label className={`${baseClass} menu-item-toggle`}>
-        {icon && <span className="menu-item-icon">{icon}</span>}
-        <span className="menu-item-label">{label}</span>
+      <div className={rowClass}>
+        {icon && <span className="tray-row-icon">{icon}</span>}
+        <span className="tray-row-label">{label}</span>
         <Switch checked={isOn} onCheckedChange={(v) => onToggle?.(v)} />
-      </label>
+      </div>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} className={baseClass}>
-      {icon && <span className="menu-item-icon">{icon}</span>}
-      <span className="menu-item-label">{label}</span>
-    </button>
+    <div className={`${rowClass} tray-row-action`} onClick={onClick} role="button" tabIndex={0}>
+      {icon && <span className="tray-row-icon">{icon}</span>}
+      <span className="tray-row-label">{label}</span>
+    </div>
   );
 }
 
@@ -90,7 +71,6 @@ export function TrayPanel() {
     invoke<boolean>('get_autostart').then(setAutostartState, () => {
       // ignore
     });
-
 
     if (!settings) void load();
 
@@ -113,10 +93,6 @@ export function TrayPanel() {
     };
   }, [load]);
 
-  // Auto-resize the tray window to fit content. The window is created with
-  // a fixed height in tauri.conf.json; we shrink (or grow) it to match the
-  // panel's natural height so adding/removing rows doesn't leave dead space
-  // or clip content.
   const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = rootRef.current;
@@ -143,7 +119,6 @@ export function TrayPanel() {
       }
     });
     obs.observe(el);
-    // Initial sync after layout settles.
     requestAnimationFrame(() => {
       const rect = el.getBoundingClientRect();
       sync(rect.width, rect.height);
@@ -151,8 +126,6 @@ export function TrayPanel() {
     return () => obs.disconnect();
   }, []);
 
-  // Apply theme once settings load and whenever the theme choice changes,
-  // so the tray panel matches light/dark from the very first paint.
   useEffect(() => {
     if (settings) applyTheme(settings.theme);
   }, [settings]);
@@ -195,17 +168,16 @@ export function TrayPanel() {
         </div>
       </div>
 
-      {/* Scrollable content */}
+      {/* Content */}
       <div className="tray-content">
-
-        {/* Current foreground app — hidden on Linux (no foreground app detection) */}
+        {/* Current foreground app */}
         {!IS_LINUX && (
           <div className="tray-section">
             <CurrentAppCard />
           </div>
         )}
 
-        {/* Quick Access */}
+        {/* Toggles */}
         <div className="tray-section">
           <MenuItem
             label={t('tray.smooth_scrolling')}
@@ -229,6 +201,9 @@ export function TrayPanel() {
           />
         </div>
 
+        {/* Divider */}
+        <div className="tray-divider" />
+
         {/* Actions */}
         <div className="tray-section tray-section-last">
           <MenuItem
@@ -243,7 +218,6 @@ export function TrayPanel() {
             icon={<Power className="h-4 w-4" />}
           />
         </div>
-
       </div>
     </div>
   );
