@@ -199,7 +199,11 @@ export function TrayPanel() {
       <div className="tray-content">
 
         {/* Current foreground app — hidden on Linux (no foreground app detection) */}
-        {!IS_LINUX && <CurrentAppCard />}
+        {!IS_LINUX && (
+          <div className="tray-section">
+            <CurrentAppCard />
+          </div>
+        )}
 
         {/* Quick Access */}
         <div className="tray-section">
