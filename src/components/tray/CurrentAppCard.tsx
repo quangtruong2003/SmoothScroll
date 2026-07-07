@@ -91,27 +91,15 @@ export function CurrentAppCard() {
   };
 
   return (
-    <div className="mx-2 my-2 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <div className="flex items-center gap-2.5 px-3 py-2.5">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-            isDisabled
-              ? "bg-muted text-muted-foreground"
-              : "bg-primary/10 text-primary"
-          }`}
-        >
-          {isDisabled ? <Ban className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold leading-tight">
-            {displayName}
-          </div>
-        </div>
-        <Switch
-          checked={!isDisabled}
-          onCheckedChange={handleToggle}
-        />
-      </div>
-    </div>
+    <label className="menu-item menu-item-toggle">
+      <span className="menu-item-icon">
+        {isDisabled ? <Ban className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+      </span>
+      <span className="menu-item-label">{displayName}</span>
+      <Switch
+        checked={!isDisabled}
+        onCheckedChange={handleToggle}
+      />
+    </label>
   );
 }

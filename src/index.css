@@ -600,6 +600,7 @@ body[data-platform="mac"] .mac-titlebar-overlay {
 }
 .menu-item-label {
   flex: 1 1 auto;
+  white-space: nowrap;
 }
 .menu-item-default:hover,
 .menu-item-muted:hover,
