@@ -78,7 +78,7 @@ export function CurrentAppCard() {
     const name = ctx.process_name;
     if (!name) return;
     if (enabled) {
-      await invoke("remove_excluded_app", { name }).catch(() => {
+      await invoke("unassign_app_profile", { processName: name }).catch(() => {
         // ignore
       });
     } else {
