@@ -157,6 +157,13 @@ export function AboutSection() {
             <p className="text-xs text-destructive">{ui.message}</p>
           )}
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.dispatchEvent(new CustomEvent("whatsnew:open"))}
+        >
+          {t("about.show_release_notes")}
+        </Button>
         <Button variant="outline" size="sm" onClick={() => tauri.openLogDir()}>
           {t("about.open_logs")}
         </Button>
