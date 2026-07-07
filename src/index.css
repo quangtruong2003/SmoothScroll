@@ -691,6 +691,26 @@ body[data-platform="win"] .menu-item {
   border-radius: 8px;
 }
 
+/* Windows: shrink-wrap tray panel to label content.
+ * The base `.tray-panel-flex { width: 100% }` makes the panel fill the
+ * window (220px on Windows). Switching to `inline-flex` lets the panel
+ * size to its longest label so a row like
+ * "Auto-detect scroll direction" renders without ellipsis. The
+ * `ResizeObserver` in TrayPanel.tsx reports the natural width to
+ * `resize_tray_panel`, which clamps to [200, 480] (Rust side).
+ *
+ * macOS and Linux keep their fixed 264px / 268px widths (different
+ * selectors, not affected here).
+ */
+body[data-platform="win"] .tray-panel-flex {
+  display: inline-flex;
+  width: auto;
+}
+body[data-platform="win"] .tray-row-label {
+  overflow: visible;
+  text-overflow: clip;
+}
+
 /* ---------------------------------------------------------------------
  * macOS — NSMenu/NSPopover geometry.
  *
