@@ -82,7 +82,6 @@ export function TrayPanel() {
 
   const [enabled, setEnabledState] = useState(false);
   const [autostart, setAutostartState] = useState(false);
-  const [appVersion, setAppVersion] = useState('0.1.0');
 
   useEffect(() => {
     invoke<boolean>('get_enabled').then(setEnabledState, () => {
@@ -91,9 +90,8 @@ export function TrayPanel() {
     invoke<boolean>('get_autostart').then(setAutostartState, () => {
       // ignore
     });
-    invoke<string>('app_version').then(setAppVersion, () => {
-      // ignore
-    });
+
+
     if (!settings) void load();
 
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
@@ -234,12 +232,6 @@ export function TrayPanel() {
           />
         </div>
 
-      </div>
-
-      {/* Footer */}
-      <div className="tray-footer">
-        <span>SmoothScroll</span>
-        <span>{appVersion}</span>
       </div>
     </div>
   );
