@@ -7,6 +7,112 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.14.1] - 2026-07-07
+
+### Fixed
+- gate stats module behind cfg(not(wasm32)) to fix WASM build
+## [1.14.0] - 2026-07-07
+
+### Added
+- per-monitor scroll profiles and UWP force-enable toggle
+- per-monitor scroll profiles and UWP force-enable toggle
+- scroll analytics dashboard — daily stats with top apps and peak velocity
+- add winget package auto-update workflow
+- display refresh rate sync — engine frame rate matches primary monitor
+- velocity-based scroll acceleration replaces step-based
+
+### Fixed
+- add missing translation keys for monitor profiles, force enable, max velocity, and presets
+- add preset selection label, hide stats tab, add presets.currently i18n key
+- address code review findings — parking_lot Mutex, clone-before-IO, wire record_velocity, fix ScrollProfile schema
+- add max_velocity to mock profile in settingsStore test
+
+### Performance
+- add edge-case benchmarks — direction change, multi-axis, idle recovery, burst, easing
+- game mode — skip EnumWindows when foreground PID unchanged
+## [1.13.0] - 2026-07-07
+
+### Added
+- remove Start minimized, Excluded Apps, and Open Log menu items from tray panel
+- implement per-version highlights in WhatsNewModal using CHANGELOG.md
+- add 'Show release notes' button
+- auto-pull highlights from bundled CHANGELOG.md
+- add pure markdown changelog parser with tests
+- native UI theming + platform bugfixes
+- show beta warning for Linux and macOS users
+- add Linux support to download page
+- implement Wayland support design and detailed implementation plan
+- add Wayland support via evdev+uinput
+- wire direction sync in SettingsStore
+- add direction sync IPC protocol types
+- wire direction_sync_enabled handlers to AppState
+- implement MacosMouseHook using CGEventTap
+- add AppDelegate with graceful shutdown
+- add MenuBarController with NSStatusItem and NSPopover
+- add SmoothScrollPopover with connection status UI
+- add SettingsStore with rollback and mutation guard
+- add ScrollPreset enum
+- add ReconnectionManager with AsyncStream reconnect
+- implement IPCClient actor with DispatchQueue I/O
+- add SocketIO wrapper for POSIX I/O on DispatchQueue
+- add JSON-RPC protocol types and AppSettingsResponse
+- add SocketPath constant with defensive path resolution
+- add quit handler with watch channel to exit Tauri app
+- wire IpcServer into Tauri app, skip tray icon
+- add ipc_socket_path() using directories crate
+- limit Linux UI to essential features
+- adapt frontend for Linux platform
+- add Linux platform types in app crate
+- add complete Linux X11 platform implementation
+- convert hardcoded px values to rem for responsive scaling
+- responsive root font-size with clamp for large displays
+- add Sentry crash reporting for frontend and backend
+- implement is_target_elevated() with UAC detection
+- add is_target_elevated() to ProcessQuery trait
+- add IntegrityLevel enum
+
+### Fixed
+- resolve evdev Option unwrapping and unused import warnings
+- handle CRLF line endings in CHANGELOG.md parser
+- route cleanupNativeDisabledApps through store action for in-memory sync
+- ensure post-cleanup saveNow overrides stale debounced persist
+- cleanup stale native-app __disabled__ entries on toggle OFF
+- give sidebar items proper spacing and active state
+- show correct download label for Linux users
+- make wayland module pub for cross-crate access
+- add platform status command and permission error UI
+- improve touchpad detection and remove duplicate settings
+- change BUS_USB from u32 to u16 to match uinput_user_dev struct
+- fix type mismatches in evdev ioctl and event handling
+- fix ioctl macro invocation for nix 0.29
+- fix 73 build errors in smoothscroll_platform for Wayland support
+- fix Linux upload paths to match Cargo workspace target dir
+- add TAURI_SIGNING_PRIVATE_KEY to Linux build env
+- fix XI_RawButtonPress mask bit position overflow
+- fix mouse_hook.rs XEvent cookie access for x11 crate
+- fix 21 pre-existing Linux x11/xlib compilation errors
+- fix Linux x11 module paths + macOS DMG race condition
+- pass scrollEnabled as param to avoid @MainActor property access
+- move notification observer to AppDelegate to avoid Sendable capture issue
+- add @MainActor to MenuBarController for SettingsStore access
+- resolve 8 Swift compilation errors
+- break loop on write_all error in handle_client
+- return error on save_settings deserialization failure
+- persist preset and signal engine in set_preset handler
+- reset engine to default when scroll disabled
+- change IpcEvent serialization to camelCase without tag wrapper
+- add missing closing brace in handle_client event arm
+- remove unused IS_LINUX import in Settings.tsx
+- Drop impl compile error + Cargo.toml description
+- move suppression flag inside Mutex guard + fix CSS comment
+- address Linux X11 code review findings
+- remove font-size transition, vw scaling is naturally smooth
+- hardcode base path for before/after GIF assets
+- SEO accessibility fixes and hydration bug
+- migrate legacy SoftScroll config path on first load
+- move elevated check before should_lookup_processes gate
+- auto-bypass smooth scroll for elevated (admin) targets
+- set CONFIGURATION_BUILD_DIR for xcodebuild, add DMG error diagnostics
 ## [1.12.0] - 2026-07-07
 
 ### Added

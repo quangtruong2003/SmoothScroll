@@ -11,7 +11,6 @@ import {
   Image as ImageIcon,
   Gamepad2,
   Briefcase,
-  Ban,
   type LucideIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -93,7 +92,7 @@ export function CurrentAppCard() {
   return (
     <label className="menu-item menu-item-toggle">
       <span className="menu-item-icon">
-        {isDisabled ? <Ban className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+        <Icon className="h-4 w-4" />
       </span>
       <span className="menu-item-label">{displayName}</span>
       <Switch
