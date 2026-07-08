@@ -142,3 +142,7 @@
     outline: none;
   }
 }
+
+html[data-no-dot-grid='true'] canvas[aria-hidden='true'].pointer-events-none {
+  display: none;
+}

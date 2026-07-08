@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
 import { ScrollToTop } from './ScrollToTop'
+import { DotGridToggle } from './DotGridToggle'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
@@ -80,6 +81,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
               </Button>
             </a>
             <LangSwitcher locale={locale} dict={{ langSwitcher: langSwitcherDict }} />
+            <DotGridToggle />
             <ThemeToggle />
           </div>
         </nav>
