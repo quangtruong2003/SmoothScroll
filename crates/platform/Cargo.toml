@@ -45,6 +45,7 @@ objc2-app-kit = { version = "0.2", default-features = false, features = [
 objc2-foundation = { version = "0.2", default-features = false, features = [
     "std",
     "NSString",
+    "NSURL",
 ] }
 # core-foundation v0.7 pulls core-foundation-sys v0.7 — must match objc2's dep
 core-foundation = "0.7"

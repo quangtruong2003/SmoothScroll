@@ -4,6 +4,34 @@
 
 use crate::traits::{ProcessInfo, ProcessQuery};
 
+/// Returns the .app bundle URL of the frontmost non-self application, or None
+/// when no frontmost app, the frontmost app is us, or AppKit cannot resolve
+/// the bundle (e.g. background-only command-line tool).
+fn frontmost_app_bundle_url() -> Option<std::path::PathBuf> {
+    use objc2::msg_send;
+    use objc2::msg_send_id;
+    use objc2::rc::Retained;
+    use objc2_app_kit::{NSRunningApplication, NSWorkspace};
+    use objc2_foundation::{NSString, NSURL};
+    unsafe {
+        let self_pid = std::process::id() as i32;
+        let workspace = NSWorkspace::sharedWorkspace();
+        let app: Option<Retained<NSRunningApplication>> =
+            msg_send_id![&*workspace, frontmostApplication];
+        let app = app?;
+        let pid: i32 = msg_send![&*app, processIdentifier];
+        if pid == self_pid {
+            return None;
+        }
+        // bundleURL is NSURL *; .path returns NSString *. Read path then
+        // drop the NSURL.
+        let url: Option<Retained<NSURL>> = msg_send_id![&*app, bundleURL];
+        let url = url?;
+        let path_ns: Option<Retained<NSString>> = msg_send_id![&*url, path];
+        path_ns.map(|p| std::path::PathBuf::from(p.to_string()))
+    }
+}
+
 pub struct MacosProcessQuery;
 
 impl MacosProcessQuery {
@@ -56,6 +84,34 @@ impl ProcessQuery for MacosProcessQuery {
             }
             let name: Option<Retained<NSString>> = msg_send_id![&*app, localizedName];
             name.map(|n| n.to_string())
+        }
+    }
+
+    fn foreground_process_info(&self) -> Option<ProcessInfo> {
+        use objc2::msg_send;
+        use objc2::msg_send_id;
+        use objc2::rc::Retained;
+        use objc2_app_kit::{NSRunningApplication, NSWorkspace};
+        use objc2_foundation::NSString;
+        unsafe {
+            let self_pid = std::process::id() as i32;
+            let workspace = NSWorkspace::sharedWorkspace();
+            let app: Option<Retained<NSRunningApplication>> =
+                msg_send_id![&*workspace, frontmostApplication];
+            let app = app?;
+            let pid: i32 = msg_send![&*app, processIdentifier];
+            if pid == self_pid {
+                return None;
+            }
+            let name: Option<Retained<NSString>> = msg_send_id![&*app, localizedName];
+            let name = name?.to_string();
+            let exe_path = frontmost_app_bundle_url();
+            Some(ProcessInfo {
+                pid: pid as u32,
+                name,
+                window_title: String::new(),
+                exe_path: exe_path.and_then(|p| p.to_str().map(|s| s.to_owned())),
+            })
         }
     }
 }
