@@ -72,12 +72,12 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
               href="https://github.com/quangtruong2003/SmoothScroll"
               target="_blank"
               rel="noopener noreferrer"
+              className="flex"
               aria-label="SmoothScroll on GitHub (opens new tab)"
-              className="hidden sm:flex"
             >
               <Button variant="ghost" size="sm">
-                <Github className="h-4 w-4 mr-1.5" />
-                GitHub
+                <Github className="h-4 w-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">GitHub</span>
               </Button>
             </a>
             <LangSwitcher locale={locale} dict={{ langSwitcher: langSwitcherDict }} />
