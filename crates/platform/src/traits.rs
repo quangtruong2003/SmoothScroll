@@ -60,6 +60,10 @@ pub struct ProcessInfo {
     pub pid: u32,
     pub name: String,
     pub window_title: String,
+    /// Absolute path to the executable on disk, when available.
+    /// `None` on platforms that cannot resolve it cheaply or when the
+    /// process is not accessible (e.g. protected by AppContainer / SIP).
+    pub exe_path: Option<String>,
 }
 
 pub trait ProcessQuery: Send + Sync {
@@ -72,6 +76,13 @@ pub trait ProcessQuery: Send + Sync {
     /// there is no foreground window or the query fails. Default returns
     /// None; Win/Mac implementations override with platform-specific logic.
     fn foreground_process_name(&self) -> Option<String> {
+        None
+    }
+
+    /// Combined foreground query: returns both process name and exe path
+    /// in a single call, avoiding two separate platform lookups. Default
+    /// returns None; per-platform impls override for efficiency.
+    fn foreground_process_info(&self) -> Option<ProcessInfo> {
         None
     }
 
