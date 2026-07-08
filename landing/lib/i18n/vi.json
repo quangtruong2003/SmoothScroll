@@ -1,9 +1,9 @@
 {
   "nav": { "github": "GitHub", "stars": "sao" },
   "hero": {
-    "eyebrow": "Windows 10 / 11 · v1.14.1",
-    "eyebrowLinux": "Linux (Coming Soon)",
-    "eyebrowMac": "macOS (Coming Soon)",
+    "eyebrow": "Dành cho Windows",
+    "eyebrowLinux": "Linux sắp hỗ trợ",
+    "eyebrowMac": "macOS sắp hỗ trợ",
     "title": "Cuộn chuột,",
     "titleAccent": "cuối cùng đã đúng cách.",
     "subtitle": "Một bộ easing 120 Hz cho mỗi tick lăn chuột, trong mọi ứng dụng. Dành cho người nhận ra sự khác biệt giữa cuộn mượt và cuộn giật.",

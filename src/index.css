@@ -641,7 +641,7 @@ body[data-platform="mac"] .mac-titlebar-overlay {
    * handled by per-child margins below so we can keep icon↔label
    * short while label↔toggle = one toggle's own width (44px). */
   min-height: 36px;
-  padding: 0 12px 0 4px;
+  padding: 0 8px;
   font-size: 0.84rem;
   font-weight: 500;
   color: hsl(var(--foreground));

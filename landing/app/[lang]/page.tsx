@@ -3,7 +3,6 @@ import { PainPoints } from '@/components/sections/PainPoints'
 import { ScrollDemo } from '@/components/sections/ScrollDemo'
 import { SolutionBridge } from '@/components/sections/SolutionBridge'
 import { Features } from '@/components/sections/Features'
-import { UseCases } from '@/components/sections/UseCases'
 import { TrayPreviewSection } from '@/components/sections/TrayPreviewSection'
 import { Stats } from '@/components/sections/Stats'
 import { Indie } from '@/components/sections/Indie'
@@ -23,18 +22,17 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 
   return (
     <>
-      <Hero dict={{ hero: dict.hero, beta: dict.beta, finalCta: dict.finalCta }} locale={locale} />
+      <Hero dict={{ hero: dict.hero }} locale={locale} />
       <PainPoints dict={{ painPoints: dict.painPoints }} />
       <ScrollDemo />
       <SolutionBridge dict={{ solutionBridge: dict.solutionBridge }} />
       <Features dict={{ features: dict.features }} />
-      <UseCases dict={{ useCases: dict.useCases }} />
       <TrayPreviewSection dict={{ trayPreview: dict.trayPreview }} />
       <Stats dict={{ stats: dict.stats }} />
       <Indie dict={{ indie: dict.indie }} />
-      <Install dict={{ install: dict.install, beta: dict.beta }} />
+      <Install dict={{ install: dict.install }} />
       <FAQ dict={{ faq: dict.faq }} />
-      <FinalCTA dict={{ finalCta: dict.finalCta, beta: dict.beta }} />
+      <FinalCTA dict={{ finalCta: dict.finalCta }} />
     </>
   )
 }

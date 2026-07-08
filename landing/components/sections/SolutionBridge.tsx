@@ -11,7 +11,7 @@ export function SolutionBridge({ dict }: SolutionBridgeProps) {
     <section className="py-12 px-4">
       <div className="container">
         <FadeUp>
-          <p className="text-2xl sm:text-3xl font-bold text-center leading-snug">
+          <p className="text-3xl sm:text-4xl font-bold text-center leading-snug max-w-3xl mx-auto">
             {dict?.solutionBridge?.line ?? ''}
           </p>
         </FadeUp>

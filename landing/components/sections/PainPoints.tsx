@@ -3,10 +3,10 @@
 import { FadeUp } from '@/components/motion/FadeUp'
 import { StaggerContainer, staggerItem } from '@/components/motion/StaggerContainer'
 import { motion } from 'motion/react'
-import { Zap, BatteryLow, Mouse } from 'lucide-react'
+import { Mouse, Gamepad2, ShieldCheck } from 'lucide-react'
 import type { Dictionary } from '@/lib/i18n/dict'
 
-const ICONS = [Zap, BatteryLow, Mouse]
+const ICONS = [Mouse, Gamepad2, ShieldCheck]
 
 interface PainPointsProps {
   dict: { painPoints?: Dictionary['painPoints'] }

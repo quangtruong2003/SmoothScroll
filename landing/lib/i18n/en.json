@@ -4,9 +4,9 @@
     "stars": "stars"
   },
   "hero": {
-    "eyebrow": "Windows 10 / 11 · v1.14.1",
-    "eyebrowLinux": "Linux (Coming Soon)",
-    "eyebrowMac": "macOS (Coming Soon)",
+    "eyebrow": "For Windows",
+    "eyebrowLinux": "Linux coming soon",
+    "eyebrowMac": "macOS coming soon",
     "title": "Mouse wheel scrolling,",
     "titleAccent": "finally done right.",
     "subtitle": "A 120 Hz easing engine for every wheel tick, in every app. Built for people who notice the difference between a smooth scroll and a stuttering one.",

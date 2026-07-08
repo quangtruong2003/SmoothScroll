@@ -2,15 +2,13 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { DownloadCTA } from '@/components/DownloadCTA'
-import { BetaNotice } from '@/components/BetaNotice'
-import { Copy, Check, Download } from 'lucide-react'
+import { DownloadButtonWin } from '@/components/DownloadButtonWin'
+import { Copy, Check } from 'lucide-react'
 import { useState } from 'react'
-import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 interface InstallProps {
-  dict: { install?: Dictionary['install']; beta?: Dictionary['beta'] }
+  dict: { install?: Dictionary['install'] }
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -35,14 +33,10 @@ export function Install({ dict }: InstallProps) {
     tabs: { windows: { label: '', steps: [] }, macos: { label: '', steps: [] }, linux: { label: '', steps: [] } },
     filename: '',
     note: { windows: '', macos: '', linux: '' },
-    cta: '',
-    ctaMac: '',
+    cta: 'Download for Windows',
     ctaLinux: '',
+    ctaMac: '',
   }
-  const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
-  const { os, ctaLabel, isMac, isLinux } = useDownloadUrl()
-
-  const defaultTab = os === 'mac' ? 'macos' : os === 'linux' ? 'linux' : 'windows'
 
   return (
     <section id="install" className="py-20 px-4 scroll-mt-20">
@@ -52,11 +46,11 @@ export function Install({ dict }: InstallProps) {
           <p className="text-muted-foreground text-lg">{i.subtitle}</p>
         </div>
 
-        <Tabs defaultValue={defaultTab} className="max-w-2xl mx-auto">
+        <Tabs defaultValue="windows" className="max-w-2xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="windows">{i.tabs?.windows?.label ?? ''}</TabsTrigger>
-            <TabsTrigger value="linux">{i.tabs?.linux?.label ?? ''}</TabsTrigger>
-            <TabsTrigger value="macos">{i.tabs?.macos?.label ?? ''}</TabsTrigger>
+            <TabsTrigger value="windows">{i.tabs?.windows?.label ?? 'Windows'}</TabsTrigger>
+            <TabsTrigger value="linux" disabled title="Linux support is coming soon">{i.tabs?.linux?.label ?? 'Linux'}</TabsTrigger>
+            <TabsTrigger value="macos" disabled title="macOS support is coming soon">{i.tabs?.macos?.label ?? 'macOS'}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="windows" className="space-y-6">
@@ -118,34 +112,7 @@ export function Install({ dict }: InstallProps) {
         </Tabs>
 
         <div className="text-center mt-8 space-y-4">
-          {isMac ? (
-            <Button
-              variant="brand"
-              size="xl"
-              disabled
-              className="w-full max-w-md"
-            >
-              <Download className="h-5 w-5 mr-2" />
-              {i.ctaMac || ctaLabel}
-              <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
-                Coming Soon
-              </span>
-            </Button>
-          ) : (
-            <DownloadCTA
-              label={isLinux ? (i.ctaLinux || ctaLabel) : ctaLabel}
-              labelLinux={i.ctaLinux}
-              labelMac={i.ctaMac}
-              betaBadge={b.badge ?? 'BETA'}
-              variant="brand"
-              size="xl"
-            />
-          )}
-          <BetaNotice
-            notice={isMac ? '' : (b.notice ?? '')}
-            reportPrefix={b.reportPrefix ?? ''}
-            reportLink={b.reportLink ?? ''}
-          />
+          <DownloadButtonWin label={i.cta ?? 'Download for Windows'} variant="brand" size="xl" className="w-full max-w-md" />
         </div>
       </div>
     </section>

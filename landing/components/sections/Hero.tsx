@@ -2,29 +2,31 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { DownloadCTA } from '@/components/DownloadCTA'
-import { BetaNotice } from '@/components/BetaNotice'
+import { DownloadButtonWin } from '@/components/DownloadButtonWin'
 import { BrandMarquee } from '@/components/BrandMarquee'
 import { Badge } from '@/components/ui/badge'
 import { detectOS } from '@/lib/os'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 
 interface HeroProps {
-  dict: { hero?: Dictionary['hero']; beta?: Dictionary['beta']; finalCta?: Dictionary['finalCta'] }
+  dict: { hero?: Dictionary['hero'] }
   locale: Locale
 }
 
 export function Hero({ dict, locale }: HeroProps) {
-  const h = dict?.hero ?? { eyebrow: '', eyebrowLinux: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download', ctaLinux: 'Download for Linux', ctaMac: 'Download Beta for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
-  const b = dict?.beta ?? { badge: 'BETA', notice: '', reportPrefix: '', reportLink: '' }
-  const f = dict?.finalCta ?? { comingSoon: 'Coming Soon' }
+  const h = dict?.hero ?? { eyebrow: '', eyebrowLinux: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download for Windows', ctaLinux: 'Download for Linux', ctaMac: 'Download for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
 
   const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
   useEffect(() => {
     setOs(detectOS())
   }, [])
 
-  const eyebrow = os === 'mac' && h.eyebrowMac ? h.eyebrowMac : os === 'linux' && h.eyebrowLinux ? h.eyebrowLinux : h.eyebrow
+  const eyebrow =
+    os === 'mac'
+      ? h.eyebrowMac
+      : os === 'linux'
+        ? h.eyebrowLinux
+        : h.eyebrow
 
   return (
     <section className="min-h-screen flex items-center pt-24 pb-20 px-4">
@@ -44,26 +46,20 @@ export function Hero({ dict, locale }: HeroProps) {
               {h.subtitle}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <DownloadCTA
-                label={h.cta ?? 'Download'}
-                labelLinux={h.ctaLinux}
-                labelMac={h.ctaMac}
-                betaBadge={b.badge ?? 'BETA'}
-                comingSoonLabel={f.comingSoon}
-                variant="brand"
-                size="xl"
-              />
-              <Link href={`/${locale}/how-it-works`} className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors">
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              <DownloadButtonWin label={h.cta ?? 'Download for Windows'} variant="brand" size="xl" />
+              {os !== 'win' && (
+                <span className="inline-flex items-center rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                  Best on Windows · Linux & macOS coming soon
+                </span>
+              )}
+              <Link
+                href={`/${locale}/how-it-works`}
+                className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors"
+              >
                 {h.seeHow}
               </Link>
             </div>
-
-            <BetaNotice
-              notice={b.notice ?? ''}
-              reportPrefix={b.reportPrefix ?? ''}
-              reportLink={b.reportLink ?? ''}
-            />
 
             <p className="text-sm text-muted-foreground">{h.trustLine}</p>
             <div className="w-full max-w-xl">

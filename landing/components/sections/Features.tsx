@@ -4,11 +4,11 @@ import { FadeUp } from '@/components/motion/FadeUp'
 import { StaggerContainer, staggerItem } from '@/components/motion/StaggerContainer'
 import { motion } from 'motion/react'
 import {
-  Settings2, Layers, Cpu, Battery, ShieldCheck, ToggleLeft
+  Zap, Monitor, AppWindow, Layers, Gamepad2, ShieldCheck
 } from 'lucide-react'
 import type { Dictionary } from '@/lib/i18n/dict'
 
-const ICONS = [Settings2, Layers, Cpu, Battery, ShieldCheck, ToggleLeft]
+const ICONS = [Zap, Monitor, AppWindow, Layers, Gamepad2, ShieldCheck]
 
 interface FeaturesProps {
   dict: { features?: Dictionary['features'] }

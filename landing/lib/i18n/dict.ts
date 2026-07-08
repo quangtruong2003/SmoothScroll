@@ -88,7 +88,7 @@ export interface Dictionary {
   }
   finalCta?: {
     title?: string
-    description?: string
+    subtitle?: string
     cta?: string
     ctaLinux?: string
     ctaMac?: string
