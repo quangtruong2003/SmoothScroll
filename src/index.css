@@ -634,16 +634,12 @@ body[data-platform="mac"] .mac-titlebar-overlay {
  * Ensures all toggles align at the same horizontal position.
  * ------------------------------------------------------------------- */
 .tray-row {
-  display: grid;
-  grid-template-columns: 20px 1fr auto;
+  display: flex;
   align-items: center;
-  /* Column gap matches the tray-toggle width (`w-11` = 44px) so the
-   * text↔toggle breathing room equals one toggle's own width, giving
-   * a calm visual rhythm instead of cramped adjacency. Padding-left
-   * is intentionally tight so the app icon hugs the panel's left
-   * edge — the column gap on that side still provides label↔icon
-   * separation. */
-  column-gap: 44px;
+  /* Tighter outer padding: 4px left so the icon hugs the panel's left
+   * edge, 12px right so the toggle sits inboard. Inner separation is
+   * handled by per-child margins below so we can keep icon↔label
+   * short while label↔toggle = one toggle's own width (44px). */
   min-height: 36px;
   padding: 0 12px 0 4px;
   font-size: 0.84rem;
@@ -656,17 +652,27 @@ body[data-platform="mac"] .mac-titlebar-overlay {
   background: hsl(var(--accent));
 }
 .tray-row-icon {
-  display: inline-flex;
+  flex: 0 0 20px;
   width: 16px;
   height: 16px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: hsl(var(--muted-foreground));
+  /* Short inner gap between icon and label. */
+  margin-right: 10px;
 }
 .tray-row-label {
+  flex: 1 1 auto;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Reserve exactly one toggle's width (w-11 = 44px) between the
+   * label and the toggle. CSS Grid can't do per-column gap, so the
+   * flexbox rewrite pushes that breathing room onto the label's
+   * trailing margin instead. */
+  margin-right: 44px;
 }
 .tray-row-app-icon {
   width: 16px;
