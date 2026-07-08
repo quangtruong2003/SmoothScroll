@@ -1,20 +1,20 @@
-﻿{
+{
   "nav": {
     "github": "GitHub",
     "stars": "stars"
   },
   "hero": {
-    "eyebrow": "For Windows",
-    "eyebrowLinux": "For Linux",
-    "eyebrowMac": "For macOS (Beta)",
-    "title": "Scroll that feels",
-    "titleAccent": "natural",
-    "subtitle": "SmoothScroll makes every mouse wheel movement feel silky — like you're using a premium trackpad. No learning curve. No bloat. Just smooth.",
+    "eyebrow": "Windows 10 / 11 · v1.14.1",
+    "eyebrowLinux": "Linux (Coming Soon)",
+    "eyebrowMac": "macOS (Coming Soon)",
+    "title": "Mouse wheel scrolling,",
+    "titleAccent": "finally done right.",
+    "subtitle": "A 120 Hz easing engine for every wheel tick, in every app. Built for people who notice the difference between a smooth scroll and a stuttering one.",
     "cta": "Download for Windows",
     "ctaLinux": "Download for Linux",
-    "ctaMac": "Download Beta for macOS",
+    "ctaMac": "Download for macOS",
     "ctaFallback": "Download",
-    "trustLine": "Free, no telemetry. Source-available license.",
+    "trustLine": "Free. No telemetry. Open-source (FSL-1.1 → Apache 2.0).",
     "seeHow": "See how it works",
     "demoPrompt": "Scroll the card. Then flip the switch.",
     "demoToast": "Want to feel it for real? — Download."
@@ -23,44 +23,36 @@
     "title": "The scroll is broken",
     "points": [
       {
-        "title": "Jerky, stuttering motion",
-        "description": "Every scroll tick lurches. Your hand expects smooth — your screen delivers chop."
+        "title": "Every app rolls its own",
+        "description": "Chrome does it, Edge does it, Explorer doesn't. You're stuck with whatever each dev shipped."
       },
       {
-        "title": "Exhausting for long sessions",
-        "description": "Reading, coding, browsing — hours of tiny micro-adjustments that add up."
+        "title": "Premium scroll costs premium",
+        "description": "Logi Options+ is fine until you switch mice. WizMouse hasn't been updated since 2014."
       },
       {
-        "title": "Third-party mice feel worse",
-        "description": "Good scroll is a premium feature. Everything else is a compromise."
+        "title": "Anti-cheat hates your tools",
+        "description": "Most input utilities get flagged. SmoothScroll auto-bypasses admin apps so you don't have to."
       }
     ]
   },
   "solutionBridge": {
-    "line": "SmoothScroll fixes that."
+    "line": "One engine. Every window. You pick the curve."
   },
   "features": {
     "title": "Everything you need, nothing you don't",
     "items": [
-      { "title": "Six one-click presets", "description": "Slow, Default, Fast, Snappy, Mac-like, Linear — pick the feel that matches your hand in one click." },
-      { "title": "Fine-grained control", "description": "Step size, animation time, easing curve, acceleration — every slider tuned for real use cases." },
-      { "title": "Per-app profiles", "description": "Different smoothing for Chrome vs VS Code vs Adobe apps. The app auto-suggests the right preset." },
-      { "title": "Touchpad + mouse smoothing", "description": "Separate pixel multiplier and acceleration for precision touchpads. Mouse wheel is independent." },
-      { "title": "Game mode auto-disable", "description": "SmoothScroll pauses automatically when a known game goes fullscreen. Raw input is preserved." },
-      { "title": "Privacy-first", "description": "No telemetry, no network calls, no data collection. Settings and logs stay on your device." }
+      { "title": "Velocity-based 120 Hz engine", "description": "Each wheel tick is eased into a smooth pulse, fired at your monitor's refresh rate. Step-based was 2016." },
+      { "title": "Per-monitor profiles", "description": "Your 4K at home and your 1080p at the office scroll differently. Match the curve to the screen." },
+      { "title": "Per-app profiles", "description": "Chrome gets snappy, VS Code gets silky, Photoshop gets raw. Auto-suggested on first launch." },
+      { "title": "UWP force-enable", "description": "WinUI apps ignore synthetic wheel events by default. We force-enable so they actually scroll." },
+      { "title": "Game mode auto-bypass", "description": "Foreground flips to a known game → raw input restored. No config, no lists to maintain." },
+      { "title": "Zero telemetry", "description": "No network calls. No analytics. Settings live in %APPDATA%\\SmoothScroll\\settings.json." }
     ]
   },
-  "useCases": {
-    "title": "Built for how you actually work",
-    "tabs": {
-      "reading": { "label": "Reading", "description": "Long-form articles, documentation, PDFs. Smooth scrolling keeps you in flow." },
-      "coding": { "label": "Coding", "description": "Navigate codebases, scroll through logs, review diffs — without losing your place." },
-      "designing": { "label": "Designing", "description": "Artboards, timelines, layer panels. Scroll should feel as precise as your stylus." }
-    }
-  },
   "trayPreview": {
-    "title": "It lives in your system tray",
-    "subtitle": "One click from the tray opens a compact panel with everything you need — toggle smoothing on or off, decide whether SmoothScroll launches with Windows, jump straight into per-app exclusions, or open the full settings when you want to fine-tune the physics. No window cluttering your desktop, no taskbar entry stealing focus. It stays out of the way until the moment you reach for it."
+    "title": "It lives in your system tray.",
+    "subtitle": "A tray panel that does the obvious things — toggle on, toggle off, open settings, switch off for the current app. That's it."
   },
   "stats": {
     "title": "Trusted by",
@@ -111,15 +103,19 @@
       { "q": "Can I disable it for specific apps?", "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list." },
       { "q": "What Windows versions are supported?", "a": "Windows 10 and Windows 11 are fully supported." },
       { "q": "Is there a Linux version?", "a": "Yes! SmoothScroll for Linux is available as an AppImage. It works on Ubuntu, Debian, Fedora, and most other distributions. The installation is as simple as making the AppImage executable and running it." },
-      { "q": "How do I uninstall?", "a": "Just delete the executable. No uninstaller needed — there is nothing else on your system." }
+      { "q": "How do I uninstall?", "a": "Just delete the executable. No uninstaller needed — there is nothing else on your system." },
+      { "q": "Does this work with UWP / WinUI apps?", "a": "Yes. WinUI apps ignore synthetic wheel events by default; SmoothScroll uses a force-enable hook so scrolling actually reaches them. The toggle is in Settings → Scroll." },
+      { "q": "Will anti-cheat flag this?", "a": "SmoothScroll auto-detects elevated targets (admin / UAC prompts) and passes raw input through, so anti-cheat sees standard wheel ticks. No exclusions to configure." },
+      { "q": "How is this different from Logi Options+ or Razer Synapse?", "a": "SmoothScroll works with any mouse the OS recognises, not a vendor's hardware. It runs at the OS level, not the device-driver level, so it survives you switching peripherals." },
+      { "q": "Can I sync scroll direction with my Mac?", "a": "Yes. The Reverse direction toggle is per-profile, so you can match the feel of a Mac you also use without affecting your Windows-native apps." }
     ]
   },
   "finalCta": {
-    "title": "Ready to feel the difference?",
-    "subtitle": "Join thousands of developers and designers who scroll better.",
-    "cta": "Download SmoothScroll",
+    "title": "Stop fighting your scroll wheel.",
+    "description": "One download. One toggle. You'll feel it in the first five seconds.",
+    "cta": "Download for Windows",
     "ctaLinux": "Download for Linux",
-    "ctaMac": "Download SmoothScroll Beta",
+    "ctaMac": "Download for macOS",
     "ctaSub": "Currently free. Source-available license.",
     "comingSoon": "Coming Soon"
   },
