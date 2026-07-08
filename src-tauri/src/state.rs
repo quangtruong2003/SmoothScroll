@@ -4,6 +4,7 @@ use arc_swap::ArcSwap;
 use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+use smoothscroll_platform::icon::IconCache;
 use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MonitorEnumeration, MouseHook,
     ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
@@ -60,6 +61,10 @@ pub struct AppState {
     /// (taken) by `get_foreground_app_context` so a stale value does not leak
     /// between tray opens.
     pub last_foreground_at_tray_open: Arc<Mutex<Option<String>>>,
+    /// In-memory cache mapping foreground process pid → base64-encoded PNG
+    /// of that app's icon. Used by `get_foreground_app_context` to populate
+    /// the tray panel row with a real app icon.
+    pub app_icon_cache: Arc<Mutex<IconCache>>,
     pub stats: smoothscroll_core::stats::StatsCollector,
 }
 

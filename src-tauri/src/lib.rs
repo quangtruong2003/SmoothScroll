@@ -21,6 +21,7 @@ use parking_lot::{Mutex, RwLock};
 use settings_persistor::SettingsPersistor;
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{self, EffectiveSettings};
+use smoothscroll_platform::icon::IconCache;
 use smoothscroll_platform::traits::HookHandle;
 use state::{AppState, EngineSignal};
 use std::path::PathBuf;
@@ -128,6 +129,7 @@ pub fn run() {
         accessibility: platform.accessibility.clone(),
         rm_watch_handle: Arc::new(Mutex::new(None)),
         last_foreground_at_tray_open: Arc::new(Mutex::new(None)),
+        app_icon_cache: Arc::new(Mutex::new(IconCache::new())),
         stats: stats_collector,
     });
 

@@ -395,6 +395,7 @@ mod tests {
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+    use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
         MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter, WindowGeometry,
@@ -510,6 +511,7 @@ mod tests {
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
             stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats.json")),
         })
     }
@@ -590,6 +592,7 @@ mod tests {
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
             stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats-elevated.json")),
         })
     }
@@ -631,6 +634,7 @@ mod tests {
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
             stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats-processes.json")),
         })
     }
