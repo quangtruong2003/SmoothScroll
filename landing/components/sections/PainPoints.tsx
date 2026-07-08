@@ -23,20 +23,20 @@ export function PainPoints({ dict }: PainPointsProps) {
             {p.title}
           </h2>
         </FadeUp>
-        <StaggerContainer className="grid md:grid-cols-3 gap-8">
+        <StaggerContainer className="grid md:grid-cols-3 gap-8 w-full">
           {(p.points ?? []).map((point, idx) => {
             const Icon = ICONS[idx]
             return (
               <motion.div
                 key={idx}
                 variants={staggerItem}
-                className="flex flex-col items-center text-center gap-4 p-6 rounded-xl border bg-card"
+                className="min-w-0 flex flex-col items-center text-center gap-4 p-6 rounded-xl border bg-card"
               >
                 <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
                   <Icon className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <h3 className="font-semibold text-lg">{point.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{point.description}</p>
+                <p className="text-muted-foreground leading-relaxed break-words">{point.description}</p>
               </motion.div>
             )
           })}

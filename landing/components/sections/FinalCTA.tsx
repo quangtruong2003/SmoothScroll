@@ -20,12 +20,12 @@ export function FinalCTA({ dict }: FinalCTAProps) {
     <section className="py-20 px-4">
       <div className="container">
         <Separator className="mb-16" />
-        <div className="text-center max-w-xl mx-auto space-y-6 bg-card text-card-foreground rounded-2xl p-12">
+        <div className="text-center max-w-xl mx-auto space-y-6 bg-card text-card-foreground rounded-2xl p-6 sm:p-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             {f.title}
           </h2>
           <p className="text-lg text-muted-foreground">{f.subtitle}</p>
-          <DownloadButtonWin label={f.cta ?? 'Download for Windows'} variant="default" size="xl" />
+          <DownloadButtonWin label={f.cta ?? 'Download for Windows'} variant="default" size="xl" className="w-full sm:w-auto" />
           <p className="text-sm text-muted-foreground">{f.ctaSub}</p>
         </div>
       </div>

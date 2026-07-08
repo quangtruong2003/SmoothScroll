@@ -62,7 +62,7 @@ export function Stats({ dict }: StatsProps) {
           </p>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto w-full">
             <StatCard icon={Star} value={starsDisplay} label={s.githubStars ?? ''} />
             <StatCard icon={Tag} value={version} label={s.version ?? ''} />
           </div>

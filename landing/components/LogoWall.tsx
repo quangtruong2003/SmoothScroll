@@ -5,7 +5,7 @@ function LogoCell({ brand }: { brand: Brand }) {
     <li
       role="listitem"
       aria-label={brand.name}
-      className="flex items-center gap-2 px-3 py-2 rounded-md opacity-60 hover:opacity-100 focus-within:opacity-100 transition-opacity"
+      className="flex items-center gap-2 px-3 py-2 rounded-md opacity-60 hover:opacity-100 focus-within:opacity-100 transition-opacity min-w-0"
     >
       <img
         src={brand.src}
@@ -32,7 +32,7 @@ export function LogoWall() {
     >
       <ul
         role="list"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-2 max-w-3xl mx-auto"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-2 max-w-3xl mx-auto w-full min-w-0"
       >
         {BRANDS.map((b) => (
           <LogoCell key={b.slug} brand={b} />

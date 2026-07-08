@@ -45,7 +45,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
         }`}
       >
         <nav className="container flex items-center justify-between gap-4">
-          <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg">
+          <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg shrink-0">
             <Image
               src={`${BASE_PATH}/assets/icon-128.png`}
               alt="SmoothScroll logo"
@@ -53,7 +53,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
               height={28}
               className="rounded-md"
             />
-            SmoothScroll
+            <span className="hidden sm:inline">SmoothScroll</span>
           </Link>
 
           <div className="flex items-center gap-2">

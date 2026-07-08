@@ -46,8 +46,8 @@ export function Hero({ dict, locale }: HeroProps) {
               {h.subtitle}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <DownloadButtonWin label={h.cta ?? 'Download for Windows'} variant="brand" size="xl" />
+            <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
+              <DownloadButtonWin label={h.cta ?? 'Download for Windows'} variant="brand" size="xl" className="w-full sm:w-auto" />
               {os !== 'win' && (
                 <span className="inline-flex items-center rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
                   Best on Windows · Linux & macOS coming soon
