@@ -1,27 +1,36 @@
 ﻿{
   "nav": { "github": "GitHub", "stars": "星" },
   "hero": {
-    "eyebrow": "适用 Windows",
-    "eyebrowLinux": "适用 Linux",
-    "eyebrowMac": "适用 macOS (Beta)",
-    "title": "滚动如",
-    "titleAccent": "行云流水",
-    "subtitle": "SmoothScroll 让每次滚轮都丝般顺滑——就像在使用高端触控板。无需学习，无臃肿软件，就是顺。",
+    "eyebrow": "Windows 10 / 11 · v1.14.1",
+    "eyebrowLinux": "Linux (Coming Soon)",
+    "eyebrowMac": "macOS (Coming Soon)",
+    "title": "鼠标滚轮滚动，",
+    "titleAccent": "终于做到位了。",
+    "subtitle": "一个 120 Hz 的缓动引擎,为每一次滚轮事件服务,覆盖所有应用。为能分辨顺滑与卡顿的人而生。",
     "cta": "下载 Windows 版",
     "ctaLinux": "下载 Linux 版",
-    "ctaMac": "下载 macOS Beta 版",
-    "ctaFallback": "立即下载",
-    "trustLine": "免费，无遥测。源代码可见许可。",
-    "seeHow": "看实际效果",
+    "ctaMac": "下载 macOS 版",
+    "ctaFallback": "下载",
+    "trustLine": "免费。无遥测。开源 (FSL-1.1 → Apache 2.0)。",
+    "seeHow": "查看工作原理",
     "demoPrompt": "滚动下方卡片，然后拨动开关。",
     "demoToast": "想真实体验？——下载试试。"
   },
   "painPoints": {
-    "title": "滚动的手感坏了",
+    "title": "滚轮滚动体验很糟糕",
     "points": [
-      { "title": "卡顿、跳跃的滚动", "description": "每次滚动都一格一格地跳。你的手期待顺滑——屏幕却给你卡顿。" },
-      { "title": "长时间使用让人疲惫", "description": "阅读、写代码、浏览——无数微小调整累积成疲劳。" },
-      { "title": "第三方鼠标体验更差", "description": "好的滚轮是高端专属。其他的都是将就。" }
+      {
+        "title": "每个应用各做各的",
+        "description": "Chrome 做了,Edge 做了,资源管理器没有。你被困在每个开发者写的东西里。"
+      },
+      {
+        "title": "顺滑滚动成了付费功能",
+        "description": "Logi Options+ 还行——直到你换了鼠标。WizMouse 自 2014 年就没更新过。"
+      },
+      {
+        "title": "反作弊讨厌你的工具",
+        "description": "大多数输入工具会被标记。SmoothScroll 自动绕过管理员应用,你无需配置。"
+      }
     ]
   },
   "solutionBridge": { "line": "SmoothScroll 修复它。" },
