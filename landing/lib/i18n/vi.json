@@ -1,50 +1,72 @@
-﻿{
+{
   "nav": { "github": "GitHub", "stars": "sao" },
   "hero": {
-    "eyebrow": "Cho Windows",
-    "eyebrowLinux": "Cho Linux",
-    "eyebrowMac": "Cho macOS (Beta)",
-    "title": "Cuộn mượt như",
-    "titleAccent": "tự nhiên",
-    "subtitle": "SmoothScroll giúp mọi lần cuộn chuột đều mượt mà — như đang dùng trackpad cao cấp. Không cần học cách dùng, không cần cài thêm gì.",
-    "cta": "Tải cho Windows",
-    "ctaLinux": "Tải cho Linux",
-    "ctaMac": "Tải bản Beta cho macOS",
-    "ctaFallback": "Tải xuống",
-    "trustLine": "Miễn phí, không thu thập dữ liệu. Giấy phép source-available.",
+    "eyebrow": "Windows 10 / 11 · v1.14.1",
+    "eyebrowLinux": "Linux (Coming Soon)",
+    "eyebrowMac": "macOS (Coming Soon)",
+    "title": "Cuộn chuột,",
+    "titleAccent": "cuối cùng đã đúng cách.",
+    "subtitle": "Một bộ easing 120 Hz cho mỗi tick lăn chuột, trong mọi ứng dụng. Dành cho người nhận ra sự khác biệt giữa cuộn mượt và cuộn giật.",
+    "cta": "Tải về cho Windows",
+    "ctaLinux": "Tải về cho Linux",
+    "ctaMac": "Tải về cho macOS",
+    "ctaFallback": "Download",
+    "trustLine": "Miễn phí. Không thu thập dữ liệu. Mã nguồn mở (FSL-1.1 → Apache 2.0).",
     "seeHow": "Xem cách hoạt động",
-    "demoPrompt": "Cuộn thẻ bên dưới. Sau đó bật công tắc.",
-    "demoToast": "Muốn trải nghiệm thực tế? — Hãy tải về."
+    "demoPrompt": "Cuộn thẻ. Rồi bật công tắc.",
+    "demoToast": "Muốn cảm nhận thực sự? — Tải về."
   },
   "painPoints": {
-    "title": "Thanh cuộn bị lỗi",
+    "title": "Cuộn chuột đang bị hỏng",
     "points": [
-      { "title": "Chuyển động giật, không mượt", "description": "Mỗi lần cuộn đều chồm. Tay bạn mong đợi mượt — màn hình lại cung cấp sự chồm chất." },
-      { "title": "Mỏi khi dùng lâu", "description": "Đọc, viết code, duyệt web — hàng giờ điều chỉnh nhỏ tích lũy thành mệt mỏi." },
-      { "title": "Chuột không dây kém hơn", "description": "Cuộn mượt là tính năng cao cấp. Mọi thứ khác đều là đánh đổi." }
+      {
+        "title": "Mỗi app tự làm một kiểu",
+        "description": "Chrome làm, Edge làm, Explorer thì không. Bạn bị kẹt với bất cứ gì dev của app đó viết."
+      },
+      {
+        "title": "Cuộn mượt bị ép trả phí",
+        "description": "Logi Options+ ổn — cho đến khi bạn đổi chuột. WizMouse chưa update từ 2014."
+      },
+      {
+        "title": "Anti-cheat ghét tool của bạn",
+        "description": "Hầu hết tiện ích input bị flag. SmoothScroll tự động bypass app admin nên bạn không cần cấu hình."
+      }
     ]
   },
-  "solutionBridge": { "line": "SmoothScroll giải quyết điều đó." },
+  "solutionBridge": { "line": "Một engine. Mọi cửa sổ. Bạn chọn đường cong." },
   "features": {
-    "title": "Mọi thứ bạn cần, không có thứ bạn không cần",
+    "title": "Đủ thứ bạn cần, không thừa",
     "items": [
-      { "title": "Sáu preset một click", "description": "Slow, Default, Fast, Snappy, Mac-like, Linear — chọn cảm giác phù hợp tay chỉ trong một click." },
-      { "title": "Tinh chỉnh chi tiết", "description": "Step size, thời gian animation, easing curve, acceleration — mọi slider đều được điều chỉnh cho use case thực tế." },
-      { "title": "Hồ sơ theo từng ứng dụng", "description": "Mức làm mượt khác nhau cho Chrome, VS Code, Adobe apps. App tự gợi ý preset phù hợp." },
-      { "title": "Touchpad + chuột riêng biệt", "description": "Pixel multiplier và acceleration riêng cho precision touchpad. Chuột wheel hoạt động độc lập." },
-      { "title": "Game mode tự tắt", "description": "SmoothScroll tạm dừng tự động khi game đang fullscreen. Input thô được bảo toàn." },
-      { "title": "Bảo mật", "description": "Không telemetry, không gọi mạng, không thu thập dữ liệu. Cài đặt và log ở lại trên thiết bị của bạn." }
+      {
+        "title": "Engine 120 Hz theo vận tốc",
+        "description": "Mỗi tick lăn được nội suy thành xung mượt, bắn ra theo tần số quét màn hình. Step-based là chuyện 2016."
+      },
+      {
+        "title": "Profile theo từng màn hình",
+        "description": "Màn 4K ở nhà và 1080p ở công ty cuộn khác nhau. Khớp đường cong theo màn hình."
+      },
+      {
+        "title": "Profile theo từng ứng dụng",
+        "description": "Chrome thì snappy, VS Code thì mượt, Photoshop thì raw. Tự gợi ý khi mở app lần đầu."
+      },
+      {
+        "title": "UWP force-enable",
+        "description": "App WinUI mặc định bỏ qua wheel event tổng hợp. SmoothScroll ép bật nên chúng thực sự cuộn được."
+      },
+      {
+        "title": "Game mode tự bypass",
+        "description": "Foreground chuyển sang game đã biết → trả về raw input. Không cần list, không cần config."
+      },
+      {
+        "title": "Không thu thập dữ liệu",
+        "description": "Không gọi mạng. Không analytics. Settings ở %APPDATA%\\SmoothScroll\\settings.json."
+      }
     ]
   },
-  "useCases": {
-    "title": "Thiết kế cho cách bạn thực sự làm việc",
-    "tabs": {
-      "reading": { "label": "Đọc", "description": "Bài viết dài, tài liệu, PDF. Cuộn mượt giữ bạn trong trạng thái flow." },
-      "coding": { "label": "Lập trình", "description": "Điều hướng codebase, cuộn log, xem diff — không mất vị trí." },
-      "designing": { "label": "Thiết kế", "description": "Artboard, timeline, layer panel. Cuộn nên chính xác như bút vẽ." }
-    }
+  "trayPreview": {
+    "title": "Nó sống ngay trong system tray.",
+    "subtitle": "Một panel tray làm đúng những thứ hiển nhiên — bật, tắt, mở settings, tắt cho app hiện tại. Chỉ vậy thôi."
   },
-  "trayPreview": { "title": "Nó sống trong khay hệ thống", "subtitle": "Một cú click từ khay hệ thống là mở ra panel gọn nhẹ với mọi thứ bạn cần — bật tắt smoothing, quyết định SmoothScroll có khởi động cùng Windows hay không, nhảy thẳng vào danh sách loại trừ theo từng ứng dụng, hoặc mở cài đặt đầy đủ khi muốn tinh chỉnh sâu hơn. Không có cửa sổ choán màn hình, không có icon taskbar gây xao nhãng. Nó đứng yên trong khay cho đến đúng khoảnh khắc bạn cần đến." },
   "stats": { "title": "Được tin dùng bởi", "githubStars": "Sao GitHub", "version": "Phiên bản", "fallback": { "stars": "—", "version": "v1.0.0" } },
   "indie": { "title": "Tạo bởi một lập trình viên indie", "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.", "points": ["Giấy phép source-available (FSL-1.1 → Apache 2.0) — tự kiểm tra code", "Không telemetry hay thu thập dữ liệu", "Không quảng cáo, không premium, không upsell", "Xây dựng công khai trên GitHub"], "cta": "Xem trên GitHub" },
   "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe — không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "linux": { "label": "Linux", "steps": ["Tải AppImage bên dưới", "Cho phép chạy: chmod +x SmoothScroll_*.AppImage", "Chạy file — không cần root hay cài đặt", "Xong. App sẽ xuất hiện trong khay hệ thống."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "linux": "AppImage hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các distro khác", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho {os}", "ctaMac": "Tải bản Beta cho macOS", "ctaLinux": "Tải cho Linux" },
@@ -57,9 +79,21 @@
     { "q": "Có thể tắt cho ứng dụng cụ thể không?", "a": "Có. Có hồ sơ loại trừ theo ứng dụng. Mở tray panel và thêm ứng dụng vào danh sách loại trừ." },
     { "q": "Hỗ trợ Windows phiên bản nào?", "a": "Windows 10 và Windows 11 được hỗ trợ đầy đủ." },
     { "q": "Có bản Linux không?", "a": "Có! SmoothScroll cho Linux có sẵn dưới dạng AppImage. Hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các bản phân phối khác. Cài đặt đơn giản như chmod file và chạy." },
-    { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller — không có gì khác trên hệ thống." }
+    { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller — không có gì khác trên hệ thống." },
+    { "q": "SmoothScroll có hoạt động với app UWP / WinUI không?", "a": "Có. App WinUI mặc định bỏ qua synthetic wheel event; SmoothScroll dùng force-enable hook nên scroll thực sự chạy tới. Toggle nằm trong Settings → Scroll." },
+    { "q": "Anti-cheat có nhận diện SmoothScroll không?", "a": "SmoothScroll tự nhận diện target nâng cao (admin / UAC prompt) và truyền raw input qua, nên anti-cheat chỉ thấy standard wheel tick. Không cần cấu hình exclusion." },
+    { "q": "SmoothScroll khác gì so với Logi Options+ hay Razer Synapse?", "a": "SmoothScroll hoạt động với mọi chuột mà OS nhận diện được, không phải thiết bị của một hãng. Nó chạy ở tầng OS, không phải tầng device-driver, nên sống sót khi bạn đổi chuột." },
+    { "q": "Tôi có thể đồng bộ hướng cuộn với Mac không?", "a": "Có. Toggle Reverse direction theo profile, nên bạn có thể khớp cảm giác với Mac mà bạn cũng dùng mà không ảnh hưởng app Windows-native." }
   ]},
-  "finalCta": { "title": "Sẵn sàng cảm nhận sự khác biệt?", "subtitle": "Tham gia hàng nghìn developer và designer cuộn mượt hơn.", "cta": "Tải SmoothScroll", "ctaLinux": "Tải cho Linux", "ctaMac": "Tải SmoothScroll Beta", "ctaSub": "Hiện tại đang miễn phí. Giấy phép source-available.", "comingSoon": "Sắp ra mắt" },
+  "finalCta": {
+    "title": "Thôi vật lộn với con lăn chuột.",
+    "description": "Một lượt tải. Một lượt bật. Bạn sẽ cảm nhận trong 5 giây đầu tiên.",
+    "cta": "Tải về cho Windows",
+    "ctaLinux": "Tải về cho Linux",
+    "ctaMac": "Tải về cho macOS",
+    "ctaSub": "Hiện miễn phí. Source-available license.",
+    "comingSoon": "Coming Soon"
+  },
   "beta": { "badge": "BETA", "notice": "Bản này vẫn đang trong giai đoạn Beta — có thể crash bất cứ lúc nào.", "reportPrefix": "Gặp lỗi?", "reportLink": "Báo cáo trên GitHub" },
   "footer": { "tagline": "Cuộn mượt cho Windows.", "links": { "github": "GitHub", "license": "Giấy phép" } },
   "exitIntent": { "title": "Đợi đã — trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí", "ctaLinux": "Tải Linux miễn phí", "ctaMac": "Tải bản Beta miễn phí" },
