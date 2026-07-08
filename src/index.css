@@ -622,11 +622,11 @@ body[data-platform="mac"] .mac-titlebar-overlay {
  * ------------------------------------------------------------------- */
 .tray-row {
   display: grid;
-  grid-template-columns: 28px 1fr auto;
+  grid-template-columns: 20px 1fr auto;
   align-items: center;
-  gap: 0 10px;
+  gap: 0 6px;
   min-height: 36px;
-  padding: 0 12px;
+  padding: 0 10px;
   font-size: 0.84rem;
   font-weight: 500;
   color: hsl(var(--foreground));
@@ -648,6 +648,14 @@ body[data-platform="mac"] .mac-titlebar-overlay {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.tray-row-app-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  pointer-events: none;
+  user-select: none;
 }
 .tray-row-action {
   cursor: pointer;
