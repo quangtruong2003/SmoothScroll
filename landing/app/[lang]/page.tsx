@@ -20,8 +20,32 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
   const locale = lang as Locale
   const dict = await getDictionary(locale)
 
+  const softwareJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'SmoothScroll',
+    operatingSystem: 'Windows',
+    applicationCategory: 'UtilitiesApplication',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description: dict.hero?.subtitle ?? '',
+  }
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: (dict.faq?.questions ?? []).map((q) => ({
+      '@type': 'Question',
+      name: q.q,
+      acceptedAnswer: { '@type': 'Answer', text: q.a },
+    })),
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([softwareJsonLd, faqJsonLd]) }}
+      />
       <Hero dict={{ hero: dict.hero }} locale={locale} />
       <PainPoints dict={{ painPoints: dict.painPoints }} />
       <ScrollDemo />
