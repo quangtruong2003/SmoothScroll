@@ -324,8 +324,14 @@
   border-radius: var(--panel-radius);
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  box-shadow: var(--panel-shadow);
-  border: 1px solid hsl(var(--border));
+  /* Inset border via box-shadow so the rounded corners don't show the
+   * 1px stroke poking through the curve. A traditional CSS `border` on
+   * a border-radius element leaves the inner half of the stroke
+   * visible inside the corner curve, which reads as a "broken" corner.
+   * Inset shadow follows the radius perfectly. */
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--border)),
+    var(--panel-shadow);
   font-family: var(--font-sans);
 }
 
@@ -333,7 +339,9 @@ body[data-platform="mac"] .tray-panel-root {
   /* NSVisualEffectView Popover: translucent white/black over desktop.
    * On dark mode the panel adopts the system vibrancy tint. */
   background: hsl(0 0% 100% / 0.72);
-  border: 0.5px solid hsl(0 0% 0% / 0.12);
+  /* Mac uses a hairline 0.5px border. Inset shadow sub-pixel rendering
+   * is unreliable at this thickness, so we use a 1-px-stop gradient
+   * on `border-image` to fake a hairline that respects the radius. */
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   backdrop-filter: blur(30px) saturate(180%);
   /* Sharp top corners (macOS tray popovers have rounded bottom corners
@@ -343,19 +351,24 @@ body[data-platform="mac"] .tray-panel-root {
   border-top-right-radius: 7px;
   border-bottom-left-radius: var(--panel-radius);
   border-bottom-right-radius: var(--panel-radius);
+  box-shadow:
+    inset 0 0 0 1px hsl(0 0% 0% / 0.12),
+    var(--panel-shadow);
 }
 body[data-platform="mac"].dark .tray-panel-root {
   background: hsl(240 5% 14% / 0.62);
-  border-color: hsl(0 0% 100% / 0.08);
+  box-shadow:
+    inset 0 0 0 1px hsl(0 0% 100% / 0.08),
+    var(--panel-shadow);
 }
 
 body[data-platform="linux"] .tray-panel-root {
   /* libadwaita popover: opaque Adwaita bg with 12px corners and a
    * 1px alpha border. No blur. */
   background: hsl(var(--popover));
-  border: 1px solid hsl(var(--border));
   border-radius: 12px;
   box-shadow:
+    inset 0 0 0 1px hsl(var(--border)),
     0 0 0 1px hsl(0 0% 0% / 0.04),
     0 8px 24px -4px hsl(0 0% 0% / 0.18);
 }
@@ -624,9 +637,9 @@ body[data-platform="mac"] .mac-titlebar-overlay {
   display: grid;
   grid-template-columns: 20px 1fr auto;
   align-items: center;
-  gap: 0 6px;
+  gap: 0 10px;
   min-height: 36px;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 0.84rem;
   font-weight: 500;
   color: hsl(var(--foreground));
@@ -675,8 +688,9 @@ body[data-platform="mac"] .mac-titlebar-overlay {
 body[data-platform="win"] .tray-panel-root {
   background: hsl(var(--background) / 0.95);
   border-radius: 12px;
-  border: 1px solid hsl(var(--border));
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--border)),
+    0 10px 30px -10px rgba(0, 0, 0, 0.25);
 }
 body[data-platform="win"] .tray-header {
   padding: 12px 16px;
