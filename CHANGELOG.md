@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-07-08
+
+### Added
+- Windows-first conversion pitch and tray polish
+
+### Fixed
+- remove UTF-8 BOM from zh.json
 ## [1.15.0] - 2026-07-08
 
 ### Added
