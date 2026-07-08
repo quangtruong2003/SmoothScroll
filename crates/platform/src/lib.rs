@@ -2,6 +2,7 @@
 
 pub mod traits;
 pub mod types;
+pub mod icon;
 
 #[cfg(target_os = "macos")]
 pub mod macos;
