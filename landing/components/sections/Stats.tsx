@@ -34,15 +34,15 @@ export function Stats({ dict }: StatsProps) {
     title: '',
     githubStars: '',
     version: '',
-    fallback: { stars: '—', version: '—' },
+    fallback: { stars: '-', version: '-' },
   }
-  const fb = useMemo(() => s.fallback ?? { stars: '—', version: '—' }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const fb = useMemo(() => s.fallback ?? { stars: '-', version: '-' }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const liveStars = useGitHubStars()
-  const [version, setVersion] = useState<string>(fb.version ?? '—')
+  const [version, setVersion] = useState<string>(fb.version ?? '-')
 
   useEffect(() => {
-    const fallbackVersion = fb.version ?? '—'
+    const fallbackVersion = fb.version ?? '-'
 
     fetchLatestRelease()
       .then((releaseData) => {
@@ -51,7 +51,7 @@ export function Stats({ dict }: StatsProps) {
       .catch(() => {})
   }, [fb])
 
-  const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '—')
+  const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '-')
 
   return (
     <section className="py-20 px-4">
