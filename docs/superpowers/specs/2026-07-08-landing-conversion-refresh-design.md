@@ -158,11 +158,12 @@ Refresh `landing/` (Next.js 15 static site on GitHub Pages) so the marketing mes
 
 ### 5.2 `DownloadCTA.tsx`
 
-- **Refactor in place** (do NOT delete, it is referenced by `ExitIntentModal`).
-- Add a prop or split a new component `DownloadButtonWin.tsx` that:
+- **Add a sibling component `landing/components/DownloadButtonWin.tsx`** (do NOT modify `DownloadCTA.tsx` itself — it is referenced by `ExitIntentModal` and others, and out-of-scope risk is high).
+- `DownloadButtonWin`:
   - Always renders the Windows `.exe` download.
   - Ignores OS detection.
-- The hero and `FinalCTA` use the new component.
+  - Uses the same button sizes / variants as `DownloadCTA` for visual parity.
+- The hero and `FinalCTA` use the new `DownloadButtonWin`.
 - Linux / macOS CTA buttons are removed; in their place a small `<Badge>` reading `Coming Soon` is rendered (disabled state) wherever a non-Windows CTA used to live (hero, FinalCTA, ExitIntent).
 
 ### 5.3 `PainPoints.tsx`
@@ -253,7 +254,7 @@ Refresh `landing/` (Next.js 15 static site on GitHub Pages) so the marketing mes
 | `landing/components/sections/TrayPreviewSection.tsx` | Copy |
 | `landing/components/sections/FAQ.tsx` | Append 4 items |
 | `landing/components/sections/FinalCTA.tsx` | Copy + inverted surface + Windows CTA |
-| `landing/components/DownloadCTA.tsx` | Refactor to expose Windows-only helper or split `DownloadButtonWin` |
+| `landing/components/DownloadButtonWin.tsx` | **New component** — Windows-only download button (sibling of `DownloadCTA`) |
 | `landing/app/[lang]/page.tsx` | Remove `UseCases` import + render |
 | `landing/lib/i18n/en.json` | Source-of-truth copy update |
 | `landing/lib/i18n/vi.json` | Vietnamese copy update |
@@ -284,7 +285,7 @@ Refresh `landing/` (Next.js 15 static site on GitHub Pages) so the marketing mes
 |---|---|
 | i18n drift between en/vi/zh | Update all three in the same commit; fall back to English in dict for unknown translations and fix in follow-up. |
 | FAQ section grows too tall (13 items) | If the section feels bloated after build, drop the 2 lowest-impact existing items (e.g. "Battery impact", "Uninstall") in a follow-up. |
-| `DownloadCTA` refactor breaks `ExitIntentModal` | Use `replace_all=false`; if extraction is risky, add a sibling `DownloadButtonWin` and leave `DownloadCTA` unchanged. |
+| `DownloadCTA` refactor breaks `ExitIntentModal` | Avoided — `DownloadCTA` is untouched; `DownloadButtonWin` is a new sibling file. |
 | Lighthouse regression from new icons | `lucide-react` icons are tree-shaken; no measurable bloat. Verify in step 3. |
 | Linux/macOS users confused by "Coming Soon" | Disabled state with a tooltip-like title attribute makes it clear; FAQ + Hero copy acknowledge the gap. |
 
