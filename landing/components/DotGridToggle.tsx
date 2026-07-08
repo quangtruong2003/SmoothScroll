@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { DotsHorizontal } from 'lucide-react'
+import { GripHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const STORAGE_KEY = 'noDotGrid'
@@ -35,7 +35,7 @@ export function DotGridToggle() {
       suppressHydrationWarning
     >
       {mounted && (
-        <DotsHorizontal className={`h-4 w-4 ${enabled ? '' : 'opacity-40'}`} />
+        <GripHorizontal className={`h-4 w-4 ${enabled ? '' : 'opacity-40'}`} />
       )}
     </Button>
   )
