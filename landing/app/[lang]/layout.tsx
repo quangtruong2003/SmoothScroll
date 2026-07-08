@@ -59,6 +59,12 @@ export default async function LangLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light dark" />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/og-image.png"
+          fetchPriority="high"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;d.classList.remove('light','dark');var r=t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;d.classList.add(r);d.style.background=r==='dark'?'hsl(240,10%,3.9%)':'hsl(0,0%,100%)';d.style.color=r==='dark'?'hsl(0,0%,98%)':'hsl(240,10%,3.9%)';}catch(e){}})();`,
