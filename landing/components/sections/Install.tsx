@@ -92,8 +92,8 @@ export function Install({ dict }: InstallProps) {
                 </li>
               ))}
             </ol>
-            <div className="rounded-md bg-muted p-4 flex items-center justify-between gap-2">
-              <code className="text-sm font-mono text-muted-foreground overflow-x-auto">
+            <div className="rounded-md bg-muted p-4 flex items-center justify-between gap-2 min-w-0">
+              <code className="text-sm font-mono text-muted-foreground break-all min-w-0">
                 %LOCALAPPDATA%\SmoothScroll\{i.filename ?? ''}
               </code>
               <CopyButton text={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`} />
