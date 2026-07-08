@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 const SAMPLE_LINES = [
-  '// SmoothScroll — natural scroll feel for Windows',
+  '// SmoothScroll - natural scroll feel for Windows',
   '',
   'fn main() {',
   '    let settings = Settings::default()',
