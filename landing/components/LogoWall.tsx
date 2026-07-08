@@ -5,7 +5,7 @@ function LogoCell({ brand }: { brand: Brand }) {
     <li
       role="listitem"
       aria-label={brand.name}
-      className="flex items-center gap-2 px-3 py-2 rounded-md opacity-60 hover:opacity-100 focus-within:opacity-100 transition-opacity min-w-0"
+      className="group flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted/60 focus-within:bg-muted/60 transition-colors min-w-0"
     >
       <img
         src={brand.src}
@@ -14,9 +14,9 @@ function LogoCell({ brand }: { brand: Brand }) {
         height={24}
         decoding="async"
         loading="lazy"
-        className={'h-6 w-6 shrink-0 ' + (brand.invertOnDark ? 'dark:invert' : '')}
+        className={'h-6 w-6 shrink-0 opacity-70 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity ' + (brand.invertOnDark ? 'dark:invert' : '')}
       />
-      <span className="text-sm font-medium text-muted-foreground truncate">
+      <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground truncate">
         {brand.name}
       </span>
     </li>

@@ -27,7 +27,7 @@ export function DemoFrame({ demo }: DemoFrameProps) {
                 <div className="h-3 w-3 rounded-full bg-yellow-400/80" />
                 <div className="h-3 w-3 rounded-full bg-green-400/80" />
               </div>
-              <div className="flex-1 rounded bg-background/80 border border-border px-3 py-1 text-xs text-muted-foreground text-center">
+              <div className="flex-1 rounded bg-background border border-border px-3 py-1 text-xs text-muted-foreground text-center">
                 quangtruong2003.github.io/SmoothScroll/{BASE_PATH && BASE_PATH !== '' ? `${BASE_PATH}/` : ''}en/how-it-works
               </div>
             </div>
