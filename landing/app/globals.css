@@ -70,55 +70,6 @@
   }
 }
 
-@layer utilities {
-  .brand-marquee-mask {
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0,
-      black 64px,
-      black calc(100% - 64px),
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0,
-      black 64px,
-      black calc(100% - 64px),
-      transparent 100%
-    );
-  }
-}
-
-@keyframes brand-marquee-slide {
-  0%   { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
-}
-
-.brand-marquee-track {
-  animation: brand-marquee-slide 40s linear infinite;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .brand-marquee-track {
-    animation: none;
-  }
-  .brand-marquee-mask {
-    overflow-x: auto;
-  }
-  .brand-marquee-track {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem 2rem;
-  }
-}
-
-@media (hover: hover) {
-  .brand-marquee-mask:hover .brand-marquee-track {
-    animation-play-state: paused;
-  }
-}
-
 @layer base {
   @media (prefers-reduced-motion: reduce) {
     *,

@@ -26,16 +26,17 @@ test.describe('Reduced motion behavior', () => {
     await context.close()
   })
 
-  test('brand-marquee-track has animation: none when prefers-reduced-motion: reduce', async ({ browser }) => {
+  test('LogoWall region has no animation when prefers-reduced-motion: reduce', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
     await page.goto('/en/')
 
-    const animationName = await page.evaluate(() => {
-      const track = document.querySelector('.brand-marquee-track') as HTMLElement
-      return track ? getComputedStyle(track).animationName : 'no-track'
-    })
+    const wrapper = page.getByRole('region', { name: 'Compatible apps and operating systems' })
+    await expect(wrapper).toBeVisible()
 
+    const animationName = await wrapper.evaluate((el) => {
+      return getComputedStyle(el).animationName
+    })
     expect(animationName).toBe('none')
     await context.close()
   })

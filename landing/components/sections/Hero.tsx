@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { DownloadButtonWin } from '@/components/DownloadButtonWin'
-import { BrandMarquee } from '@/components/BrandMarquee'
+import { LogoWall } from '@/components/LogoWall'
 import { Badge } from '@/components/ui/badge'
 import { detectOS } from '@/lib/os'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
@@ -62,8 +62,8 @@ export function Hero({ dict, locale }: HeroProps) {
             </div>
 
             <p className="text-sm text-muted-foreground transition-colors duration-150">{h.trustLine}</p>
-            <div className="w-full max-w-xl">
-              <BrandMarquee />
+            <div className="w-full max-w-3xl">
+              <LogoWall />
             </div>
           </div>
         </div>
