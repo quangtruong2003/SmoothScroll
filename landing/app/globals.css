@@ -99,6 +99,26 @@
   will-change: transform;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track {
+    animation: none;
+  }
+  .brand-marquee-mask {
+    overflow-x: auto;
+  }
+  .brand-marquee-track {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem 2rem;
+  }
+}
+
+@media (hover: hover) {
+  .brand-marquee-mask:hover .brand-marquee-track {
+    animation-play-state: paused;
+  }
+}
+
 @layer base {
   @media (prefers-reduced-motion: reduce) {
     *,
