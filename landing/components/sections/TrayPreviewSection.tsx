@@ -14,7 +14,7 @@ export function TrayPreviewSection({ dict }: TrayPreviewSectionProps) {
   const t = dict?.trayPreview ?? { title: '', subtitle: '' }
 
   return (
-    <section className="py-20 px-4 bg-muted/30">
+    <section className="py-20 px-4 bg-muted/30 dark:bg-white/[0.04]">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <FadeUp>

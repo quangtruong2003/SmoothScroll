@@ -88,7 +88,7 @@
       "linux": "AppImage works on Ubuntu, Debian, Fedora, and most other distros",
       "macos": "Accessibility permission is required for global input interception"
     },
-    "cta": "Download for {os}",
+    "cta": "Download for Windows",
     "ctaMac": "Download Beta for macOS",
     "ctaLinux": "Download for Linux"
   },
