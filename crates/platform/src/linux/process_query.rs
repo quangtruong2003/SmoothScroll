@@ -124,6 +124,15 @@ fn process_name_from_pid(pid: u32) -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+/// Returns the absolute path of the executable backing `pid`, read from
+/// the `/proc/<pid>/exe` symlink. Returns None when the symlink is
+/// unreadable (process gone, kernel-protected, or non-/proc filesystem).
+pub fn exe_path_for_pid(pid: u32) -> Option<String> {
+    fs::read_link(format!("/proc/{pid}/exe"))
+        .ok()
+        .and_then(|p| p.to_str().map(|s| s.to_owned()))
+}
+
 /// # Safety
 /// `display` must be a valid open connection.
 unsafe fn window_under_cursor(display: *mut xlib::Display) -> Option<Window> {
@@ -338,6 +347,7 @@ impl ProcessQuery for LinuxProcessQuery {
                     pid,
                     name,
                     window_title: title,
+                    exe_path: exe_path_for_pid(pid),
                 });
             }
             display::close_display(d);
@@ -348,5 +358,17 @@ impl ProcessQuery for LinuxProcessQuery {
     fn foreground_process_name(&self) -> Option<String> {
         let pid = self.foreground_process_id()?;
         process_name_from_pid(pid)
+    }
+
+    fn foreground_process_info(&self) -> Option<ProcessInfo> {
+        let pid = self.foreground_process_id()?;
+        let name = process_name_from_pid(pid)?;
+        let exe_path = exe_path_for_pid(pid);
+        Some(ProcessInfo {
+            pid,
+            name,
+            window_title: String::new(),
+            exe_path,
+        })
     }
 }
