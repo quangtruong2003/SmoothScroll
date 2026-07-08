@@ -17,7 +17,7 @@
     "trustLine": "Free. No telemetry. Open-source (FSL-1.1 → Apache 2.0).",
     "seeHow": "See how it works",
     "demoPrompt": "Scroll the card. Then flip the switch.",
-    "demoToast": "Want to feel it for real? — Download."
+    "demoToast": "Want to feel it for real? - Download."
   },
   "painPoints": {
     "title": "The scroll is broken",
@@ -52,14 +52,14 @@
   },
   "trayPreview": {
     "title": "It lives in your system tray.",
-    "subtitle": "A tray panel that does the obvious things — toggle on, toggle off, open settings, switch off for the current app. That's it."
+    "subtitle": "A tray panel that does the obvious things - toggle on, toggle off, open settings, switch off for the current app. That's it."
   },
   "stats": {
     "title": "Trusted by",
     "githubStars": "GitHub stars",
     "version": "Version",
     "fallback": {
-      "stars": "—",
+      "stars": "-",
       "version": "v1.0.0"
     }
   },
@@ -67,7 +67,7 @@
     "title": "Made by an indie dev",
     "subtitle": "Independent, transparent, and community-driven.",
     "points": [
-      "Source-available (FSL-1.1 → Apache 2.0) — audit the code yourself",
+      "Source-available (FSL-1.1 → Apache 2.0) - audit the code yourself",
       "Zero telemetry or data collection",
       "No ads, no premium tier, no upsell",
       "Built in the open on GitHub"
@@ -78,8 +78,8 @@
     "title": "Get started in 60 seconds",
     "subtitle": "Download, run, feel the difference.",
     "tabs": {
-      "windows": { "label": "Windows", "steps": ["Download the installer below", "Run the .exe — no install wizard, no admin required", "SmoothScroll starts automatically. You're done."] },
-      "linux": { "label": "Linux", "steps": ["Download the AppImage below", "Make it executable: chmod +x SmoothScroll_*.AppImage", "Run the file — no root or install required", "Done. The app will appear in your system tray."] },
+      "windows": { "label": "Windows", "steps": ["Download the installer below", "Run the .exe - no install wizard, no admin required", "SmoothScroll starts automatically. You're done."] },
+      "linux": { "label": "Linux", "steps": ["Download the AppImage below", "Make it executable: chmod +x SmoothScroll_*.AppImage", "Run the file - no root or install required", "Done. The app will appear in your system tray."] },
       "macos": { "label": "macOS", "steps": ["Download the DMG below", "Drag SmoothScroll to Applications", "Grant Accessibility permission in System Settings → Privacy → Accessibility", "Done."] }
     },
     "filename": "SmoothScrollSetup.exe",
@@ -95,15 +95,15 @@
   "faq": {
     "title": "Frequently asked questions",
     "questions": [
-      { "q": "Does this work with all apps?", "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything — Chrome, VS Code, File Explorer, Adobe apps, and more." },
+      { "q": "Does this work with all apps?", "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything - Chrome, VS Code, File Explorer, Adobe apps, and more." },
       { "q": "Will it drain my battery?", "a": "No. SmoothScroll runs at near-zero CPU when idle and only processes input during scroll events. Most users see no measurable battery impact." },
       { "q": "Is it safe? What does it install?", "a": "SmoothScroll is a standalone executable. No service, no daemon, no system driver. It doesn't install any network listeners or telemetry. You can verify this by reading the source on GitHub (FSL-1.1-Apache-2.0)." },
-      { "q": "How is this different from Windows' built-in smooth scrolling?", "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll provides a unified, configurable curve applied globally — with per-app profiles, adjustable strength, and instant toggle." },
+      { "q": "How is this different from Windows' built-in smooth scrolling?", "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll provides a unified, configurable curve applied globally - with per-app profiles, adjustable strength, and instant toggle." },
       { "q": "Does it work with gaming mice or high-DPI devices?", "a": "Yes. SmoothScroll respects the actual scroll delta from your hardware and applies smoothing on top. Works with all mice tested so far, including high-refresh and gaming mice." },
       { "q": "Can I disable it for specific apps?", "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list." },
       { "q": "What Windows versions are supported?", "a": "Windows 10 and Windows 11 are fully supported." },
       { "q": "Is there a Linux version?", "a": "Yes! SmoothScroll for Linux is available as an AppImage. It works on Ubuntu, Debian, Fedora, and most other distributions. The installation is as simple as making the AppImage executable and running it." },
-      { "q": "How do I uninstall?", "a": "Just delete the executable. No uninstaller needed — there is nothing else on your system." },
+      { "q": "How do I uninstall?", "a": "Just delete the executable. No uninstaller needed - there is nothing else on your system." },
       { "q": "Does this work with UWP / WinUI apps?", "a": "Yes. WinUI apps ignore synthetic wheel events by default; SmoothScroll uses a force-enable hook so scrolling actually reaches them. The toggle is in Settings → Scroll." },
       { "q": "Will anti-cheat flag this?", "a": "SmoothScroll auto-detects elevated targets (admin / UAC prompts) and passes raw input through, so anti-cheat sees standard wheel ticks. No exclusions to configure." },
       { "q": "How is this different from Logi Options+ or Razer Synapse?", "a": "SmoothScroll works with any mouse the OS recognises, not a vendor's hardware. It runs at the OS level, not the device-driver level, so it survives you switching peripherals." },
@@ -121,7 +121,7 @@
   },
   "beta": {
     "badge": "BETA",
-    "notice": "This build is still in beta — it may crash at any time.",
+    "notice": "This build is still in beta - it may crash at any time.",
     "reportPrefix": "Found an issue?",
     "reportLink": "Report it on GitHub"
   },
@@ -133,7 +133,7 @@
     }
   },
   "exitIntent": {
-    "title": "Wait — before you go!",
+    "title": "Wait - before you go!",
     "message": "Get SmoothScroll and make every scroll feel natural.",
     "cta": "Download free",
     "ctaLinux": "Download Linux free",
@@ -146,30 +146,30 @@
   },
   "howItWorks": {
     "seo": {
-      "title": "How SmoothScroll Works — Every Setting Explained",
+      "title": "How SmoothScroll Works - Every Setting Explained",
       "description": "Complete walkthrough of every SmoothScroll feature, setting, and keyboard shortcut. Tune scroll feel for reading, coding, design, and gaming."
     },
     "hero": {
       "eyebrow": "Complete walkthrough",
       "title": "See how SmoothScroll",
       "titleAccent": "actually works",
-      "subtitle": "A page-by-page tour of every tab, every setting, and every keyboard shortcut — so you can dial in the exact scroll feel you want.",
+      "subtitle": "A page-by-page tour of every tab, every setting, and every keyboard shortcut - so you can dial in the exact scroll feel you want.",
       "ctaPrimary": "Download SmoothScroll",
       "ctaSecondary": "Jump to keyboard shortcuts",
       "backToHome": "Back to home"
     },
     "demo": {
-      "caption": "Every tab, every setting — recorded in real time",
+      "caption": "Every tab, every setting - recorded in real time",
       "alt": "Animated walkthrough of the SmoothScroll settings window: Scroll, Devices, Advanced, Apps, Game mode, Behavior, About",
       "hint": "Tip: each tab gets its own tour below.",
-      "placeholder": "Screenshot coming soon — place your app screenshot at public/assets/screen.gif"
+      "placeholder": "Screenshot coming soon - place your app screenshot at public/assets/screen.gif"
     },
     "bigPicture": {
       "title": "The big picture",
-      "subtitle": "Three steps run for every wheel tick — 120 times a second.",
+      "subtitle": "Three steps run for every wheel tick - 120 times a second.",
       "steps": [
         { "title": "1. Intercept", "description": "A low-level hook (Windows WH_MOUSE_LL / macOS CGEventTap) catches each raw wheel event before any app sees it." },
-        { "title": "2. Smooth", "description": "An eased curve — Exponential, Cubic, Quintic, or Linear — interpolates the delta over your animation window. Acceleration stacks momentum if you scroll quickly." },
+        { "title": "2. Smooth", "description": "An eased curve - Exponential, Cubic, Quintic, or Linear - interpolates the delta over your animation window. Acceleration stacks momentum if you scroll quickly." },
         { "title": "3. Emit", "description": "Synthetic wheel events fire at 120 Hz to the foreground app. Excluded apps and games skip the engine and pass through untouched." }
       ]
     },
@@ -181,13 +181,13 @@
         {
           "id": "scroll",
           "label": "Scroll",
-          "intro": "The main feel controls. Six one-click presets cover 90% of use cases — or dive into the sliders for fine-tuning.",
+          "intro": "The main feel controls. Six one-click presets cover 90% of use cases - or dive into the sliders for fine-tuning.",
           "settings": [
             { "name": "Enable", "what": "Master toggle. Off = native OS scroll, on = SmoothScroll engine.", "why": "Quick A/B without uninstalling. Also bound to your global hotkey.", "range": "On / Off", "defaultValue": "On", "tip": "Use the global hotkey (Ctrl+Alt+S) to flip this without leaving your keyboard." },
             { "name": "Step size", "what": "Pixels scrolled per wheel notch.", "why": "Bigger = covers more page per click; smaller = finer control.", "range": "10–500 px", "defaultValue": "144 px", "tip": "Drop to 96 for code review, raise to 200 for long PDFs." },
             { "name": "Animation time", "what": "How long each scroll movement takes to settle.", "why": "Longer = silkier glide; shorter = snappier response.", "range": "50–1500 ms", "defaultValue": "220 ms", "tip": "Anything under 120 ms feels almost native; over 300 ms feels mac-trackpad-y." },
             { "name": "Smooth easing", "what": "Apply an easing curve to each movement. Off = linear ramp.", "why": "Easing is what makes scroll feel natural instead of robotic.", "range": "On / Off", "defaultValue": "On" },
-            { "name": "Easing curve", "what": "Four shapes — Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Each curve decelerates differently. Quintic feels mac-like; Linear feels purely mechanical.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Quintic Out", "tip": "Try Quintic if you want the longest, smoothest tail." },
+            { "name": "Easing curve", "what": "Four shapes - Exponential Out, Cubic Out, Quintic Out, Linear.", "why": "Each curve decelerates differently. Quintic feels mac-like; Linear feels purely mechanical.", "range": "Exponential / Cubic / Quintic / Linear", "defaultValue": "Quintic Out", "tip": "Try Quintic if you want the longest, smoothest tail." },
             { "name": "Reverse direction", "what": "Inverts wheel direction (natural-style, like macOS).", "why": "Match a Mac you also use, or just preference.", "range": "On / Off", "defaultValue": "Off" },
             { "name": "Smooth horizontal scrolling", "what": "Apply smoothing to tilt-wheel and Shift+wheel scrolls.", "why": "Wide spreadsheets, timelines, image strips.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Shift converts to horizontal", "what": "Holding Shift while scrolling becomes horizontal scroll.", "why": "Useful when your mouse has no tilt-wheel.", "range": "On / Off", "defaultValue": "On" }
@@ -196,7 +196,7 @@
         {
           "id": "devices",
           "label": "Devices",
-          "intro": "Fine-tuning for precision touchpads — separate from mouse-wheel handling.",
+          "intro": "Fine-tuning for precision touchpads - separate from mouse-wheel handling.",
           "settings": [
             { "name": "Smooth touchpad scrolling", "what": "Apply easing to high-resolution precision touchpad input.", "why": "Touchpads emit pixel-level deltas; this smooths them too.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Pixel multiplier", "what": "Scale raw touchpad pixel deltas before smoothing.", "why": "Match touchpad sensitivity to your mouse wheel.", "range": "0.5–3.0×", "defaultValue": "1.0×" },
@@ -211,7 +211,7 @@
             { "name": "Acceleration window", "what": "Time window during which consecutive notches stack momentum.", "why": "Lets quick flicks scroll farther without faster ticks.", "range": "0–300 ms", "defaultValue": "70 ms", "tip": "Higher = more momentum buildup. Set to 0 to disable acceleration." },
             { "name": "Max acceleration", "what": "Hard cap on the acceleration multiplier.", "why": "Prevents runaway speed during fast spinning.", "range": "1–20×", "defaultValue": "10×" },
             { "name": "Tail to head ratio", "what": "How sharp the deceleration curve is.", "why": "Higher = quicker initial speed, longer slow tail.", "range": "1–20", "defaultValue": "3" },
-            { "name": "Pass-through Ctrl + wheel", "what": "When Ctrl is held, send raw wheel ticks (no smoothing).", "why": "Photoshop, Figma, browsers, VS Code use Ctrl+wheel for zoom — smoothing would lag the zoom.", "range": "On / Off", "defaultValue": "On" },
+            { "name": "Pass-through Ctrl + wheel", "what": "When Ctrl is held, send raw wheel ticks (no smoothing).", "why": "Photoshop, Figma, browsers, VS Code use Ctrl+wheel for zoom - smoothing would lag the zoom.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Pass-through Alt + wheel", "what": "When Alt is held, send raw wheel ticks.", "why": "Premiere, DAWs, and timeline editors zoom or scrub with Alt+wheel.", "range": "On / Off", "defaultValue": "Off" },
             { "name": "Clear inertia on modifier", "what": "Stop pending smooth scroll the instant Ctrl/Alt is pressed.", "why": "Makes zoom feel instant after a smooth scroll.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Edge auto-scroll", "what": "Auto-scroll when the cursor enters a screen-edge zone.", "why": "Hands-free scrolling when you're already drag-and-dropping.", "range": "On / Off + zone size + max speed", "defaultValue": "Off", "tip": "Pair with a modifier requirement to avoid accidental triggers." }
@@ -222,7 +222,7 @@
           "label": "Apps",
           "intro": "Per-application overrides. Different apps deserve different feel.",
           "settings": [
-            { "name": "Scroll profiles", "what": "Named presets — e.g. Mac-like, Snappy, Slow Reading — each with its own step size, animation time, and easing.", "why": "Avoid retuning the global slider every time you switch tasks.", "range": "Unlimited", "defaultValue": "None", "tip": "Build profiles around how an app is used, not what it is. 'Long-form reading' applies to PDFs, books, and articles alike." },
+            { "name": "Scroll profiles", "what": "Named presets - e.g. Mac-like, Snappy, Slow Reading - each with its own step size, animation time, and easing.", "why": "Avoid retuning the global slider every time you switch tasks.", "range": "Unlimited", "defaultValue": "None", "tip": "Build profiles around how an app is used, not what it is. 'Long-form reading' applies to PDFs, books, and articles alike." },
             { "name": "Per-app assignments", "what": "Map a process name (e.g. chrome.exe) to a specific profile.", "why": "Chrome can glide while VS Code stays snappy.", "range": "Unlimited", "defaultValue": "None" },
             { "name": "Excluded apps", "what": "Apps that bypass SmoothScroll entirely.", "why": "Some apps (anti-cheat, specialty tools) prefer raw wheel input.", "range": "Unlimited", "defaultValue": "None" }
           ]
@@ -232,7 +232,7 @@
           "label": "Game mode",
           "intro": "Auto-disable smoothing whenever a known game is in the foreground.",
           "settings": [
-            { "name": "Auto-disable in games", "what": "Pauses the engine while any process from the games list is focused.", "why": "Games need raw scroll input — for weapon switching, zoom scopes, etc.", "range": "On / Off", "defaultValue": "On" },
+            { "name": "Auto-disable in games", "what": "Pauses the engine while any process from the games list is focused.", "why": "Games need raw scroll input - for weapon switching, zoom scopes, etc.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Known games list", "what": "Editable list of process names that trigger Game mode.", "why": "Add your own games; remove false positives.", "range": "Unlimited", "defaultValue": "Curated default list" }
           ]
         },
@@ -243,28 +243,28 @@
           "settings": [
             { "name": "Global hotkey", "what": "System-wide shortcut to toggle smoothing on/off.", "why": "Flip without alt-tabbing into Settings.", "range": "On / Off", "defaultValue": "On" },
             { "name": "Hotkey combination", "what": "Click the field, then press the keys you want.", "why": "Avoid clashing with other apps you use.", "range": "Any modifier+key combo", "defaultValue": "Ctrl+Alt+S" },
-            { "name": "Start with Windows / macOS", "what": "Launches SmoothScroll on login.", "why": "Set-and-forget — smooth scroll from the first second of every session.", "range": "On / Off", "defaultValue": "Off" },
+            { "name": "Start with Windows / macOS", "what": "Launches SmoothScroll on login.", "why": "Set-and-forget - smooth scroll from the first second of every session.", "range": "On / Off", "defaultValue": "Off" },
             { "name": "Start minimized to tray", "what": "Skip the settings window on launch.", "why": "Pair with Start with Windows for a fully background experience.", "range": "On / Off", "defaultValue": "On" },
-            { "name": "Respect system Reduce Motion", "what": "Three modes — Auto (follow OS), Always instant, Always smooth.", "why": "Honor accessibility preferences automatically.", "range": "Auto / Always instant / Always smooth", "defaultValue": "Auto" }
+            { "name": "Respect system Reduce Motion", "what": "Three modes - Auto (follow OS), Always instant, Always smooth.", "why": "Honor accessibility preferences automatically.", "range": "Auto / Always instant / Always smooth", "defaultValue": "Auto" }
           ]
         },
         {
           "id": "about",
           "label": "About",
-          "intro": "Version, updates, backup, and local stats — the housekeeping tab.",
+          "intro": "Version, updates, backup, and local stats - the housekeeping tab.",
           "settings": [
             { "name": "Version & updates", "what": "Check for and install signed updates.", "why": "Stay on the latest fixes without hunting for downloads.", "range": "Manual / Auto", "defaultValue": "Manual check" },
-            { "name": "Backup & restore", "what": "Export your full settings as JSON, import on another machine.", "why": "Move presets between PCs without redoing every slider.", "range": "JSON file", "defaultValue": "—" },
-            { "name": "Local stats", "what": "Sessions and total usage time, computed on-device only.", "why": "See how much you've used SmoothScroll. Nothing is uploaded.", "range": "—", "defaultValue": "—" },
-            { "name": "Open log folder", "what": "Opens %APPDATA%\\SmoothScroll\\logs (or ~/Library/Logs/SmoothScroll on macOS).", "why": "Useful when filing a bug report.", "range": "—", "defaultValue": "—" },
-            { "name": "Re-run setup wizard", "what": "Reopens the 3-step onboarding.", "why": "Reset to a known-good preset if you've over-tweaked.", "range": "—", "defaultValue": "—" }
+            { "name": "Backup & restore", "what": "Export your full settings as JSON, import on another machine.", "why": "Move presets between PCs without redoing every slider.", "range": "JSON file", "defaultValue": "-" },
+            { "name": "Local stats", "what": "Sessions and total usage time, computed on-device only.", "why": "See how much you've used SmoothScroll. Nothing is uploaded.", "range": "-", "defaultValue": "-" },
+            { "name": "Open log folder", "what": "Opens %APPDATA%\\SmoothScroll\\logs (or ~/Library/Logs/SmoothScroll on macOS).", "why": "Useful when filing a bug report.", "range": "-", "defaultValue": "-" },
+            { "name": "Re-run setup wizard", "what": "Reopens the 3-step onboarding.", "why": "Reset to a known-good preset if you've over-tweaked.", "range": "-", "defaultValue": "-" }
           ]
         }
       ]
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
-      "subtitle": "Press these from anywhere on your system, or only inside the settings window — the Scope column tells you which.",
+      "subtitle": "Press these from anywhere on your system, or only inside the settings window - the Scope column tells you which.",
       "tableHeaders": { "action": "Action", "keys": "Keys", "scope": "Scope" },
       "rows": [
         { "action": "Toggle smooth scrolling on / off", "keys": "Ctrl + Alt + S", "scope": "System-wide" },
@@ -282,7 +282,7 @@
     },
     "tray": {
       "title": "The system tray",
-      "subtitle": "SmoothScroll has no taskbar window — everything lives in the tray.",
+      "subtitle": "SmoothScroll has no taskbar window - everything lives in the tray.",
       "leftClick": {
         "title": "Left-click the tray icon",
         "description": "Opens the compact tray panel.",
@@ -309,25 +309,25 @@
       },
       "perApp": {
         "title": "Current app card",
-        "description": "The tray panel shows the foreground app and its category. Toggle smoothing for that app, or assign a profile — all without opening full settings."
+        "description": "The tray panel shows the foreground app and its category. Toggle smoothing for that app, or assign a profile - all without opening full settings."
       }
     },
     "recipes": {
       "title": "Pro tips & recipes",
       "subtitle": "Battle-tested presets for common workflows. Open Apps → Profiles to save them.",
       "items": [
-        { "name": "Long-form reading", "scenario": "PDFs, articles, books — skim or savor without losing your place.", "suggestion": "Slow preset", "settings": ["Step size: 80 px", "Animation time: 600 ms", "Easing: Quintic Out", "Acceleration max: 4×"] },
+        { "name": "Long-form reading", "scenario": "PDFs, articles, books - skim or savor without losing your place.", "suggestion": "Slow preset", "settings": ["Step size: 80 px", "Animation time: 600 ms", "Easing: Quintic Out", "Acceleration max: 4×"] },
         { "name": "Coding in VS Code / JetBrains", "scenario": "Navigate code without overshooting and losing your line.", "suggestion": "Default preset + modifier passthrough", "settings": ["Step size: 144 px", "Animation time: 220 ms", "Easing: Quintic Out", "Acceleration max: 10×", "Advanced → Pass-through Ctrl+wheel: ON", "Advanced → Pass-through Alt+wheel: ON", "Advanced → Clear inertia on modifier: ON"] },
         { "name": "Photoshop / Figma / Illustrator", "scenario": "Frequent Ctrl+wheel zoom; smooth scroll within layer panels.", "suggestion": "Default + Ctrl pass-through ON", "settings": ["Defaults are great", "Advanced → Pass-through Ctrl+wheel: ON", "Advanced → Clear inertia on modifier: ON"] },
         { "name": "Premiere / DAWs", "scenario": "Timeline scrubbing with Alt+wheel.", "suggestion": "Default + Alt pass-through ON", "settings": ["Advanced → Pass-through Alt+wheel: ON", "Apps → assign Snappy profile to your editor"] },
-        { "name": "Gaming", "scenario": "Weapon wheel, zoom scope — anything that reads raw notches.", "suggestion": "Game mode auto-disable", "settings": ["Game mode → Auto-disable in games: ON", "Add your game's process to the list (e.g. csgo.exe)"] },
-        { "name": "Laptop on battery", "scenario": "Squeeze every minute — reduce CPU work.", "suggestion": "Snappy preset", "settings": ["Step size: 200 px", "Animation time: 200 ms", "Easing: Cubic Out", "Acceleration max: 14×", "Behavior → Reduce motion: Auto"] }
+        { "name": "Gaming", "scenario": "Weapon wheel, zoom scope - anything that reads raw notches.", "suggestion": "Game mode auto-disable", "settings": ["Game mode → Auto-disable in games: ON", "Add your game's process to the list (e.g. csgo.exe)"] },
+        { "name": "Laptop on battery", "scenario": "Squeeze every minute - reduce CPU work.", "suggestion": "Snappy preset", "settings": ["Step size: 200 px", "Animation time: 200 ms", "Easing: Cubic Out", "Acceleration max: 14×", "Behavior → Reduce motion: Auto"] }
       ]
     },
     "privacy": {
       "title": "What it does (and doesn't) do",
       "points": [
-        "Reads mouse-wheel events at the OS hook layer — same API as accessibility tools and screen readers.",
+        "Reads mouse-wheel events at the OS hook layer - same API as accessibility tools and screen readers.",
         "Does not inject into other processes.",
         "Does not install drivers, services, or daemons.",
         "Does not make network calls except checking GitHub for new releases (toggleable).",
