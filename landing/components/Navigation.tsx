@@ -28,52 +28,60 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
   }, [])
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-200 ${
-        scrolled
-          ? 'bg-background/80 backdrop-blur-md border-b shadow-sm py-2'
-          : 'bg-transparent py-4'
-      }`}
-    >
-      <nav className="container flex items-center justify-between gap-4">
-        <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg">
-          <Image
-            src={`${BASE_PATH}/assets/icon-128.png`}
-            alt="SmoothScroll logo"
-            width={28}
-            height={28}
-            className="rounded-md"
-          />
-          SmoothScroll
-        </Link>
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+      <header
+        className={`fixed top-0 inset-x-0 z-40 transition-all duration-200 ${
+          scrolled
+            ? 'bg-background/80 backdrop-blur-md border-b shadow-sm py-2'
+            : 'bg-transparent py-4'
+        }`}
+      >
+        <nav className="container flex items-center justify-between gap-4">
+          <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg">
+            <Image
+              src={`${BASE_PATH}/assets/icon-128.png`}
+              alt="SmoothScroll logo"
+              width={28}
+              height={28}
+              className="rounded-md"
+            />
+            SmoothScroll
+          </Link>
 
-        <div className="flex items-center gap-2">
-          {stars !== null && (
+          <div className="flex items-center gap-2">
+            {stars !== null && (
+              <a
+                href="https://github.com/quangtruong2003/SmoothScroll"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden xl:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Star className="h-4 w-4" />
+                <span>{stars.toLocaleString()}</span>
+              </a>
+            )}
             <a
               href="https://github.com/quangtruong2003/SmoothScroll"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden xl:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="hidden sm:flex"
             >
-              <Star className="h-4 w-4" />
-              <span>{stars.toLocaleString()}</span>
+              <Button variant="ghost" size="sm">
+                <Github className="h-4 w-4 mr-1.5" />
+                GitHub
+              </Button>
             </a>
-          )}
-          <a
-            href="https://github.com/quangtruong2003/SmoothScroll"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex"
-          >
-            <Button variant="ghost" size="sm">
-              <Github className="h-4 w-4 mr-1.5" />
-              GitHub
-            </Button>
-          </a>
-          <LangSwitcher locale={locale} dict={{ langSwitcher: langSwitcherDict }} />
-          <ThemeToggle />
-        </div>
-      </nav>
-    </header>
+            <LangSwitcher locale={locale} dict={{ langSwitcher: langSwitcherDict }} />
+            <ThemeToggle />
+          </div>
+        </nav>
+      </header>
+    </>
   )
 }
