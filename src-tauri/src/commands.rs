@@ -734,6 +734,26 @@ pub struct ForegroundAppContext {
     pub suggested_category_label: Option<String>,
     pub current_profile_id: Option<String>,
     pub is_excluded: bool,
+    /// Base64-encoded PNG of the foreground app's icon (no `data:` prefix).
+    /// `None` when icon extraction fails or the platform does not support it
+    /// (Linux, or macOS in this build); the frontend falls back to its
+    /// Lucide icon in that case.
+    pub app_icon_base64: Option<String>,
+}
+
+/// Looks up the foreground app's pid + exe_path via the ProcessQuery impl
+/// and consults the icon cache. Returns None when the platform does not
+/// implement foreground_process_info, the lookup fails, the resolved name
+/// doesn't match the one we got from the snapshot (defensive against
+/// stale foreground snapshots), or the cache extractor returns None
+/// (Linux, macOS in this build).
+fn extract_icon_for_foreground(state: &State<'_, Arc<AppState>>, name: &str) -> Option<String> {
+    let info = state.processes.foreground_process_info()?;
+    if !info.name.eq_ignore_ascii_case(name) {
+        return None;
+    }
+    let cache = state.app_icon_cache.lock();
+    cache.get_or_extract(info.pid, info.exe_path.as_deref().map(std::path::Path::new))
 }
 
 /// Returns context about the foreground app at the moment the tray panel was
@@ -754,6 +774,7 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
             suggested_category_label: None,
             current_profile_id: None,
             is_excluded: false,
+            app_icon_base64: None,
         };
     };
 
@@ -761,6 +782,7 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
     let s = state.settings.read();
     let is_excluded = s.is_excluded(&name);
     let current_profile_id = s.app_profiles.get(&name).cloned();
+    let app_icon_base64 = extract_icon_for_foreground(&state, &name);
 
     ForegroundAppContext {
         process_name: Some(name),
@@ -768,5 +790,6 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
         suggested_category_label: Some(category.label().to_string()),
         current_profile_id,
         is_excluded,
+        app_icon_base64,
     }
 }
