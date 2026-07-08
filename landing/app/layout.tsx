@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://quangtruong2003.github.io/SmoothScroll'),
   title: {
     template: '%s | SmoothScroll',
-    default: 'SmoothScroll — Natural Scroll Feel on Windows',
+    default: 'SmoothScroll - Natural Scroll Feel on Windows',
   },
   robots: { index: true, follow: true },
   icons: {

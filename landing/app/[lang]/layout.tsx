@@ -21,7 +21,7 @@ export async function generateMetadata({
   const dict = await getDictionary(locale)
 
   return {
-    title: 'SmoothScroll — Natural Scroll Feel on Windows',
+    title: 'SmoothScroll - Natural Scroll Feel on Windows',
     description: dict.hero?.subtitle,
     alternates: {
       canonical: `/${locale}`,
