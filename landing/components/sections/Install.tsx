@@ -20,9 +20,19 @@ function CopyButton({ text }: { text: string }) {
     })
   }
   return (
-    <Button variant="ghost" size="icon" onClick={handleCopy} aria-label={copied ? 'Copied' : 'Copy'}>
-      {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-    </Button>
+    <div className="relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleCopy}
+        aria-label={copied ? 'Copied' : 'Copy'}
+      >
+        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+      </Button>
+      <span role="status" aria-live="polite" className="sr-only">
+        {copied ? 'Copied to clipboard' : ''}
+      </span>
+    </div>
   )
 }
 
