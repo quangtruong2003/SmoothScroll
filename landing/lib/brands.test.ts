@@ -1,21 +1,25 @@
 import { describe, it, expect } from 'vitest'
 import { BRANDS } from './brands'
 
-describe('brands', () => {
-  it('exports exactly 16 entries', () => {
+describe('BRANDS', () => {
+  it('has 16 entries', () => {
     expect(BRANDS).toHaveLength(16)
   })
 
-  it('every entry has name, slug, src', () => {
-    for (const b of BRANDS) {
-      expect(b.name).toMatch(/.+/)
-      expect(b.slug).toMatch(/^[a-z0-9]+$/)
-      expect(b.src).toMatch(/^https:\/\//)
+  it('every brand src is local (starts with /assets/brand-icons/)', () => {
+    for (const brand of BRANDS) {
+      expect(brand.src).toMatch(/^\/assets\/brand-icons\/.+\.svg$/)
     }
   })
 
-  it('slugs are unique', () => {
+  it('no brand references the Iconify CDN', () => {
+    for (const brand of BRANDS) {
+      expect(brand.src).not.toContain('iconify.design')
+    }
+  })
+
+  it('every brand has unique slug', () => {
     const slugs = BRANDS.map((b) => b.slug)
-    expect(new Set(slugs).size).toBe(BRANDS.length)
+    expect(new Set(slugs).size).toBe(slugs.length)
   })
 })

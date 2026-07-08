@@ -5,23 +5,23 @@ export interface Brand {
   invertOnDark?: boolean
 }
 
-const ICONIFY = (id: string) => `https://api.iconify.design/${id}.svg`
+const LOCAL = (name: string) => `/assets/brand-icons/${name}.svg`
 
 export const BRANDS: Brand[] = [
-  { name: 'Windows 11',    slug: 'windows11',    src: ICONIFY('logos:microsoft-windows') },
-  { name: 'macOS',         slug: 'apple',        src: ICONIFY('logos:apple'),              invertOnDark: true },
-  { name: 'Chrome',        slug: 'chrome',       src: ICONIFY('logos:chrome') },
-  { name: 'Edge',          slug: 'edge',         src: ICONIFY('logos:microsoft-edge') },
-  { name: 'Firefox',       slug: 'firefox',      src: ICONIFY('logos:firefox') },
-  { name: 'VS Code',       slug: 'vscode',       src: ICONIFY('logos:visual-studio-code') },
-  { name: 'Cursor',        slug: 'cursor',       src: ICONIFY('simple-icons:cursor'),       invertOnDark: true },
-  { name: 'IntelliJ IDEA', slug: 'intellijidea', src: ICONIFY('logos:intellij-idea') },
-  { name: 'WebStorm',      slug: 'webstorm',     src: ICONIFY('logos:webstorm') },
-  { name: 'PyCharm',       slug: 'pycharm',      src: ICONIFY('logos:pycharm') },
-  { name: 'Word',          slug: 'word',         src: ICONIFY('vscode-icons:file-type-word') },
-  { name: 'Excel',         slug: 'excel',        src: ICONIFY('vscode-icons:file-type-excel') },
-  { name: 'Notion',        slug: 'notion',       src: ICONIFY('logos:notion-icon'),        invertOnDark: true },
-  { name: 'Slack',         slug: 'slack',        src: ICONIFY('logos:slack-icon') },
-  { name: 'Figma',         slug: 'figma',        src: ICONIFY('logos:figma') },
-  { name: 'Discord',       slug: 'discord',      src: ICONIFY('logos:discord-icon') },
+  { name: 'Windows 11',    slug: 'windows11',    src: LOCAL('windows11') },
+  { name: 'macOS',         slug: 'apple',        src: LOCAL('apple'),              invertOnDark: true },
+  { name: 'Chrome',        slug: 'chrome',       src: LOCAL('chrome') },
+  { name: 'Edge',          slug: 'edge',          src: LOCAL('edge') },
+  { name: 'Firefox',       slug: 'firefox',      src: LOCAL('firefox') },
+  { name: 'VS Code',       slug: 'vscode',        src: LOCAL('vscode') },
+  { name: 'Cursor',        slug: 'cursor',        src: LOCAL('cursor'),             invertOnDark: true },
+  { name: 'IntelliJ IDEA', slug: 'intellijidea',  src: LOCAL('intellijidea') },
+  { name: 'WebStorm',      slug: 'webstorm',      src: LOCAL('webstorm') },
+  { name: 'PyCharm',       slug: 'pycharm',       src: LOCAL('pycharm') },
+  { name: 'Word',          slug: 'word',           src: LOCAL('word') },
+  { name: 'Excel',         slug: 'excel',          src: LOCAL('excel') },
+  { name: 'Notion',        slug: 'notion',         src: LOCAL('notion'),            invertOnDark: true },
+  { name: 'Slack',         slug: 'slack',          src: LOCAL('slack') },
+  { name: 'Figma',         slug: 'figma',          src: LOCAL('figma') },
+  { name: 'Discord',       slug: 'discord',         src: LOCAL('discord') },
 ]

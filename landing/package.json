@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "fetch-icons": "node scripts/fetch-brand-icons.mjs",
+    "prebuild": "node scripts/fetch-brand-icons.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
