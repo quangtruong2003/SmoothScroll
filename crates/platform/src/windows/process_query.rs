@@ -8,7 +8,6 @@ use crate::traits::{ProcessInfo, ProcessQuery};
 use crate::types::IntegrityLevel;
 use parking_lot::Mutex;
 use std::os::raw::c_void;
-use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use windows_sys::Win32::Foundation::{CloseHandle, BOOL, FALSE, HANDLE, LPARAM, MAX_PATH, POINT, TRUE};
 use windows_sys::Win32::Security::{
@@ -198,6 +197,32 @@ impl ProcessQuery for WindowsProcessQuery {
         }
         None
     }
+
+    /// Same Z-order walk as `foreground_process_name`, but returns the full
+    /// `ProcessInfo` (name + exe_path) in a single pass so callers that need
+    /// the exe path (e.g. the icon extractor) avoid two Win32 round-trips.
+    fn foreground_process_info(&self) -> Option<ProcessInfo> {
+        let self_pid = unsafe { GetCurrentProcessId() };
+        let mut hwnd = unsafe { GetTopWindow(std::ptr::null_mut()) };
+        while !hwnd.is_null() {
+            if is_eligible_app_window(hwnd) {
+                let mut pid: u32 = 0;
+                unsafe { GetWindowThreadProcessId(hwnd, &mut pid) };
+                if pid != 0 && pid != self_pid {
+                    if let Some(name) = process_name_for_pid(pid) {
+                        return Some(ProcessInfo {
+                            pid,
+                            name,
+                            window_title: String::new(),
+                            exe_path: exe_path_for_pid(pid),
+                        });
+                    }
+                }
+            }
+            hwnd = unsafe { GetWindow(hwnd, GW_HWNDNEXT) };
+        }
+        None
+    }
 }
 
 /// Returns true when the HWND is a normal top-level user-facing app window:
@@ -235,12 +260,18 @@ fn process_name_for_hwnd(hwnd: isize) -> Option<String> {
 }
 
 pub fn process_name_for_pid(pid: u32) -> Option<String> {
+    exe_path_for_pid(pid).and_then(|p| {
+        std::path::Path::new(&p)
+            .file_stem()
+            .map(|s| s.to_string_lossy().into_owned())
+    })
+}
+
+/// Returns the full executable path for `pid`, or None on lookup failure.
+/// Reuses the limited-information token so it works for higher-integrity
+/// processes too.
+pub fn exe_path_for_pid(pid: u32) -> Option<String> {
     unsafe {
-        // PROCESS_QUERY_LIMITED_INFORMATION (no PROCESS_VM_READ) lets us read
-        // the image name even for higher-integrity processes like Task Manager
-        // when running unelevated. QueryFullProcessImageNameW pairs with this
-        // limited token; the older K32GetProcessImageFileNameW required
-        // PROCESS_VM_READ which fails cross-integrity.
         let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
         if handle.is_null() {
             return None;
@@ -252,9 +283,7 @@ pub fn process_name_for_pid(pid: u32) -> Option<String> {
         if ok == 0 || len == 0 {
             return None;
         }
-        let path: PathBuf = String::from_utf16_lossy(&buf[..len as usize]).into();
-        path.file_stem()
-            .map(|stem| stem.to_string_lossy().into_owned())
+        Some(String::from_utf16_lossy(&buf[..len as usize]))
     }
 }
 
@@ -379,6 +408,7 @@ impl WindowsProcessQuery {
                 pid,
                 name,
                 window_title: title,
+                exe_path: exe_path_for_pid(pid),
             });
             TRUE
         }
