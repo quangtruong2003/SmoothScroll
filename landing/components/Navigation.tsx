@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
+import { ScrollToTop } from './ScrollToTop'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
@@ -83,6 +84,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
           </div>
         </nav>
       </header>
+      <ScrollToTop />
     </>
   )
 }
