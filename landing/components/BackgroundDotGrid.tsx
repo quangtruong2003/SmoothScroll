@@ -139,6 +139,17 @@ export function BackgroundDotGrid() {
     let pendingDirty = false
     let pendingLeave = false
 
+    function onThemeChange() {
+      theme = readThemeColors()
+      sprite = buildSprite(theme.brandColor)
+      if (!animate || rafId === 0) drawStatic()
+    }
+
+    function onResize() {
+      resize()
+      if (!animate || rafId === 0) drawStatic()
+    }
+
     function resize() {
       if (!canvas || !ctx) return
       viewW = window.innerWidth
@@ -169,6 +180,21 @@ export function BackgroundDotGrid() {
         path.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2)
       }
       ctx.fill(path)
+    }
+
+    if (reduced) {
+      resize()
+      drawStatic()
+      const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      colorSchemeQuery.addEventListener('change', onThemeChange)
+      const observer = new MutationObserver(onThemeChange)
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+      window.addEventListener('resize', onResize)
+      return () => {
+        colorSchemeQuery.removeEventListener('change', onThemeChange)
+        observer.disconnect()
+        window.removeEventListener('resize', onResize)
+      }
     }
 
     interface LitDot { x: number; y: number; f: number; radius: number; coreColor: Rgba }
@@ -296,17 +322,6 @@ export function BackgroundDotGrid() {
     function onLeave() {
       pendingLeave = true
       kick()
-    }
-
-    function onResize() {
-      resize()
-      if (!animate || rafId === 0) drawStatic()
-    }
-
-    function onThemeChange() {
-      theme = readThemeColors()
-      sprite = buildSprite(theme.brandColor)
-      if (!animate || rafId === 0) drawStatic()
     }
 
     resize()
