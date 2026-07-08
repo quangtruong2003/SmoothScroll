@@ -637,9 +637,15 @@ body[data-platform="mac"] .mac-titlebar-overlay {
   display: grid;
   grid-template-columns: 20px 1fr auto;
   align-items: center;
-  gap: 0 10px;
+  /* Column gap matches the tray-toggle width (`w-11` = 44px) so the
+   * text↔toggle breathing room equals one toggle's own width, giving
+   * a calm visual rhythm instead of cramped adjacency. Padding-left
+   * is intentionally tight so the app icon hugs the panel's left
+   * edge — the column gap on that side still provides label↔icon
+   * separation. */
+  column-gap: 44px;
   min-height: 36px;
-  padding: 0 12px;
+  padding: 0 12px 0 4px;
   font-size: 0.84rem;
   font-weight: 500;
   color: hsl(var(--foreground));
