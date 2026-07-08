@@ -10,6 +10,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "fetch-icons": "node scripts/fetch-brand-icons.mjs",
     "prebuild": "node scripts/fetch-brand-icons.mjs"
   },
