@@ -115,6 +115,8 @@ export interface ForegroundAppContext {
   suggested_category_label: string | null;
   current_profile_id: string | null;
   is_excluded: boolean;
+  /** Base64 PNG (no data: prefix). Null when extraction fails or unsupported. */
+  app_icon_base64?: string | null;
 }
 
 export interface DailyStats {

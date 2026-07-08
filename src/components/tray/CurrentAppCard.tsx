@@ -71,6 +71,9 @@ export function CurrentAppCard() {
   const category = ctx.suggested_category ?? "Unknown";
   const Icon = CATEGORY_ICON[category];
   const displayName = prettifyProcessName(ctx.process_name);
+  const labelPrefix = ctx.suggested_category_label
+    ? `${ctx.suggested_category_label}: `
+    : "";
 
   const handleToggle = async (enabled: boolean) => {
     const name = ctx.process_name;
@@ -91,9 +94,18 @@ export function CurrentAppCard() {
   return (
     <div className="tray-row">
       <span className="tray-row-icon">
-        <Icon className="h-4 w-4" />
+        {ctx.app_icon_base64 ? (
+          <img
+            src={`data:image/png;base64,${ctx.app_icon_base64}`}
+            className="tray-row-app-icon"
+            alt=""
+            draggable={false}
+          />
+        ) : (
+          <Icon className="h-4 w-4" />
+        )}
       </span>
-      <span className="tray-row-label">{displayName}</span>
+      <span className="tray-row-label">{labelPrefix}{displayName}</span>
       <Switch checked={!isDisabled} onCheckedChange={handleToggle} />
     </div>
   );
