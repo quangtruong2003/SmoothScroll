@@ -59,9 +59,27 @@ export function Install({ dict }: InstallProps) {
         <Tabs defaultValue="windows" className="max-w-2xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="windows">{i.tabs?.windows?.label ?? 'Windows'}</TabsTrigger>
-            <TabsTrigger value="linux" disabled title="Linux support is coming soon">{i.tabs?.linux?.label ?? 'Linux'}</TabsTrigger>
-            <TabsTrigger value="macos" disabled title="macOS support is coming soon">{i.tabs?.macos?.label ?? 'macOS'}</TabsTrigger>
+            <TabsTrigger
+              value="linux"
+              disabled
+              descriptionId="linux-coming-soon-desc"
+            >
+              {i.tabs?.linux?.label ?? 'Linux'}
+            </TabsTrigger>
+            <TabsTrigger
+              value="macos"
+              disabled
+              descriptionId="mac-coming-soon-desc"
+            >
+              {i.tabs?.macos?.label ?? 'macOS'}
+            </TabsTrigger>
           </TabsList>
+          <span id="linux-coming-soon-desc" className="sr-only">
+            Linux support is coming soon
+          </span>
+          <span id="mac-coming-soon-desc" className="sr-only">
+            macOS support is coming soon
+          </span>
 
           <TabsContent value="windows" className="space-y-6">
             <ol className="space-y-4">
