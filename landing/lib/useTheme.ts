@@ -17,6 +17,9 @@ function applyTheme(theme: Theme) {
   root.classList.remove('light', 'dark')
   const resolved = theme === 'system' ? getSystemTheme() : theme
   root.classList.add(resolved)
+  // Clear inline styles set by the inline <script> to let CSS variables take over
+  root.style.removeProperty('background')
+  root.style.removeProperty('color')
 }
 
 export function useTheme() {

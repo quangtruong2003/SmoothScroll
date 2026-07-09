@@ -5,12 +5,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
 import { ScrollToTop } from './ScrollToTop'
-import { DotGridToggle } from './DotGridToggle'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { useGitHubStars } from '@/lib/useGitHubStars'
-import type { Locale } from '@/lib/i18n/dict'
+import { localePrefix, localePath, type Locale } from '@/lib/i18n/dict'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
@@ -45,7 +44,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
         }`}
       >
         <nav className="container flex items-center justify-between gap-4">
-          <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg shrink-0">
+          <Link href={localePath(locale, '/')} className="flex items-center gap-2 font-bold text-lg shrink-0">
             <Image
               src={`${BASE_PATH}/assets/icon-128.png`}
               alt="SmoothScroll logo"
@@ -81,7 +80,6 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
               </Button>
             </a>
             <LangSwitcher locale={locale} dict={{ langSwitcher: langSwitcherDict }} />
-            <DotGridToggle />
             <ThemeToggle />
           </div>
         </nav>

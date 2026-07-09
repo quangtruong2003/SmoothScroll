@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Toaster } from 'sonner'
-import { getDictionary, locales, type Locale } from '@/lib/i18n/dict'
+import { getDictionary, locales, localePrefix, type Locale } from '@/lib/i18n/dict'
 import { BackgroundDotGrid } from '@/components/BackgroundDotGrid'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
@@ -24,13 +24,13 @@ export async function generateMetadata({
     title: 'SmoothScroll - Natural Scroll Feel on Windows',
     description: dict.hero?.subtitle,
     alternates: {
-      canonical: `/${locale}`,
+      canonical: `/${localePrefix(locale)}`,
       languages: {
-        en: '/en',
+        en: '/',
         vi: '/vi',
         zh: '/zh',
         'zh-Hans': '/zh',
-        'x-default': '/en',
+        'x-default': '/',
       },
     },
     openGraph: {
@@ -67,7 +67,7 @@ export default async function LangLayout({
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;d.classList.remove('light','dark');var r=t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;d.classList.add(r);d.style.background=r==='dark'?'hsl(240,10%,3.9%)':'hsl(0,0%,100%)';d.style.color=r==='dark'?'hsl(0,0%,98%)':'hsl(240,10%,3.9%)';var dg=localStorage.getItem('noDotGrid')==='true';d.dataset.noDotGrid=dg?'true':'false';}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;d.classList.remove('light','dark');var r=t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;d.classList.add(r);d.style.background=r==='dark'?'hsl(240,10%,3.9%)':'hsl(0,0%,100%)';d.style.color=r==='dark'?'hsl(0,0%,98%)':'hsl(240,10%,3.9%)';}catch(e){}})();`,
           }}
         />
       </head>

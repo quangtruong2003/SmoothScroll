@@ -19,19 +19,7 @@ export function DemoFrame({ demo }: DemoFrameProps) {
     <section className="px-4 pb-16 sm:pb-24">
       <div className="container max-w-5xl">
         <FadeUp>
-          <div className="relative rounded-2xl border border-border overflow-hidden shadow-2xl shadow-primary/5">
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b border-border">
-              <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-red-400/80" />
-                <div className="h-3 w-3 rounded-full bg-yellow-400/80" />
-                <div className="h-3 w-3 rounded-full bg-green-400/80" />
-              </div>
-              <div className="flex-1 rounded bg-background border border-border px-3 py-1 text-xs text-muted-foreground text-center">
-                quangtruong2003.github.io/SmoothScroll/{BASE_PATH && BASE_PATH !== '' ? `${BASE_PATH}/` : ''}en/how-it-works
-              </div>
-            </div>
-
+          <div className="relative overflow-hidden rounded-2xl border border-border shadow-2xl shadow-primary/5">
             <div className="overflow-hidden bg-background">
               {hasImage ? (
                 <Image

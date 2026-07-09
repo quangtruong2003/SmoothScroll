@@ -205,3 +205,15 @@ const dictionaries: Record<Locale, () => Promise<Dictionary>> = {
 export function getDictionary(locale: Locale): Promise<Dictionary> {
   return dictionaries[locale]?.() ?? dictionaries[defaultLocale]()
 }
+
+/** Returns locale prefix for URLs. Default locale returns empty string. */
+export function localePrefix(locale: Locale): string {
+  return locale === defaultLocale ? '' : `/${locale}`
+}
+
+/** Build URL path: avoids double-slash for default locale. */
+export function localePath(locale: Locale, path: string): string {
+  const prefix = localePrefix(locale)
+  const joined = `${prefix}${path}`
+  return joined.replace('//', '/') || '/'
+}

@@ -6,7 +6,7 @@ import { DownloadButtonWin } from '@/components/DownloadButtonWin'
 import { LogoWall } from '@/components/LogoWall'
 import { Badge } from '@/components/ui/badge'
 import { detectOS } from '@/lib/os'
-import type { Dictionary, Locale } from '@/lib/i18n/dict'
+import { localePrefix, localePath, type Dictionary, type Locale } from '@/lib/i18n/dict'
 
 interface HeroProps {
   dict: { hero?: Dictionary['hero'] }
@@ -46,7 +46,7 @@ export function Hero({ dict, locale }: HeroProps) {
               {h.subtitle}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
+            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full">
               <DownloadButtonWin label={h.cta ?? 'Download for Windows'} variant="brand" size="xl" className="w-full sm:w-auto" />
               {os !== 'win' && (
                 <span className="inline-flex items-center rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
@@ -54,7 +54,7 @@ export function Hero({ dict, locale }: HeroProps) {
                 </span>
               )}
               <Link
-                href={`/${locale}/how-it-works`}
+                href={localePath(locale, '/how-it-works')}
                 className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors"
               >
                 {h.seeHow}
@@ -62,7 +62,7 @@ export function Hero({ dict, locale }: HeroProps) {
             </div>
 
             <p className="text-sm text-muted-foreground transition-colors duration-150">{h.trustLine}</p>
-            <div className="w-full max-w-3xl">
+            <div className="w-full max-w-3xl mx-auto">
               <LogoWall />
             </div>
           </div>

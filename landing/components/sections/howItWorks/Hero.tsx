@@ -5,7 +5,7 @@ import { ArrowLeft, Keyboard } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { FadeUp } from '@/components/motion/FadeUp'
-import type { Dictionary, Locale } from '@/lib/i18n/dict'
+import { localePrefix, localePath, type Dictionary, type Locale } from '@/lib/i18n/dict'
 
 interface HowItWorksHeroProps {
   locale: Locale
@@ -22,7 +22,7 @@ export function HowItWorksHero({ locale, hero, ctaLinuxLabel, ctaMacLabel, betaB
       <div className="container max-w-5xl">
         <FadeUp>
           <Link
-            href={`/${locale}`}
+            href={localePath(locale, '/')}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />

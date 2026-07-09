@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Globe } from 'lucide-react'
-import type { Locale } from '@/lib/i18n/dict'
+import { localePrefix, type Locale } from '@/lib/i18n/dict'
 import { FlagIcon } from './FlagIcon'
 
 interface LangSwitcherProps {
@@ -33,9 +33,18 @@ export function LangSwitcher({ locale }: LangSwitcherProps) {
 
   const switchLocale = (newLocale: Locale) => {
     if (!pathname) return
+    const knownLocales = ['en', 'vi', 'zh']
     const segments = pathname.split('/')
-    segments[1] = newLocale
-    return segments.join('/')
+    // Strip existing locale prefix if present
+    if (knownLocales.includes(segments[1])) {
+      segments.splice(1, 1)
+    }
+    // Prepend new locale prefix (if not default)
+    const prefix = localePrefix(newLocale)
+    if (prefix) {
+      segments.splice(1, 0, prefix.replace(/^\//, ''))
+    }
+    return segments.join('/') || '/'
   }
 
   // Close on outside click

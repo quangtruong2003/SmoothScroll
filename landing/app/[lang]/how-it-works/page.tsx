@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getDictionary, locales, type Locale } from '@/lib/i18n/dict'
+import { getDictionary, locales, localePrefix, type Locale } from '@/lib/i18n/dict'
 import { HowItWorksHero } from '@/components/sections/howItWorks/Hero'
 import { DemoFrame } from '@/components/sections/howItWorks/DemoFrame'
 import { BigPicture } from '@/components/sections/howItWorks/BigPicture'
@@ -29,13 +29,13 @@ export async function generateMetadata({
     title: seo?.title ?? 'How SmoothScroll Works',
     description: seo?.description,
     alternates: {
-      canonical: `/${locale}/how-it-works`,
+      canonical: `/${localePrefix(locale)}/how-it-works`,
       languages: {
-        en: '/en/how-it-works',
+        en: '/how-it-works',
         vi: '/vi/how-it-works',
         zh: '/zh/how-it-works',
         'zh-Hans': '/zh/how-it-works',
-        'x-default': '/en/how-it-works',
+        'x-default': '/how-it-works',
       },
     },
     openGraph: {
@@ -75,7 +75,7 @@ export default async function HowItWorksPage({
       position: idx + 1,
       name: section.label,
       text: section.intro,
-      url: `https://quangtruong2003.github.io/SmoothScroll/${locale}/how-it-works#tab-${section.id}`,
+      url: `https://quangtruong2003.github.io/SmoothScroll${localePrefix(locale)}/how-it-works#tab-${section.id}`,
     })),
   }
 
