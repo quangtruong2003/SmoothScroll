@@ -39,7 +39,7 @@ const ripplePulse: Effect = {
     const ux = dx / safe
     const uy = dy / safe
 
-    const speed = 55             // px/s — ring expansion speed
+    const speed = 55             // px/s - ring expansion speed
     const sigma = 130            // ring thickness (wider band)
     const emitInterval = 5.0     // new ring every N seconds
     const decayTime = 9.0        // amplitude e-fold time

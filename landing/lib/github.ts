@@ -51,7 +51,7 @@ export async function fetchLatestRelease(): Promise<Release> {
   }
 }
 
-// Real GitHub download counts only — no fake offsets.
+// Real GitHub download counts only - no fake offsets.
 // download_count is tracked per release asset by GitHub when users
 // download files via the asset URL.
 export function fakeDownloadOffset(): number {

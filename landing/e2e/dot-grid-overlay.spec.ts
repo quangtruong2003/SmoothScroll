@@ -67,7 +67,7 @@ for (const theme of ['light', 'dark'] as const) {
     expect(canvasInfo!.cssHeight).toBeGreaterThan(0)
 
     // Note: pointer-events:none excludes the canvas from elementsFromPoint by design.
-    // That's the desired behavior — the page underneath stays interactive.
+    // That's the desired behavior - the page underneath stays interactive.
     // What matters is whether the canvas is actually drawing visible pixels above content.
     const canvasHasPixels = await page.evaluate(() => {
       const c = document.querySelector('canvas[aria-hidden="true"]') as HTMLCanvasElement | null
