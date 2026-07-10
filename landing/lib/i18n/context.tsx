@@ -52,11 +52,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   async function loadDict(loc: Locale) {
     setDictLoading(true)
     try {
-      const module = await import(`./${loc}.json`)
-      setDict(module.default)
+      const dictModule = await import(`./${loc}.json`)
+      setDict(dictModule.default)
     } catch {
-      const module = await import('./en.json')
-      setDict(module.default)
+      const enModule = await import('./en.json')
+      setDict(enModule.default)
     }
     setDictLoading(false)
   }

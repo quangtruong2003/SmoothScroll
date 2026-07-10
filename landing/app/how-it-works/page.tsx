@@ -29,11 +29,11 @@ export default function HowItWorksPage() {
         ctaLinuxLabel={d?.hero?.ctaLinux}
         ctaMacLabel={d?.hero?.ctaMac}
         betaBadge={d?.beta?.badge}
-        comingSoonLabel={h.finalCta?.comingSoon ?? 'Coming Soon'}
+        comingSoonLabel={d?.finalCta?.comingSoon ?? 'Coming Soon'}
       />
       <DemoFrame demo={h.demo} />
       <BigPicture bigPicture={h.bigPicture} />
-      <TabSections tabs={h.tabs} dict={d} />
+      <TabSections tabs={h.tabs} dict={d ?? undefined} />
       <ShortcutsTable shortcuts={h.shortcuts} />
       <TrayActions tray={h.tray} />
       <Recipes recipes={h.recipes} />
@@ -43,7 +43,7 @@ export default function HowItWorksPage() {
         ctaLinuxLabel={d?.hero?.ctaLinux}
         ctaMacLabel={d?.hero?.ctaMac}
         betaBadge={d?.beta?.badge}
-        comingSoonLabel={h.finalCta?.comingSoon ?? 'Coming Soon'}
+        comingSoonLabel={d?.finalCta?.comingSoon ?? 'Coming Soon'}
       />
     </>
   )
