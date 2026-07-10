@@ -49,8 +49,27 @@ pub fn build() -> Result<Platform> {
 
     match session_type.as_str() {
         "wayland" => wayland::build(),
-        _ => {
-            // X11 session or unknown - use X11 implementation
+        "x11" | "" => {
+            eprintln!(
+                "SmoothScroll: X11 session detected.\n\
+                 \n\
+                 WARNING: X11 has limited scroll smoothing support.\n\
+                 Due to X11 protocol limitations, scroll events cannot be\n\
+                 intercepted and replaced — smooth scroll is added on top\n\
+                 of your normal scroll, which may cause double-scroll.\n\
+                 \n\
+                 For the best experience, use Wayland.\n\
+                 \n\
+                 To switch: Log out → Select 'GNOME on Wayland' (or your\n\
+                 desktop's Wayland session) at the login screen."
+            );
+            x11_build()
+        }
+        other => {
+            eprintln!(
+                "SmoothScroll: Unknown session type '{other}'.\n\
+                 Falling back to X11 implementation."
+            );
             x11_build()
         }
     }
