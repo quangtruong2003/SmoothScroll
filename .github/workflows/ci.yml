@@ -9,11 +9,62 @@ on:
     branches:
       - 'ci/**'
 
+# Cancel in-progress runs for same branch
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
+  # Build WASM once and share as artifact
+  build-wasm:
+    name: Build WASM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: wasm-cache
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build WASM engine
+        run: pnpm run build:wasm
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-engine
+          path: src/lib/engine-wasm/
+          retention-days: 1
+
   build-windows:
+    needs: build-wasm
     runs-on: windows-latest
     env:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -32,11 +83,6 @@ jobs:
             src-tauri
           shared-key: ci-windows
 
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -48,13 +94,17 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build WASM engine bundle
-        run: pnpm run build:wasm
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine
+          path: src/lib/engine-wasm/
 
       - name: Build Tauri app (no signing)
         run: pnpm tauri build -- --no-bundle
 
   build-macos:
+    needs: build-wasm
     strategy:
       fail-fast: false
       matrix:
@@ -79,11 +129,6 @@ jobs:
             src-tauri
           shared-key: ci-macos-${{ matrix.target }}
 
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -95,13 +140,17 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build WASM engine bundle
-        run: pnpm run build:wasm
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine
+          path: src/lib/engine-wasm/
 
       - name: Build Tauri app (no signing)
         run: pnpm tauri build -- --target ${{ matrix.target }} --no-bundle
 
   build-linux:
+    needs: build-wasm
     runs-on: ubuntu-22.04
     env:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -119,11 +168,6 @@ jobs:
             .
             src-tauri
           shared-key: ci-linux
-
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
 
       - name: Install system dependencies
         run: |
@@ -144,8 +188,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build WASM engine bundle
-        run: pnpm run build:wasm
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine
+          path: src/lib/engine-wasm/
 
       - name: Build Tauri app (no signing)
         run: pnpm tauri build -- --no-bundle

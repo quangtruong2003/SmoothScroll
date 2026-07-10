@@ -14,6 +14,11 @@ on:
       - 'macos/**'
   workflow_dispatch:
 
+# Cancel in-progress runs for master
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -97,8 +102,56 @@ jobs:
           git push origin master
           git push origin "v${{ steps.bump.outputs.version }}"
 
-  build-windows:
+  # Build WASM once and share as artifact
+  build-wasm:
     needs: bump
+    if: needs.bump.outputs.skipped != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: release-wasm
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build WASM engine
+        run: pnpm run build:wasm
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
+          retention-days: 1
+
+  build-windows:
+    needs: [bump, build-wasm]
     if: needs.bump.outputs.skipped != 'true'
     runs-on: windows-latest
     env:
@@ -122,11 +175,6 @@ jobs:
             src-tauri
           shared-key: build-windows
 
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -138,8 +186,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build WASM engine bundle
-        run: pnpm run build:wasm
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
 
       - name: Build Tauri app
         run: pnpm tauri build
@@ -246,7 +297,7 @@ jobs:
             dmg-tmp/*.dmg
 
   build-linux:
-    needs: bump
+    needs: [bump, build-wasm]
     if: needs.bump.outputs.skipped != 'true'
     runs-on: ubuntu-22.04
     env:
@@ -270,11 +321,6 @@ jobs:
             src-tauri
           shared-key: build-linux
 
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -294,8 +340,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build WASM engine bundle
-        run: pnpm run build:wasm
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
 
       - name: Build Tauri app
         run: pnpm tauri build
@@ -309,7 +358,7 @@ jobs:
             target/release/bundle/appimage/*.AppImage
 
   cleanup-releases:
-    needs: [bump, build-windows, build-linux]
+    needs: [bump, build-wasm, build-windows, build-linux]
     if: always() && needs.bump.outputs.skipped != 'true' && needs.build-windows.result == 'success'
     runs-on: ubuntu-latest
     permissions:
