@@ -50,20 +50,16 @@ export function Hero({ dict, locale }: HeroProps) {
               <DownloadButtonWin
                 label={
                   os === 'mac'
-                    ? (h.ctaMac ?? 'Download for macOS')
+                    ? (h.ctaMac ?? 'Download for macOS') + ' (Beta)'
                     : os === 'linux'
-                      ? (h.ctaLinux ?? 'Download for Linux')
+                      ? (h.ctaLinux ?? 'Download for Linux') + ' (Beta)'
                       : (h.cta ?? 'Download for Windows')
                 }
                 variant="brand"
                 size="xl"
                 className="w-full sm:w-auto"
+                disabled={os === 'mac' || os === 'linux'}
               />
-              {(os === 'mac' || os === 'linux') && (
-                <span className="inline-flex items-center rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                  Beta
-                </span>
-              )}
               <Link
                 href={localePath(locale, '/how-it-works')}
                 className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors"

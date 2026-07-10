@@ -9,6 +9,7 @@ interface DownloadButtonWinProps {
   variant?: 'brand' | 'default' | 'outline'
   size?: 'default' | 'lg' | 'xl'
   className?: string
+  disabled?: boolean
 }
 
 export function DownloadButtonWin({
@@ -16,6 +17,7 @@ export function DownloadButtonWin({
   variant = 'brand',
   size = 'xl',
   className,
+  disabled = false,
 }: DownloadButtonWinProps) {
   const { url, filename } = useDownloadUrl()
 
@@ -24,7 +26,8 @@ export function DownloadButtonWin({
       variant={variant}
       size={size}
       className={className}
-      asChild
+      asChild={!disabled}
+      disabled={disabled}
       aria-label={label}
     >
       <a
