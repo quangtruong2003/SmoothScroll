@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
-import { ScrollToTop } from './ScrollToTop'
+import dynamic from 'next/dynamic'
+
+const ScrollToTop = dynamic(() => import('./ScrollToTop').then(m => m.ScrollToTop), { ssr: false })
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'

@@ -1,15 +1,20 @@
 'use client'
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { DownloadButtonWin } from '@/components/DownloadButtonWin'
+import { DownloadCTA } from '@/components/DownloadCTA'
 import { Copy, Check } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { detectOS } from '@/lib/os'
+import { useState } from 'react'
+import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 interface InstallProps {
   dict: { install?: Dictionary['install'] }
+}
+
+interface InstallStepsProps {
+  steps: readonly string[]
+  note: string
+  codePath?: string
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -37,6 +42,35 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
+function InstallSteps({ steps, note, codePath }: InstallStepsProps) {
+  return (
+    <div className="space-y-6">
+      <ol className="space-y-4">
+        {steps.map((step, idx) => (
+          <li key={idx} className="flex gap-4">
+            <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+              {idx + 1}
+            </span>
+            <span className="pt-1 text-foreground">{step}</span>
+          </li>
+        ))}
+      </ol>
+      {codePath && (
+        <div className="rounded-md bg-muted p-4 flex items-center justify-between gap-2 min-w-0">
+          <code className="text-sm font-mono text-muted-foreground break-all min-w-0">{codePath}</code>
+          <CopyButton text={codePath} />
+        </div>
+      )}
+      {note && (
+        <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+          <span className="text-yellow-500">&#9888;</span>
+          {note}
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function Install({ dict }: InstallProps) {
   const i = dict?.install ?? {
     title: '',
@@ -49,16 +83,34 @@ export function Install({ dict }: InstallProps) {
     ctaMac: '',
   }
 
-  const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
-  useEffect(() => {
-    setOs(detectOS())
-  }, [])
+  const { os } = useDownloadUrl()
 
-  const ctaLabel = os === 'mac'
-    ? (i.ctaMac ?? 'Download for macOS')
-    : os === 'linux'
-      ? (i.ctaLinux ?? 'Download for Linux')
-      : (i.cta ?? 'Download for Windows')
+  const block = (() => {
+    if (os === 'mac') {
+      return <InstallSteps steps={i.tabs?.macos?.steps ?? []} note={i.note?.macos ?? ''} />
+    }
+    if (os === 'linux') {
+      return (
+        <div className="rounded-md border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
+          Linux support is coming soon.
+        </div>
+      )
+    }
+    if (os === 'other') {
+      return (
+        <div className="rounded-md border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
+          SmoothScroll currently supports Windows. macOS and Linux support is coming soon.
+        </div>
+      )
+    }
+    return (
+      <InstallSteps
+        steps={i.tabs?.windows?.steps ?? []}
+        note={i.note?.windows ?? ''}
+        codePath={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`}
+      />
+    )
+  })()
 
   return (
     <section id="install" className="py-20 px-4 scroll-mt-20">
@@ -68,97 +120,16 @@ export function Install({ dict }: InstallProps) {
           <p className="text-muted-foreground text-lg">{i.subtitle}</p>
         </div>
 
-        <Tabs defaultValue="windows" className="max-w-2xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="windows">{i.tabs?.windows?.label ?? 'Windows'}</TabsTrigger>
-            <TabsTrigger
-              value="linux"
-              disabled
-              descriptionId="linux-coming-soon-desc"
-            >
-              {i.tabs?.linux?.label ?? 'Linux'}
-            </TabsTrigger>
-            <TabsTrigger
-              value="macos"
-              disabled
-              descriptionId="mac-coming-soon-desc"
-            >
-              {i.tabs?.macos?.label ?? 'macOS'}
-            </TabsTrigger>
-          </TabsList>
-          <span id="linux-coming-soon-desc" className="sr-only">
-            Linux support is coming soon
-          </span>
-          <span id="mac-coming-soon-desc" className="sr-only">
-            macOS support is coming soon
-          </span>
-
-          <TabsContent value="windows" className="space-y-6">
-            <ol className="space-y-4">
-              {(i.tabs?.windows?.steps ?? []).map((step, idx) => (
-                <li key={idx} className="flex gap-4">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <span className="pt-1 text-foreground">{step}</span>
-                </li>
-              ))}
-            </ol>
-            <div className="rounded-md bg-muted p-4 flex items-center justify-between gap-2 min-w-0">
-              <code className="text-sm font-mono text-muted-foreground break-all min-w-0">
-                %LOCALAPPDATA%\SmoothScroll\{i.filename ?? ''}
-              </code>
-              <CopyButton text={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`} />
-            </div>
-            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-              <span className="text-yellow-500">&#9888;</span>
-              {i.note?.windows ?? ''}
-            </p>
-          </TabsContent>
-
-          <TabsContent value="linux" className="space-y-6">
-            <ol className="space-y-4">
-              {(i.tabs?.linux?.steps ?? []).map((step, idx) => (
-                <li key={idx} className="flex gap-4">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <span className="pt-1 text-foreground">{step}</span>
-                </li>
-              ))}
-            </ol>
-            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-              <span className="text-yellow-500">&#9888;</span>
-              {i.note?.linux ?? ''}
-            </p>
-          </TabsContent>
-
-          <TabsContent value="macos" className="space-y-6">
-            <ol className="space-y-4">
-              {(i.tabs?.macos?.steps ?? []).map((step, idx) => (
-                <li key={idx} className="flex gap-4">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <span className="pt-1 text-foreground">{step}</span>
-                </li>
-              ))}
-            </ol>
-            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-              <span className="text-yellow-500">&#9888;</span>
-              {i.note?.macos ?? ''}
-            </p>
-          </TabsContent>
-        </Tabs>
+        <div className="max-w-2xl mx-auto">{block}</div>
 
         <div className="text-center mt-8 space-y-4">
-          <DownloadButtonWin
-            label={ctaLabel}
+          <DownloadCTA
+            label={i.cta ?? 'Download for Windows'}
+            labelLinux={i.ctaLinux}
+            labelMac={i.ctaMac}
             variant="brand"
             size="xl"
             className="w-full max-w-md"
-            disabled={os === 'mac' || os === 'linux'}
-            comingSoonLabel="Coming Soon"
           />
         </div>
       </div>

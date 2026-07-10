@@ -1,6 +1,6 @@
 'use client'
 
-import { DownloadButtonWin } from '@/components/DownloadButtonWin'
+import { DownloadCTA } from '@/components/DownloadCTA'
 import { Separator } from '@/components/ui/separator'
 import type { Dictionary } from '@/lib/i18n/dict'
 
@@ -14,6 +14,8 @@ export function FinalCTA({ dict }: FinalCTAProps) {
     subtitle: '',
     cta: 'Download for Windows',
     ctaSub: '',
+    ctaLinux: '',
+    ctaMac: '',
   }
 
   return (
@@ -25,7 +27,14 @@ export function FinalCTA({ dict }: FinalCTAProps) {
             {f.title}
           </h2>
           <p className="text-lg text-muted-foreground">{f.subtitle}</p>
-          <DownloadButtonWin label={f.cta ?? 'Download for Windows'} variant="default" size="xl" className="w-full sm:w-auto" />
+          <DownloadCTA
+            label={f.cta ?? 'Download'}
+            labelLinux={f.ctaLinux}
+            labelMac={f.ctaMac}
+            variant="default"
+            size="xl"
+            className="w-full sm:w-auto"
+          />
           <p className="text-sm text-muted-foreground">{f.ctaSub}</p>
         </div>
       </div>

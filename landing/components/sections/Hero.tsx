@@ -1,11 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { DownloadButtonWin } from '@/components/DownloadButtonWin'
+import { DownloadCTA } from '@/components/DownloadCTA'
 import { LogoWall } from '@/components/LogoWall'
 import { Badge } from '@/components/ui/badge'
-import { detectOS } from '@/lib/os'
+import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 interface HeroProps {
@@ -15,18 +14,8 @@ interface HeroProps {
 
 export function Hero({ dict }: HeroProps) {
   const h = dict?.hero ?? { eyebrow: '', eyebrowLinux: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download for Windows', ctaLinux: 'Download for Linux', ctaMac: 'Download for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
-
-  const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
-  useEffect(() => {
-    setOs(detectOS())
-  }, [])
-
-  const eyebrow =
-    os === 'mac'
-      ? h.eyebrowMac
-      : os === 'linux'
-        ? h.eyebrowLinux
-        : h.eyebrow
+  const { isMac, isLinux } = useDownloadUrl()
+  const eyebrow = isMac ? h.eyebrowMac : isLinux ? h.eyebrowLinux : h.eyebrow
 
   return (
     <section className="min-h-[100dvh] flex items-center pt-24 pb-20 px-4">
@@ -47,19 +36,13 @@ export function Hero({ dict }: HeroProps) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full">
-              <DownloadButtonWin
-                label={
-                  os === 'mac'
-                    ? (h.ctaMac ?? 'Download for macOS') + ' (Beta)'
-                    : os === 'linux'
-                      ? (h.ctaLinux ?? 'Download for Linux') + ' (Beta)'
-                      : (h.cta ?? 'Download for Windows')
-                }
+              <DownloadCTA
+                label={h.cta ?? 'Download for Windows'}
+                labelLinux={h.ctaLinux}
+                labelMac={h.ctaMac}
                 variant="brand"
                 size="xl"
                 className="w-full sm:w-auto"
-                disabled={os === 'mac' || os === 'linux'}
-                comingSoonLabel="Coming Soon"
               />
               <Link
                 href="/how-it-works/"

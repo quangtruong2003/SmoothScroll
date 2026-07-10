@@ -7,6 +7,24 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-07-08
+
+### Added
+- Windows-first conversion pitch and tray polish
+
+### Fixed
+- remove UTF-8 BOM from zh.json
+## [1.15.0] - 2026-07-08
+
+### Added
+- auto-fit panel width to content
+
+### Fixed
+- allow Windows tray panel to grow to 480px wide
+- auto-fit Windows tray panel width to label content
+- wrap CurrentAppCard in tray-section for consistent layout
+- align CurrentAppCard with MenuItem layout
+- per-app toggle cannot re-enable after disabling
 ## [1.14.1] - 2026-07-07
 
 ### Fixed
