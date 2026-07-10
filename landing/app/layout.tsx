@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { LanguageProvider } from '@/lib/i18n/provider'
+import './globals.css'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
@@ -20,5 +22,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
+    </html>
+  )
 }
