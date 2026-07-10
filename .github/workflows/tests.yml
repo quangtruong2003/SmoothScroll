@@ -48,7 +48,7 @@ jobs:
           tool: wasm-pack
 
       - name: Build WASM engine (required for tests)
-        run: sh scripts/build-wasm.sh
+        run: bash scripts/build-wasm.sh
 
       - name: Run Rust tests
         run: cargo test --workspace --all-targets
