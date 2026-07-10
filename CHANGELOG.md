@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.2] - 2026-07-10
+
+### Fixed
+- fix macOS compilation errors and hotkey privacy issues
 ## [1.18.1] - 2026-07-10
 
 ### Fixed
