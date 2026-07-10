@@ -9,7 +9,7 @@ impl DisplayQuery for MacosDisplayQuery {
         use objc2_app_kit::NSScreen;
 
         unsafe {
-            let mtm = objc2::runtime::MainThreadMarker::new_unchecked();
+            let mtm = objc2::runtime::thread::MainThreadMarker::new_unchecked();
             // NSScreen::mainScreen() returns the screen containing the menu bar.
             // On a single-display Mac, this is always the primary screen.
             let screen = NSScreen::mainScreen(mtm);
