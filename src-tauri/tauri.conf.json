@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "SmoothScroll",
-  "version": "1.18.6",
+  "version": "1.18.7",
   "identifier": "com.smoothscroll.app",
   "build": {
     "frontendDist": "../dist",

@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.7] - 2026-07-10
+
+### Fixed
+- use main_thread_marker module for MainThreadMarker in objc2
 ## [1.18.6] - 2026-07-10
 
 ### Fixed
