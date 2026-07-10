@@ -979,6 +979,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(windows)]
     fn elevated_target_passes_through() {
         // When is_target_elevated() returns true, the engine should not
         // process the event — it passes through instead. This prevents
@@ -992,6 +993,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(windows)]
     fn non_elevated_target_swallows_normally() {
         // When is_target_elevated() returns false, normal scroll swallowing
         // applies (regression check — behavior must not change for non-elevated).
@@ -1003,6 +1005,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(windows)]
     fn elevated_horizontal_wheel_passes_through() {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true);
