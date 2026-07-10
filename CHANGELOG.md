@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.5] - 2026-07-10
+
+### Fixed
+- restore correct MainThreadMarker path under objc2::runtime
 ## [1.18.4] - 2026-07-10
 
 ### Fixed
