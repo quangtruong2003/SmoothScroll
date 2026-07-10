@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { LanguageProvider } from '@/lib/i18n/provider'
 import './globals.css'
+import '@/styles/tray.css'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
-const BASE_URL = 'https://quangtruong2003.github.io/SmoothScroll'
+const BASE_URL = 'https://smoothscroll.top'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
