@@ -1,6 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { Globe, MousePointer2, Monitor, Settings, Power } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
 import { getTrayLabels, type Locale } from '@/lib/i18n/tray-labels'
 
 interface TrayPreviewProps {
@@ -9,16 +11,21 @@ interface TrayPreviewProps {
 
 export function TrayPreview({ locale }: TrayPreviewProps) {
   const labels = getTrayLabels(locale)
+  const [enabled, setEnabled] = useState(true)
+  const [autostart, setAutostart] = useState(true)
+
+  const statusOn = enabled
+  const dotClass = statusOn ? 'tray-status-dot-on' : 'tray-status-dot-off'
+  const textClass = statusOn ? 'tray-status-text-on' : 'tray-status-text-off'
+  const statusText = statusOn ? labels.status_on : labels.status_off
 
   return (
     <div className="tray-panel-root tray-panel-flex" data-testid="tray-preview">
       <div className="tray-header">
         <span className="tray-header-title">{labels.header}</span>
         <div className="tray-header-status">
-          <span className="tray-status-dot tray-status-dot-on" aria-hidden />
-          <span className="tray-status-text tray-status-text-on">
-            {labels.status_on}
-          </span>
+          <span className={`tray-status-dot ${dotClass}`} aria-hidden />
+          <span className={`tray-status-text ${textClass}`}>{statusText}</span>
         </div>
       </div>
 
@@ -40,12 +47,22 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
               <MousePointer2 className="h-4 w-4" />
             </span>
             <span className="tray-row-label">{labels.smooth_scrolling}</span>
+            <Switch
+              checked={enabled}
+              onCheckedChange={setEnabled}
+              aria-label={labels.smooth_scrolling}
+            />
           </div>
           <div className="tray-row">
             <span className="tray-row-icon">
               <Monitor className="h-4 w-4" />
             </span>
             <span className="tray-row-label">{labels.start_with_windows}</span>
+            <Switch
+              checked={autostart}
+              onCheckedChange={setAutostart}
+              aria-label={labels.start_with_windows}
+            />
           </div>
         </div>
 

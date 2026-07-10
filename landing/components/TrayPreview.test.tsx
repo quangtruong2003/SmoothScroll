@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { TrayPreview } from './TrayPreview'
 
 describe('TrayPreview — static shell', () => {
@@ -24,5 +24,22 @@ describe('TrayPreview — static shell', () => {
     render(<TrayPreview locale="zh" />)
     expect(screen.getByText('平滑滚动')).toBeInTheDocument()
     expect(screen.getByText('已启用')).toBeInTheDocument()
+  })
+})
+
+describe('TrayPreview — Smooth Scrolling toggle', () => {
+  it('flips status dot OFF when Smooth Scrolling toggled off', () => {
+    render(<TrayPreview locale="en" />)
+    const switchEl = screen.getByLabelText('Smooth Scrolling')
+    fireEvent.click(switchEl)
+    expect(screen.getByText('Off')).toBeInTheDocument()
+  })
+
+  it('flips status dot back ON when toggled on again', () => {
+    render(<TrayPreview locale="en" />)
+    const switchEl = screen.getByLabelText('Smooth Scrolling')
+    fireEvent.click(switchEl)
+    fireEvent.click(switchEl)
+    expect(screen.getByText('On')).toBeInTheDocument()
   })
 })
