@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = 'https://quangtruong2003.github.io/SmoothScroll'
+const BASE_URL = 'https://smoothscroll.top'
 const BASE = BASE_URL
 
 export const dynamic = 'force-static'

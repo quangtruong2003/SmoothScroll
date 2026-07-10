@@ -4,7 +4,7 @@
 
 # SmoothScroll — Smooth Scrolling for Windows
 
-🌐 **[Website & download → quangtruong2003.github.io/SmoothScroll](https://quangtruong2003.github.io/SmoothScroll/)**
+🌐 **[Website & download → smoothscroll.top](https://smoothscroll.top/)**
 
 **Smooth mouse-wheel scrolling for Windows 10 and Windows 11.** Native low-level input interception, frame-perfect easing, per-app exclusion. A free, open-source alternative to Logitech SmoothScroll, WizMouse, and Mac-style inertia scrolling utilities — built with Rust, Tauri 2, and React.
 

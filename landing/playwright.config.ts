@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const LIVE_URL = 'https://quangtruong2003.github.io/SmoothScroll/'
+const LIVE_URL = 'https://smoothscroll.top/'
 
 export default defineConfig({
   testDir: './e2e',

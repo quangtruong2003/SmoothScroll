@@ -53,7 +53,7 @@ jobs:
         run: pnpm run build
         env:
           NODE_ENV: production
-          NEXT_PUBLIC_BASE_PATH: /SmoothScroll
+          NEXT_PUBLIC_BASE_PATH: ''
 
       - name: Add .nojekyll
         run: touch out/.nojekyll
