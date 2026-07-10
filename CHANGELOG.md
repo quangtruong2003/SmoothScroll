@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.4] - 2026-07-10
+
+### Fixed
+- use root path for MainThreadMarker in macOS display query
 ## [1.18.3] - 2026-07-10
 
 ### Fixed
