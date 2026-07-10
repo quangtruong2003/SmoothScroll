@@ -176,7 +176,7 @@ impl Default for HotkeyRegistry {
 
 /// Global registry — initialized during install_on_main_thread, read by MacosHotkey::register().
 /// Uses OnceLock pattern: set once during install, read many times during hotkey registration.
-static HOTKEY_REGISTRY: std::sync::OnceLock<Mutex<HotkeyRegistry>> = std::sync::OnceLock::new();
+pub(crate) static HOTKEY_REGISTRY: std::sync::OnceLock<Mutex<HotkeyRegistry>> = std::sync::OnceLock::new();
 
 // ---------------------------------------------------------------------------
 // Global callback bridge — C FFI callback cannot capture Rust closures
@@ -345,14 +345,10 @@ pub unsafe fn install_on_main_thread(
         CFRunLoopAddSource(main_run_loop, run_loop_source, kCFRunLoopDefaultMode);
     }
 
-    // Clone from the global registry for InstalledTap.
-    let hotkey_registry = HOTKEY_REGISTRY.get().unwrap().clone();
-
     Ok(InstalledTap {
         source: run_loop_source,
         tap,
         running: Arc::new(AtomicBool::new(true)),
-        hotkey_registry,
     })
 }
 
@@ -361,7 +357,6 @@ pub struct InstalledTap {
     pub source: CFRunLoopSourceRef,
     pub tap: CFMachPortRef,
     pub running: Arc<AtomicBool>,
-    pub hotkey_registry: Arc<Mutex<HotkeyRegistry>>,
 }
 
 unsafe impl Send for InstalledTap {}
