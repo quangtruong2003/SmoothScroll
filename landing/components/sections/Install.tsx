@@ -4,7 +4,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { DownloadButtonWin } from '@/components/DownloadButtonWin'
 import { Copy, Check } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { detectOS } from '@/lib/os'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 interface InstallProps {
@@ -47,6 +48,17 @@ export function Install({ dict }: InstallProps) {
     ctaLinux: '',
     ctaMac: '',
   }
+
+  const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
+  useEffect(() => {
+    setOs(detectOS())
+  }, [])
+
+  const ctaLabel = os === 'mac'
+    ? (i.ctaMac ?? 'Download for macOS')
+    : os === 'linux'
+      ? (i.ctaLinux ?? 'Download for Linux')
+      : (i.cta ?? 'Download for Windows')
 
   return (
     <section id="install" className="py-20 px-4 scroll-mt-20">
@@ -140,7 +152,14 @@ export function Install({ dict }: InstallProps) {
         </Tabs>
 
         <div className="text-center mt-8 space-y-4">
-          <DownloadButtonWin label={i.cta ?? 'Download for Windows'} variant="brand" size="xl" className="w-full max-w-md" />
+          <DownloadButtonWin
+            label={ctaLabel}
+            variant="brand"
+            size="xl"
+            className="w-full max-w-md"
+            disabled={os === 'mac' || os === 'linux'}
+            comingSoonLabel="Coming Soon"
+          />
         </div>
       </div>
     </section>
