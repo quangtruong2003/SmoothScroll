@@ -33,8 +33,14 @@ export function LangSwitcher({ locale }: LangSwitcherProps) {
 
   const switchLocale = (newLocale: Locale) => {
     if (!pathname) return
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
     const knownLocales = ['en', 'vi', 'zh']
-    const segments = pathname.split('/')
+    // Strip basePath prefix first
+    let clean = pathname
+    if (BASE && clean.startsWith(BASE)) {
+      clean = clean.slice(BASE.length) || '/'
+    }
+    const segments = clean.split('/')
     // Strip existing locale prefix if present
     if (knownLocales.includes(segments[1])) {
       segments.splice(1, 1)
@@ -44,7 +50,8 @@ export function LangSwitcher({ locale }: LangSwitcherProps) {
     if (prefix) {
       segments.splice(1, 0, prefix.replace(/^\//, ''))
     }
-    return segments.join('/') || '/'
+    const result = segments.join('/') || '/'
+    return BASE + result
   }
 
   // Close on outside click
