@@ -47,10 +47,21 @@ export function Hero({ dict, locale }: HeroProps) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full">
-              <DownloadButtonWin label={h.cta ?? 'Download for Windows'} variant="brand" size="xl" className="w-full sm:w-auto" />
-              {os !== 'win' && (
+              <DownloadButtonWin
+                label={
+                  os === 'mac'
+                    ? (h.ctaMac ?? 'Download for macOS')
+                    : os === 'linux'
+                      ? (h.ctaLinux ?? 'Download for Linux')
+                      : (h.cta ?? 'Download for Windows')
+                }
+                variant="brand"
+                size="xl"
+                className="w-full sm:w-auto"
+              />
+              {(os === 'mac' || os === 'linux') && (
                 <span className="inline-flex items-center rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                  Best on Windows · Linux & macOS coming soon
+                  Beta
                 </span>
               )}
               <Link
