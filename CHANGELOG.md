@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.9] - 2026-07-10
+
+### Fixed
+- upgrade objc2-app-kit to 0.3 and objc2-foundation to 0.3 for MainThreadMarker support
 ## [1.18.8] - 2026-07-10
 
 ### Fixed

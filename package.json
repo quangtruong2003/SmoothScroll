@@ -1,7 +1,7 @@
 {
   "name": "smoothscroll",
   "private": true,
-  "version": "1.18.8",
+  "version": "1.18.9",
   "type": "module",
   "scripts": {
     "predev": "node scripts/sync-changelog.mjs",
