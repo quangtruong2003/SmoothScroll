@@ -61,7 +61,7 @@ export function Hero({ dict, locale }: HeroProps) {
                 disabled={os === 'mac' || os === 'linux'}
               />
               <Link
-                href={localePath(locale, '/how-it-works')}
+                href={localePath(locale, '/how-it-works/')}
                 className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors"
               >
                 {h.seeHow}
