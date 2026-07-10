@@ -211,10 +211,9 @@ export function localePrefix(locale: Locale): string {
   return locale === defaultLocale ? '' : `/${locale}`
 }
 
-/** Build URL path with basePath. Avoids double-slash for default locale. */
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+/** Build URL path. Avoids double-slash for default locale. basePath NOT included — Next.js <Link> handles it. */
 export function localePath(locale: Locale, path: string): string {
   const prefix = localePrefix(locale)
-  const joined = `${BASE}${prefix}${path}`
+  const joined = `${prefix}${path}`
   return joined.replace('//', '/') || '/'
 }
