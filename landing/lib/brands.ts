@@ -5,7 +5,8 @@ export interface Brand {
   invertOnDark?: boolean
 }
 
-const LOCAL = (name: string) => `/assets/brand-icons/${name}.svg`
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+const LOCAL = (name: string) => `${BASE}/assets/brand-icons/${name}.svg`
 
 export const BRANDS: Brand[] = [
   { name: 'Windows 11',    slug: 'windows11',    src: LOCAL('windows11') },

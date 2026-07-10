@@ -211,9 +211,10 @@ export function localePrefix(locale: Locale): string {
   return locale === defaultLocale ? '' : `/${locale}`
 }
 
-/** Build URL path: avoids double-slash for default locale. */
+/** Build URL path with basePath. Avoids double-slash for default locale. */
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 export function localePath(locale: Locale, path: string): string {
   const prefix = localePrefix(locale)
-  const joined = `${prefix}${path}`
+  const joined = `${BASE}${prefix}${path}`
   return joined.replace('//', '/') || '/'
 }

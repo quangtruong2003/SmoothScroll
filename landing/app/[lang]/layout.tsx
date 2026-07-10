@@ -7,6 +7,8 @@ import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import '../globals.css'
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
 export async function generateStaticParams() {
   return locales.map((locale) => ({ lang: locale }))
 }
@@ -37,7 +39,7 @@ export async function generateMetadata({
       type: 'website',
       locale: locale === 'zh' ? 'zh_Hans' : locale,
       alternateLocale: locale === 'zh' ? ['en', 'vi'] : (locale === 'en' ? ['vi', 'zh'] : ['en']),
-      images: [{ url: '/assets/og-image.png', width: 1200, height: 630 }],
+      images: [{ url: `${BASE_PATH}/assets/og-image.png`, width: 1200, height: 630 }],
     },
   }
 }
@@ -62,7 +64,7 @@ export default async function LangLayout({
         <link
           rel="preload"
           as="image"
-          href="/assets/og-image.png"
+          href={`${BASE_PATH}/assets/og-image.png`}
           fetchPriority="high"
         />
         <script

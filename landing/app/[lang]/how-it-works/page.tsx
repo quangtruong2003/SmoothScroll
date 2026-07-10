@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { getDictionary, locales, localePrefix, type Locale } from '@/lib/i18n/dict'
 import { HowItWorksHero } from '@/components/sections/howItWorks/Hero'
 import { DemoFrame } from '@/components/sections/howItWorks/DemoFrame'
+
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 import { BigPicture } from '@/components/sections/howItWorks/BigPicture'
 import { TabSections } from '@/components/sections/howItWorks/TabSections'
 import { ShortcutsTable } from '@/components/sections/howItWorks/ShortcutsTable'
@@ -43,7 +45,7 @@ export async function generateMetadata({
       locale: locale === 'zh' ? 'zh_Hans' : locale,
       title: seo?.title,
       description: seo?.description,
-      images: [{ url: '/assets/og-image.png', width: 1200, height: 630 }],
+      images: [{ url: `${BASE_PATH}/assets/og-image.png`, width: 1200, height: 630 }],
     },
   }
 }
