@@ -30,19 +30,26 @@ export function DownloadButtonWin({
       disabled={disabled}
       aria-label={label}
     >
-      <a
-        href={url}
-        rel="noopener noreferrer"
-        download={filename || undefined}
-        onClick={() => {
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('smoothscroll:downloaded'))
-          }
-        }}
-      >
-        <Download className="h-5 w-5 mr-2" />
-        {label}
-      </a>
+      {disabled ? (
+        <span className="cursor-not-allowed">
+          <Download className="h-5 w-5 mr-2" />
+          {label}
+        </span>
+      ) : (
+        <a
+          href={url}
+          rel="noopener noreferrer"
+          download={filename || undefined}
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('smoothscroll:downloaded'))
+            }
+          }}
+        >
+          <Download className="h-5 w-5 mr-2" />
+          {label}
+        </a>
+      )}
     </Button>
   )
 }
