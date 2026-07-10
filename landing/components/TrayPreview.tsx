@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Globe, MousePointer2, Monitor, Settings, Power } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { getTrayLabels, type Locale } from '@/lib/i18n/tray-labels'
@@ -13,6 +13,13 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
   const labels = getTrayLabels(locale)
   const [enabled, setEnabled] = useState(true)
   const [autostart, setAutostart] = useState(true)
+  const [pulseSettings, setPulseSettings] = useState(false)
+
+  useEffect(() => {
+    if (!pulseSettings) return
+    const t = setTimeout(() => setPulseSettings(false), 300)
+    return () => clearTimeout(t)
+  }, [pulseSettings])
 
   const statusOn = enabled
   const dotClass = statusOn ? 'tray-status-dot-on' : 'tray-status-dot-off'
@@ -69,7 +76,12 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
         <div className="tray-divider" />
 
         <div className="tray-section tray-section-last">
-          <div className="tray-row tray-row-action">
+          <div
+            className={`tray-row tray-row-action${pulseSettings ? ' tray-row-pulse' : ''}`}
+            onClick={() => setPulseSettings(true)}
+            role="button"
+            tabIndex={0}
+          >
             <span className="tray-row-icon">
               <Settings className="h-4 w-4" />
             </span>

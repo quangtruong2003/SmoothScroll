@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import { TrayPreview } from './TrayPreview'
 
 describe('TrayPreview — static shell', () => {
@@ -51,5 +51,27 @@ describe('TrayPreview — Start with Windows independence', () => {
     fireEvent.click(switchEl)
     expect(screen.getByText('On')).toBeInTheDocument()
     expect(switchEl).not.toBeChecked()
+  })
+})
+
+describe('TrayPreview — Open Settings bounce', () => {
+  it('clicking Open Settings adds a transient pulse class', () => {
+    render(<TrayPreview locale="en" />)
+    const settingsRow = screen.getByText('Open Settings').closest('.tray-row')!
+    fireEvent.click(settingsRow)
+    expect(settingsRow.className).toMatch(/tray-row-pulse/)
+  })
+
+  it('pulse class clears after 300ms', () => {
+    vi.useFakeTimers()
+    render(<TrayPreview locale="en" />)
+    const settingsRow = screen.getByText('Open Settings').closest('.tray-row')!
+    fireEvent.click(settingsRow)
+    expect(settingsRow.className).toMatch(/tray-row-pulse/)
+    act(() => {
+      vi.advanceTimersByTime(350)
+    })
+    expect(settingsRow.className).not.toMatch(/tray-row-pulse/)
+    vi.useRealTimers()
   })
 })
