@@ -1,10 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import { FadeUp } from '@/components/motion/FadeUp'
+import { TrayPreview } from '@/components/TrayPreview'
+import { useLanguage } from '@/lib/i18n/provider'
 import type { Dictionary } from '@/lib/i18n/dict'
-
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 interface TrayPreviewSectionProps {
   dict: { trayPreview?: Dictionary['trayPreview'] }
@@ -12,6 +11,7 @@ interface TrayPreviewSectionProps {
 
 export function TrayPreviewSection({ dict }: TrayPreviewSectionProps) {
   const t = dict?.trayPreview ?? { title: '', subtitle: '' }
+  const { locale } = useLanguage()
 
   return (
     <section className="py-20 px-4 bg-muted/30 dark:bg-white/[0.04]">
@@ -24,14 +24,7 @@ export function TrayPreviewSection({ dict }: TrayPreviewSectionProps) {
           <FadeUp delay={0.15}>
             <div className="flex justify-center lg:justify-end">
               <div className="relative max-w-sm w-full rounded-xl overflow-hidden shadow-2xl ring-1 ring-border">
-                <Image
-                  src={`${BASE_PATH}/assets/screenshot-tray.png`}
-                  alt="SmoothScroll system tray panel"
-                  width={300}
-                  height={430}
-                  className="w-full h-auto block"
-                  priority={false}
-                />
+                <TrayPreview locale={locale} />
               </div>
             </div>
           </FadeUp>
