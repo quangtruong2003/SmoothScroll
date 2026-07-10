@@ -59,6 +59,7 @@ export function Hero({ dict, locale }: HeroProps) {
                 size="xl"
                 className="w-full sm:w-auto"
                 disabled={os === 'mac' || os === 'linux'}
+                comingSoonLabel="Coming Soon"
               />
               <Link
                 href={localePath(locale, '/how-it-works/')}
