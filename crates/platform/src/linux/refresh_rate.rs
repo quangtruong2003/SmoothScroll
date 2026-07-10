@@ -1,6 +1,7 @@
 #![cfg(target_os = "linux")]
 
 use crate::traits::DisplayQuery;
+use super::display;
 
 pub struct LinuxDisplayQuery;
 
@@ -52,8 +53,6 @@ impl LinuxDisplayQuery {
 
 impl DisplayQuery for LinuxDisplayQuery {
     fn primary_refresh_rate_hz(&self) -> u32 {
-        use x11::xlib;
-
         unsafe {
             let d = match display::open_display() {
                 Ok(d) => d,

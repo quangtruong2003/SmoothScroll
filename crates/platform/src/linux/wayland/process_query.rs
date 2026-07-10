@@ -88,10 +88,10 @@ impl ProcessQuery for WaylandProcessQuery {
         if let Ok(entries) = fs::read_dir("/proc") {
             for entry in entries.flatten() {
                 let path = entry.path();
-                let name = match path.file_name() {
-                    Some(n) => n.to_str(),
+                let name = match path.file_name().and_then(|n| n.to_str()) {
+                    Some(s) => s,
                     None => continue,
-                }?;
+                };
 
                 // PID must be numeric
                 let pid: u32 = match name.parse() {
