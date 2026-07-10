@@ -2,6 +2,7 @@
 
 use crate::traits::DisplayQuery;
 use super::display;
+use x11::xlib;
 
 pub struct LinuxDisplayQuery;
 
@@ -24,7 +25,6 @@ impl LinuxDisplayQuery {
         // Get root window
         let screen = xlib::XDefaultScreenOfDisplay(display);
         let root = xlib::XRootWindowOfScreen(screen);
-        let screen_num = xlib::XScreenNumberOfScreen(screen);
 
         // Get screen resources (XRR 1.3+)
         let resources = xrandr::XRRGetScreenResourcesCurrent(display, root);
@@ -33,7 +33,7 @@ impl LinuxDisplayQuery {
         }
 
         // Get current configuration
-        let config = xrandr::XRRGetScreenInfo(display, resources, screen_num);
+        let config = xrandr::XRRGetScreenInfo(display, root);
         if config.is_null() {
             xrandr::XRRFreeScreenResources(resources);
             return 60;
