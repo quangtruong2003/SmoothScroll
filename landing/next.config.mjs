@@ -16,7 +16,8 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: 'export',
+  outputFileTracingRoot: path.resolve(__dirname),
   basePath,
   trailingSlash: true,
   images: {
