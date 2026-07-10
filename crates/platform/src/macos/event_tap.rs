@@ -18,6 +18,8 @@ use core_foundation_sys::runloop::{
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
 use std::sync::mpsc;
 use std::sync::Arc;
+use std::sync::Mutex;
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Raw Quartz FFI — core-graphics 0.19 does not expose CGEventTapCreate
@@ -36,6 +38,7 @@ type CFTypeRef = *mut std::os::raw::c_void;
 
 const kCGHIDEventTap: u32 = 0;
 const kCGHeadInsertEventTap: u32 = 0;
+const kCGEventKeyDown: u32 = 10; // for hotkey interception
 
 #[link(name = "CoreGraphics", kind = "framework")]
 extern "C" {
@@ -124,6 +127,57 @@ unsafe fn read_horizontal_delta(event: CGEventRef) -> i32 {
     CGEventGetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis1) as i32
 }
 
+/// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
+unsafe fn read_keycode(event: CGEventRef) -> u16 {
+    CGEventGetIntegerValueField(event, 7) as u16
+}
+
+// ---------------------------------------------------------------------------
+// HotkeyRegistry — shared between event tap callback and MacosHotkey::register
+// ---------------------------------------------------------------------------
+
+/// Thread-safe hotkey registry. Stores (modifiers, keycode) → callback mappings.
+/// Shared between the event tap callback and MacosHotkey::register().
+pub struct HotkeyRegistry {
+    callbacks: HashMap<(u32, u16), Box<dyn Fn() + Send + Sync>>,
+}
+
+impl HotkeyRegistry {
+    pub fn new() -> Self {
+        Self { callbacks: HashMap::new() }
+    }
+
+    pub fn register(
+        &mut self,
+        modifiers: u32,
+        keycode: u16,
+        callback: Box<dyn Fn() + Send + Sync>,
+    ) -> Option<Box<dyn Fn() + Send + Sync>> {
+        self.callbacks.insert((modifiers, keycode), callback)
+    }
+
+    pub fn unregister(&mut self, modifiers: u32, keycode: u16) -> Option<Box<dyn Fn() + Send + Sync>> {
+        self.callbacks.remove(&(modifiers, keycode))
+    }
+
+    pub fn dispatch(&self, keycode: u16, flags: u32) {
+        // Exact modifier+keycode match only (same as X11/Linux behavior)
+        if let Some(cb) = self.callbacks.get(&(flags, keycode)) {
+            cb();
+        }
+    }
+}
+
+impl Default for HotkeyRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Global registry — initialized during install_on_main_thread, read by MacosHotkey::register().
+/// Uses OnceLock pattern: set once during install, read many times during hotkey registration.
+static HOTKEY_REGISTRY: std::sync::OnceLock<Mutex<HotkeyRegistry>> = std::sync::OnceLock::new();
+
 // ---------------------------------------------------------------------------
 // Global callback bridge — C FFI callback cannot capture Rust closures
 // ---------------------------------------------------------------------------
@@ -140,7 +194,7 @@ static CALLBACK_PTR: AtomicPtr<TapCallback> = AtomicPtr::new(std::ptr::null_mut(
 /// CALLBACK_PTR is loaded with SeqCst and guaranteed non-null between setup and teardown.
 unsafe extern "C" fn event_callback(
     _proxy: CGEventTapProxy,
-    _type: u32,
+    event_type: u32,
     event: CGEventRef,
     _user_info: *mut std::os::raw::c_void,
 ) -> CGEventRef {
@@ -150,18 +204,30 @@ unsafe extern "C" fn event_callback(
     }
     let cb = &*cb_ptr;
 
-    let source = ScrollInputSource::from_event(event);
-    let v_delta = read_vertical_delta(event);
-    let h_delta = read_horizontal_delta(event);
-    let mods = read_modifiers(event);
-
-    let input_source = match source {
-        ScrollInputSource::Trackpad => smoothscroll_core::input_source::InputSource::Touchpad,
-        ScrollInputSource::Mouse => smoothscroll_core::input_source::InputSource::Wheel,
-    };
-
-    let _v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
-    let _h_decision = cb.sink.on_hwheel_ext(h_delta, input_source);
+    match event_type {
+        22 => {
+            // kCGEventScrollWheel — existing scroll handling
+            let source = ScrollInputSource::from_event(event);
+            let v_delta = read_vertical_delta(event);
+            let h_delta = read_horizontal_delta(event);
+            let mods = read_modifiers(event);
+            let input_source = match source {
+                ScrollInputSource::Trackpad => smoothscroll_core::input_source::InputSource::Touchpad,
+                ScrollInputSource::Mouse => smoothscroll_core::input_source::InputSource::Wheel,
+            };
+            let _v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
+            let _h_decision = cb.sink.on_hwheel_ext(h_delta, input_source);
+        }
+        10 => {
+            // kCGEventKeyDown — dispatch to hotkey registry
+            let keycode = read_keycode(event);
+            let flags = CGEventGetFlags(event);
+            if let Some(reg) = HOTKEY_REGISTRY.get() {
+                reg.lock().unwrap().dispatch(keycode, flags);
+            }
+        }
+        _ => {}
+    }
 
     event
 }
@@ -230,8 +296,8 @@ pub fn run_event_loop(
 pub unsafe fn install_on_main_thread(
     sink: Arc<dyn HookEventSink>,
 ) -> Result<InstalledTap> {
-    // kCGEventScrollWheel = 22
-    let events_of_interest: u64 = 1 << 22;
+    // kCGEventScrollWheel = 22, kCGEventKeyDown = 10
+    let events_of_interest: u64 = (1 << 22) | (1 << 10);
 
     let tap = unsafe {
         CGEventTapCreate(
@@ -267,16 +333,26 @@ pub unsafe fn install_on_main_thread(
     let cb_ptr = Box::into_raw(cb);
     CALLBACK_PTR.store(cb_ptr, Ordering::SeqCst);
 
+    // Initialize global registry so MacosHotkey can register callbacks before
+    // the tap is actually installed (during build()).
+    if HOTKEY_REGISTRY.get().is_none() {
+        let _ = HOTKEY_REGISTRY.set(Mutex::new(HotkeyRegistry::new()));
+    }
+
     unsafe {
         CGEventTapEnable(tap, true);
         let main_run_loop = CFRunLoopGetMain();
         CFRunLoopAddSource(main_run_loop, run_loop_source, kCFRunLoopDefaultMode);
     }
 
+    // Clone from the global registry for InstalledTap.
+    let hotkey_registry = HOTKEY_REGISTRY.get().unwrap().clone();
+
     Ok(InstalledTap {
         source: run_loop_source,
         tap,
         running: Arc::new(AtomicBool::new(true)),
+        hotkey_registry,
     })
 }
 
@@ -285,6 +361,7 @@ pub struct InstalledTap {
     pub source: CFRunLoopSourceRef,
     pub tap: CFMachPortRef,
     pub running: Arc<AtomicBool>,
+    pub hotkey_registry: Arc<Mutex<HotkeyRegistry>>,
 }
 
 unsafe impl Send for InstalledTap {}

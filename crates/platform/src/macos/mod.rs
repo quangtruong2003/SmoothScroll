@@ -17,7 +17,7 @@ pub mod window_geom;
 pub use accessibility::MacosAccessibilitySignals;
 pub use autostart::MacosAutostart;
 pub use display::MacosDisplayQuery;
-pub use event_tap::{run_event_loop, ScrollInputSource};
+pub use event_tap::{run_event_loop, ScrollInputSource, HotkeyRegistry, HOTKEY_REGISTRY};
 pub use fullscreen::MacosFullscreenDetector;
 pub use hotkey::MacosHotkey;
 pub use mouse_hook::MacosMouseHook;

@@ -1,107 +1,148 @@
-//! Global hotkey via Carbon RegisterEventHotKey. Carbon is deprecated but
-//! still functional through macOS 14+ and is the simplest API for app-wide
-//! hotkeys. The handler runs on the main app event loop.
+//! Global hotkey registration via CGEventTap.
+//!
+//! Hotkeys are dispatched through the shared event tap (event_tap.rs). Each
+//! registered hotkey stores a (modifiers, keycode) → callback mapping in the
+//! global `HOTKEY_REGISTRY`. When kCGEventKeyDown fires, the tap's callback
+//! looks up the (flags, keycode) pair and invokes the matching callback.
+//!
+//! This replaces the deprecated Carbon RegisterEventHotKey API.
 
 #![cfg(target_os = "macos")]
 
+use crate::macos::event_tap::HOTKEY_REGISTRY;
 use crate::traits::{Hotkey, HotkeyHandle};
 use crate::types::{Accelerator, PlatformError, Result};
-use std::os::raw::{c_int, c_void};
-use std::sync::Arc;
+use std::sync::Mutex;
 
-#[allow(non_camel_case_types)]
-type EventHotKeyRef = *mut c_void;
+// ---------------------------------------------------------------------------
+// Modifiers — CGEventFlags bit positions
+// CGEventGetFlags() returns: Shift=0x100, Cmd=0x200, Option=0x400, Control=0x800
+// ---------------------------------------------------------------------------
 
-#[repr(C)]
-struct EventHotKeyID {
-    signature: u32,
-    id: u32,
+const MOD_SHIFT: u32 = 0x00000100;
+const MOD_CMD: u32 = 0x00000200;
+const MOD_OPTION: u32 = 0x00000400;
+const MOD_CONTROL: u32 = 0x00000800;
+
+// ---------------------------------------------------------------------------
+// Keycode mapping — macOS virtual keycodes (same as Carbon)
+// ---------------------------------------------------------------------------
+
+fn parse_key(s: &str) -> Result<u16> {
+    match s.to_ascii_lowercase().as_str() {
+        // Function keys
+        "f1" => Ok(122), "f2" => Ok(120), "f3" => Ok(99),
+        "f4" => Ok(118), "f5" => Ok(96), "f6" => Ok(97),
+        "f7" => Ok(98), "f8" => Ok(101), "f9" => Ok(109),
+        "f10" => Ok(103), "f11" => Ok(111), "f12" => Ok(118),
+        "f13" => Ok(105), "f14" => Ok(107), "f15" => Ok(113),
+        "f16" => Ok(106), "f17" => Ok(64), "f18" => Ok(79),
+        "f19" => Ok(80), "f20" => Ok(90),
+
+        // Arrow keys
+        "up" | "arrowup" => Ok(126),
+        "down" | "arrowdown" => Ok(125),
+        "left" | "arrowleft" => Ok(123),
+        "right" | "arrowright" => Ok(124),
+
+        // Special keys
+        "escape" | "esc" => Ok(53),
+        "space" => Ok(49),
+        "return" | "enter" => Ok(36),
+        "tab" => Ok(48),
+        "backspace" => Ok(51),
+        "delete" => Ok(117),
+        "home" => Ok(115),
+        "end" => Ok(119),
+        "pageup" => Ok(116),
+        "pagedown" => Ok(121),
+
+        // ASCII letter/number keys
+        s if s.len() == 1 => {
+            let c = s.chars().next().unwrap().to_ascii_lowercase();
+            let code = match c {
+                'a' => 0,  's' => 1,  'd' => 2,  'f' => 3,  'h' => 4,
+                'g' => 5,  'z' => 6,  'x' => 7,  'c' => 8,  'v' => 9,
+                'b' => 11, 'q' => 12, 'w' => 13, 'e' => 14, 'r' => 15,
+                'y' => 16, 't' => 17, '1' => 18, '2' => 19, '3' => 20,
+                '4' => 21, '6' => 22, '5' => 23, '=' => 24, '9' => 25,
+                '7' => 26, '-' => 27, '8' => 28, '0' => 29, ']' => 30,
+                'o' => 31, 'u' => 32, '[' => 33, 'i' => 34, 'p' => 35,
+                'l' => 37, 'j' => 38, '\'' => 39, 'k' => 40, ';' => 41,
+                '\\' => 42, ',' => 43, '/' => 44, 'n' => 45, 'm' => 46,
+                '.' => 47, '`' => 50,
+                _ => return Err(PlatformError::Os(format!("unsupported key '{s}'"))),
+            };
+            Ok(code)
+        }
+
+        _ => Err(PlatformError::Os(format!("unsupported key '{s}'"))),
+    }
 }
 
-#[link(name = "Carbon", kind = "framework")]
-extern "C" {
-    fn RegisterEventHotKey(
-        in_hotkey_code: u32,
-        in_hotkey_modifiers: u32,
-        in_hotkey_id: EventHotKeyID,
-        in_target: *const c_void,
-        in_options: u32,
-        out_ref: *mut EventHotKeyRef,
-    ) -> c_int;
-    fn UnregisterEventHotKey(in_hotkey: EventHotKeyRef) -> c_int;
-    fn GetApplicationEventTarget() -> *const c_void;
-    fn InstallEventHandler(
-        in_target: *const c_void,
-        in_handler: extern "C" fn(*mut c_void, *mut c_void, *mut c_void) -> c_int,
-        in_num_types: u32,
-        in_types: *const EventTypeSpec,
-        in_user_data: *mut c_void,
-        out_handler: *mut *mut c_void,
-    ) -> c_int;
-    fn GetEventClass(event: *mut c_void) -> u32;
-    fn GetEventKind(event: *mut c_void) -> u32;
-    fn GetEventParameter(
-        event: *mut c_void,
-        in_name: u32,
-        in_desired_type: u32,
-        out_actual_type: *mut u32,
-        in_buffer_size: u32,
-        out_actual_size: *mut u32,
-        out_buffer: *mut c_void,
-    ) -> c_int;
-}
+/// Parse "Cmd+Shift+S" → (MOD_CMD | MOD_SHIFT, 1)
+fn parse_accelerator(raw: &str) -> Result<(u32, u16)> {
+    let mut mods = 0u32;
+    let mut keycode: Option<u16> = None;
 
-#[repr(C)]
-struct EventTypeSpec {
-    event_class: u32,
-    event_kind: u32,
-}
-
-const K_EVENT_CLASS_KEYBOARD: u32 = 0x6b657962; // 'keyb'
-const K_EVENT_HOT_KEY_PRESSED: u32 = 5;
-const K_EVENT_PARAM_DIRECT_OBJECT: u32 = 0x2d2d2d2d; // '----'
-const TYPE_EVENT_HOT_KEY_ID: u32 = 0x686b6964; // 'hkid'
-
-const CMD_KEY: u32 = 256;
-const SHIFT_KEY: u32 = 512;
-const OPTION_KEY: u32 = 2048;
-const CONTROL_KEY: u32 = 4096;
-
-static mut CALLBACK: Option<Arc<Box<dyn Fn() + Send + Sync>>> = None;
-
-extern "C" fn handler(_next: *mut c_void, event: *mut c_void, _user_data: *mut c_void) -> c_int {
-    unsafe {
-        if GetEventClass(event) != K_EVENT_CLASS_KEYBOARD {
-            return -1;
-        }
-        if GetEventKind(event) != K_EVENT_HOT_KEY_PRESSED {
-            return -1;
-        }
-        let mut id = EventHotKeyID {
-            signature: 0,
-            id: 0,
-        };
-        let mut actual: u32 = 0;
-        if GetEventParameter(
-            event,
-            K_EVENT_PARAM_DIRECT_OBJECT,
-            TYPE_EVENT_HOT_KEY_ID,
-            std::ptr::null_mut(),
-            std::mem::size_of::<EventHotKeyID>() as u32,
-            &mut actual,
-            &mut id as *mut _ as *mut c_void,
-        ) != 0
-        {
-            return -1;
-        }
-        if let Some(cb) = CALLBACK.as_ref() {
-            cb();
+    for part in raw.split('+').map(|p| p.trim()) {
+        match part.to_ascii_lowercase().as_str() {
+            "ctrl" | "control" => mods |= MOD_CONTROL,
+            "alt" | "option" => mods |= MOD_OPTION,
+            "shift" => mods |= MOD_SHIFT,
+            "cmd" | "command" | "super" | "win" | "commandorcontrol" => mods |= MOD_CMD,
+            other => {
+                if keycode.is_some() {
+                    return Err(PlatformError::Os(format!(
+                        "multiple keys in accelerator '{raw}'"
+                    )));
+                }
+                keycode = Some(parse_key(other)?);
+            }
         }
     }
-    0
+
+    let keycode = keycode.ok_or_else(|| PlatformError::Os(format!("no key in '{raw}'")))?;
+    Ok((mods, keycode))
 }
 
+// ---------------------------------------------------------------------------
+// RAII handle — unregisters on drop
+// ---------------------------------------------------------------------------
+
+struct InstalledHotkey {
+    modifiers: u32,
+    keycode: u16,
+}
+
+impl Drop for InstalledHotkey {
+    fn drop(&mut self) {
+        if let Some(reg) = HOTKEY_REGISTRY.get() {
+            let _ = reg.lock().unwrap().unregister(self.modifiers, self.keycode);
+        }
+    }
+}
+
+unsafe impl Send for InstalledHotkey {}
+unsafe impl Sync for InstalledHotkey {}
+
+// ---------------------------------------------------------------------------
+// MacosHotkey
+// ---------------------------------------------------------------------------
+
 pub struct MacosHotkey;
+
+impl MacosHotkey {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Default for MacosHotkey {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Hotkey for MacosHotkey {
     fn register(
@@ -109,109 +150,23 @@ impl Hotkey for MacosHotkey {
         accel: Accelerator,
         on_pressed: Box<dyn Fn() + Send + Sync>,
     ) -> Result<HotkeyHandle> {
-        let (mods, vk) = parse_accelerator(&accel.raw)?;
-        unsafe {
-            CALLBACK = Some(Arc::new(on_pressed));
+        let (mods, keycode) = parse_accelerator(&accel.raw)?;
 
-            let target = GetApplicationEventTarget();
-            let spec = EventTypeSpec {
-                event_class: K_EVENT_CLASS_KEYBOARD,
-                event_kind: K_EVENT_HOT_KEY_PRESSED,
-            };
-            let mut handler_ref: *mut c_void = std::ptr::null_mut();
-            let r = InstallEventHandler(
-                target,
-                handler,
-                1,
-                &spec,
-                std::ptr::null_mut(),
-                &mut handler_ref,
-            );
-            if r != 0 {
-                return Err(PlatformError::Os(format!("InstallEventHandler: {r}")));
-            }
+        let registry = HOTKEY_REGISTRY.get().ok_or_else(|| {
+            PlatformError::Os("hotkey registry not initialized — is smooth scroll installed?".into())
+        })?;
 
-            let mut hk_ref: EventHotKeyRef = std::ptr::null_mut();
-            let id = EventHotKeyID {
-                signature: u32::from_be_bytes(*b"SSCR"),
-                id: 1,
-            };
-            let r = RegisterEventHotKey(vk, mods, id, target, 0, &mut hk_ref);
-            if r != 0 {
-                return Err(PlatformError::Os(format!("RegisterEventHotKey: {r}")));
-            }
-
-            struct Installed {
-                hk: EventHotKeyRef,
-            }
-            impl Drop for Installed {
-                fn drop(&mut self) {
-                    unsafe {
-                        UnregisterEventHotKey(self.hk);
-                        CALLBACK = None;
-                    }
-                }
-            }
-            unsafe impl Send for Installed {}
-            unsafe impl Sync for Installed {}
-
-            Ok(HotkeyHandle {
-                _inner: Box::new(Installed { hk: hk_ref }),
-            })
+        let mut reg = registry.lock().unwrap();
+        if reg.callbacks.contains_key(&(mods, keycode)) {
+            return Err(PlatformError::Os(format!(
+                "hotkey '{accel}' already registered"
+            )));
         }
-    }
-}
+        reg.register(mods, keycode, on_pressed);
 
-fn parse_accelerator(raw: &str) -> Result<(u32, u32)> {
-    let mut mods = 0u32;
-    let mut vk: Option<u32> = None;
-    for part in raw.split('+').map(|p| p.trim()) {
-        match part.to_ascii_lowercase().as_str() {
-            "ctrl" | "control" => mods |= CONTROL_KEY,
-            "alt" | "option" => mods |= OPTION_KEY,
-            "shift" => mods |= SHIFT_KEY,
-            "cmd" | "command" | "super" | "win" | "commandorcontrol" => mods |= CMD_KEY,
-            other => vk = Some(parse_key(other)?),
-        }
+        Ok(HotkeyHandle::new(Box::new(InstalledHotkey {
+            modifiers: mods,
+            keycode,
+        })))
     }
-    let vk = vk.ok_or_else(|| PlatformError::Os(format!("no key in '{raw}'")))?;
-    Ok((mods, vk))
-}
-
-fn parse_key(s: &str) -> Result<u32> {
-    if s.len() == 1 {
-        // Carbon virtual key codes for ASCII. Cover common letters used in hotkeys.
-        let c = s.chars().next().unwrap().to_ascii_lowercase();
-        let code: u32 = match c {
-            'a' => 0,
-            's' => 1,
-            'd' => 2,
-            'f' => 3,
-            'h' => 4,
-            'g' => 5,
-            'z' => 6,
-            'x' => 7,
-            'c' => 8,
-            'v' => 9,
-            'b' => 11,
-            'q' => 12,
-            'w' => 13,
-            'e' => 14,
-            'r' => 15,
-            'y' => 16,
-            't' => 17,
-            'o' => 31,
-            'u' => 32,
-            'i' => 34,
-            'p' => 35,
-            'l' => 37,
-            'j' => 38,
-            'k' => 40,
-            'n' => 45,
-            'm' => 46,
-            _ => return Err(PlatformError::Os(format!("unsupported key '{s}'"))),
-        };
-        return Ok(code);
-    }
-    Err(PlatformError::Os(format!("unsupported key '{s}'")))
 }
