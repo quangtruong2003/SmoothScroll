@@ -44,10 +44,16 @@ jobs:
   test:
     needs: [_guard]
     runs-on: ubuntu-latest
-    outputs:
-      rust_exit: ${{ steps.rust-tests.outputs.exit_code }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+            libx11-dev libxi-dev libxtst-dev
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -81,9 +87,7 @@ jobs:
         run: pnpm run build:wasm
 
       - name: Run Rust tests
-        id: rust-tests
-        run: |
-          cargo test --workspace --all-targets; echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+        run: cargo test --workspace --all-targets
 
       - name: Run TypeScript/Vitest tests
         run: pnpm test
