@@ -52,7 +52,23 @@ impl ProcessQuery for MacosProcessQuery {
     }
 
     fn foreground_process_id(&self) -> Option<u32> {
-        None
+        use objc2::msg_send;
+        use objc2::msg_send_id;
+        use objc2::rc::Retained;
+        use objc2_app_kit::{NSRunningApplication, NSWorkspace};
+        unsafe {
+            let self_pid = std::process::id() as i32;
+            let workspace = NSWorkspace::sharedWorkspace();
+            let app: Option<Retained<NSRunningApplication>> =
+                msg_send_id![&*workspace, frontmostApplication];
+            let app = app?;
+            let pid: i32 = msg_send![&*app, processIdentifier];
+            if pid == self_pid {
+                None
+            } else {
+                Some(pid as u32)
+            }
+        }
     }
 
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
