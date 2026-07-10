@@ -3,14 +3,23 @@ import { LanguageProvider } from '@/lib/i18n/provider'
 import './globals.css'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+const BASE_URL = 'https://quangtruong2003.github.io/SmoothScroll'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://quangtruong2003.github.io/SmoothScroll'),
+  metadataBase: new URL(BASE_URL),
   title: {
     template: '%s | SmoothScroll',
     default: 'SmoothScroll - Natural Scroll Feel on Windows',
   },
+  description:
+    'A 120 Hz easing engine for every wheel tick, in every app. Built for people who notice the difference between smooth scroll and stuttering. Free, no telemetry, open-source.',
   robots: { index: true, follow: true },
+  openGraph: {
+    title: 'SmoothScroll - Natural Scroll Feel on Windows',
+    description:
+      'A 120 Hz easing engine for every wheel tick, in every app. Free, no telemetry, open-source.',
+    type: 'website',
+  },
   icons: {
     icon: `${BASE_PATH}/assets/icon-128.png`,
     apple: `${BASE_PATH}/assets/icon-128.png`,

@@ -15,15 +15,21 @@ function StatCard({
   icon: Icon,
   value,
   label,
+  loading,
 }: {
   icon: typeof Star
   value: string
   label: string
+  loading?: boolean
 }) {
   return (
     <div className="flex flex-col items-center gap-2 p-6 rounded-xl border bg-card">
       <Icon className="h-5 w-5 text-muted-foreground" />
-      <span className="text-3xl font-bold tracking-tight">{value}</span>
+      {loading ? (
+        <div className="h-9 w-24 rounded bg-muted animate-pulse" />
+      ) : (
+        <span className="text-3xl font-bold tracking-tight">{value}</span>
+      )}
       <span className="text-sm text-muted-foreground">{label}</span>
     </div>
   )
@@ -40,6 +46,7 @@ export function Stats({ dict }: StatsProps) {
 
   const liveStars = useGitHubStars()
   const [version, setVersion] = useState<string>(fb.version ?? '-')
+  const [loadingVersion, setLoadingVersion] = useState(true)
 
   useEffect(() => {
     const fallbackVersion = fb.version ?? '-'
@@ -47,8 +54,12 @@ export function Stats({ dict }: StatsProps) {
     fetchLatestRelease()
       .then((releaseData) => {
         setVersion(releaseData.tag_name ?? fallbackVersion)
+        setLoadingVersion(false)
       })
-      .catch(() => {})
+      .catch(() => {
+        setVersion(fallbackVersion)
+        setLoadingVersion(false)
+      })
   }, [fb])
 
   const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '-')
@@ -63,8 +74,18 @@ export function Stats({ dict }: StatsProps) {
         </FadeUp>
         <FadeUp delay={0.1}>
           <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto w-full">
-            <StatCard icon={Star} value={starsDisplay} label={s.githubStars ?? ''} />
-            <StatCard icon={Tag} value={version} label={s.version ?? ''} />
+            <StatCard
+              icon={Star}
+              value={starsDisplay}
+              label={s.githubStars ?? ''}
+              loading={liveStars === null}
+            />
+            <StatCard
+              icon={Tag}
+              value={version}
+              label={s.version ?? ''}
+              loading={loadingVersion}
+            />
           </div>
         </FadeUp>
       </div>

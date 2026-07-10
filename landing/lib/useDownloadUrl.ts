@@ -16,6 +16,8 @@ export interface DownloadInfo {
   isBeta: boolean
   isMac: boolean
   isLinux: boolean
+  loading: boolean
+  error: string | null
 }
 
 const REPO_BASE = 'https://github.com/quangtruong2003/SmoothScroll/releases'
@@ -94,6 +96,8 @@ export function useDownloadUrl(): DownloadInfo {
       isBeta: false,
       isMac: false,
       isLinux: false,
+      loading: true,
+      error: null,
     }
   })
 
@@ -113,40 +117,50 @@ export function useDownloadUrl(): DownloadInfo {
       isLinux: os === 'linux',
     }))
 
-    fetchLatestRelease().then((release) => {
-      const apiUrl = findInstallerUrl(release, os)
-      const url = apiUrl ?? built.url
+    fetchLatestRelease()
+      .then((release) => {
+        const apiUrl = findInstallerUrl(release, os)
+        const url = apiUrl ?? built.url
 
-      const filename = (() => {
-        if (apiUrl) {
-          try {
-            return new URL(apiUrl).pathname.split('/').pop() ?? built.filename
-          } catch {
-            return built.filename
+        const filename = (() => {
+          if (apiUrl) {
+            try {
+              return new URL(apiUrl).pathname.split('/').pop() ?? built.filename
+            } catch {
+              return built.filename
+            }
           }
-        }
-        return built.filename
-      })()
+          return built.filename
+        })()
 
-      const totalDownloads = release.assets.reduce(
-        (sum, a) => sum + (a.download_count || 0),
-        0
-      )
+        const totalDownloads = release.assets.reduce(
+          (sum, a) => sum + (a.download_count || 0),
+          0
+        )
 
-      setData({
-        url,
-        filename,
-        version: release.tag_name || (APP_VERSION ? `v${APP_VERSION.replace(/^v/, '')}` : 'latest'),
-        os,
-        sizeLabel: '',
-        ctaLabel: `Download for ${getOSLabel(os)}`,
-        totalDownloads: totalDownloads > 0 ? formatDownloadCount(totalDownloads) : '',
-        release,
-        isBeta,
-        isMac: os === 'mac',
-        isLinux: os === 'linux',
+        setData({
+          url,
+          filename,
+          version: release.tag_name || (APP_VERSION ? `v${APP_VERSION.replace(/^v/, '')}` : 'latest'),
+          os,
+          sizeLabel: '',
+          ctaLabel: `Download for ${getOSLabel(os)}`,
+          totalDownloads: totalDownloads > 0 ? formatDownloadCount(totalDownloads) : '',
+          release,
+          isBeta,
+          isMac: os === 'mac',
+          isLinux: os === 'linux',
+          loading: false,
+          error: null,
+        })
       })
-    })
+      .catch((err) => {
+        setData((prev) => ({
+          ...prev,
+          loading: false,
+          error: err instanceof Error ? err.message : 'Failed to fetch release',
+        }))
+      })
   }, [])
 
   return data

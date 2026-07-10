@@ -45,7 +45,7 @@ export function useGitHubStars(): number | null {
       signal: controller.signal,
       headers: { Accept: 'application/vnd.github+json' },
     })
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((d) => {
         const value = typeof d?.stargazers_count === 'number' ? d.stargazers_count : null
         if (value !== null) {

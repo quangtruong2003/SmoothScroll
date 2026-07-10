@@ -3,20 +3,23 @@ import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { LangSwitcher } from './LangSwitcher'
 
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/en/',
+vi.mock('@/lib/i18n/provider', () => ({
+  useLanguage: () => ({
+    locale: 'en',
+    setLocale: vi.fn(),
+  }),
 }))
 
 describe('LangSwitcher', () => {
   it('renders trigger button with aria-expanded false initially', () => {
-    render(<LangSwitcher locale="en" dict={{ langSwitcher: {} }} />)
+    render(<LangSwitcher />)
     const trigger = screen.getByRole('button', { name: /current language/i })
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('opens menu on click (touch-friendly)', async () => {
     const user = userEvent.setup()
-    render(<LangSwitcher locale="en" dict={{ langSwitcher: {} }} />)
+    render(<LangSwitcher />)
     const trigger = screen.getByRole('button', { name: /current language/i })
 
     await user.click(trigger)
@@ -27,7 +30,7 @@ describe('LangSwitcher', () => {
 
   it('closes menu on second click', async () => {
     const user = userEvent.setup()
-    render(<LangSwitcher locale="en" dict={{ langSwitcher: {} }} />)
+    render(<LangSwitcher />)
     const trigger = screen.getByRole('button', { name: /current language/i })
 
     await user.click(trigger)
@@ -39,7 +42,7 @@ describe('LangSwitcher', () => {
 
   it('closes menu when Escape is pressed', async () => {
     const user = userEvent.setup()
-    render(<LangSwitcher locale="en" dict={{ langSwitcher: {} }} />)
+    render(<LangSwitcher />)
     const trigger = screen.getByRole('button', { name: /current language/i })
 
     await user.click(trigger)
@@ -51,7 +54,7 @@ describe('LangSwitcher', () => {
 
   it('menu items have role=menuitem', async () => {
     const user = userEvent.setup()
-    render(<LangSwitcher locale="en" dict={{ langSwitcher: {} }} />)
+    render(<LangSwitcher />)
     await user.click(screen.getByRole('button', { name: /current language/i }))
 
     const items = screen.getAllByRole('menuitem')

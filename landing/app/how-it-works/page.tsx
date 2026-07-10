@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/provider'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
@@ -15,12 +16,25 @@ import { FinalCTA } from '@/components/sections/howItWorks/FinalCTA'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 export default function HowItWorksPage() {
-  const { locale, dict } = useLanguage()
+  const { locale, dict, dictLoading } = useLanguage()
   const d = dict as Dictionary | null
   const h = d?.howItWorks
 
+  if (dictLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    )
+  }
+
   if (!h?.hero || !h?.demo || !h?.bigPicture || !h?.tabs || !h?.shortcuts || !h?.tray || !h?.recipes || !h?.privacy || !h?.finalCta) {
-    return null
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+        <p className="text-lg text-muted-foreground">Content unavailable.</p>
+        <Link href="/" className="text-primary hover:underline">Return home</Link>
+      </div>
+    )
   }
 
   return (

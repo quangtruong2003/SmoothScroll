@@ -7,6 +7,70 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-07-10
+
+### Added
+- remove [lang] route segments, use client-side i18n
+- remove [lang] route segments, use client-side i18n
+- update Navigation, LangSwitcher, Footer for client-side i18n
+- use useLanguage hook in homepage
+- wrap app with LanguageProvider in layout
+- add LanguageContext and Provider for client-side i18n
+- pass comingSoonLabel to DownloadButtonWin in Hero
+- add comingSoonLabel badge to DownloadButtonWin
+- add LogoWall static grid component
+- show GitHub icon on mobile with text label on larger screens
+- add background dot pattern toggle
+- add scroll-to-top button
+- allow multi-expand and add Expand/Collapse all
+- honor reduced-motion and hover-pause for marquee
+- distinct aria-labels for header and footer GitHub links
+- add visible focus outline for keyboard nav
+- use aria-describedby for disabled tab tooltips
+- announce copy state via aria-live region
+- convert LangSwitcher to click-toggle for touch + ARIA menu
+- add skip-to-content link
+- add global prefers-reduced-motion guard
+- set html lang attribute per locale
+
+### Changed
+- restore output export for CI compatibility
+
+### Fixed
+- make Hero, FinalCTA, and Install CTAs OS-aware
+- add OS detection to Install component
+- remove skip-to-content link from Navigation
+- button badge styling and add Navigation to how-it-works
+- strip basePath from pathname before locale routing
+- add root page for English at / (no /en/ redirect)
+- render disabled button as single line
+- add trailing slash to how-it-works link
+- disable download button on macOS/Linux with Beta label
+- show OS-specific download button with Beta badge
+- remove basePath from localePath to avoid double prefix
+- add basePath prefix to assets and routes
+- locale routing, theme toggle, hero centering
+- add missing og-image.png to prevent 404 on rendered HTML
+- use BASE_PATH env var instead of hardcoded '/SmoothScroll'
+- replace em-dashes with hyphens in default metadata titles
+- replace em-dash with hyphen in SAMPLE_LINES title
+- replace em-dashes with hyphens in fallback values (5 instances)
+- replace em-dashes with hyphens in all 3 locale files (111 instances)
+- use 100dvh for mobile viewport stability, dedupe text-7xl
+- allow file-path code to wrap on small viewports
+- remove opacity-60 from LogoWall cells, add page-load waits
+- collapse sections cleanly at 320/390/768 viewports
+- darken light --destructive to 5.79:1 for AA body text
+- cap H1 at text-7xl for less aggressive scaling
+- use GripHorizontal icon for dot pattern toggle (DotsHorizontal missing in lucide-react)
+- honor prefers-reduced-motion in BackgroundDotGrid
+- bump dark mode muted-foreground to AA contrast
+- add color transition for dark mode toggle
+
+### Performance
+- preload critical hero image
+- skip WebM conversion (ffmpeg unavailable)
+- bundle brand SVGs locally, remove Iconify CDN dependency
 ## [1.16.0] - 2026-07-08
 
 ### Added
