@@ -75,3 +75,43 @@ describe('TrayPreview — Open Settings bounce', () => {
     vi.useRealTimers()
   })
 })
+
+describe('TrayPreview — Quit state machine', () => {
+  it('clicking Quit transitions to quitting state', () => {
+    render(<TrayPreview locale="en" />)
+    fireEvent.click(screen.getByText('Quit'))
+    expect(screen.getByTestId('tray-preview').className).toMatch(/tray-quitting/)
+  })
+
+  it('both Switches animate OFF in quitting state', () => {
+    render(<TrayPreview locale="en" />)
+    fireEvent.click(screen.getByText('Quit'))
+    expect(screen.getByLabelText('Smooth Scrolling')).not.toBeChecked()
+    expect(screen.getByLabelText('Start with Windows')).not.toBeChecked()
+  })
+
+  it('after 5s, transitions to closed state and shows reopen button', () => {
+    vi.useFakeTimers()
+    render(<TrayPreview locale="en" />)
+    fireEvent.click(screen.getByText('Quit'))
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+    expect(screen.getByText('Click to reopen')).toBeInTheDocument()
+    vi.useRealTimers()
+  })
+
+  it('clicking reopen resets state to running with both toggles ON', () => {
+    vi.useFakeTimers()
+    render(<TrayPreview locale="en" />)
+    fireEvent.click(screen.getByText('Quit'))
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+    fireEvent.click(screen.getByText('Click to reopen'))
+    expect(screen.getByText('On')).toBeInTheDocument()
+    expect(screen.getByLabelText('Smooth Scrolling')).toBeChecked()
+    expect(screen.getByLabelText('Start with Windows')).toBeChecked()
+    vi.useRealTimers()
+  })
+})
