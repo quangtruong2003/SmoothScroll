@@ -43,3 +43,13 @@ describe('TrayPreview — Smooth Scrolling toggle', () => {
     expect(screen.getByText('On')).toBeInTheDocument()
   })
 })
+
+describe('TrayPreview — Start with Windows independence', () => {
+  it('toggling Start with Windows does NOT affect status dot', () => {
+    render(<TrayPreview locale="en" />)
+    const switchEl = screen.getByLabelText('Start with Windows')
+    fireEvent.click(switchEl)
+    expect(screen.getByText('On')).toBeInTheDocument()
+    expect(switchEl).not.toBeChecked()
+  })
+})
