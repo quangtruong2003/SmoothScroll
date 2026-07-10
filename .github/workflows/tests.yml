@@ -48,7 +48,7 @@ jobs:
           tool: wasm-pack
 
       - name: Build WASM engine (required for tests)
-        run: pnpm run build:wasm
+        run: sh scripts/build-wasm.sh
 
       - name: Run Rust tests
         run: cargo test --workspace --all-targets
@@ -58,6 +58,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: typescript-wasm-tests
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -71,7 +88,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build WASM engine
-        run: pnpm run build:wasm
+        run: sh scripts/build-wasm.sh
 
       - name: Run TypeScript/Vitest tests
         run: pnpm test
