@@ -10,6 +10,7 @@ interface DownloadButtonWinProps {
   size?: 'default' | 'lg' | 'xl'
   className?: string
   disabled?: boolean
+  comingSoonLabel?: string
 }
 
 export function DownloadButtonWin({
@@ -18,6 +19,7 @@ export function DownloadButtonWin({
   size = 'xl',
   className,
   disabled = false,
+  comingSoonLabel,
 }: DownloadButtonWinProps) {
   const { url, filename } = useDownloadUrl()
 
@@ -34,6 +36,11 @@ export function DownloadButtonWin({
         <span className="cursor-not-allowed">
           <Download className="h-5 w-5 mr-2" />
           {label}
+          {comingSoonLabel && (
+            <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
+              {comingSoonLabel}
+            </span>
+          )}
         </span>
       ) : (
         <a
