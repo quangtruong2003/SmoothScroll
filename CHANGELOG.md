@@ -7,6 +7,18 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-07-10
+
+### Added
+- add automated tests on every push with optimized build
+- implement GNOME and KDE reduce motion detection
+- implement Wayland process query for KDE
+- improve Wayland hotkey warning
+- implement XRR refresh rate detection
+- add X11 session warning
+
+### Fixed
+- loading states, error fallbacks, i18n fixes, and SEO metadata
 ## [1.17.0] - 2026-07-10
 
 ### Added
