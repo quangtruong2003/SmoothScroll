@@ -139,7 +139,7 @@ unsafe fn read_keycode(event: CGEventRef) -> u16 {
 /// Thread-safe hotkey registry. Stores (modifiers, keycode) → callback mappings.
 /// Shared between the event tap callback and MacosHotkey::register().
 pub struct HotkeyRegistry {
-    callbacks: HashMap<(u32, u16), Box<dyn Fn() + Send + Sync>>,
+    pub(crate) callbacks: HashMap<(u32, u16), Box<dyn Fn() + Send + Sync>>,
 }
 
 impl HotkeyRegistry {
