@@ -6,14 +6,14 @@ import { DownloadButtonWin } from '@/components/DownloadButtonWin'
 import { LogoWall } from '@/components/LogoWall'
 import { Badge } from '@/components/ui/badge'
 import { detectOS } from '@/lib/os'
-import { localePrefix, localePath, type Dictionary, type Locale } from '@/lib/i18n/dict'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 interface HeroProps {
   dict: { hero?: Dictionary['hero'] }
-  locale: Locale
+  locale: string
 }
 
-export function Hero({ dict, locale }: HeroProps) {
+export function Hero({ dict }: HeroProps) {
   const h = dict?.hero ?? { eyebrow: '', eyebrowLinux: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download for Windows', ctaLinux: 'Download for Linux', ctaMac: 'Download for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
 
   const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
@@ -62,7 +62,7 @@ export function Hero({ dict, locale }: HeroProps) {
                 comingSoonLabel="Coming Soon"
               />
               <Link
-                href={localePath(locale, '/how-it-works/')}
+                href="/how-it-works/"
                 className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors"
               >
                 {h.seeHow}

@@ -9,18 +9,20 @@ import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { useGitHubStars } from '@/lib/useGitHubStars'
-import { localePrefix, localePath, type Locale } from '@/lib/i18n/dict'
+import { useLanguage } from '@/lib/i18n/provider'
+import type { Dictionary } from '@/lib/i18n/dict'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 interface NavigationProps {
-  locale: Locale
-  langSwitcherDict?: Record<string, string>
+  locale: string
+  dict?: Dictionary | null
 }
 
-export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
+export function Navigation({ locale, dict }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false)
   const stars = useGitHubStars()
+  const { locale: contextLocale } = useLanguage()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -44,7 +46,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
         }`}
       >
         <nav className="container flex items-center justify-between gap-4">
-          <Link href={localePath(locale, '/')} className="flex items-center gap-2 font-bold text-lg shrink-0">
+          <Link href="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
             <Image
               src={`${BASE_PATH}/assets/icon-128.png`}
               alt="SmoothScroll logo"
@@ -79,7 +81,7 @@ export function Navigation({ locale, langSwitcherDict = {} }: NavigationProps) {
                 <span className="hidden sm:inline">GitHub</span>
               </Button>
             </a>
-            <LangSwitcher locale={locale} dict={{ langSwitcher: langSwitcherDict }} />
+            <LangSwitcher />
             <ThemeToggle />
           </div>
         </nav>

@@ -1,17 +1,11 @@
 import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n/provider'
+import type { Dictionary } from '@/lib/i18n/dict'
 
-interface FooterProps {
-  locale: string
-  dict: {
-    footer?: {
-      tagline?: string
-      links?: { github?: string; license?: string }
-    }
-  }
-}
-
-export function Footer({ locale, dict }: FooterProps) {
-  const { footer: f = { tagline: '', links: { github: '', license: '' } } } = dict
+export function Footer() {
+  const { dict } = useLanguage()
+  const d = dict as Dictionary | null
+  const { footer: f = { tagline: '', links: { github: '', license: '' } } } = d ?? {}
 
   return (
     <footer className="border-t py-8 pb-8 sm:pb-8 mt-16">

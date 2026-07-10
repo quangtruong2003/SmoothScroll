@@ -1,18 +1,9 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Globe } from 'lucide-react'
-import { localePrefix, type Locale } from '@/lib/i18n/dict'
+import { useLanguage, type Locale } from '@/lib/i18n/provider'
 import { FlagIcon } from './FlagIcon'
-
-interface LangSwitcherProps {
-  locale: Locale
-  dict: {
-    langSwitcher: Record<string, string>
-  }
-}
 
 const localeLabels: Record<Locale, string> = {
   en: 'English',
@@ -26,35 +17,11 @@ const localeShort: Record<Locale, string> = {
   zh: '中',
 }
 
-export function LangSwitcher({ locale }: LangSwitcherProps) {
-  const pathname = usePathname()
+export function LangSwitcher() {
+  const { locale, setLocale } = useLanguage()
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  const switchLocale = (newLocale: Locale) => {
-    if (!pathname) return
-    const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
-    const knownLocales = ['en', 'vi', 'zh']
-    // Strip basePath prefix first
-    let clean = pathname
-    if (BASE && clean.startsWith(BASE)) {
-      clean = clean.slice(BASE.length) || '/'
-    }
-    const segments = clean.split('/')
-    // Strip existing locale prefix if present
-    if (knownLocales.includes(segments[1])) {
-      segments.splice(1, 1)
-    }
-    // Prepend new locale prefix (if not default)
-    const prefix = localePrefix(newLocale)
-    if (prefix) {
-      segments.splice(1, 0, prefix.replace(/^\//, ''))
-    }
-    const result = segments.join('/') || '/'
-    return BASE + result
-  }
-
-  // Close on outside click
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
@@ -66,7 +33,6 @@ export function LangSwitcher({ locale }: LangSwitcherProps) {
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
-  // Close on Escape
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') setOpen(false)
   }
@@ -94,19 +60,21 @@ export function LangSwitcher({ locale }: LangSwitcherProps) {
           className="absolute right-0 mt-1 w-40 rounded-md border bg-popover py-1 shadow-md z-50"
         >
           {(Object.keys(localeLabels) as Locale[]).map((loc) => (
-            <Link
+            <button
               key={loc}
-              href={switchLocale(loc) ?? '#'}
+              type="button"
               role="menuitem"
-              className={`flex items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-accent transition-colors ${
+              className={`flex items-center gap-2.5 w-full px-3 py-1.5 text-sm hover:bg-accent transition-colors ${
                 loc === locale ? 'font-semibold text-foreground' : 'text-muted-foreground'
               }`}
-              onClick={() => setOpen(false)}
-              replace
+              onClick={() => {
+                setLocale(loc)
+                setOpen(false)
+              }}
             >
               <FlagIcon lang={loc} />
               <span>{localeLabels[loc]}</span>
-            </Link>
+            </button>
           ))}
         </div>
       )}
