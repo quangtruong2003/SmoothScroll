@@ -33,11 +33,11 @@ export function DownloadButtonWin({
       aria-label={label}
     >
       {disabled ? (
-        <span className="cursor-not-allowed">
-          <Download className="h-5 w-5 mr-2" />
-          {label}
+        <span className="flex items-center gap-2 cursor-not-allowed whitespace-nowrap">
+          <Download className="h-5 w-5 shrink-0" />
+          <span>{label}</span>
           {comingSoonLabel && (
-            <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground shrink-0">
               {comingSoonLabel}
             </span>
           )}

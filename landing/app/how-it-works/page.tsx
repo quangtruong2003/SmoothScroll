@@ -1,6 +1,8 @@
 'use client'
 
 import { useLanguage } from '@/lib/i18n/provider'
+import { Navigation } from '@/components/Navigation'
+import { Footer } from '@/components/Footer'
 import { HowItWorksHero } from '@/components/sections/howItWorks/Hero'
 import { DemoFrame } from '@/components/sections/howItWorks/DemoFrame'
 import { BigPicture } from '@/components/sections/howItWorks/BigPicture'
@@ -23,28 +25,32 @@ export default function HowItWorksPage() {
 
   return (
     <>
-      <HowItWorksHero
-        locale={locale}
-        hero={h.hero}
-        ctaLinuxLabel={d?.hero?.ctaLinux}
-        ctaMacLabel={d?.hero?.ctaMac}
-        betaBadge={d?.beta?.badge}
-        comingSoonLabel={d?.finalCta?.comingSoon ?? 'Coming Soon'}
-      />
-      <DemoFrame demo={h.demo} />
-      <BigPicture bigPicture={h.bigPicture} />
-      <TabSections tabs={h.tabs} dict={d ?? undefined} />
-      <ShortcutsTable shortcuts={h.shortcuts} />
-      <TrayActions tray={h.tray} />
-      <Recipes recipes={h.recipes} />
-      <Privacy privacy={h.privacy} />
-      <FinalCTA
-        finalCta={h.finalCta}
-        ctaLinuxLabel={d?.hero?.ctaLinux}
-        ctaMacLabel={d?.hero?.ctaMac}
-        betaBadge={d?.beta?.badge}
-        comingSoonLabel={d?.finalCta?.comingSoon ?? 'Coming Soon'}
-      />
+      <Navigation locale={locale} dict={d} />
+      <main id="main-content">
+        <HowItWorksHero
+          locale={locale}
+          hero={h.hero}
+          ctaLinuxLabel={d?.hero?.ctaLinux}
+          ctaMacLabel={d?.hero?.ctaMac}
+          betaBadge={d?.beta?.badge}
+          comingSoonLabel={d?.finalCta?.comingSoon ?? 'Coming Soon'}
+        />
+        <DemoFrame demo={h.demo} />
+        <BigPicture bigPicture={h.bigPicture} />
+        <TabSections tabs={h.tabs} dict={d ?? undefined} />
+        <ShortcutsTable shortcuts={h.shortcuts} />
+        <TrayActions tray={h.tray} />
+        <Recipes recipes={h.recipes} />
+        <Privacy privacy={h.privacy} />
+        <FinalCTA
+          finalCta={h.finalCta}
+          ctaLinuxLabel={d?.hero?.ctaLinux}
+          ctaMacLabel={d?.hero?.ctaMac}
+          betaBadge={d?.beta?.badge}
+          comingSoonLabel={d?.finalCta?.comingSoon ?? 'Coming Soon'}
+        />
+      </main>
+      <Footer />
     </>
   )
 }
