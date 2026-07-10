@@ -7,6 +7,15 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.1] - 2026-07-10
+
+### Fixed
+- correct xlib imports and XRRGetScreenInfo arguments
+- fix compilation errors in linux refresh rate and wayland process query
+- run build-wasm using bash in test-typescript job
+- run build-wasm.sh using bash instead of sh
+- fix tests.yml compilation steps and requirements
+- install linux system dependencies and fail fast on test error
 ## [1.18.0] - 2026-07-10
 
 ### Added
