@@ -40,8 +40,59 @@ jobs:
     steps:
       - run: 'echo "Guarded: not a re-triggered run"'
 
-  bump:
+  # Run tests first — if any test fails, stop the entire workflow (no build)
+  test:
     needs: [_guard]
+    runs-on: ubuntu-latest
+    outputs:
+      rust_exit: ${{ steps.rust-tests.outputs.exit_code }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: release-tests
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build WASM engine
+        run: pnpm run build:wasm
+
+      - name: Run Rust tests
+        id: rust-tests
+        run: |
+          cargo test --workspace --all-targets; echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Run TypeScript/Vitest tests
+        run: pnpm test
+
+      - name: Run script tests
+        run: node --test scripts/*.test.mjs
+
+  bump:
+    needs: [_guard, test]
     if: "!contains(github.event.head_commit.message, '[skip release]')"
     runs-on: ubuntu-latest
     outputs:
@@ -104,7 +155,7 @@ jobs:
 
   # Build WASM once and share as artifact
   build-wasm:
-    needs: bump
+    needs: [bump, test]
     if: needs.bump.outputs.skipped != 'true'
     runs-on: ubuntu-latest
     steps:
@@ -151,7 +202,7 @@ jobs:
           retention-days: 1
 
   build-windows:
-    needs: [bump, build-wasm]
+    needs: [bump, build-wasm, test]
     if: needs.bump.outputs.skipped != 'true'
     runs-on: windows-latest
     env:
@@ -227,7 +278,7 @@ jobs:
             release-feed/latest.json
 
   build-macos:
-    needs: bump
+    needs: [bump, test]
     if: needs.bump.outputs.skipped != 'true'
     continue-on-error: true
     strategy:
@@ -297,7 +348,7 @@ jobs:
             dmg-tmp/*.dmg
 
   build-linux:
-    needs: [bump, build-wasm]
+    needs: [bump, build-wasm, test]
     if: needs.bump.outputs.skipped != 'true'
     runs-on: ubuntu-22.04
     env:
@@ -358,7 +409,7 @@ jobs:
             target/release/bundle/appimage/*.AppImage
 
   cleanup-releases:
-    needs: [bump, build-wasm, build-windows, build-linux]
+    needs: [bump, build-wasm, build-windows, build-linux, test]
     if: always() && needs.bump.outputs.skipped != 'true' && needs.build-windows.result == 'success'
     runs-on: ubuntu-latest
     permissions:
