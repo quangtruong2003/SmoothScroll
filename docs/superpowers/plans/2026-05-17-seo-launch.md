@@ -148,7 +148,7 @@ Expected: `LICENSE` file at repo root with MIT text.
 Run:
 ```bash
 gh api -X PATCH repos/quangtruong2003/SmoothScroll \
-  -f homepage='https://quangtruong2003.github.io/SmoothScroll'
+  -f homepage='https://smoothscroll.top'
 ```
 Expected: JSON response with the new `"homepage"`.
 
@@ -380,12 +380,12 @@ Write the following content to `/tmp/ssc-pages/index.html`:
   <title>SmoothScroll — Smooth Mouse Wheel Scrolling for Windows and macOS (Free, Open Source)</title>
   <meta name="description" content="Free open-source app that adds Mac-style smooth scrolling to Windows 10/11 and consistent inertia scrolling on macOS. Native low-level input, frame-perfect easing, per-app exclusion. Built with Rust + Tauri 2.">
   <meta name="keywords" content="smooth scrolling windows, smooth scroll windows 11, mac style scrolling windows, mouse wheel inertia, windows smooth scroll app, free smoothscroll, tauri rust scroll, logitech smoothscroll alternative, wizmouse alternative">
-  <link rel="canonical" href="https://quangtruong2003.github.io/SmoothScroll/">
+  <link rel="canonical" href="https://smoothscroll.top/">
 
   <meta property="og:title" content="SmoothScroll — Smooth Mouse Wheel Scrolling for Windows and macOS">
   <meta property="og:description" content="Free open-source smooth scrolling for Windows 10/11 and macOS. Native input, frame-perfect easing, per-app exclusion.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://quangtruong2003.github.io/SmoothScroll/">
+  <meta property="og:url" content="https://smoothscroll.top/">
   <meta property="og:image" content="https://raw.githubusercontent.com/quangtruong2003/SmoothScroll/master/src-tauri/icons/128x128@2x.png">
 
   <meta name="twitter:card" content="summary_large_image">
@@ -407,7 +407,7 @@ Write the following content to `/tmp/ssc-pages/index.html`:
     "downloadUrl": "https://github.com/quangtruong2003/SmoothScroll/releases",
     "softwareVersion": "0.1.11",
     "license": "https://opensource.org/licenses/MIT",
-    "url": "https://quangtruong2003.github.io/SmoothScroll/",
+    "url": "https://smoothscroll.top/",
     "sameAs": "https://github.com/quangtruong2003/SmoothScroll",
     "description": "Smooth mouse-wheel scrolling for Windows and macOS. Native low-level input interception, frame-perfect easing, per-app exclusion. Built with Rust, Tauri 2, and React.",
     "author": { "@type": "Person", "name": "Quang Truong" }
@@ -603,7 +603,7 @@ Write to `/tmp/ssc-pages/sitemap.xml`:
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://quangtruong2003.github.io/SmoothScroll/</loc>
+    <loc>https://smoothscroll.top/</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
@@ -631,7 +631,7 @@ Write to `/tmp/ssc-pages/robots.txt`:
 User-agent: *
 Allow: /
 
-Sitemap: https://quangtruong2003.github.io/SmoothScroll/sitemap.xml
+Sitemap: https://smoothscroll.top/sitemap.xml
 ```
 
 - [ ] **Step 3.4.3: Write empty .nojekyll**
@@ -690,7 +690,7 @@ gh api -X POST repos/quangtruong2003/SmoothScroll/pages \
   -f 'source[branch]=gh-pages' \
   -f 'source[path]=/'
 ```
-Expected: 201 with `"html_url": "https://quangtruong2003.github.io/SmoothScroll/"`. If Pages already exists (409), update via PUT:
+Expected: 201 with `"html_url": "https://smoothscroll.top/"`. If Pages already exists (409), update via PUT:
 ```bash
 gh api -X PUT repos/quangtruong2003/SmoothScroll/pages \
   -H "Accept: application/vnd.github+json" \
@@ -710,7 +710,7 @@ Expected: `status: "building"` or `"built"`, html_url present.
 
 Wait ~60s then run:
 ```bash
-curl -sI https://quangtruong2003.github.io/SmoothScroll/ | head -3
+curl -sI https://smoothscroll.top/ | head -3
 ```
 Expected: `HTTP/2 200`.
 
@@ -738,7 +738,7 @@ New:
 ```markdown
 # SmoothScroll — Smooth Scrolling for Windows and macOS
 
-🌐 **[Website &amp; download → quangtruong2003.github.io/SmoothScroll](https://quangtruong2003.github.io/SmoothScroll/)**
+🌐 **[Website &amp; download → smoothscroll.top](https://smoothscroll.top/)**
 ```
 
 - [ ] **Step 3.7.2: Commit**
@@ -770,7 +770,7 @@ gh pr create --base master --head chore/seo-launch \
 - Rewrite README intro for keyword coverage (Windows 10/11, macOS, Mac-style smooth scrolling, Logitech alternative)
 - Add image alt text and badge row (release version + downloads)
 - Add 8-question FAQ section optimized for Google "People Also Ask"
-- Link to new GitHub Pages landing at https://quangtruong2003.github.io/SmoothScroll/
+- Link to new GitHub Pages landing at https://smoothscroll.top/
 
 ## Companion changes (already live on master via API)
 - Repo description set
@@ -780,8 +780,8 @@ gh pr create --base master --head chore/seo-launch \
 
 ## Test plan
 - [ ] Open the PR diff and skim README rendering
-- [ ] Visit https://quangtruong2003.github.io/SmoothScroll/ — confirm hero + FAQ render
-- [ ] curl -sI https://quangtruong2003.github.io/SmoothScroll/sitemap.xml returns 200
+- [ ] Visit https://smoothscroll.top/ — confirm hero + FAQ render
+- [ ] curl -sI https://smoothscroll.top/sitemap.xml returns 200
 - [ ] After merge, request indexing in Google Search Console (see docs/seo/search-console.md)
 EOF
 )"
@@ -1029,7 +1029,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
     → Per-app exclusion
     → Single Rust binary, MIT
 
-    https://quangtruong2003.github.io/SmoothScroll/
+    https://smoothscroll.top/
     #rustlang #tauri
 
 **Tweet 2 (technical thread, optional):**
@@ -1055,7 +1055,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
     If you've ever felt that Windows scrolling was rougher than macOS — try it.
 
     GitHub: https://github.com/quangtruong2003/SmoothScroll
-    Site: https://quangtruong2003.github.io/SmoothScroll/
+    Site: https://smoothscroll.top/
 
     #opensource #rustlang #tauri #productivity
 
@@ -1135,7 +1135,7 @@ Google indexes GitHub fast (1-3 days), but indexing the new landing page is fast
 
 1. Go to https://search.google.com/search-console
 2. Click **Add property** → **URL prefix**
-3. Enter: `https://quangtruong2003.github.io/SmoothScroll/`
+3. Enter: `https://smoothscroll.top/`
 4. Verification method: **HTML file** (Search Console gives a file like `googleXXXXXXXX.html`).
 5. Add the file to the `gh-pages` branch:
 
@@ -1158,7 +1158,7 @@ Google indexes GitHub fast (1-3 days), but indexing the new landing page is fast
 
 ## Step 3 — request indexing for the landing page
 
-1. **URL Inspection** (top search bar): paste `https://quangtruong2003.github.io/SmoothScroll/`
+1. **URL Inspection** (top search bar): paste `https://smoothscroll.top/`
 2. Click **Request Indexing**.
 3. Repeat for `https://github.com/quangtruong2003/SmoothScroll` (you don't own github.com, but the URL Inspection tool still nudges Googlebot).
 
@@ -1188,7 +1188,7 @@ gh api repos/quangtruong2003/SmoothScroll --jq '{description, homepage, has_page
 ```
 Expected:
 - description: full SEO string
-- homepage: `https://quangtruong2003.github.io/SmoothScroll`
+- homepage: `https://smoothscroll.top`
 - has_pages: true
 - license: `MIT` (may take 5-10 min after License file lands)
 - topics: 20
@@ -1206,9 +1206,9 @@ Expected: state `OPEN`, title contains "SEO launch".
 
 Run:
 ```bash
-curl -sI https://quangtruong2003.github.io/SmoothScroll/ | head -1
-curl -s https://quangtruong2003.github.io/SmoothScroll/ | grep -c "FAQPage"
-curl -sI https://quangtruong2003.github.io/SmoothScroll/sitemap.xml | head -1
+curl -sI https://smoothscroll.top/ | head -1
+curl -s https://smoothscroll.top/ | grep -c "FAQPage"
+curl -sI https://smoothscroll.top/sitemap.xml | head -1
 ```
 Expected:
 - First curl: `HTTP/2 200`
@@ -1280,7 +1280,7 @@ Expected: back on the original feature branch with no changes.
 After this plan completes:
 - Repo metadata is keyword-rich (description, 20 topics, license, homepage).
 - README ranks for Windows / macOS / smooth-scrolling / Tauri / Rust queries.
-- Live landing page at `https://quangtruong2003.github.io/SmoothScroll/` with structured data (SoftwareApplication + FAQPage JSON-LD), sitemap, robots.txt.
+- Live landing page at `https://smoothscroll.top/` with structured data (SoftwareApplication + FAQPage JSON-LD), sitemap, robots.txt.
 - Drafts ready for HN, Reddit, Twitter, LinkedIn, Product Hunt, and 3 awesome-list PRs.
 - Search Console submission guide ready.
 

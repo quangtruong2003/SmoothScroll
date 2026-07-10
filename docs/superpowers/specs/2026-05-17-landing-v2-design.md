@@ -8,7 +8,7 @@
 
 ## 1. Context
 
-Current landing at `https://quangtruong2003.github.io/SmoothScroll/` is a single-file MVP shipped during the SEO launch (Phase 3 of `2026-05-17-seo-launch.md`). It serves SEO needs (JSON-LD, sitemap, basic structure) but is conversion-thin: a generic feature list with no demonstration, no urgency, no install path beyond a GitHub Releases link.
+Current landing at `https://smoothscroll.top/` is a single-file MVP shipped during the SEO launch (Phase 3 of `2026-05-17-seo-launch.md`). It serves SEO needs (JSON-LD, sitemap, basic structure) but is conversion-thin: a generic feature list with no demonstration, no urgency, no install path beyond a GitHub Releases link.
 
 This v2 redesigns the landing for a single goal: **a first-time visitor on Windows/Mac downloads SmoothScroll within 30 seconds.**
 
@@ -94,10 +94,10 @@ location.replace(`/SmoothScroll/${target}/`);
 
 **SEO hreflang block** in each language `<head>`:
 ```html
-<link rel="alternate" hreflang="en" href="https://quangtruong2003.github.io/SmoothScroll/en/">
-<link rel="alternate" hreflang="vi" href="https://quangtruong2003.github.io/SmoothScroll/vi/">
-<link rel="alternate" hreflang="zh-Hans" href="https://quangtruong2003.github.io/SmoothScroll/zh/">
-<link rel="alternate" hreflang="x-default" href="https://quangtruong2003.github.io/SmoothScroll/en/">
+<link rel="alternate" hreflang="en" href="https://smoothscroll.top/en/">
+<link rel="alternate" hreflang="vi" href="https://smoothscroll.top/vi/">
+<link rel="alternate" hreflang="zh-Hans" href="https://smoothscroll.top/zh/">
+<link rel="alternate" hreflang="x-default" href="https://smoothscroll.top/en/">
 ```
 
 ### Tech stack
@@ -396,7 +396,7 @@ Inline expand below micro-trust line. All 4 assets with direct URLs and sizes.
 <title>SmoothScroll — Smooth Mouse Wheel Scrolling for Windows and macOS</title>
 <meta name="description" content="...">
 <meta name="keywords" content="...">
-<link rel="canonical" href="https://quangtruong2003.github.io/SmoothScroll/en/">
+<link rel="canonical" href="https://smoothscroll.top/en/">
 <link rel="alternate" hreflang="en" href=".../en/">
 <link rel="alternate" hreflang="vi" href=".../vi/">
 <link rel="alternate" hreflang="zh-Hans" href=".../zh/">
@@ -504,7 +504,7 @@ Old `/index.html` becomes JS redirector; old single-file landing content moves i
 ## 15. Success criteria (7 days post-launch)
 
 - Lighthouse score on `/en/` ≥ 95 across all 4 categories
-- All 3 language URLs indexed in Google (`site:quangtruong2003.github.io/SmoothScroll/`)
+- All 3 language URLs indexed in Google (`site:smoothscroll.top/`)
 - GitHub Releases v0.1.13+ download count increases vs prior 7-day baseline
 - Zero accessibility regressions (manual keyboard pass through hero + install + FAQ)
 

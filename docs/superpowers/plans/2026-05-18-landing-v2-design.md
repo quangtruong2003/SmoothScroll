@@ -382,7 +382,7 @@ Expected: No errors
     dropdown.addEventListener('change', () => {
       const lang = /** @type {string} */ (dropdown.value);
       localStorage.setItem('ssc-lang', lang);
-      const base = 'https://quangtruong2003.github.io/SmoothScroll/';
+      const base = 'https://smoothscroll.top/';
       location.replace(`${base}${lang}/`);
     });
   }
@@ -1114,7 +1114,7 @@ git commit -m "feat(landing): add shared styles.css with light/dark tokens and a
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0;url=https://quangtruong2003.github.io/SmoothScroll/en/">
+  <meta http-equiv="refresh" content="0;url=https://smoothscroll.top/en/">
   <title>Redirecting...</title>
   <script>
     (function () {
@@ -1130,7 +1130,7 @@ git commit -m "feat(landing): add shared styles.css with light/dark tokens and a
       } else {
         target = 'en';
       }
-      var base = 'https://quangtruong2003.github.io/SmoothScroll/';
+      var base = 'https://smoothscroll.top/';
       location.replace(base + target + '/');
     })();
   </script>
@@ -1167,17 +1167,17 @@ git commit -m "feat(landing): add root language redirector"
   <title>SmoothScroll — Smooth Mouse Wheel Scrolling for Windows and macOS</title>
   <meta name="description" content="Buttery-smooth mouse-wheel scrolling for Windows and macOS. Free. No setup. Just install.">
   <meta name="keywords" content="smooth scroll, mouse wheel, windows, macos, scroll smoother">
-  <link rel="canonical" href="https://quangtruong2003.github.io/SmoothScroll/en/">
-  <link rel="alternate" hreflang="en" href="https://quangtruong2003.github.io/SmoothScroll/en/">
-  <link rel="alternate" hreflang="vi" href="https://quangtruong2003.github.io/SmoothScroll/vi/">
-  <link rel="alternate" hreflang="zh-Hans" href="https://quangtruong2003.github.io/SmoothScroll/zh/">
-  <link rel="alternate" hreflang="x-default" href="https://quangtruong2003.github.io/SmoothScroll/en/">
+  <link rel="canonical" href="https://smoothscroll.top/en/">
+  <link rel="alternate" hreflang="en" href="https://smoothscroll.top/en/">
+  <link rel="alternate" hreflang="vi" href="https://smoothscroll.top/vi/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://smoothscroll.top/zh/">
+  <link rel="alternate" hreflang="x-default" href="https://smoothscroll.top/en/">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="SmoothScroll — Smooth Mouse Wheel Scrolling">
   <meta property="og:description" content="Buttery-smooth mouse-wheel scrolling for Windows and macOS. Free. No setup. Just install.">
-  <meta property="og:url" content="https://quangtruong2003.github.io/SmoothScroll/en/">
-  <meta property="og:image" content="https://quangtruong2003.github.io/SmoothScroll/assets/og-image.png">
+  <meta property="og:url" content="https://smoothscroll.top/en/">
+  <meta property="og:image" content="https://smoothscroll.top/assets/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="stylesheet" href="/SmoothScroll/styles.css">
@@ -1192,7 +1192,7 @@ git commit -m "feat(landing): add root language redirector"
     "applicationCategory": "UtilityApplication",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "description": "Buttery-smooth mouse-wheel scrolling for Windows and macOS.",
-    "url": "https://quangtruong2003.github.io/SmoothScroll/en/",
+    "url": "https://smoothscroll.top/en/",
     "softwareVersion": "0.1.13",
     "author": { "@type": "Person", "name": "quangtruong2003" }
   }
@@ -1671,27 +1671,27 @@ git commit -m "feat(landing): add Simplified Chinese landing page (zh/index.html
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://quangtruong2003.github.io/SmoothScroll/en/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://quangtruong2003.github.io/SmoothScroll/en/"/>
-    <xhtml:link rel="alternate" hreflang="vi" href="https://quangtruong2003.github.io/SmoothScroll/vi/"/>
-    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://quangtruong2003.github.io/SmoothScroll/zh/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://quangtruong2003.github.io/SmoothScroll/en/"/>
+    <loc>https://smoothscroll.top/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smoothscroll.top/en/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://smoothscroll.top/vi/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://smoothscroll.top/zh/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smoothscroll.top/en/"/>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://quangtruong2003.github.io/SmoothScroll/vi/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://quangtruong2003.github.io/SmoothScroll/en/"/>
-    <xhtml:link rel="alternate" hreflang="vi" href="https://quangtruong2003.github.io/SmoothScroll/vi/"/>
-    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://quangtruong2003.github.io/SmoothScroll/zh/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://quangtruong2003.github.io/SmoothScroll/en/"/>
+    <loc>https://smoothscroll.top/vi/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smoothscroll.top/en/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://smoothscroll.top/vi/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://smoothscroll.top/zh/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smoothscroll.top/en/"/>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://quangtruong2003.github.io/SmoothScroll/zh/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://quangtruong2003.github.io/SmoothScroll/en/"/>
-    <xhtml:link rel="alternate" hreflang="vi" href="https://quangtruong2003.github.io/SmoothScroll/vi/"/>
-    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://quangtruong2003.github.io/SmoothScroll/zh/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://quangtruong2003.github.io/SmoothScroll/en/"/>
+    <loc>https://smoothscroll.top/zh/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smoothscroll.top/en/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://smoothscroll.top/vi/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://smoothscroll.top/zh/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smoothscroll.top/en/"/>
     <changefreq>monthly</changefreq>
   </url>
 </urlset>
@@ -1808,10 +1808,10 @@ git push origin gh-pages
 - [ ] **Step 2: Wait for GitHub Pages rebuild (~2 minutes), then verify**
 
 Visit each URL and confirm HTTP 200:
-- `https://quangtruong2003.github.io/SmoothScroll/`
-- `https://quangtruong2003.github.io/SmoothScroll/en/`
-- `https://quangtruong2003.github.io/SmoothScroll/vi/`
-- `https://quangtruong2003.github.io/SmoothScroll/zh/`
+- `https://smoothscroll.top/`
+- `https://smoothscroll.top/en/`
+- `https://smoothscroll.top/vi/`
+- `https://smoothscroll.top/zh/`
 
 - [ ] **Step 3: Run Lighthouse**
 

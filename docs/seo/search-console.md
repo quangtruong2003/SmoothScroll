@@ -6,7 +6,7 @@ Google indexes GitHub fast (1-3 days), but indexing the new landing page is fast
 
 1. Go to https://search.google.com/search-console
 2. Click **Add property** → **URL prefix**
-3. Enter: `https://quangtruong2003.github.io/SmoothScroll/`
+3. Enter: `https://smoothscroll.top/`
 4. Verification method: **HTML file** (Search Console gives a file like `googleXXXXXXXX.html`).
 5. Add the file to the `gh-pages` branch:
 
@@ -29,7 +29,7 @@ Google indexes GitHub fast (1-3 days), but indexing the new landing page is fast
 
 ## Step 3 — request indexing for the landing page
 
-1. **URL Inspection** (top search bar): paste `https://quangtruong2003.github.io/SmoothScroll/`
+1. **URL Inspection** (top search bar): paste `https://smoothscroll.top/`
 2. Click **Request Indexing**.
 3. Repeat for `https://github.com/quangtruong2003/SmoothScroll` (you don't own github.com, but the URL Inspection tool still nudges Googlebot).
 

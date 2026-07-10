@@ -114,7 +114,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
     → Per-app exclusion
     → Single Rust binary, MIT
 
-    https://quangtruong2003.github.io/SmoothScroll/
+    https://smoothscroll.top/
     #rustlang #tauri
 
 **Tweet 2 (technical thread, optional):**
@@ -140,7 +140,7 @@ Each draft is ready to copy-paste. Posting requires the user's account on each p
     If you've ever felt that Windows scrolling was rougher than macOS — try it.
 
     GitHub: https://github.com/quangtruong2003/SmoothScroll
-    Site: https://quangtruong2003.github.io/SmoothScroll/
+    Site: https://smoothscroll.top/
 
     #opensource #rustlang #tauri #productivity
 

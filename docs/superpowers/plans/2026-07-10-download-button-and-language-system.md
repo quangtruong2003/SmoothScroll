@@ -392,7 +392,7 @@ import './globals.css'
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://quangtruong2003.github.io/SmoothScroll'),
+  metadataBase: new URL('https://smoothscroll.top'),
   title: {
     template: '%s | SmoothScroll',
     default: 'SmoothScroll - Natural Scroll Feel on Windows',

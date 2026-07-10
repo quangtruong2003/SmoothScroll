@@ -493,7 +493,7 @@ import { Toaster } from 'sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://quangtruong2003.github.io/SmoothScroll'),
+  metadataBase: new URL('https://smoothscroll.top'),
   title: {
     template: '%s | SmoothScroll',
     default: 'SmoothScroll — Natural Scroll Feel on Windows',
@@ -2833,7 +2833,7 @@ git commit -m "feat(landing): add FinalCTA section"
 import type { MetadataRoute } from 'next'
 import { locales } from '@/lib/i18n/dict'
 
-const BASE = 'https://quangtruong2003.github.io/SmoothScroll'
+const BASE = 'https://smoothscroll.top'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -2852,7 +2852,7 @@ import type { MetadataRoute } from 'next'
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: '*', allow: '/' },
-    sitemap: 'https://quangtruong2003.github.io/SmoothScroll/sitemap.xml',
+    sitemap: 'https://smoothscroll.top/sitemap.xml',
   }
 }
 ```
