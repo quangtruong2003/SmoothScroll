@@ -4755,7 +4755,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "smoothscroll-app"
-version = "1.18.7"
+version = "1.18.8"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -4788,7 +4788,7 @@ dependencies = [
 
 [[package]]
 name = "smoothscroll_core"
-version = "1.18.7"
+version = "1.18.8"
 dependencies = [
  "approx",
  "chrono",
@@ -4804,7 +4804,7 @@ dependencies = [
 
 [[package]]
 name = "smoothscroll_platform"
-version = "1.18.7"
+version = "1.18.8"
 dependencies = [
  "anyhow",
  "core-foundation 0.7.0",
@@ -4813,7 +4813,7 @@ dependencies = [
  "evdev",
  "libc",
  "nix 0.29.0",
- "objc2 0.5.2",
+ "objc2 0.6.4",
  "objc2-app-kit 0.2.2",
  "objc2-foundation 0.2.2",
  "parking_lot",
