@@ -110,6 +110,10 @@ export interface Dictionary {
   }
   footer?: {
     tagline?: string
+    taglineWindows?: string
+    taglineMac?: string
+    taglineLinux?: string
+    taglineFallback?: string
     links?: {
       github?: string
       license?: string

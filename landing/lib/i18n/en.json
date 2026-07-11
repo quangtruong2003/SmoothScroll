@@ -126,7 +126,10 @@
     "reportLink": "Report it on GitHub"
   },
   "footer": {
-    "tagline": "Smooth scroll for Windows.",
+    "taglineWindows": "Smooth scroll for Windows.",
+    "taglineMac": "Smooth scroll for macOS.",
+    "taglineLinux": "Smooth scroll for Linux.",
+    "taglineFallback": "Smooth scroll for any platform.",
     "links": {
       "github": "GitHub",
       "license": "License"
