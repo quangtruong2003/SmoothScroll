@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.19.1] - 2026-07-11
+
+### Fixed
+- persist settings across restart and remove preset label
 ## [1.19.0] - 2026-07-11
 
 ### Added
