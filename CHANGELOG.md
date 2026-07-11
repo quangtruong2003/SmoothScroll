@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.19.4] - 2026-07-11
+
+### Fixed
+- add missing direction_sync_enabled to settingsStore test fixture
 ## [1.19.3] - 2026-07-11
 
 ### Fixed
