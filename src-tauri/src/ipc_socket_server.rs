@@ -28,8 +28,6 @@ use tokio::net::UnixListener;
 #[cfg(target_os = "macos")]
 use tokio::sync::broadcast;
 
-use crate::state::AppState;
-
 type ResponseResult = (Option<serde_json::Value>, Option<IpcError>);
 
 // ---------------------------------------------------------------------------
