@@ -67,6 +67,7 @@ const mockSettings: AppSettings = {
   horizontal_smoothness: true,
   horizontal_invert: false,
   reverse_wheel_direction: false,
+  direction_sync_enabled: false,
   start_with_os: true,
   start_minimized: false,
   language: "en",
