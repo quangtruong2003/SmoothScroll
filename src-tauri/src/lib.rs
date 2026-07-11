@@ -206,9 +206,10 @@ pub fn run() {
         .manage(app_state.clone())
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
-            // Initialize system tray on all platforms (including macOS).
-            // On macOS, we use Tauri tray instead of a Swift companion app
-            // since the Swift app was not implemented.
+            // Initialize system tray on all platforms. The Swift Menu Bar app
+            // (macos/SmoothScrollMenuBar) is the primary tray on macOS and talks
+            // to the engine over the Unix socket below; the Tauri tray remains
+            // available as a fallback.
             #[cfg(not(target_os = "macos"))]
             {
                 tray::init(app.handle(), state_for_setup.clone())?;

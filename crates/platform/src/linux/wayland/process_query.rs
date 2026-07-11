@@ -62,7 +62,11 @@ fn process_name_from_pid(pid: u32) -> Option<String> {
 
 impl ProcessQuery for WaylandProcessQuery {
     fn process_name_under_cursor(&self) -> Option<String> {
-        // Can't detect window under cursor on Wayland without compositor API
+        // ## Future Implementation Criteria
+        // - Query compositor for window under cursor coordinates and resolve its pid:
+        //   - KDE: D-Bus org.kde.KWin for window at position
+        //   - GNOME: org.gnome.Shell introspection for window under pointer
+        //   - wlroots: wlr-foreign-toplevel-management for window geometry
         None
     }
 

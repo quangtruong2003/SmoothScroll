@@ -1,7 +1,8 @@
 //! Unix domain socket IPC server for communication with the Swift Menu Bar app.
 //!
-//! Listens on `~/.config/smoothscroll/smoothscroll.sock` (macOS: `~/Library/Application Support/...`)
-//! and handles JSON-RPC 2.0 requests.
+//! Listens on `~/Library/Application Support/com.SmoothScroll.SmoothScroll/socket`
+//! (macOS) and handles JSON-RPC 2.0 requests. Path MUST match Swift's
+//! `SocketPath.socket` constant.
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -27,8 +28,6 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::UnixListener;
 #[cfg(target_os = "macos")]
 use tokio::sync::broadcast;
-
-use crate::state::AppState;
 
 type ResponseResult = (Option<serde_json::Value>, Option<IpcError>);
 
@@ -59,11 +58,11 @@ pub struct IpcError {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum IpcEvent {
     ScrollStateChanged { enabled: bool },
     DirectionSyncChanged { enabled: bool },
     PresetChanged { preset: String },
+    SettingsChanged { settings: serde_json::Value },
 }
 
 // ---------------------------------------------------------------------------
@@ -304,7 +303,12 @@ impl IpcServer {
                 if let Some(s) = params.as_ref().and_then(|p| p.get("settings")) {
                     match serde_json::from_value::<smoothscroll_core::settings::AppSettings>(s.clone()) {
                         Ok(updated) => {
+                            let settings_json = serde_json::to_value(&updated)
+                                .unwrap_or(serde_json::Value::Null);
                             self.app_state.commit_settings(updated);
+                            let _ = self
+                                .event_tx
+                                .send(IpcEvent::SettingsChanged { settings: settings_json });
                             (Some(serde_json::json!(true)), None)
                         }
                         Err(e) => (
@@ -363,5 +367,30 @@ impl IpcServer {
     pub async fn run(self: Arc<Self>) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // No-op on non-macOS platforms.
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn settings_changed_event_serializes_as_settings_changed() {
+        let ev = IpcEvent::SettingsChanged {
+            settings: serde_json::json!({ "enabled": true }),
+        };
+        let s = serde_json::to_string(&ev).unwrap();
+        assert!(
+            s.contains("\"SettingsChanged\""),
+            "Swift expects 'SettingsChanged'; got {s}"
+        );
+    }
+
+    #[test]
+    fn all_ipc_event_variants_present() {
+        let _a = IpcEvent::ScrollStateChanged { enabled: true };
+        let _b = IpcEvent::DirectionSyncChanged { enabled: true };
+        let _c = IpcEvent::PresetChanged { preset: "balanced".into() };
+        let _d = IpcEvent::SettingsChanged { settings: serde_json::Value::Null };
     }
 }

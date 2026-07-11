@@ -34,7 +34,7 @@ fn parse_key(s: &str) -> Result<u16> {
         "f1" => Ok(122), "f2" => Ok(120), "f3" => Ok(99),
         "f4" => Ok(118), "f5" => Ok(96), "f6" => Ok(97),
         "f7" => Ok(98), "f8" => Ok(101), "f9" => Ok(109),
-        "f10" => Ok(103), "f11" => Ok(111), "f12" => Ok(118),
+        "f10" => Ok(103), "f11" => Ok(111), "f12" => Ok(111),
         "f13" => Ok(105), "f14" => Ok(107), "f15" => Ok(113),
         "f16" => Ok(106), "f17" => Ok(64), "f18" => Ok(79),
         "f19" => Ok(80), "f20" => Ok(90),
@@ -168,5 +168,16 @@ impl Hotkey for MacosHotkey {
             modifiers: mods,
             keycode,
         })))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_key_f12() {
+        assert_eq!(parse_key("f12").unwrap(), 111);
+        assert_eq!(parse_key("f4").unwrap(), 118);
     }
 }

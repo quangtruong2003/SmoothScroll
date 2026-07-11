@@ -7,7 +7,7 @@
 #![cfg(target_os = "macos")]
 
 use crate::traits::HookEventSink;
-use crate::types::{ModifierKeys, PlatformError, Result};
+use crate::types::{HookDecision, ModifierKeys, PlatformError, Result};
 use core_foundation::string::CFStringRef;
 use core_foundation::runloop::kCFRunLoopDefaultMode;
 use core_foundation_sys::base::{CFAllocatorRef, kCFAllocatorDefault, CFRelease};
@@ -68,6 +68,7 @@ extern "C" {
     static kCGScrollWheelEventPointDeltaAxis1: i64;
     static kCGScrollWheelEventPointDeltaAxis2: i64;
     static kCGScrollWheelEventIsContinuous: i64;
+    static kCGKeyboardEventKeycode: i64;
 
     // Flag bits
     static kCGEventFlagMaskShift: u32;
@@ -129,7 +130,7 @@ unsafe fn read_horizontal_delta(event: CGEventRef) -> i32 {
 
 /// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
 unsafe fn read_keycode(event: CGEventRef) -> u16 {
-    CGEventGetIntegerValueField(event, 7) as u16
+    CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode) as u16
 }
 
 // ---------------------------------------------------------------------------
@@ -215,8 +216,11 @@ unsafe extern "C" fn event_callback(
                 ScrollInputSource::Trackpad => smoothscroll_core::input_source::InputSource::Touchpad,
                 ScrollInputSource::Mouse => smoothscroll_core::input_source::InputSource::Wheel,
             };
-            let _v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
-            let _h_decision = cb.sink.on_hwheel_ext(h_delta, input_source);
+            let v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
+            let h_decision = cb.sink.on_hwheel_ext(h_delta, input_source);
+            if v_decision == HookDecision::Swallow || h_decision == HookDecision::Swallow {
+                return std::ptr::null_mut();
+            }
         }
         10 => {
             // kCGEventKeyDown — dispatch to hotkey registry

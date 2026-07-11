@@ -1,3 +1,8 @@
+/**
+ * @deprecated Orphan component — not currently imported by any parent component.
+ * Previously used in ExcludedAppsSection but superseded by AppProfileAssignDialog.
+ * Remove or wire into the App Profiles flow when ready.
+ */
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
