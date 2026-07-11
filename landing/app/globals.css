@@ -138,4 +138,59 @@
       display: none;
     }
   }
+
+  /* ----- LogoWall marquee ticker ----- */
+
+  /* Edge fade — both sides, ~80px */
+  .mask-fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 80px,
+      black calc(100% - 80px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 80px,
+      black calc(100% - 80px),
+      transparent 100%
+    );
+  }
+
+  /* Flex track holds two identical ul segments side-by-side */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: marquee-scroll 40s linear infinite;
+  }
+
+  .marquee-segment {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  /* Fixed min-width so 16 cells = exactly half the doubled track */
+  .logo-cell {
+    flex: 0 0 auto;
+    min-width: 168px;
+  }
+
+  /* -50% loops seamlessly because two segments are equal width */
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* Belt-and-suspenders reduced-motion stop */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
 }
