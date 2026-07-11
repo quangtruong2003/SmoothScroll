@@ -25,6 +25,7 @@ export function ScrollDemo() {
                   className="rounded-lg border border-border max-w-[650px] w-full"
                   width={650}
                   height={366}
+                  loading="lazy"
                   onError={() => setImgError((p) => ({ ...p, before: true }))}
                 />
               )}
@@ -42,6 +43,7 @@ export function ScrollDemo() {
                   className="rounded-lg border border-border max-w-[650px] w-full"
                   width={650}
                   height={366}
+                  loading="lazy"
                   onError={() => setImgError((p) => ({ ...p, after: true }))}
                 />
               )}
