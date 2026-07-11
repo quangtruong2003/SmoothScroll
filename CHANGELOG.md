@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.19.3] - 2026-07-11
+
+### Fixed
+- use TAURI_BUILD_PROFILE env var instead of --profile flag
 ## [1.19.2] - 2026-07-11
 
 ### Performance
