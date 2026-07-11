@@ -48,6 +48,10 @@ impl Default for MacosProcessQuery {
 
 impl ProcessQuery for MacosProcessQuery {
     fn process_name_under_cursor(&self) -> Option<String> {
+        // Stub: future implementer must query the window under the cursor position.
+        // On macOS, this typically requires the Accessibility API (AXUIElementCopyElementAtPosition)
+        // to find the UI element under the mouse coordinates, traverse up to the AXWindow,
+        // and fetch the AXPID (process identifier).
         None
     }
 
@@ -72,6 +76,9 @@ impl ProcessQuery for MacosProcessQuery {
     }
 
     fn list_visible_processes(&self) -> Vec<ProcessInfo> {
+        // Stub: future implementer must iterate over running applications via
+        // NSWorkspace.sharedWorkspace.runningApplications, filtering for apps
+        // that are visible (activationPolicy == NSApplicationActivationPolicyRegular).
         Vec::new()
     }
 
