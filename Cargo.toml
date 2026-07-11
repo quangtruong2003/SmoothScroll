@@ -7,7 +7,7 @@ members = [
 ]
 
 [workspace.package]
-version = "1.18.9"
+version = "1.19.0"
 edition = "2021"
 rust-version = "1.95"
 authors = ["SmoothScroll contributors"]

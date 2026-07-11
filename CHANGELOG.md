@@ -7,6 +7,26 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.19.0] - 2026-07-11
+
+### Added
+- footer tagline detects OS (Windows/macOS/Linux)
+- swap static tray screenshot for interactive TrayPreview
+- add Quit state machine (running→quitting→closed→running)
+- add Open Settings bounce feedback
+- wire Smooth Scrolling toggle + status dot
+- add TrayPreview static shell
+- add tray-labels mini dictionary (en/vi/zh)
+- add tray.css preview styles
+
+### Fixed
+- respect HookDecision to swallow original scroll and document macOS stubs
+- correct macOS F12 keycode and use kCGKeyboardEventKeycode constant
+- emit IPC events as PascalCase to match Swift client
+- emit SettingsChanged IPC event to match Swift client
+- remove duplicate AppState import in ipc_socket_server
+- add client-side cache busting and remove dead vercel config
+- remove dot grid spotlight, increase dot size 30%, lazy-load GIFs, add cache headers
 ## [1.18.9] - 2026-07-10
 
 ### Fixed
