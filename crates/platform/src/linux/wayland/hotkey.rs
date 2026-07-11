@@ -48,6 +48,14 @@ impl Hotkey for WaylandHotkey {
 
 /// Attempt to register a shortcut via xdg-desktop-portal GlobalShortcuts.
 /// Returns Ok(true) if successful, Ok(false) if portal unavailable.
+///
+/// ## Future Implementation Criteria
+/// - Call the portal via D-Bus (`org.freedesktop.portal.GlobalShortcuts`):
+///   `CreateSession`, `ListShortcuts`, `BindShortcuts` methods.
+/// - Fall back to compositor-specific APIs if portal not available:
+///   - KDE: `org.kde.globalshortcuts` or `KGlobalAccel`
+///   - GNOME: `org.gnome.shell` keybinding introspection
+/// - Only return `Ok(true)` when the shortcut is actually bound.
 fn try_register_portal_shortcut(
     accel: &Accelerator,
     _on_pressed: Box<dyn Fn() + Send + Sync>,
