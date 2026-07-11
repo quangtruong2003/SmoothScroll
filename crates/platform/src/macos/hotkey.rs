@@ -31,13 +31,26 @@ const MOD_CONTROL: u32 = 0x00000800;
 fn parse_key(s: &str) -> Result<u16> {
     match s.to_ascii_lowercase().as_str() {
         // Function keys
-        "f1" => Ok(122), "f2" => Ok(120), "f3" => Ok(99),
-        "f4" => Ok(118), "f5" => Ok(96), "f6" => Ok(97),
-        "f7" => Ok(98), "f8" => Ok(101), "f9" => Ok(109),
-        "f10" => Ok(103), "f11" => Ok(111), "f12" => Ok(111),
-        "f13" => Ok(105), "f14" => Ok(107), "f15" => Ok(113),
-        "f16" => Ok(106), "f17" => Ok(64), "f18" => Ok(79),
-        "f19" => Ok(80), "f20" => Ok(90),
+        "f1" => Ok(122),
+        "f2" => Ok(120),
+        "f3" => Ok(99),
+        "f4" => Ok(118),
+        "f5" => Ok(96),
+        "f6" => Ok(97),
+        "f7" => Ok(98),
+        "f8" => Ok(101),
+        "f9" => Ok(109),
+        "f10" => Ok(103),
+        "f11" => Ok(111),
+        "f12" => Ok(111),
+        "f13" => Ok(105),
+        "f14" => Ok(107),
+        "f15" => Ok(113),
+        "f16" => Ok(106),
+        "f17" => Ok(64),
+        "f18" => Ok(79),
+        "f19" => Ok(80),
+        "f20" => Ok(90),
 
         // Arrow keys
         "up" | "arrowup" => Ok(126),
@@ -61,16 +74,53 @@ fn parse_key(s: &str) -> Result<u16> {
         s if s.len() == 1 => {
             let c = s.chars().next().unwrap().to_ascii_lowercase();
             let code = match c {
-                'a' => 0,  's' => 1,  'd' => 2,  'f' => 3,  'h' => 4,
-                'g' => 5,  'z' => 6,  'x' => 7,  'c' => 8,  'v' => 9,
-                'b' => 11, 'q' => 12, 'w' => 13, 'e' => 14, 'r' => 15,
-                'y' => 16, 't' => 17, '1' => 18, '2' => 19, '3' => 20,
-                '4' => 21, '6' => 22, '5' => 23, '=' => 24, '9' => 25,
-                '7' => 26, '-' => 27, '8' => 28, '0' => 29, ']' => 30,
-                'o' => 31, 'u' => 32, '[' => 33, 'i' => 34, 'p' => 35,
-                'l' => 37, 'j' => 38, '\'' => 39, 'k' => 40, ';' => 41,
-                '\\' => 42, ',' => 43, '/' => 44, 'n' => 45, 'm' => 46,
-                '.' => 47, '`' => 50,
+                'a' => 0,
+                's' => 1,
+                'd' => 2,
+                'f' => 3,
+                'h' => 4,
+                'g' => 5,
+                'z' => 6,
+                'x' => 7,
+                'c' => 8,
+                'v' => 9,
+                'b' => 11,
+                'q' => 12,
+                'w' => 13,
+                'e' => 14,
+                'r' => 15,
+                'y' => 16,
+                't' => 17,
+                '1' => 18,
+                '2' => 19,
+                '3' => 20,
+                '4' => 21,
+                '6' => 22,
+                '5' => 23,
+                '=' => 24,
+                '9' => 25,
+                '7' => 26,
+                '-' => 27,
+                '8' => 28,
+                '0' => 29,
+                ']' => 30,
+                'o' => 31,
+                'u' => 32,
+                '[' => 33,
+                'i' => 34,
+                'p' => 35,
+                'l' => 37,
+                'j' => 38,
+                '\'' => 39,
+                'k' => 40,
+                ';' => 41,
+                '\\' => 42,
+                ',' => 43,
+                '/' => 44,
+                'n' => 45,
+                'm' => 46,
+                '.' => 47,
+                '`' => 50,
                 _ => return Err(PlatformError::Os(format!("unsupported key '{s}'"))),
             };
             Ok(code)
@@ -153,7 +203,9 @@ impl Hotkey for MacosHotkey {
         let (mods, keycode) = parse_accelerator(&accel.raw)?;
 
         let registry = HOTKEY_REGISTRY.get().ok_or_else(|| {
-            PlatformError::Os("hotkey registry not initialized — is smooth scroll installed?".into())
+            PlatformError::Os(
+                "hotkey registry not initialized — is smooth scroll installed?".into(),
+            )
         })?;
 
         let mut reg = registry.lock().unwrap();

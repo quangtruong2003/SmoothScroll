@@ -202,8 +202,7 @@ impl EngineSink {
                                 drop(s);
                                 return Some(self.state.effective.load_full());
                             }
-                            if let Some(profile) =
-                                s.profiles.iter().find(|p| p.id == mp.profile_id)
+                            if let Some(profile) = s.profiles.iter().find(|p| p.id == mp.profile_id)
                             {
                                 let eff =
                                     smoothscroll_core::settings::EffectiveSettings::with_profile(
@@ -512,7 +511,9 @@ mod tests {
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
             app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
-            stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats.json")),
+            stats: smoothscroll_core::stats::StatsCollector::new(
+                std::env::temp_dir().join("test-stats.json"),
+            ),
         })
     }
 
@@ -593,7 +594,9 @@ mod tests {
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
             app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
-            stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats-elevated.json")),
+            stats: smoothscroll_core::stats::StatsCollector::new(
+                std::env::temp_dir().join("test-stats-elevated.json"),
+            ),
         })
     }
 
@@ -635,7 +638,9 @@ mod tests {
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
             last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
             app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
-            stats: smoothscroll_core::stats::StatsCollector::new(std::env::temp_dir().join("test-stats-processes.json")),
+            stats: smoothscroll_core::stats::StatsCollector::new(
+                std::env::temp_dir().join("test-stats-processes.json"),
+            ),
         })
     }
 

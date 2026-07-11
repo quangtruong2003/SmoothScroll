@@ -66,8 +66,12 @@ fn rapid_notches_increase_total_distance() {
     }
     let total_v2 = drain_vertical(&mut engine2, &eff);
 
-    assert!(total_v.abs() > total_v2.abs(),
-        "rapid {} should exceed slow {}", total_v, total_v2);
+    assert!(
+        total_v.abs() > total_v2.abs(),
+        "rapid {} should exceed slow {}",
+        total_v,
+        total_v2
+    );
 }
 
 #[test]
@@ -80,8 +84,11 @@ fn slow_notches_no_acceleration() {
     }
     let total_v = drain_vertical(&mut engine, &eff);
     let abs = total_v.abs();
-    assert!((390..=510).contains(&abs),
-        "slow notches should have minimal accel, got {}", abs);
+    assert!(
+        (390..=510).contains(&abs),
+        "slow notches should have minimal accel, got {}",
+        abs
+    );
 }
 
 #[test]

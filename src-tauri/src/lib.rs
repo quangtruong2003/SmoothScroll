@@ -1,12 +1,12 @@
 //! App entry point. Composition Root.
 
-#[cfg(target_os = "macos")]
-mod ipc_socket_server;
 mod commands;
 mod edge_scroll_thread;
 mod engine_thread;
 pub mod game_mode;
 mod hook_wiring;
+#[cfg(target_os = "macos")]
+mod ipc_socket_server;
 mod settings_persistor;
 mod state;
 mod tray;
@@ -93,7 +93,8 @@ pub fn run() {
     let config_dir = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
         .map(|d| d.config_dir().to_path_buf())
         .unwrap_or_else(std::env::temp_dir);
-    let stats_collector = smoothscroll_core::stats::StatsCollector::new(config_dir.join("stats.json"));
+    let stats_collector =
+        smoothscroll_core::stats::StatsCollector::new(config_dir.join("stats.json"));
 
     #[cfg(windows)]
     let fullscreen_detector: Arc<dyn smoothscroll_platform::traits::FullscreenDetector> =

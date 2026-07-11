@@ -60,7 +60,8 @@ impl InputClassifier {
 
             if window_duration > 0 {
                 let events_per_second = (event_count as f64) * 1000.0 / (window_duration as f64);
-                let avg_interval_ms = window_duration as f64 / (event_count.saturating_sub(1) as f64);
+                let avg_interval_ms =
+                    window_duration as f64 / (event_count.saturating_sub(1) as f64);
 
                 if event_count >= TOUCHPAD_EVENT_THRESHOLD
                     && abs_delta < STANDARD_NOTCH_DELTA

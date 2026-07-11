@@ -56,8 +56,7 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
                 }
                 *flag = false;
                 // Re-check after wake.
-                if !state.enabled.load(Ordering::Relaxed)
-                    && !state.engine.lock().has_pending_work()
+                if !state.enabled.load(Ordering::Relaxed) && !state.engine.lock().has_pending_work()
                 {
                     continue;
                 }
@@ -96,7 +95,10 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         if output.vertical != 0 || output.horizontal != 0 || output.zoom != 0 {
             let distance = (output.vertical.abs() + output.horizontal.abs()) as f64;
             if distance > 0.0 {
-                let fg_name = state.processes.foreground_process_name().unwrap_or_default();
+                let fg_name = state
+                    .processes
+                    .foreground_process_name()
+                    .unwrap_or_default();
                 state.stats.record_distance(distance, &fg_name);
                 state.stats.record_active_time(dt_ms as u64);
             }

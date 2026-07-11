@@ -28,11 +28,7 @@ impl LinuxAccessibilitySignals {
     /// Check GNOME animations setting via gsettings.
     fn gnome_reduce_motion() -> bool {
         let output = std::process::Command::new("gsettings")
-            .args([
-                "get",
-                "org.gnome.desktop.interface",
-                "enable-animations",
-            ])
+            .args(["get", "org.gnome.desktop.interface", "enable-animations"])
             .output()
             .ok();
 
@@ -50,9 +46,12 @@ impl LinuxAccessibilitySignals {
     fn kde_reduce_motion() -> bool {
         let output = std::process::Command::new("kreadconfig5")
             .args([
-                "--file", "kdeglobals",
-                "--group", "KDE",
-                "--key", "AnimationDurationScale",
+                "--file",
+                "kdeglobals",
+                "--group",
+                "KDE",
+                "--key",
+                "AnimationDurationScale",
             ])
             .output()
             .ok();
@@ -60,7 +59,11 @@ impl LinuxAccessibilitySignals {
         match output {
             Some(o) if o.status.success() => {
                 let value = String::from_utf8_lossy(&o.stdout);
-                value.trim().parse::<f64>().map(|v| v <= 0.0).unwrap_or(false)
+                value
+                    .trim()
+                    .parse::<f64>()
+                    .map(|v| v <= 0.0)
+                    .unwrap_or(false)
             }
             _ => false,
         }

@@ -72,8 +72,8 @@ impl Axis {
 
         // Compute acceleration factor from velocity (quadratic curve)
         let velocity_ratio = (self.velocity / settings.max_velocity).min(1.0);
-        let accel_factor = 1.0 + velocity_ratio * velocity_ratio
-            * (settings.acceleration_max as f64 - 1.0);
+        let accel_factor =
+            1.0 + velocity_ratio * velocity_ratio * (settings.acceleration_max as f64 - 1.0);
 
         let pixels = notches * settings.step_size_px as f64 * accel_factor;
         self.remaining_px += pixels;
@@ -193,7 +193,8 @@ impl SmoothScrollEngine {
             }
             InputSource::Touchpad => {
                 let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
-                self.z.register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
+                self.z
+                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
             }
         }
     }

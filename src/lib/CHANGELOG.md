@@ -7,6 +7,59 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.18.9] - 2026-07-10
+
+### Fixed
+- upgrade objc2-app-kit to 0.3 and objc2-foundation to 0.3 for MainThreadMarker support
+## [1.18.8] - 2026-07-10
+
+### Fixed
+- upgrade objc2 to 0.6 for correct MainThreadMarker path
+## [1.18.7] - 2026-07-10
+
+### Fixed
+- use main_thread_marker module for MainThreadMarker in objc2
+## [1.18.6] - 2026-07-10
+
+### Fixed
+- use full module path for MainThreadMarker in objc2 runtime
+## [1.18.5] - 2026-07-10
+
+### Fixed
+- restore correct MainThreadMarker path under objc2::runtime
+## [1.18.4] - 2026-07-10
+
+### Fixed
+- use root path for MainThreadMarker in macOS display query
+## [1.18.3] - 2026-07-10
+
+### Fixed
+- correct MainThreadMarker path and HotkeyRegistry callbacks visibility
+## [1.18.2] - 2026-07-10
+
+### Fixed
+- fix macOS compilation errors and hotkey privacy issues
+## [1.18.1] - 2026-07-10
+
+### Fixed
+- correct xlib imports and XRRGetScreenInfo arguments
+- fix compilation errors in linux refresh rate and wayland process query
+- run build-wasm using bash in test-typescript job
+- run build-wasm.sh using bash instead of sh
+- fix tests.yml compilation steps and requirements
+- install linux system dependencies and fail fast on test error
+## [1.18.0] - 2026-07-10
+
+### Added
+- add automated tests on every push with optimized build
+- implement GNOME and KDE reduce motion detection
+- implement Wayland process query for KDE
+- improve Wayland hotkey warning
+- implement XRR refresh rate detection
+- add X11 session warning
+
+### Fixed
+- loading states, error fallbacks, i18n fixes, and SEO metadata
 ## [1.17.0] - 2026-07-10
 
 ### Added

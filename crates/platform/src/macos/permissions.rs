@@ -27,9 +27,10 @@ pub fn is_trusted(prompt: bool) -> bool {
     if prompt {
         // Build a CFDictionary with kAXTrustedCheckOptionPrompt = true.
         let key = CFString::from_static_string("kAXTrustedCheckOptionPrompt");
-        let dict = CFMutableDictionary::from_CFType_pairs(&[
-            (key.as_CFTypeRef(), CFBoolean::true_value().as_CFTypeRef()),
-        ]);
+        let dict = CFMutableDictionary::from_CFType_pairs(&[(
+            key.as_CFTypeRef(),
+            CFBoolean::true_value().as_CFTypeRef(),
+        )]);
         unsafe { AXIsProcessTrustedWithOptions(dict.as_CFTypeRef() as CFDictionaryRef) }
     } else {
         unsafe { AXIsProcessTrustedWithOptions(ptr::null_mut()) }

@@ -127,9 +127,7 @@ impl MouseHook for WaylandMouseHook {
                 // global SIG_SHUTDOWN (process signal). The latter
                 // catches SIGTERM / SIGINT / SIGHUP even when no
                 // graceful drop is possible.
-                while alive.load(Ordering::Relaxed)
-                    && !SIG_SHUTDOWN.load(Ordering::SeqCst)
-                {
+                while alive.load(Ordering::Relaxed) && !SIG_SHUTDOWN.load(Ordering::SeqCst) {
                     for device in &mut devices {
                         if let Ok(events) = device.fetch_events() {
                             for event in events {

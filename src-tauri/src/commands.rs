@@ -298,7 +298,10 @@ pub fn get_platform_status() -> PlatformStatus {
     {
         use smoothscroll_platform::linux::wayland::permission;
 
-        let session_type = match std::env::var("XDG_SESSION_TYPE").unwrap_or_default().as_str() {
+        let session_type = match std::env::var("XDG_SESSION_TYPE")
+            .unwrap_or_default()
+            .as_str()
+        {
             "wayland" => "wayland",
             _ => "x11",
         };
@@ -723,7 +726,9 @@ pub fn get_daily_stats(state: State<'_, Arc<AppState>>) -> smoothscroll_core::st
 }
 
 #[tauri::command]
-pub fn list_monitors(state: State<'_, Arc<AppState>>) -> Vec<smoothscroll_platform::traits::MonitorInfo> {
+pub fn list_monitors(
+    state: State<'_, Arc<AppState>>,
+) -> Vec<smoothscroll_platform::traits::MonitorInfo> {
     state.monitor_enum.list_monitors()
 }
 

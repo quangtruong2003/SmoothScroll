@@ -1,15 +1,15 @@
 //! OS-abstraction layer for SmoothScroll.
 
+pub mod icon;
 pub mod traits;
 pub mod types;
-pub mod icon;
 
+#[cfg(target_os = "linux")]
+pub mod linux;
 #[cfg(target_os = "macos")]
 pub mod macos;
 #[cfg(windows)]
 pub mod windows;
-#[cfg(target_os = "linux")]
-pub mod linux;
 
 pub use traits::*;
 pub use types::*;

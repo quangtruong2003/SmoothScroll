@@ -50,13 +50,18 @@ impl WindowGeometry for WindowsWindowGeometry {
             }
             let mut info: MONITORINFOEXW = mem::zeroed();
             info.monitorInfo.cbSize = std::mem::size_of::<MONITORINFOEXW>() as u32;
-            let info_ptr = &mut info as *mut MONITORINFOEXW as *mut windows_sys::Win32::Graphics::Gdi::MONITORINFO;
+            let info_ptr = &mut info as *mut MONITORINFOEXW
+                as *mut windows_sys::Win32::Graphics::Gdi::MONITORINFO;
             if GetMonitorInfoW(hmon, info_ptr) == 0 {
                 return None;
             }
             // szDevice is a null-terminated UTF-16 array
             let name = String::from_utf16_lossy(
-                &info.szDevice[..info.szDevice.iter().position(|&c| c == 0).unwrap_or(info.szDevice.len())],
+                &info.szDevice[..info
+                    .szDevice
+                    .iter()
+                    .position(|&c| c == 0)
+                    .unwrap_or(info.szDevice.len())],
             );
             Some(name)
         }
@@ -75,13 +80,18 @@ impl MonitorEnumeration for WindowsWindowGeometry {
 
             let mut info: MONITORINFOEXW = mem::zeroed();
             info.monitorInfo.cbSize = std::mem::size_of::<MONITORINFOEXW>() as u32;
-            let info_ptr = &mut info as *mut MONITORINFOEXW as *mut windows_sys::Win32::Graphics::Gdi::MONITORINFO;
+            let info_ptr = &mut info as *mut MONITORINFOEXW
+                as *mut windows_sys::Win32::Graphics::Gdi::MONITORINFO;
             if GetMonitorInfoW(hmon, info_ptr) == 0 {
                 return 1; // continue
             }
 
             let device_name = String::from_utf16_lossy(
-                &info.szDevice[..info.szDevice.iter().position(|&c| c == 0).unwrap_or(info.szDevice.len())],
+                &info.szDevice[..info
+                    .szDevice
+                    .iter()
+                    .position(|&c| c == 0)
+                    .unwrap_or(info.szDevice.len())],
             );
             let rc = &info.monitorInfo.rcMonitor;
 

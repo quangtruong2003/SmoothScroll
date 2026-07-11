@@ -8,18 +8,18 @@
 
 use crate::traits::HookEventSink;
 use crate::types::{HookDecision, ModifierKeys, PlatformError, Result};
-use core_foundation::string::CFStringRef;
 use core_foundation::runloop::kCFRunLoopDefaultMode;
-use core_foundation_sys::base::{CFAllocatorRef, kCFAllocatorDefault, CFRelease};
+use core_foundation::string::CFStringRef;
+use core_foundation_sys::base::{kCFAllocatorDefault, CFAllocatorRef, CFRelease};
 use core_foundation_sys::runloop::{
     CFRunLoopAddSource, CFRunLoopGetMain, CFRunLoopRef, CFRunLoopRemoveSource,
     CFRunLoopSourceInvalidate, CFRunLoopSourceRef, CFRunLoopWakeUp,
 };
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
 use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
-use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Raw Quartz FFI — core-graphics 0.19 does not expose CGEventTapCreate
@@ -145,7 +145,9 @@ pub struct HotkeyRegistry {
 
 impl HotkeyRegistry {
     pub fn new() -> Self {
-        Self { callbacks: HashMap::new() }
+        Self {
+            callbacks: HashMap::new(),
+        }
     }
 
     pub fn register(
@@ -157,7 +159,11 @@ impl HotkeyRegistry {
         self.callbacks.insert((modifiers, keycode), callback)
     }
 
-    pub fn unregister(&mut self, modifiers: u32, keycode: u16) -> Option<Box<dyn Fn() + Send + Sync>> {
+    pub fn unregister(
+        &mut self,
+        modifiers: u32,
+        keycode: u16,
+    ) -> Option<Box<dyn Fn() + Send + Sync>> {
         self.callbacks.remove(&(modifiers, keycode))
     }
 
@@ -177,7 +183,8 @@ impl Default for HotkeyRegistry {
 
 /// Global registry — initialized during install_on_main_thread, read by MacosHotkey::register().
 /// Uses OnceLock pattern: set once during install, read many times during hotkey registration.
-pub(crate) static HOTKEY_REGISTRY: std::sync::OnceLock<Mutex<HotkeyRegistry>> = std::sync::OnceLock::new();
+pub(crate) static HOTKEY_REGISTRY: std::sync::OnceLock<Mutex<HotkeyRegistry>> =
+    std::sync::OnceLock::new();
 
 // ---------------------------------------------------------------------------
 // Global callback bridge — C FFI callback cannot capture Rust closures
@@ -213,7 +220,9 @@ unsafe extern "C" fn event_callback(
             let h_delta = read_horizontal_delta(event);
             let mods = read_modifiers(event);
             let input_source = match source {
-                ScrollInputSource::Trackpad => smoothscroll_core::input_source::InputSource::Touchpad,
+                ScrollInputSource::Trackpad => {
+                    smoothscroll_core::input_source::InputSource::Touchpad
+                }
                 ScrollInputSource::Mouse => smoothscroll_core::input_source::InputSource::Wheel,
             };
             let v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
@@ -270,7 +279,8 @@ pub fn run_event_loop(
     // happens at the bottom). We pass the address across the thread
     // boundary as `usize` because `CFRunLoopSourceRef` (a raw pointer) is
     // not `Send`.
-    let source: CFRunLoopSourceRef = source_addr as *mut core_foundation_sys::runloop::__CFRunLoopSource;
+    let source: CFRunLoopSourceRef =
+        source_addr as *mut core_foundation_sys::runloop::__CFRunLoopSource;
 
     // Block on `stop`. Tauri's NSApp pumps the main run loop (and the
     // event tap source attached to it) on the main thread, while we
@@ -297,9 +307,7 @@ pub fn run_event_loop(
 ///
 /// The caller must drop the returned `Tap` (or call [`teardown_on_main_thread`])
 /// after the background thread finishes.
-pub unsafe fn install_on_main_thread(
-    sink: Arc<dyn HookEventSink>,
-) -> Result<InstalledTap> {
+pub unsafe fn install_on_main_thread(sink: Arc<dyn HookEventSink>) -> Result<InstalledTap> {
     // kCGEventScrollWheel = 22, kCGEventKeyDown = 10
     let events_of_interest: u64 = (1 << 22) | (1 << 10);
 
@@ -318,9 +326,8 @@ pub unsafe fn install_on_main_thread(
         return Err(PlatformError::PermissionDenied);
     }
 
-    let run_loop_source: CFRunLoopSourceRef = unsafe {
-        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap as CFTypeRef, 0)
-    };
+    let run_loop_source: CFRunLoopSourceRef =
+        unsafe { CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap as CFTypeRef, 0) };
     if run_loop_source.is_null() {
         unsafe {
             CFMachPortInvalidate(tap);
@@ -408,10 +415,6 @@ unsafe fn teardown_on_main_thread(source: CFRunLoopSourceRef, done_tx: mpsc::Sen
     let ctx = Box::new(Ctx { source, done_tx });
     let main_q = unsafe { dispatch_get_main_queue() };
     unsafe {
-        dispatch_async_f(
-            main_q,
-            Box::into_raw(ctx) as *mut _,
-            worker,
-        );
+        dispatch_async_f(main_q, Box::into_raw(ctx) as *mut _, worker);
     }
 }

@@ -68,47 +68,42 @@ git commit -m "fix(tauri): remove duplicate AppState import in ipc_socket_server
 
 - [ ] **Step 1: Write the failing test**
 
-Add a `#[cfg(test)]` module at the end of `ipc_socket_server.rs` (macOS-only, gated `#[cfg(target_os = "macos")]`). Test that `process_request("save_settings", ...)` emits a `SettingsChanged` event carrying the settings JSON. Because `process_request` is private and needs `AppState`, construct a minimal `IpcServer` with a fake `AppState` (use `Arc::new(AppState::default())` if `Default` exists, else build the minimal fields). Subscribe to `event_tx` and assert a `SettingsChanged` variant arrives.
+Add a `#[cfg(test)]` module at the end of `ipc_socket_server.rs`. `AppState` has NO `Default` impl and 24 fields (incl. trait objects), so we CANNOT construct it in a unit test. Instead we test the **wire-format contract** that closes the F1 gap: the `IpcEvent::SettingsChanged` variant must serialize to the JSON key `settingsChanged` — exactly what Swift's `IpcEvent` enum (`IPCProtocol.swift:83-94`) expects. This verifies the event exists and matches Swift naming without needing `AppState`.
 
 ```rust
-#[cfg(all(test, target_os = "macos"))]
+#[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
 
-    #[tokio::test]
-    async fn save_settings_emits_settings_changed() {
-        let (_shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(());
-        let app_state = Arc::new(AppState::default());
-        let server = Arc::new(IpcServer::new(
-            std::env::temp_dir().join("test.sock"),
-            shutdown_rx,
-            app_state,
-        ));
-        let mut rx = server.event_tx().subscribe();
+    #[test]
+    fn settings_changed_event_serializes_as_settingsChanged() {
+        let ev = IpcEvent::SettingsChanged {
+            settings: serde_json::json!({ "enabled": true }),
+        };
+        let s = serde_json::to_string(&ev).unwrap();
+        assert!(
+            s.contains("\"settingsChanged\""),
+            "Swift expects 'settingsChanged'; got {s}"
+        );
+    }
 
-        let params = json!({ "settings": { "enabled": true, "active_profile": "balanced" } });
-        let _ = server.process_request("save_settings", &Some(params)).await;
-
-        // Drain events; expect at least one SettingsChanged.
-        let mut found = false;
-        for _ in 0..10 {
-            if let Ok(IpcEvent::SettingsChanged { .. }) = rx.try_recv() {
-                found = true;
-                break;
-            }
-        }
-        assert!(found, "save_settings must emit SettingsChanged");
+    #[test]
+    fn all_ipc_event_variants_present() {
+        // Ensures the enum has the 4 variants Swift expects.
+        let _a = IpcEvent::ScrollStateChanged { enabled: true };
+        let _b = IpcEvent::DirectionSyncChanged { enabled: true };
+        let _c = IpcEvent::PresetChanged { preset: "balanced".into() };
+        let _d = IpcEvent::SettingsChanged {
+            settings: serde_json::Value::Null,
+        };
     }
 }
 ```
 
-> NOTE: if `AppState::default()` is unavailable, adjust to construct the minimal `AppState` fields the test needs (mirror how `lib.rs` builds it). The implementer verifies the exact constructor.
-
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cargo test -p smoothscroll-app --lib ipc_socket_server`
-Expected: FAIL — `IpcEvent::SettingsChanged` variant does not exist; `process_request` never emits it.
+Expected: FAIL — `IpcEvent::SettingsChanged` variant does not exist.
 
 - [ ] **Step 3: Write minimal implementation**
 

@@ -1,9 +1,7 @@
 //! Trait definitions for OS-specific subsystems. Implementations live in
 //! `windows/` and `macos/` modules (cfg-gated).
 
-use crate::types::{
-    Accelerator, HookDecision, ModifierKeys, Point, Result, WindowRect,
-};
+use crate::types::{Accelerator, HookDecision, ModifierKeys, Point, Result, WindowRect};
 use std::sync::Arc;
 
 /// Receives parsed hook events. Implementation lives in the app crate.

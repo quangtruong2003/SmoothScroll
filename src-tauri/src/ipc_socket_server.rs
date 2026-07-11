@@ -6,11 +6,11 @@
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
-use directories::ProjectDirs;
 use crate::state::AppState;
+use directories::ProjectDirs;
 
 /// Returns the Unix socket path for IPC communication.
 /// MUST match Swift's `SocketPath.socket` constant.
@@ -113,7 +113,9 @@ impl IpcServer {
 
         let listener = match UnixListener::bind(&self.path) {
             Ok(l) => l,
-            Err(e) => return Err(format!("failed to bind Unix socket at {:?}: {}", self.path, e).into()),
+            Err(e) => {
+                return Err(format!("failed to bind Unix socket at {:?}: {}", self.path, e).into())
+            }
         };
 
         // Restrict socket permissions to owner only.
@@ -249,7 +251,10 @@ impl IpcServer {
             }
             "get_direction_sync_enabled" => {
                 let settings = self.app_state.settings.read();
-                (Some(serde_json::json!(settings.direction_sync_enabled)), None)
+                (
+                    Some(serde_json::json!(settings.direction_sync_enabled)),
+                    None,
+                )
             }
             "set_direction_sync_enabled" => {
                 let enabled = params
@@ -266,7 +271,9 @@ impl IpcServer {
                 self.app_state.commit_settings(snapshot);
                 self.app_state.engine_signal.signal();
 
-                let _ = self.event_tx.send(IpcEvent::DirectionSyncChanged { enabled });
+                let _ = self
+                    .event_tx
+                    .send(IpcEvent::DirectionSyncChanged { enabled });
                 (Some(serde_json::json!(true)), None)
             }
             "get_preset" => {
@@ -301,14 +308,16 @@ impl IpcServer {
             }
             "save_settings" => {
                 if let Some(s) = params.as_ref().and_then(|p| p.get("settings")) {
-                    match serde_json::from_value::<smoothscroll_core::settings::AppSettings>(s.clone()) {
+                    match serde_json::from_value::<smoothscroll_core::settings::AppSettings>(
+                        s.clone(),
+                    ) {
                         Ok(updated) => {
-                            let settings_json = serde_json::to_value(&updated)
-                                .unwrap_or(serde_json::Value::Null);
+                            let settings_json =
+                                serde_json::to_value(&updated).unwrap_or(serde_json::Value::Null);
                             self.app_state.commit_settings(updated);
-                            let _ = self
-                                .event_tx
-                                .send(IpcEvent::SettingsChanged { settings: settings_json });
+                            let _ = self.event_tx.send(IpcEvent::SettingsChanged {
+                                settings: settings_json,
+                            });
                             (Some(serde_json::json!(true)), None)
                         }
                         Err(e) => (
@@ -390,7 +399,11 @@ mod tests {
     fn all_ipc_event_variants_present() {
         let _a = IpcEvent::ScrollStateChanged { enabled: true };
         let _b = IpcEvent::DirectionSyncChanged { enabled: true };
-        let _c = IpcEvent::PresetChanged { preset: "balanced".into() };
-        let _d = IpcEvent::SettingsChanged { settings: serde_json::Value::Null };
+        let _c = IpcEvent::PresetChanged {
+            preset: "balanced".into(),
+        };
+        let _d = IpcEvent::SettingsChanged {
+            settings: serde_json::Value::Null,
+        };
     }
 }

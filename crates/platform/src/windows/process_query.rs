@@ -9,7 +9,9 @@ use crate::types::IntegrityLevel;
 use parking_lot::Mutex;
 use std::os::raw::c_void;
 use std::time::{Duration, Instant};
-use windows_sys::Win32::Foundation::{CloseHandle, BOOL, FALSE, HANDLE, LPARAM, MAX_PATH, POINT, TRUE};
+use windows_sys::Win32::Foundation::{
+    CloseHandle, BOOL, FALSE, HANDLE, LPARAM, MAX_PATH, POINT, TRUE,
+};
 use windows_sys::Win32::Security::{
     GetSidSubAuthority, GetTokenInformation, TokenIntegrityLevel, TOKEN_MANDATORY_LABEL,
     TOKEN_QUERY,

@@ -1,7 +1,7 @@
 #![cfg(target_os = "linux")]
 
-use crate::traits::DisplayQuery;
 use super::display;
+use crate::traits::DisplayQuery;
 use x11::xlib;
 
 pub struct LinuxDisplayQuery;

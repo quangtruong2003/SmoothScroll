@@ -40,12 +40,14 @@ impl LinuxAutostart {
                     .map(|h| PathBuf::from(h).join(".config"))
             })
             .ok_or_else(|| PlatformError::Os("XDG_CONFIG_HOME/HOME not set".into()))?;
-        Ok(config_home.join("autostart").join(format!("{APP_ID}.desktop")))
+        Ok(config_home
+            .join("autostart")
+            .join(format!("{APP_ID}.desktop")))
     }
 
     fn exec_path() -> Result<String> {
-        let exe = std::env::current_exe()
-            .map_err(|e| PlatformError::Os(format!("current_exe: {e}")))?;
+        let exe =
+            std::env::current_exe().map_err(|e| PlatformError::Os(format!("current_exe: {e}")))?;
         // Desktop entry spec: spaces and quotes in Exec must be escaped.
         // We don't pass any user args so a simple quoted path is enough.
         let s = exe.to_string_lossy();

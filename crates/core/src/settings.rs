@@ -583,7 +583,10 @@ fn try_load() -> Result<AppSettings, SettingsError> {
                 } else if let Err(e) = std::fs::copy(&legacy_path, &path) {
                     tracing::warn!(error = %e, "failed to migrate legacy settings");
                 } else {
-                    tracing::info!("migrated settings from legacy path: {}", legacy_path.display());
+                    tracing::info!(
+                        "migrated settings from legacy path: {}",
+                        legacy_path.display()
+                    );
                 }
             }
         }

@@ -47,8 +47,12 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
         } else {
             // PID changed: resolve name via foreground_process_name (O(1) cached)
             last_fg_pid.store(fg_pid, Ordering::Relaxed);
-            let fg_name = state.processes.foreground_process_name().unwrap_or_default();
-            let known = s.game_mode_known_apps
+            let fg_name = state
+                .processes
+                .foreground_process_name()
+                .unwrap_or_default();
+            let known = s
+                .game_mode_known_apps
                 .iter()
                 .any(|g| g.eq_ignore_ascii_case(&fg_name));
             last_known_game.store(known, Ordering::Relaxed);
