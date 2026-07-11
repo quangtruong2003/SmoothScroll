@@ -62,6 +62,7 @@ pub enum IpcEvent {
     ScrollStateChanged { enabled: bool },
     DirectionSyncChanged { enabled: bool },
     PresetChanged { preset: String },
+    SettingsChanged { settings: serde_json::Value },
 }
 
 // ---------------------------------------------------------------------------
@@ -302,7 +303,12 @@ impl IpcServer {
                 if let Some(s) = params.as_ref().and_then(|p| p.get("settings")) {
                     match serde_json::from_value::<smoothscroll_core::settings::AppSettings>(s.clone()) {
                         Ok(updated) => {
+                            let settings_json = serde_json::to_value(&updated)
+                                .unwrap_or(serde_json::Value::Null);
                             self.app_state.commit_settings(updated);
+                            let _ = self
+                                .event_tx
+                                .send(IpcEvent::SettingsChanged { settings: settings_json });
                             (Some(serde_json::json!(true)), None)
                         }
                         Err(e) => (
@@ -361,5 +367,30 @@ impl IpcServer {
     pub async fn run(self: Arc<Self>) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // No-op on non-macOS platforms.
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn settings_changed_event_serializes_as_settings_changed() {
+        let ev = IpcEvent::SettingsChanged {
+            settings: serde_json::json!({ "enabled": true }),
+        };
+        let s = serde_json::to_string(&ev).unwrap();
+        assert!(
+            s.contains("\"settingsChanged\""),
+            "Swift expects 'settingsChanged'; got {s}"
+        );
+    }
+
+    #[test]
+    fn all_ipc_event_variants_present() {
+        let _a = IpcEvent::ScrollStateChanged { enabled: true };
+        let _b = IpcEvent::DirectionSyncChanged { enabled: true };
+        let _c = IpcEvent::PresetChanged { preset: "balanced".into() };
+        let _d = IpcEvent::SettingsChanged { settings: serde_json::Value::Null };
     }
 }
