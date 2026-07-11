@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.19.5] - 2026-07-11
+
+### Fixed
+- revert Windows to default release profile for signing
 ## [1.19.4] - 2026-07-11
 
 ### Fixed
