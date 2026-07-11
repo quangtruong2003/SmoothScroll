@@ -3,25 +3,25 @@ import { test, expect } from '@playwright/test'
 test.describe('Reduced motion behavior', () => {
   test.use({ colorScheme: 'light' })
 
-  test('BackgroundDotGrid does not animate when prefers-reduced-motion: reduce', async ({ browser }) => {
+  test('BackgroundDotGrid does not track mouse when prefers-reduced-motion: reduce', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
+    await page.goto('/')
 
-    const rafCalls: number[] = []
-    await page.exposeFunction('recordRaf', () => rafCalls.push(performance.now()))
+    await page.mouse.move(640, 400)
+    await page.waitForTimeout(500)
 
-    await page.goto('/en/')
-
-    await page.evaluate(() => {
-      const origRaf = window.requestAnimationFrame
-      window.requestAnimationFrame = (cb) => {
-        ;(window as any).recordRaf()
-        return origRaf(cb)
-      }
+    const props = await page.evaluate(() => {
+      const el = document.querySelector('.bg-dot-grid') as HTMLElement
+      return el ? {
+        mx: el.style.getPropertyValue('--mx'),
+        my: el.style.getPropertyValue('--my'),
+      } : null
     })
 
-    await page.waitForTimeout(2000)
-    expect(rafCalls.length).toBe(0)
+    expect(props).not.toBeNull()
+    expect(props!.mx).toBe('')
+    expect(props!.my).toBe('')
 
     await context.close()
   })
@@ -29,7 +29,7 @@ test.describe('Reduced motion behavior', () => {
   test('LogoWall region has no animation when prefers-reduced-motion: reduce', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
-    await page.goto('/en/')
+    await page.goto('/')
 
     const wrapper = page.getByRole('region', { name: 'Compatible apps and operating systems' })
     await expect(wrapper).toBeVisible()

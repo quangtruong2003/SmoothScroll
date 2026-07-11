@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test('scroll-to-top button appears after scrolling', async ({ page }) => {
-  await page.goto('/en/', { waitUntil: 'load' })
+  await page.goto('/', { waitUntil: 'load' })
   await page.waitForLoadState('networkidle')
   // Wait for client-side hydration of the ScrollToTop component
   await page.waitForTimeout(1000)
@@ -17,7 +17,7 @@ test('scroll-to-top button appears after scrolling', async ({ page }) => {
 })
 
 test('clicking scroll-to-top scrolls page to top', async ({ page }) => {
-  await page.goto('/en/', { waitUntil: 'load' })
+  await page.goto('/', { waitUntil: 'load' })
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(1000)
 

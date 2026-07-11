@@ -10,7 +10,7 @@ test('home page makes zero requests to iconify.design', async ({ page }) => {
     }
   })
 
-  await page.goto('/en/')
+  await page.goto('/')
   await page.waitForLoadState('networkidle')
 
   expect(externalRequests).toEqual([])

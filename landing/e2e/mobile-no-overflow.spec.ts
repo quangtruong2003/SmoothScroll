@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test'
 
 const PAGES = [
-  '/en/',
-  '/en/how-it-works/',
-  '/vi/',
-  '/zh/',
+  '/',
+  '/how-it-works/',
 ]
 
 test.describe('Mobile no-horizontal-scroll', () => {
