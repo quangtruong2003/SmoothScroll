@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { LanguageProvider } from '@/lib/i18n/provider'
 import './globals.css'
 import '@/styles/tray.css'
+import '@/styles/marquee.css'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 const BASE_URL = 'https://smoothscroll.top'

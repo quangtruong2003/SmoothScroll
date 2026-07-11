@@ -1,0 +1,63 @@
+/* LogoWall marquee ticker
+ *
+ * Pulled out of globals.css because Tailwind's PostCSS pipeline was
+ * stripping the raw CSS when it appeared in the same file as
+ * `@tailwind base/components/utilities`. Splitting into its own file
+ * (matching the pattern used by styles/tray.css) keeps the rules
+ * intact through the build.
+ *
+ * - .marquee-track drives a single continuous horizontal scroll
+ * - .marquee-segment holds one copy of the brand set
+ * - .logo-cell sets a fixed min-width so the duplicated segments
+ *   line up for a seamless -50% loop
+ * - .mask-fade softens both edges so cells appear to enter/exit
+ * - Respects prefers-reduced-motion
+ */
+
+.mask-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 80px,
+    black calc(100% - 80px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 80px,
+    black calc(100% - 80px),
+    transparent 100%
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll 40s linear infinite;
+}
+
+.marquee-segment {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.logo-cell {
+  flex: 0 0 auto;
+  min-width: 168px;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
