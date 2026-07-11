@@ -11,6 +11,9 @@
  * - .logo-cell sets a fixed min-width so the duplicated segments
  *   line up for a seamless -50% loop
  * - .mask-fade softens both edges so cells appear to enter/exit
+ * - 20s per loop keeps the motion clearly visible without being
+ *   distracting — slow enough to read labels, fast enough to feel
+ *   like a ticker.
  * - Respects prefers-reduced-motion
  */
 
@@ -35,7 +38,7 @@
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: marquee-scroll 40s linear infinite;
+  animation: marquee-scroll 20s linear infinite;
 }
 
 .marquee-segment {
