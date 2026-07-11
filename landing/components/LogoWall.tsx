@@ -5,7 +5,7 @@ function LogoCell({ brand }: { brand: Brand }) {
     <li
       role="listitem"
       aria-label={brand.name}
-      className="group flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted/60 focus-within:bg-muted/60 transition-colors min-w-0"
+      className="logo-cell flex items-center gap-2 px-3 py-2 min-w-0"
     >
       <img
         src={brand.src}
@@ -14,9 +14,9 @@ function LogoCell({ brand }: { brand: Brand }) {
         height={24}
         decoding="async"
         loading="lazy"
-        className={'h-6 w-6 shrink-0 opacity-70 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity ' + (brand.invertOnDark ? 'dark:invert' : '')}
+        className={`h-6 w-6 shrink-0 ${brand.invertOnDark ? 'dark:invert' : ''}`}
       />
-      <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground truncate">
+      <span className="text-sm font-medium text-muted-foreground truncate">
         {brand.name}
       </span>
     </li>
@@ -28,16 +28,20 @@ export function LogoWall() {
     <div
       role="region"
       aria-label="Compatible apps and operating systems"
-      className="w-full"
+      className="logo-wall w-full overflow-hidden mask-fade"
     >
-      <ul
-        role="list"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-2 max-w-3xl mx-auto w-full min-w-0"
-      >
-        {BRANDS.map((b) => (
-          <LogoCell key={b.slug} brand={b} />
-        ))}
-      </ul>
+      <div className="marquee-track">
+        <ul role="list" className="marquee-segment">
+          {BRANDS.map((b) => (
+            <LogoCell key={b.slug} brand={b} />
+          ))}
+        </ul>
+        <ul role="list" aria-hidden="true" className="marquee-segment">
+          {BRANDS.map((b) => (
+            <LogoCell key={`${b.slug}-dup`} brand={b} />
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
