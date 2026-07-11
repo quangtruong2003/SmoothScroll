@@ -78,11 +78,7 @@ impl IconCache {
         );
         if map.len() > CACHE_CAP {
             // Evict the entry with the smallest last_used timestamp.
-            if let Some(victim_pid) = map
-                .iter()
-                .min_by_key(|(_, e)| e.last_used)
-                .map(|(k, _)| *k)
-            {
+            if let Some(victim_pid) = map.iter().min_by_key(|(_, e)| e.last_used).map(|(k, _)| *k) {
                 map.remove(&victim_pid);
             }
         }
@@ -95,15 +91,15 @@ impl IconCache {
 pub fn extract_for_exe(exe_path: &Path) -> Option<String> {
     #[cfg(windows)]
     {
-        return extract_windows(exe_path);
+        extract_windows(exe_path)
     }
     #[cfg(target_os = "macos")]
     {
-        return extract_macos(exe_path);
+        extract_macos(exe_path)
     }
     #[cfg(target_os = "linux")]
     {
-        return None;
+        None
     }
     #[cfg(not(any(windows, target_os = "macos", target_os = "linux")))]
     {
@@ -153,9 +149,9 @@ fn strip_data_url_prefix(raw: &str) -> String {
 /// feature. PNG payloads are typically < 16 KB; encode/decode perf is
 /// not on the hot path (called once per foreground switch).
 #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+#[allow(clippy::manual_div_ceil)]
 fn base64_encode(bytes: &[u8]) -> String {
-    const ALPHA: &[u8; 64] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const ALPHA: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::with_capacity(((bytes.len() + 2) / 3) * 4);
     let mut i = 0;
     while i + 3 <= bytes.len() {
