@@ -42,7 +42,7 @@ jobs:
 
   # Run tests first — if any test fails, stop the entire workflow (no build)
   test:
-    needs: [_guard]
+    needs: [_guard, build-wasm]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,8 +56,6 @@ jobs:
             libx11-dev libxi-dev libxtst-dev
 
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
@@ -65,12 +63,7 @@ jobs:
           workspaces: |
             .
             src-tauri
-          shared-key: release-tests
-
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
+          shared-key: ci-wasm
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -83,8 +76,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build WASM engine
-        run: pnpm run build:wasm
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
 
       - name: Run Rust tests
         run: cargo test --workspace --all-targets
@@ -96,7 +92,7 @@ jobs:
         run: node --test scripts/*.test.mjs
 
   bump:
-    needs: [_guard, test]
+    needs: [_guard, test, build-wasm]
     if: "!contains(github.event.head_commit.message, '[skip release]')"
     runs-on: ubuntu-latest
     outputs:
@@ -159,13 +155,10 @@ jobs:
 
   # Build WASM once and share as artifact
   build-wasm:
-    needs: [bump, test]
-    if: needs.bump.outputs.skipped != 'true'
+    needs: [_guard]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.bump.outputs.tag }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -177,7 +170,7 @@ jobs:
           workspaces: |
             .
             src-tauri
-          shared-key: release-wasm
+          shared-key: ci-wasm
 
       - name: Install wasm-pack
         uses: taiki-e/install-action@v2
@@ -247,8 +240,8 @@ jobs:
           name: wasm-engine-release
           path: src/lib/engine-wasm/
 
-      - name: Build Tauri app
-        run: pnpm tauri build
+      - name: Build Tauri app (release-fast - no LTO, parallel codegen)
+        run: pnpm tauri build --profile release-fast
 
       - name: Generate latest.json (stable channel)
         shell: bash
@@ -256,7 +249,7 @@ jobs:
           VERSION="${{ needs.bump.outputs.version }}"
           TAG="${{ needs.bump.outputs.tag }}"
           EXE_NAME="SmoothScroll_${VERSION}_x64-setup.exe"
-          EXE_PATH="target/release/bundle/nsis/$EXE_NAME"
+          EXE_PATH="target/release-fast/bundle/nsis/$EXE_NAME"
 
           if [ ! -f "$EXE_PATH.sig" ]; then
             echo ".sig file not found at $EXE_PATH.sig"
@@ -276,9 +269,9 @@ jobs:
           tag_name: ${{ needs.bump.outputs.tag }}
           generate_release_notes: true
           files: |
-            target/release/bundle/nsis/*.exe
-            target/release/bundle/nsis/*.sig
-            target/release/bundle/msi/*.msi
+            target/release-fast/bundle/nsis/*.exe
+            target/release-fast/bundle/nsis/*.sig
+            target/release-fast/bundle/msi/*.msi
             release-feed/latest.json
 
   build-macos:
@@ -312,7 +305,7 @@ jobs:
 
       - name: Build Rust engine
         run: |
-          cargo build --release -p smoothscroll_platform -p smoothscroll_core --target ${{ matrix.target }}
+          cargo build --profile release-fast -p smoothscroll_platform -p smoothscroll_core --target ${{ matrix.target }}
 
       - name: Build Swift app
         run: |
@@ -401,16 +394,16 @@ jobs:
           name: wasm-engine-release
           path: src/lib/engine-wasm/
 
-      - name: Build Tauri app
-        run: pnpm tauri build
+      - name: Build Tauri app (release-fast - no LTO, parallel codegen)
+        run: pnpm tauri build --profile release-fast
 
       - name: Upload .deb and .AppImage to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.bump.outputs.tag }}
           files: |
-            target/release/bundle/deb/*.deb
-            target/release/bundle/appimage/*.AppImage
+            target/release-fast/bundle/deb/*.deb
+            target/release-fast/bundle/appimage/*.AppImage
 
   cleanup-releases:
     needs: [bump, build-wasm, build-windows, build-linux, test]
