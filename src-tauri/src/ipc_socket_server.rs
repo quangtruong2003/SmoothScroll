@@ -1,7 +1,8 @@
 //! Unix domain socket IPC server for communication with the Swift Menu Bar app.
 //!
-//! Listens on `~/.config/smoothscroll/smoothscroll.sock` (macOS: `~/Library/Application Support/...`)
-//! and handles JSON-RPC 2.0 requests.
+//! Listens on `~/Library/Application Support/com.SmoothScroll.SmoothScroll/socket`
+//! (macOS) and handles JSON-RPC 2.0 requests. Path MUST match Swift's
+//! `SocketPath.socket` constant.
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
