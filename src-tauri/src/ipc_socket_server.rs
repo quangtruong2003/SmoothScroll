@@ -57,7 +57,6 @@ pub struct IpcError {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum IpcEvent {
     ScrollStateChanged { enabled: bool },
     DirectionSyncChanged { enabled: bool },
@@ -381,8 +380,8 @@ mod tests {
         };
         let s = serde_json::to_string(&ev).unwrap();
         assert!(
-            s.contains("\"settingsChanged\""),
-            "Swift expects 'settingsChanged'; got {s}"
+            s.contains("\"SettingsChanged\""),
+            "Swift expects 'SettingsChanged'; got {s}"
         );
     }
 
