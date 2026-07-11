@@ -68,6 +68,7 @@ extern "C" {
     static kCGScrollWheelEventPointDeltaAxis1: i64;
     static kCGScrollWheelEventPointDeltaAxis2: i64;
     static kCGScrollWheelEventIsContinuous: i64;
+    static kCGKeyboardEventKeycode: i64;
 
     // Flag bits
     static kCGEventFlagMaskShift: u32;
@@ -129,7 +130,7 @@ unsafe fn read_horizontal_delta(event: CGEventRef) -> i32 {
 
 /// SAFETY: `event` must be a valid CGEventRef from the system event tap callback.
 unsafe fn read_keycode(event: CGEventRef) -> u16 {
-    CGEventGetIntegerValueField(event, 7) as u16
+    CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode) as u16
 }
 
 // ---------------------------------------------------------------------------
