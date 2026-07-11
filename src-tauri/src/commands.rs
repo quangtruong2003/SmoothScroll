@@ -233,6 +233,8 @@ pub fn set_autostart<R: tauri::Runtime>(
         s.start_with_os = enabled;
     }
     let snapshot = state.settings.read().clone();
+    // Synchronous save — mirrors save_settings pattern for durability.
+    settings::save(&snapshot).map_err(|e| e.to_string())?;
     state.commit_settings(snapshot.clone());
     emit_settings_changed(&app, &snapshot);
     Ok(())

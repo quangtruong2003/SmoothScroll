@@ -46,6 +46,7 @@ export interface AppSettings {
   horizontal_smoothness: boolean;
   horizontal_invert: boolean;
   reverse_wheel_direction: boolean;
+  direction_sync_enabled: boolean;
   start_with_os: boolean;
   start_minimized: boolean;
   language: string;

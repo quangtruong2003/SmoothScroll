@@ -66,11 +66,6 @@ export function ScrollPresets() {
           </button>
         ))}
       </div>
-      {active && (
-        <p className="text-xs text-muted-foreground">
-          {t("presets.currently", { preset: t(`presets.${active}`) })}
-        </p>
-      )}
     </div>
   );
 }
