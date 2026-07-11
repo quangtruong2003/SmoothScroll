@@ -241,7 +241,9 @@ jobs:
           path: src/lib/engine-wasm/
 
       - name: Build Tauri app (release-fast - no LTO, parallel codegen)
-        run: pnpm tauri build --profile release-fast
+        env:
+          TAURI_BUILD_PROFILE: release-fast
+        run: pnpm tauri build
 
       - name: Generate latest.json (stable channel)
         shell: bash
@@ -395,7 +397,9 @@ jobs:
           path: src/lib/engine-wasm/
 
       - name: Build Tauri app (release-fast - no LTO, parallel codegen)
-        run: pnpm tauri build --profile release-fast
+        env:
+          TAURI_BUILD_PROFILE: release-fast
+        run: pnpm tauri build
 
       - name: Upload .deb and .AppImage to Release
         uses: softprops/action-gh-release@v2
