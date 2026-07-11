@@ -11,7 +11,7 @@ import { AdvancedScrollSection } from "@/components/settings/AdvancedScrollSecti
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DirectionSection } from "@/components/settings/DirectionSection";
 import { TouchpadSection } from "@/components/settings/TouchpadSection";
-import { ExcludedAppsSection } from "@/components/settings/ExcludedAppsSection";
+import { ExcludedAppsSection } from "@/components/settings/AppProfilesSection";
 import { ProfilesSection } from "@/components/settings/ProfilesSection";
 import { MonitorProfiles } from "@/components/settings/MonitorProfiles";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
