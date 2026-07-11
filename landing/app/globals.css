@@ -103,8 +103,8 @@
     background-size: 22px 22px;
     background-position: 0 0;
     background-image: radial-gradient(
-      hsl(var(--foreground) / 0.12) 1.3px,
-      transparent 1.95px
+      hsl(var(--foreground) / 0.12) 1.1px,
+      transparent 1.65px
     );
   }
 }
