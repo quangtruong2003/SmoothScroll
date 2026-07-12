@@ -5,7 +5,6 @@ use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
 const IDLE_TIMEOUT: Duration = Duration::from_secs(2);
-const IDLE_FRAME_MS: f64 = 1000.0 / 60.0;
 const WAIT_TIMEOUT: Duration = Duration::from_millis(100);
 
 pub struct EngineThread {
@@ -59,10 +58,23 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         let elapsed = now.duration_since(last_frame).as_secs_f64() * 1000.0;
 
         if elapsed >= frame_ms {
+            let eff = state.effective.load();
             let has_work = {
                 let mut engine = state.engine.lock();
-                engine.step(elapsed);
-                engine.has_pending_scroll()
+                let output = engine.step(elapsed, &eff);
+
+                // Route output to platform wheel emitter
+                if output.vertical != 0 {
+                    state.emitter.emit_vertical(output.vertical);
+                }
+                if output.horizontal != 0 {
+                    state.emitter.emit_horizontal(output.horizontal);
+                }
+                if output.zoom != 0 {
+                    state.zoom_emitter.emit_zoom(output.zoom);
+                }
+
+                engine.has_pending_work()
             };
 
             if has_work {
@@ -77,7 +89,6 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
             last_frame = now;
         }
 
-        // Keep loop at target Hz (or sleep briefly if idle)
         let sleep_ms = if state.enabled.load(Ordering::Relaxed) {
             (frame_ms - (Instant::now().duration_since(last_frame).as_secs_f64() * 1000.0)).max(0.1)
         } else {

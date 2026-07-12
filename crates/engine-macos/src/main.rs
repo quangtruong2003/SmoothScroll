@@ -7,10 +7,8 @@ use arc_swap::ArcSwap;
 use parking_lot::{Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{self, EffectiveSettings};
-use smoothscroll_platform::icon::IconCache;
-use smoothscroll_platform::traits::HookHandle;
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 mod engine_thread;
@@ -52,11 +50,6 @@ fn main() {
         .collect();
     let effective_per_profile_arc = Arc::new(RwLock::new(effective_per_profile));
 
-    let config_dir = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
-        .map(|d| d.config_dir().to_path_buf())
-        .unwrap_or_else(std::env::temp_dir);
-    let stats = smoothscroll_core::stats::StatsCollector::new(config_dir.join("stats.json"));
-
     let app_state = Arc::new(AppState {
         engine,
         settings: settings_arc,
@@ -66,13 +59,13 @@ fn main() {
         emitter: platform.wheel_emitter.clone(),
         zoom_emitter: platform.zoom_emitter.clone(),
         processes: platform.process_query,
+        autostart: platform.autostart,
+        hotkey: platform.hotkey,
+        hotkey_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
-        fullscreen_detector: platform.fullscreen_detector,
-        window_geom: platform.window_geom,
-        monitor_enum: platform.monitor_enum,
         persistor: Arc::new(settings_persistor::SettingsPersistor::spawn()),
-        reduce_motion: Arc::new(AtomicBool::new(initial_rm)),
+        reduce_motion: Arc::new(std::sync::atomic::AtomicBool::new(initial_rm)),
         accessibility: platform.accessibility.clone(),
     });
 
@@ -83,7 +76,7 @@ fn main() {
 
     // Install mouse hook
     let hook_handle = if smoothscroll_platform::macos::is_accessibility_trusted(false) {
-        let sink = hook_wiring::EngineSink::new(app_state.clone());
+        let sink = Arc::new(hook_wiring::EngineSink::new(app_state.clone()));
         match app_state.mouse_hook.install(sink as Arc<dyn smoothscroll_platform::traits::HookEventSink>) {
             Ok(h) => {
                 tracing::info!("Mouse hook installed");

@@ -3,7 +3,7 @@ use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
 use smoothscroll_platform::traits::{
-    FullscreenDetector, MonitorEnumeration, MouseHook, ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
+    Autostart, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter, ZoomEmitter,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -32,11 +32,11 @@ pub struct AppState {
     pub emitter: Arc<dyn WheelEmitter>,
     pub zoom_emitter: Arc<dyn ZoomEmitter>,
     pub processes: Arc<dyn ProcessQuery>,
+    pub autostart: Arc<dyn Autostart>,
+    pub hotkey: Arc<dyn Hotkey>,
+    pub hotkey_handle: Arc<Mutex<Option<HotkeyHandle>>>,
     pub engine_signal: Arc<EngineSignal>,
     pub enabled: Arc<AtomicBool>,
-    pub fullscreen_detector: Arc<dyn FullscreenDetector>,
-    pub window_geom: Arc<dyn WindowGeometry>,
-    pub monitor_enum: Arc<dyn MonitorEnumeration>,
     pub persistor: Arc<crate::settings_persistor::SettingsPersistor>,
     pub reduce_motion: Arc<AtomicBool>,
     pub accessibility: Arc<dyn smoothscroll_platform::traits::AccessibilitySignals>,
