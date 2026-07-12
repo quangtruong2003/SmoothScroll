@@ -377,6 +377,7 @@ unsafe impl Sync for InstalledTap {}
 /// from the main run loop, invalidates it, releases the tap, and frees
 /// the callback box.
 unsafe fn teardown_on_main_thread(source: CFRunLoopSourceRef, done_tx: mpsc::Sender<()>) {
+    #[link(name = "System")]
     extern "C" {
         fn dispatch_get_main_queue() -> *mut std::os::raw::c_void;
         fn dispatch_async_f(
