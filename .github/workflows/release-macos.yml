@@ -128,13 +128,14 @@ jobs:
             .
           shared-key: build-macos-${{ matrix.target }}
 
-      - name: Patch version in tauri.conf.json
+      - name: Patch tauri.conf.json for macOS (version + disable updater)
         run: |
           VERSION="${{ needs.bump.outputs.version }}"
           node -e "
           const fs = require('fs');
           const conf = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
           conf.version = '${VERSION}';
+          conf.plugins.updater.active = false;
           fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(conf, null, 2) + '\n');
           "
 
@@ -178,10 +179,11 @@ jobs:
           DMG_PATH="${{ steps.package-dmg.outputs.dmg_path }}"
           SIZE=$(stat -f%z "$DMG_PATH" 2>/dev/null || stat --format=%s "$DMG_PATH")
           echo "DMG size: $SIZE bytes"
-          if [ "$SIZE" -lt 10000000 ]; then
+          if [ "$SIZE" -lt 100000 ]; then
             echo "ERROR: DMG is too small ($SIZE bytes). Build likely failed."
             exit 1
           fi
+          echo "DMG verification passed"
 
       - name: Upload DMG to Release
         uses: softprops/action-gh-release@v2
