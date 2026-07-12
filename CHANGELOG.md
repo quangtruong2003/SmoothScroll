@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.10] - 2026-07-12
+
+### Fixed
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
 ## [1.1.9] - 2026-07-12
 
 ### Fixed
