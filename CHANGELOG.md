@@ -7,6 +7,12 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.20.1] - 2026-07-12
+
+### Fixed
+- add macros feature to tokio for select! macro
+- reset mac/linux to 0.0.1, fix macOS build (test job, debug steps, DMG verify, remove continue-on-error)
+- use --profile release-fast CLI flag instead of env var for Linux build
 ## [1.20.0] - 2026-07-12
 
 ### Added
