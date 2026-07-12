@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.8] - 2026-07-12
+
+### Fixed
+- force framework linking via RUSTFLAGS env var during standalone engine build
 ## [1.1.7] - 2026-07-12
 
 ### Fixed
