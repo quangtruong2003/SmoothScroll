@@ -44,8 +44,7 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         if !state.enabled.load(Ordering::Relaxed) {
             let mut flag = state.engine_signal.mutex.lock();
             if !*flag {
-                let result = state.engine_signal.cv.wait_timeout(&mut flag, IDLE_TIMEOUT);
-                flag = result.0;
+                state.engine_signal.cv.wait_for(&mut flag, IDLE_TIMEOUT);
             }
             if !state.enabled.load(Ordering::Relaxed) {
                 continue;

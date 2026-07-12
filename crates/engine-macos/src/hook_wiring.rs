@@ -1,6 +1,7 @@
 use crate::state::AppState;
-use smoothscroll_platform::traits::{HookDecision, HookEventSink, ModifierKeys};
-use smoothscroll_platform::types::InputSource;
+use smoothscroll_platform::traits::HookEventSink;
+use smoothscroll_platform::types::{HookDecision, ModifierKeys};
+use smoothscroll_core::input_source::InputSource;
 use std::sync::Arc;
 
 #[derive(Clone)]

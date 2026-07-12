@@ -78,9 +78,10 @@ impl IpcServer {
             use std::os::unix::fs::PermissionsExt;
             let _ = std::fs::set_permissions(&self.path, std::fs::Permissions::from_mode(0o600));
         }
+        let mut shutdown_rx = self.shutdown_rx.clone();
         loop {
             tokio::select! {
-                _ = self.shutdown_rx.changed() => break,
+                _ = shutdown_rx.changed() => break,
                 accept_result = listener.accept() => {
                     let (socket, _) = accept_result?;
                     let tx = self.event_tx.clone();
