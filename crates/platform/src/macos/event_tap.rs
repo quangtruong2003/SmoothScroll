@@ -62,14 +62,6 @@ extern "C" {
     fn CGEventGetIntegerValueField(event: CGEventRef, field: i64) -> i64;
     fn CGEventGetFlags(event: CGEventRef) -> u32;
 
-    // Event field keys
-    static kCGScrollWheelEventDeltaAxis1: i64;
-    static kCGScrollWheelEventDeltaAxis2: i64;
-    static kCGScrollWheelEventPointDeltaAxis1: i64;
-    static kCGScrollWheelEventPointDeltaAxis2: i64;
-    static kCGScrollWheelEventIsContinuous: i64;
-    static kCGKeyboardEventKeycode: i64;
-
     // Flag bits
     static kCGEventFlagMaskShift: u32;
     static kCGEventFlagMaskControl: u32;
@@ -79,6 +71,14 @@ extern "C" {
     // CFMachPort cleanup
     fn CFMachPortInvalidate(port: CFMachPortRef);
 }
+
+// Event field keys defined as constants to avoid link errors (Quartz enums)
+const kCGScrollWheelEventDeltaAxis1: i64 = 96;
+const kCGScrollWheelEventDeltaAxis2: i64 = 97;
+const kCGScrollWheelEventPointDeltaAxis1: i64 = 126;
+const kCGScrollWheelEventPointDeltaAxis2: i64 = 127;
+const kCGScrollWheelEventIsContinuous: i64 = 124;
+const kCGKeyboardEventKeycode: i64 = 9;
 
 /// Classifies a scroll event's input source.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
