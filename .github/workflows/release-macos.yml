@@ -144,6 +144,8 @@ jobs:
           cargo build --profile release-fast -p smoothscroll_platform -p smoothscroll_core --target ${{ matrix.target }}
 
       - name: Build Rust engine binary (standalone)
+        env:
+          RUSTFLAGS: "-C link-arg=-framework -C link-arg=CoreGraphics -C link-arg=-framework -C link-arg=CoreFoundation -C link-arg=-framework -C link-arg=AppKit"
         run: |
           cargo build --profile release-fast -p smoothscroll-engine-macos --target ${{ matrix.target }}
           mkdir -p engine-bin
