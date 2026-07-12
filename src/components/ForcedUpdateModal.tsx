@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { invoke } from "@tauri-apps/api/core";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { Button } from "@/components/ui/button";
 import { tauri } from "@/lib/tauri";
@@ -42,6 +43,7 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
         setState({ kind: "error", message: String(e) });
       }
     } catch (e) {
+      void invoke("restore_window_size");
       setState({ kind: "error", message: String(e) });
     }
   };
@@ -64,9 +66,9 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
       role="dialog"
       aria-modal="true"
       aria-labelledby="forced-update-title"
-      className="flex h-screen w-screen flex-col justify-between gap-6 bg-background p-8"
+      className="flex h-screen w-screen flex-col justify-between gap-3 bg-background p-3"
     >
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col space-y-4">
+      <div className="flex w-full flex-1 flex-col space-y-2">
         <div className="space-y-1">
           <h2
             id="forced-update-title"
@@ -87,7 +89,7 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
             <p className="text-xs font-medium text-muted-foreground">
               {t("forced_update.notes_heading")}
             </p>
-            <div className="max-h-40 overflow-auto rounded-md border bg-muted/30 p-3 text-xs whitespace-pre-wrap font-mono leading-relaxed">
+            <div className="max-h-24 overflow-auto rounded-md border bg-muted/30 p-2 text-xs whitespace-pre-wrap font-mono leading-relaxed">
               {update.body}
             </div>
           </div>
@@ -122,7 +124,7 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
         )}
       </div>
 
-      <div className="mx-auto w-full max-w-md space-y-2">
+      <div className="w-full space-y-1.5">
         <div className="flex gap-2">
           <Button className="flex-1" onClick={onInstall} disabled={isBusy}>
             {isDownloading
