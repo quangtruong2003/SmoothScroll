@@ -44,7 +44,8 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         if !state.enabled.load(Ordering::Relaxed) {
             let mut flag = state.engine_signal.mutex.lock();
             if !*flag {
-                state.engine_signal.cv.wait_timeout(&mut flag, IDLE_TIMEOUT);
+                let result = state.engine_signal.cv.wait_timeout(&mut flag, IDLE_TIMEOUT);
+                flag = result.0;
             }
             if !state.enabled.load(Ordering::Relaxed) {
                 continue;
@@ -64,14 +65,11 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
                 let output = engine.step(elapsed, &eff);
 
                 // Route output to platform wheel emitter
-                if output.vertical != 0 {
-                    state.emitter.emit_vertical(output.vertical);
-                }
-                if output.horizontal != 0 {
-                    state.emitter.emit_horizontal(output.horizontal);
+                if output.vertical != 0 || output.horizontal != 0 {
+                    let _ = state.emitter.emit(output.vertical, output.horizontal);
                 }
                 if output.zoom != 0 {
-                    state.zoom_emitter.emit_zoom(output.zoom);
+                    let _ = state.zoom_emitter.emit_zoom(output.zoom);
                 }
 
                 engine.has_pending_work()

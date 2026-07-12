@@ -16,11 +16,11 @@ impl EngineSink {
 
 impl HookEventSink for EngineSink {
     fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
-        self.on_wheel_ext(delta, mods, InputSource::Mouse)
+        self.on_wheel_ext(delta, mods, InputSource::Wheel)
     }
 
     fn on_hwheel(&self, delta: i32) -> HookDecision {
-        self.on_hwheel_ext(delta, InputSource::Mouse)
+        self.on_hwheel_ext(delta, InputSource::Wheel)
     }
 
     fn on_wheel_ext(
@@ -32,10 +32,13 @@ impl HookEventSink for EngineSink {
         if !self.state.enabled.load(std::sync::atomic::Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-        let settings = self.state.settings.read();
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
         let eff = self.state.effective.load();
         let mut engine = self.state.engine.lock();
-        engine.on_wheel_with_source(delta as f64, source, &eff);
+        engine.on_wheel_with_source(delta, now_ms, source, &eff);
         self.state.engine_signal.signal();
         HookDecision::Block
     }
@@ -48,10 +51,13 @@ impl HookEventSink for EngineSink {
         if !self.state.enabled.load(std::sync::atomic::Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-        let settings = self.state.settings.read();
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
         let eff = self.state.effective.load();
         let mut engine = self.state.engine.lock();
-        engine.on_hwheel_with_source(delta as f64, source, &eff);
+        engine.on_hwheel_with_source(delta, now_ms, source, &eff);
         self.state.engine_signal.signal();
         HookDecision::Block
     }
