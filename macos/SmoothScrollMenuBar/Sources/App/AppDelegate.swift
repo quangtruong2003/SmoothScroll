@@ -6,6 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var reconnectionManager: ReconnectionManager?
     private var activity: NSObjectProtocol?
     private var settingsObserver: NSObjectProtocol?
+    private var engineProcess: Process?
     private let logger = Logger(subsystem: "com.SmoothScroll.MenuBar", category: "AppDelegate")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -14,6 +15,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             options: .idleSystemSleepDisabled,
             reason: "SmoothScroll menu bar app active"
         )
+
+        // Launch Rust engine binary from app bundle
+        launchEngine()
 
         // Setup menu bar (includes NSMenu for ⌘Q)
         menuBarController = MenuBarController()
@@ -66,6 +70,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NotificationCenter.default.removeObserver(observer)
         }
 
+        // Stop engine process
+        if let proc = engineProcess {
+            proc.terminate()
+        }
+
         // Stop reconnection manager first
         reconnectionManager?.stop()
         
@@ -80,5 +89,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         true
+    }
+
+    private func launchEngine() {
+        // Engine binary is bundled in Contents/MacOS/ alongside the main app binary
+        let enginePath = Bundle.main.bundlePath
+            .appending("/Contents/MacOS/smoothscroll-engine")
+
+        guard FileManager.default.fileExists(atPath: enginePath) else {
+            logger.error("smoothscroll-engine not found at \(enginePath)")
+            return
+        }
+
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: enginePath)
+        proc.standardOutput = nil
+        proc.standardError = nil
+
+        do {
+            try proc.run()
+            engineProcess = proc
+            logger.info("Engine launched (PID \(proc.processIdentifier))")
+        } catch {
+            logger.error("Failed to launch engine: \(error.localizedDescription)")
+        }
     }
 }

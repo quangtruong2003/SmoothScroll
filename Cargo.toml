@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/core",
     "crates/platform",
+    "crates/engine-macos",
     "src-tauri",
 ]
 
