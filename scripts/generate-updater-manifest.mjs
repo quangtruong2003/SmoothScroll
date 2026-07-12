@@ -30,11 +30,13 @@ function main() {
     'windows-exe': winExe,
     'macos-arm-dmg': macArm,
     'macos-x64-dmg': macX64,
+    'linux-deb': linuxDeb,
+    'linux-appimage': linuxAppImage,
   } = parseArgs(process.argv);
 
   if (!channel || !version || !tag || !output) {
     console.error(
-      'Usage: generate-updater-manifest.mjs --channel <stable|beta> --version <X.Y.Z> --tag <vX.Y.Z> --output <path> [--windows-exe <path>] [--macos-arm-dmg <path>] [--macos-x64-dmg <path>]'
+      'Usage: generate-updater-manifest.mjs --channel <stable|beta> --version <X.Y.Z> --tag <vX.Y.Z> --output <path> [--windows-exe <path>] [--macos-arm-dmg <path>] [--macos-x64-dmg <path>] [--linux-deb <path>] [--linux-appimage <path>]'
     );
     process.exit(1);
   }
@@ -75,6 +77,26 @@ function main() {
       signature: sig || '',
       url: `${baseUrl}/${fileName}`,
     };
+  }
+
+  if (linuxDeb) {
+    const fileName = linuxDeb.split(/[\\/]/).pop();
+    const sig = readSig(`${linuxDeb}.sig`);
+    manifest.platforms['linux-x86_64'] = {
+      signature: sig || '',
+      url: `${baseUrl}/${fileName}`,
+    };
+  }
+
+  if (linuxAppImage) {
+    const fileName = linuxAppImage.split(/[\\/]/).pop();
+    const sig = readSig(`${linuxAppImage}.sig`);
+    if (!manifest.platforms['linux-x86_64']) {
+      manifest.platforms['linux-x86_64'] = {
+        signature: sig || '',
+        url: `${baseUrl}/${fileName}`,
+      };
+    }
   }
 
   const outDir = dirname(output);
