@@ -1,0 +1,293 @@
+name: Release (Linux)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src-tauri/**'
+      - 'src/**'
+      - 'crates/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'VERSION.linux'
+  workflow_dispatch:
+
+concurrency:
+  group: release-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  _guard:
+    if: |
+      !(
+        github.event_name == 'push' &&
+        (
+          startsWith(github.ref, 'refs/tags/') ||
+          contains(github.event.head_commit.message, '[skip release]')
+        )
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "Guarded: not a re-triggered run"'
+
+  build-wasm:
+    needs: [_guard]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: ci-wasm
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build WASM engine
+        run: pnpm run build:wasm
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
+          retention-days: 1
+
+  test:
+    needs: [_guard, build-wasm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+            libx11-dev libxi-dev libxtst-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: ci-wasm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
+
+      - name: Run Rust tests
+        run: cargo test --workspace --all-targets
+
+      - name: Run TypeScript/Vitest tests
+        run: pnpm test
+
+      - name: Run script tests
+        run: node --test scripts/*.test.mjs
+
+  bump:
+    needs: [_guard, test, build-wasm]
+    if: "!contains(github.event.head_commit.message, '[skip release]')"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      tag: ${{ steps.bump.outputs.tag }}
+      is_prerelease: ${{ steps.bump.outputs.is_prerelease }}
+      skipped: ${{ steps.bump.outputs.skipped }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Bump version for Linux
+        id: bump
+        run: |
+          set +e
+          HEAD_COMMIT_MSG=$(git log -1 --pretty=%B)
+          HEAD_COMMIT_MSG="$HEAD_COMMIT_MSG" node scripts/version-bump.mjs --platform linux
+          EXIT_CODE=$?
+
+          if [ $EXIT_CODE -eq 78 ]; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            echo "No release triggered. Skipping downstream jobs."
+            exit 0
+          elif [ $EXIT_CODE -ne 0 ]; then
+            echo "version-bump.mjs failed with exit $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - name: Pull latest, commit + tag + push (rebase-safe)
+        if: steps.bump.outputs.skipped != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add VERSION.linux CHANGELOG.md
+          git commit -m "chore: release ${{ steps.bump.outputs.tag }} [skip release]"
+          git pull --rebase origin master
+          git tag "${{ steps.bump.outputs.tag }}"
+          git push origin master
+          git push origin "${{ steps.bump.outputs.tag }}"
+
+  build-linux:
+    needs: [bump, build-wasm, test]
+    if: needs.bump.outputs.skipped != 'true'
+    runs-on: ubuntu-22.04
+    env:
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+          shared-key: build-linux
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+            libx11-dev libxi-dev libxtst-dev
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine-release
+          path: src/lib/engine-wasm/
+
+      - name: Patch tauri.conf.json for Linux (version + updater endpoint)
+        run: |
+          VERSION="${{ needs.bump.outputs.version }}"
+          node -e "
+          const fs = require('fs');
+          const conf = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+          conf.version = '${VERSION}';
+          conf.plugins.updater.endpoints = ['https://github.com/quangtruong2003/SmoothScroll/releases/latest/download/latest-linux.json'];
+          fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(conf, null, 2) + '\n');
+          "
+
+      - name: Build Tauri app (release-fast)
+        env:
+          TAURI_BUILD_PROFILE: release-fast
+        run: pnpm tauri build
+
+      - name: Generate latest-linux.json
+        run: |
+          VERSION="${{ needs.bump.outputs.version }}"
+          TAG="${{ needs.bump.outputs.tag }}"
+
+          node scripts/generate-updater-manifest.mjs \
+            --channel stable \
+            --version "$VERSION" \
+            --tag "$TAG" \
+            --output release-feed/latest-linux.json \
+            --linux-deb "target/release-fast/bundle/deb/SmoothScroll_${VERSION}_amd64.deb" \
+            --linux-appimage "target/release-fast/bundle/appimage/SmoothScroll_${VERSION}_amd64.AppImage"
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.bump.outputs.tag }}
+          name: "Linux v${{ needs.bump.outputs.version }}"
+          files: |
+            target/release-fast/bundle/deb/*.deb
+            target/release-fast/bundle/appimage/*.AppImage
+            release-feed/latest-linux.json
+
+  cleanup-releases:
+    needs: [bump, build-linux]
+    if: always() && needs.bump.outputs.skipped != 'true' && needs.build-linux.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete old Linux releases (keep latest)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          CURRENT_TAG="${{ needs.bump.outputs.tag }}"
+          echo "Keeping release: $CURRENT_TAG"
+          gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | grep '^linux/v' \
+            | grep -vx "$CURRENT_TAG" \
+            | while read -r tag; do
+                if [ -n "$tag" ]; then
+                  echo "Deleting release + tag: $tag"
+                  gh release delete "$tag" --cleanup-tag --yes || echo "  failed to delete $tag"
+                fi
+              done

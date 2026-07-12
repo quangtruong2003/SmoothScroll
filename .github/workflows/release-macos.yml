@@ -1,0 +1,172 @@
+name: Release (macOS)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'macos/**'
+      - 'crates/**'
+      - 'VERSION.macos'
+  workflow_dispatch:
+
+concurrency:
+  group: release-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  _guard:
+    if: |
+      !(
+        github.event_name == 'push' &&
+        (
+          startsWith(github.ref, 'refs/tags/') ||
+          contains(github.event.head_commit.message, '[skip release]')
+        )
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "Guarded: not a re-triggered run"'
+
+  bump:
+    needs: [_guard]
+    if: "!contains(github.event.head_commit.message, '[skip release]')"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      tag: ${{ steps.bump.outputs.tag }}
+      is_prerelease: ${{ steps.bump.outputs.is_prerelease }}
+      skipped: ${{ steps.bump.outputs.skipped }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Bump version for macOS
+        id: bump
+        run: |
+          set +e
+          HEAD_COMMIT_MSG=$(git log -1 --pretty=%B)
+          HEAD_COMMIT_MSG="$HEAD_COMMIT_MSG" node scripts/version-bump.mjs --platform macos
+          EXIT_CODE=$?
+
+          if [ $EXIT_CODE -eq 78 ]; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            echo "No release triggered. Skipping downstream jobs."
+            exit 0
+          elif [ $EXIT_CODE -ne 0 ]; then
+            echo "version-bump.mjs failed with exit $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - name: Pull latest, commit + tag + push (rebase-safe)
+        if: steps.bump.outputs.skipped != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add VERSION.macos CHANGELOG.md
+          git commit -m "chore: release ${{ steps.bump.outputs.tag }} [skip release]"
+          git pull --rebase origin master
+          git tag "${{ steps.bump.outputs.tag }}"
+          git push origin master
+          git push origin "${{ steps.bump.outputs.tag }}"
+
+  build-macos:
+    needs: [bump]
+    if: needs.bump.outputs.skipped != 'true'
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            arch: arm64
+          - target: x86_64-apple-darwin
+            arch: x64
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+          shared-key: build-macos-${{ matrix.target }}
+
+      - name: Build Rust engine
+        run: |
+          cargo build --profile release-fast -p smoothscroll_platform -p smoothscroll_core --target ${{ matrix.target }}
+
+      - name: Build Swift app
+        run: |
+          curl -fsSL https://github.com/yonaskolb/XcodeGen/releases/download/2.45.0/xcodegen.zip -o xcodegen.zip && \
+          unzip -o xcodegen.zip && \
+          chmod +x xcodegen/bin/xcodegen && \
+          cd macos/SmoothScrollMenuBar && \
+          ../../xcodegen/bin/xcodegen generate && \
+          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch == 'x64' && 'x86_64' || matrix.arch }} CONFIGURATION_BUILD_DIR=build/Release build
+
+      - name: Package DMG
+        id: package-dmg
+        run: |
+          mkdir -p dmg-tmp
+          APP_PATH="macos/SmoothScrollMenuBar/build/Release/SmoothScrollMenuBar.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: App not found at $APP_PATH"
+            ls -la macos/SmoothScrollMenuBar/build/ 2>/dev/null || echo "build dir does not exist"
+            exit 1
+          fi
+          hdiutil create dmg-tmp/SmoothScroll.dmg -volname SmoothScroll -srcfolder "$APP_PATH" -ov
+          DMG_PATH="dmg-tmp/SmoothScroll_${{ matrix.arch }}.dmg"
+          mv dmg-tmp/SmoothScroll.dmg "$DMG_PATH"
+          echo "dmg_path=$DMG_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload DMG to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.bump.outputs.tag }}
+          name: "macOS v${{ needs.bump.outputs.version }}"
+          files: |
+            dmg-tmp/*.dmg
+
+  cleanup-releases:
+    needs: [bump, build-macos]
+    if: always() && needs.bump.outputs.skipped != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete old macOS releases (keep latest)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          CURRENT_TAG="${{ needs.bump.outputs.tag }}"
+          echo "Keeping release: $CURRENT_TAG"
+          gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | grep '^mac/v' \
+            | grep -vx "$CURRENT_TAG" \
+            | while read -r tag; do
+                if [ -n "$tag" ]; then
+                  echo "Deleting release + tag: $tag"
+                  gh release delete "$tag" --cleanup-tag --yes || echo "  failed to delete $tag"
+                fi
+              done
