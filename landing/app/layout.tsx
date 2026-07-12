@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { LanguageProvider } from '@/lib/i18n/provider'
+import { JsonLd } from './JsonLd'
 import './globals.css'
 import '@/styles/tray.css'
 import '@/styles/marquee.css'
@@ -27,7 +28,27 @@ export const metadata: Metadata = {
     title: 'SmoothScroll - Natural Scroll Feel on Windows',
     description:
       'A 120 Hz easing engine for every wheel tick, in every app. Free, no telemetry, open-source.',
+    url: BASE_URL,
+    siteName: 'SmoothScroll',
     type: 'website',
+    images: [
+      {
+        url: `${BASE_URL}/assets/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: 'SmoothScroll – Natural scroll feel on Windows',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SmoothScroll - Natural Scroll Feel on Windows',
+    description:
+      'A 120 Hz easing engine for every wheel tick, in every app. Free, no telemetry, open-source.',
+    images: [`${BASE_URL}/assets/og-image.png`],
+  },
+  alternates: {
+    canonical: BASE_URL,
   },
   icons: {
     icon: `${BASE_PATH}/assets/icon-128.png`,
@@ -86,6 +107,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <JsonLd />
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
