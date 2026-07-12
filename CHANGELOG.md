@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.11] - 2026-07-12
+
+### Fixed
+- link libSystem for GCD functions in event_tap
 ## [1.1.10] - 2026-07-12
 
 ### Fixed
