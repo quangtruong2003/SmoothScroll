@@ -143,6 +143,13 @@ jobs:
         run: |
           cargo build --profile release-fast -p smoothscroll_platform -p smoothscroll_core --target ${{ matrix.target }}
 
+      - name: Build Rust engine binary (standalone)
+        run: |
+          cargo build --profile release-fast -p smoothscroll-app --target ${{ matrix.target }}
+          # Copy binary to a known location for bundling
+          mkdir -p engine-bin
+          cp target/${{ matrix.target }}/release-fast/smoothscroll-app engine-bin/smoothscroll-engine
+
       - name: Build Swift app
         run: |
           curl -fsSL https://github.com/yonaskolb/XcodeGen/releases/download/2.45.0/xcodegen.zip -o xcodegen.zip && \
@@ -160,9 +167,18 @@ jobs:
             ls -laR macos/SmoothScrollMenuBar/build/ 2>/dev/null || echo "build/ does not exist"
             exit 1
           fi
-          echo "App bundle contents:"
+          echo "App bundle contents before engine:"
           ls -laR "$APP_PATH"
           du -sh "$APP_PATH"
+
+      - name: Bundle Rust engine into .app
+        run: |
+          APP_PATH="macos/SmoothScrollMenuBar/build/Release/SmoothScrollMenuBar.app"
+          cp engine-bin/smoothscroll-engine "$APP_PATH/Contents/MacOS/smoothscroll-engine"
+          chmod +x "$APP_PATH/Contents/MacOS/smoothscroll-engine"
+          echo "App bundle after engine:"
+          du -sh "$APP_PATH"
+          ls -la "$APP_PATH/Contents/MacOS/"
 
       - name: Package DMG
         id: package-dmg
@@ -179,11 +195,11 @@ jobs:
           DMG_PATH="${{ steps.package-dmg.outputs.dmg_path }}"
           SIZE=$(stat -f%z "$DMG_PATH" 2>/dev/null || stat --format=%s "$DMG_PATH")
           echo "DMG size: $SIZE bytes"
-          if [ "$SIZE" -lt 100000 ]; then
+          if [ "$SIZE" -lt 1000000 ]; then
             echo "ERROR: DMG is too small ($SIZE bytes). Build likely failed."
             exit 1
           fi
-          echo "DMG verification passed"
+          echo "DMG verification passed ($SIZE bytes)"
 
       - name: Upload DMG to Release
         uses: softprops/action-gh-release@v2

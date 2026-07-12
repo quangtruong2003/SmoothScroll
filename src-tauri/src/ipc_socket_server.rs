@@ -11,6 +11,7 @@ use std::sync::Arc;
 
 use crate::state::AppState;
 use directories::ProjectDirs;
+use smoothscroll_core::engine::SmoothScrollEngine;
 
 /// Returns the Unix socket path for IPC communication.
 /// MUST match Swift's `SocketPath.socket` constant.
@@ -218,8 +219,6 @@ impl IpcServer {
         }
     }
 
-    type ResponseResult = (Option<serde_json::Value>, Option<IpcError>);
-
     async fn process_request(
         &self,
         method: &str,
@@ -277,8 +276,8 @@ impl IpcServer {
                 (Some(serde_json::json!(true)), None)
             }
             "get_preset" => {
-                let eff = self.app_state.effective.load();
-                let preset = &eff.active_profile;
+                let settings = self.app_state.settings.read();
+                let preset = &settings.active_profile;
                 (Some(serde_json::json!(preset)), None)
             }
             "set_preset" => {

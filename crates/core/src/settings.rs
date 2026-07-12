@@ -235,6 +235,10 @@ pub struct AppSettings {
 
     // UWP force enable: override auto-disable for Windows native apps
     pub force_enable_all_apps: bool,
+
+    // Active scroll profile (macOS IPC)
+    #[serde(default = "default_active_profile")]
+    pub active_profile: String,
 }
 
 impl Default for AppSettings {
@@ -281,8 +285,13 @@ impl Default for AppSettings {
             auto_disable_windows_apps: true,
             monitor_profiles: Vec::new(),
             force_enable_all_apps: false,
+            active_profile: "default".into(),
         }
     }
+}
+
+fn default_active_profile() -> String {
+    "default".into()
 }
 
 impl AppSettings {

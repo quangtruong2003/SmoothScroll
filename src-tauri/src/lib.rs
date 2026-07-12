@@ -231,7 +231,7 @@ pub fn run() {
                 let socket_path = ipc_socket_path();
                 let (shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(());
                 let ipc_server = Arc::new(IpcServer::new(
-                    socket_path,
+                    socket_path.clone(),
                     shutdown_rx,
                     state_for_setup.clone(),
                 ));
@@ -239,11 +239,12 @@ pub fn run() {
                 // Spawn IPC server on a dedicated tokio runtime.
                 // Tauri v2 doesn't expose its internal runtime for arbitrary async tasks,
                 // so we create a new one on a background thread.
+                let server_for_thread = ipc_server.clone();
                 let _server_handle = std::thread::spawn(move || {
                     let rt = tokio::runtime::Runtime::new()
                         .expect("failed to create IPC tokio runtime");
                     rt.block_on(async move {
-                        if let Err(e) = ipc_server.run().await {
+                        if let Err(e) = server_for_thread.run().await {
                             tracing::debug!(error = %e, "IPC server error (non-critical)");
                         }
                     });
