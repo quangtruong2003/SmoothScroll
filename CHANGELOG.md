@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.20.2] - 2026-07-12
+
+### Fixed
+- bundle Rust engine binary into .app, fix compilation errors (missing import, borrow, active_profile)
+- add continue-on-error to macOS upload step (race condition between matrix builds)
+- lower DMG size check to 100KB, disable updater for macOS
+- disable updater for Linux builds, remove latest-linux.json
 ## [1.20.1] - 2026-07-12
 
 ### Fixed
