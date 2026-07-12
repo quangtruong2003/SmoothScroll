@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.5] - 2026-07-12
+
+### Fixed
+- add build.rs to link CoreGraphics and AppKit frameworks
 ## [1.1.4] - 2026-07-12
 
 ### Fixed
