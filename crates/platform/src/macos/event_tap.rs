@@ -62,15 +62,15 @@ extern "C" {
     fn CGEventGetIntegerValueField(event: CGEventRef, field: i64) -> i64;
     fn CGEventGetFlags(event: CGEventRef) -> u32;
 
-    // Flag bits
-    static kCGEventFlagMaskShift: u32;
-    static kCGEventFlagMaskControl: u32;
-    static kCGEventFlagMaskAlternate: u32;
-    static kCGEventFlagMaskCommand: u32;
-
     // CFMachPort cleanup
     fn CFMachPortInvalidate(port: CFMachPortRef);
 }
+
+// Quartz modifier flag masks
+const kCGEventFlagMaskShift: u32 = 0x00020000;
+const kCGEventFlagMaskControl: u32 = 0x00040000;
+const kCGEventFlagMaskAlternate: u32 = 0x00080000;
+const kCGEventFlagMaskCommand: u32 = 0x00100000;
 
 // Event field keys defined as constants to avoid link errors (Quartz enums)
 const kCGScrollWheelEventDeltaAxis1: i64 = 96;
