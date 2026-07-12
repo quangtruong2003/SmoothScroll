@@ -415,6 +415,30 @@ pub fn show_main_window<R: tauri::Runtime>(app: AppHandle<R>) {
 }
 
 #[tauri::command]
+pub fn resize_for_update<R: tauri::Runtime>(app: AppHandle<R>) {
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+            width: 350,
+            height: 280,
+        }));
+        let _ = win.set_resizable(false);
+        let _ = win.center();
+    }
+}
+
+#[tauri::command]
+pub fn restore_window_size<R: tauri::Runtime>(app: AppHandle<R>) {
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+            width: 800,
+            height: 600,
+        }));
+        let _ = win.set_resizable(true);
+        let _ = win.center();
+    }
+}
+
+#[tauri::command]
 pub fn navigate_to<R: tauri::Runtime>(app: AppHandle<R>, section: String) {
     let _ = app.emit("navigate-to", section);
 }

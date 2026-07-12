@@ -341,6 +341,8 @@ pub fn run() {
             commands::close_tray_panel,
             commands::resize_tray_panel,
             commands::show_main_window,
+            commands::resize_for_update,
+            commands::restore_window_size,
             commands::navigate_to,
             commands::quit_app,
             // Profile management
