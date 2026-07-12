@@ -379,12 +379,16 @@ unsafe impl Sync for InstalledTap {}
 unsafe fn teardown_on_main_thread(source: CFRunLoopSourceRef, done_tx: mpsc::Sender<()>) {
     #[link(name = "System")]
     extern "C" {
-        fn dispatch_get_main_queue() -> *mut std::os::raw::c_void;
+        static _dispatch_main_q: std::os::raw::c_void;
         fn dispatch_async_f(
             queue: *mut std::os::raw::c_void,
             context: *mut std::os::raw::c_void,
             work: unsafe extern "C" fn(*mut std::os::raw::c_void),
         );
+    }
+
+    unsafe fn dispatch_get_main_queue() -> *mut std::os::raw::c_void {
+        &_dispatch_main_q as *const _ as *mut _
     }
 
     struct Ctx {
