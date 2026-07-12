@@ -237,3 +237,13 @@ test('writePlatformVersion: overwrites existing VERSION.linux', () => {
   const result = rfs(join(dir, 'VERSION.linux'), 'utf8');
   assert.equal(result, '1.1.0');
 });
+
+test('readCurrentVersion: delegates to readPlatformVersion when --platform set', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'version-'));
+  wfs(join(dir, 'VERSION.windows'), '1.19.5');
+  wfs(join(dir, 'VERSION.macos'), '1.0.0');
+  wfs(join(dir, 'VERSION.linux'), '1.0.0');
+  assert.equal(readPlatformVersion('windows', dir), '1.19.5');
+  assert.equal(readPlatformVersion('macos', dir), '1.0.0');
+  assert.equal(readPlatformVersion('linux', dir), '1.0.0');
+});
