@@ -36,7 +36,11 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
         setState({ kind: "downloading", progress: p });
       });
       setState({ kind: "installed" });
-      await restartApp();
+      try {
+        await restartApp();
+      } catch (e) {
+        setState({ kind: "error", message: String(e) });
+      }
     } catch (e) {
       setState({ kind: "error", message: String(e) });
     }
@@ -60,85 +64,87 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
       role="dialog"
       aria-modal="true"
       aria-labelledby="forced-update-title"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+      className="flex h-screen w-screen flex-col justify-between gap-6 bg-background p-8"
     >
-      <div className="w-full max-w-md rounded-lg border bg-card text-card-foreground shadow-lg">
-        <div className="p-6 space-y-4">
-          <div className="space-y-1">
-            <h2
-              id="forced-update-title"
-              className="text-lg font-semibold leading-none tracking-tight"
-            >
-              {t("forced_update.title")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("forced_update.description", {
-                current: currentVersion || t("forced_update.unknown_version"),
-                latest: update.version,
-              })}
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col space-y-4">
+        <div className="space-y-1">
+          <h2
+            id="forced-update-title"
+            className="text-lg font-semibold leading-none tracking-tight"
+          >
+            {t("forced_update.title")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {t("forced_update.description", {
+              current: currentVersion || t("forced_update.unknown_version"),
+              latest: update.version,
+            })}
+          </p>
+        </div>
+
+        {update.body && (
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground">
+              {t("forced_update.notes_heading")}
             </p>
-          </div>
-
-          {update.body && (
-            <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground">
-                {t("forced_update.notes_heading")}
-              </p>
-              <div className="max-h-40 overflow-y-auto rounded-md border bg-muted/30 p-3 text-xs whitespace-pre-wrap font-mono leading-relaxed">
-                {update.body}
-              </div>
+            <div className="max-h-40 overflow-auto rounded-md border bg-muted/30 p-3 text-xs whitespace-pre-wrap font-mono leading-relaxed">
+              {update.body}
             </div>
-          )}
+          </div>
+        )}
 
-          {state.kind === "downloading" && (
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                {t("forced_update.downloading", { pct })}
-              </p>
-              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+        {state.kind === "downloading" && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">
+              {t("forced_update.downloading", { pct })}
+            </p>
+            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+              {state.progress.total && state.progress.total > 0 ? (
                 <div
                   className="h-full bg-primary transition-all"
                   style={{ width: `${pct}%` }}
                 />
-              </div>
+              ) : (
+                <div className="h-1/2 w-1/3 animate-pulse rounded-full bg-primary" />
+              )}
             </div>
-          )}
-
-          {state.kind === "installed" && (
-            <p className="text-sm text-primary">{t("forced_update.restarting")}</p>
-          )}
-
-          {state.kind === "error" && (
-            <p className="text-sm text-destructive">
-              {t("forced_update.error", { message: state.message })}
-            </p>
-          )}
-
-          <div className="space-y-2 pt-2">
-            <div className="flex gap-2">
-              <Button className="flex-1" onClick={onInstall} disabled={isBusy}>
-                {isDownloading
-                  ? t("forced_update.downloading_btn")
-                  : isInstalled
-                    ? t("forced_update.installed_btn")
-                    : t("forced_update.install")}
-              </Button>
-              <Button variant="outline" onClick={onQuit} disabled={isBusy}>
-                {t("forced_update.quit")}
-              </Button>
-            </div>
-            {canSkip && onSkip && (
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={onSkip}
-                disabled={isBusy}
-              >
-                {t("forced_update.skip")}
-              </Button>
-            )}
           </div>
+        )}
+
+        {state.kind === "installed" && (
+          <p className="text-sm text-primary">{t("forced_update.restarting")}</p>
+        )}
+
+        {state.kind === "error" && (
+          <p className="text-sm text-destructive">
+            {t("forced_update.error", { message: state.message })}
+          </p>
+        )}
+      </div>
+
+      <div className="mx-auto w-full max-w-md space-y-2">
+        <div className="flex gap-2">
+          <Button className="flex-1" onClick={onInstall} disabled={isBusy}>
+            {isDownloading
+              ? t("forced_update.downloading_btn")
+              : isInstalled
+                ? t("forced_update.installed_btn")
+                : t("forced_update.install")}
+          </Button>
+          <Button variant="outline" onClick={onQuit} disabled={isBusy}>
+            {t("forced_update.quit")}
+          </Button>
         </div>
+        {canSkip && onSkip && (
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={onSkip}
+            disabled={isBusy}
+          >
+            {t("forced_update.skip")}
+          </Button>
+        )}
       </div>
     </div>
   );
