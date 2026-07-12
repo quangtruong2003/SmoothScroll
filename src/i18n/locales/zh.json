@@ -17,7 +17,6 @@
     "theme": "外观",
     "touchpad": "精密触控板",
     "game_mode": "游戏模式",
-    "edge_scroll": "边缘自动滚动",
     "about": "关于",
     "advanced_scroll": "高级滚动"
   },
@@ -27,14 +26,115 @@
   "permission": {
     "title": "需要辅助功能权限",
     "body": "SmoothScroll 需要 Accessibility 权限来捕获鼠标滚轮事件并以平滑动画重新发送。打开 System Settings → Privacy & Security → Accessibility 并启用 SmoothScroll。",
+    "macos_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
+    "windows_subtitle": "SmoothScroll needs Accessibility permission",
     "open": "请求权限",
+    "check_now": "I just granted it — check now",
+    "checking": "Checking...",
+    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
     "polling": "授予权限后，我会自动检测并继续。",
+    "linux_checking": "Checking system requirements...",
+    "linux_retry": "Check Again After Setup",
+    "linux_retry_hint": "After running the commands above, click 'Check Again'",
     "linux_uinput_title": "需要访问权限",
     "linux_uinput_body": "SmoothScroll 需要访问 /dev/uinput 以实现滚动平滑化。\n\n运行以下命令并注销：\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\n重新登录后，重启 SmoothScroll。",
     "linux_uinput_hint": "运行上述命令后，注销并重新登录，然后重启 SmoothScroll。",
+    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
+    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
+    "linux_x11_subtitle": "Running on X11",
     "linux_flatpak_title": "SmoothScroll 不支持 Flatpak",
+    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
     "linux_flatpak_body": "Flatpak 沙盒阻止访问 /dev/uinput，这是滚动拦截所必需的。请从 .deb 或 .AppImage 安装 SmoothScroll。",
-    "linux_flatpak_hint": "请从 .deb 或 .AppImage 安装 SmoothScroll。"
+    "linux_flatpak_hint": "请从 .deb 或 .AppImage 安装 SmoothScroll。",
+    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
+    "session_label": "Session:",
+    "wayland_hint": "Wayland may require additional setup"
+  },
+  "feel": {
+    "anim": {
+      "snappy": "迅捷",
+      "balanced": "平衡",
+      "glide": "滑行",
+      "dreamy": "梦幻"
+    },
+    "step": {
+      "fine": "细腻",
+      "standard": "标准",
+      "bold": "强劲",
+      "huge": "巨幅"
+    },
+    "accel": {
+      "flat": "平直",
+      "gentle": "柔和",
+      "responsive": "灵敏",
+      "aggressive": "激进"
+    }
+  },
+  "cheatsheet": {
+    "title": "键盘快捷键",
+    "toggle": "显示 / 隐藏此面板",
+    "toggle_alt": "同上 — 替代键",
+    "toggle_smoothing": "切换平滑滚动开关",
+    "close": "关闭对话框 / 此面板",
+    "tab": "在控件之间切换焦点",
+    "space_slider": "切换滑杆值（聚焦时）",
+    "arrows": "逐步调整滑杆",
+    "hint": "在任意位置按 ? 打开此面板"
+  },
+  "whatsnew": {
+    "title": "新功能",
+    "dismiss": "知道了",
+    "version_label": "版本 {{version}}",
+    "tagline": "这是您上次打开 SmoothScroll 后的更新内容。",
+    "view_changelog": "查看完整更新日志",
+    "section_added": "新增",
+    "section_fixed": "修复",
+    "section_performance": "性能",
+    "section_changed": "变更",
+    "minor_fixes_only": "一些错误修复和小幅改进。"
+  },
+  "backup": {
+    "title": "备份与恢复",
+    "description": "将设置导出为 JSON 文件,或从备份中恢复。在迁移到新机器时很有用。",
+    "export": "导出设置",
+    "import": "导入设置",
+    "exported": "设置导出成功",
+    "imported": "设置已导入。正在重新加载…",
+    "import_error": "无法解析备份文件。请确保它是从 SmoothScroll 导出的。",
+    "confirm_import": "导入将覆盖您当前的设置。是否继续?"
+  },
+  "apppicker": {
+    "title": "选择应用",
+    "search": "搜索正在运行的应用…",
+    "empty": "无匹配项。请尝试其他名称。",
+    "loading": "正在加载运行中的应用…",
+    "refresh": "刷新"
+  },
+  "onboarding_intro": {
+    "title": "欢迎使用 SmoothScroll",
+    "body": "我们将在一分钟内让您的滚轮变得丝滑顺畅。请在下方选择一种方式。",
+    "just_smooth": "直接平滑(推荐)",
+    "guided": "为我调整(3 个快捷步骤)"
+  },
+  "stats": {
+    "title": "您的统计(仅本地)",
+    "description": "这些数据保留在您的设备上,不会上传任何内容。",
+    "sessions": "会话数",
+    "using_for": "使用时长",
+    "reset": "重置统计",
+    "confirm_reset": "这将清除所有本地存储的统计数据。是否继续?",
+    "today": "Today's Scroll Stats",
+    "distance": "Distance",
+    "active_time": "Active",
+    "notches": "Notches",
+    "top_apps": "Top Apps",
+    "peak_velocity": "Peak velocity",
+    "profile_switches": "Profile switches",
+    "notches_sec": "notches/sec"
+  },
+  "battery": {
+    "low_hint": "电量较低。平滑滚动会增加少量 CPU 开销 — 可以考虑暂时关闭。"
   },
   "tabs": {
     "scroll": {
@@ -71,6 +171,11 @@
       "label": "游戏模式",
       "title": "游戏模式",
       "description": "为已知游戏自动禁用平滑滚动。"
+    },
+    "stats": {
+      "label": "Stats",
+      "title": "Scroll Statistics",
+      "description": "Daily scroll analytics and per-app breakdown."
     }
   },
   "presets": {
@@ -91,9 +196,9 @@
       "title": "动画时长",
       "desc": "每次滚动持续多久"
     },
-    "accel_window": {
-      "title": "加速窗口",
-      "desc": "在此窗口内的滚动会累积动量"
+    "max_velocity": {
+      "title": "最大速度",
+      "desc": "加速度达到峰值前的最大滚动速度"
     },
     "accel_max": {
       "title": "最大加速倍数",
@@ -163,6 +268,14 @@
       "Dark": "深色",
       "System": "跟随系统"
     },
+    "auto_disable_windows_apps": {
+      "title": "Auto-disable in Windows apps",
+      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+    },
+    "force_enable_all": {
+      "title": "强制为所有应用启用平滑",
+      "desc": "覆盖 Windows 原生应用的自动禁用（记事本、Edge 等）"
+    },
     "reduce_motion": {
       "title": "尊重系统的减少动画设置",
       "desc": "当系统请求减少动画时,滚动将变为即时而非平滑",
@@ -173,11 +286,6 @@
       "status_off": "系统减少动画:关"
     },
     "reset_to_default": "恢复默认值",
-    "edge_scroll": {
-      "enable": "启用边缘自动滚动",
-      "zone_size": "区域大小：{{value}}px",
-      "max_speed": "最大速度：{{value}} 档/秒"
-    },
     "touchpad": {
       "detected": "已检测",
       "source": {
@@ -197,14 +305,6 @@
         "title": "加速系数",
         "desc": "增强快速滑动。0 表示禁用加速。"
       }
-    },
-    "force_enable_all": {
-      "title": "强制为所有应用启用平滑",
-      "desc": "覆盖 Windows 原生应用的自动禁用（记事本、Edge 等）"
-    },
-    "max_velocity": {
-      "title": "最大速度",
-      "desc": "加速度达到峰值前的最大滚动速度"
     }
   },
   "excluded": {
@@ -272,6 +372,10 @@
       "desc": "选择要使用的配置，然后选择要分配的应用。",
       "select_profile": "要分配的配置"
     }
+  },
+  "monitor_profiles": {
+    "description": "为特定监视器分配滚动配置文件。应用配置文件始终优先。",
+    "global_default": "默认（全局）"
   },
   "game_mode": {
     "auto_disable": "游戏中自动禁用",
@@ -367,91 +471,30 @@
     "skip": "跳过（受信任设备）",
     "error": "更新失败: {{message}}"
   },
-  "feel": {
-    "anim": {
-      "snappy": "迅捷",
-      "balanced": "平衡",
-      "glide": "滑行",
-      "dreamy": "梦幻"
-    },
-    "step": {
-      "fine": "细腻",
-      "standard": "标准",
-      "bold": "强劲",
-      "huge": "巨幅"
-    },
-    "accel": {
-      "flat": "平直",
-      "gentle": "柔和",
-      "responsive": "灵敏",
-      "aggressive": "激进"
+  "tray": {
+    "quick_access": "快速访问",
+    "smooth_scrolling": "平滑滚动",
+    "start_with_windows": "开机启动",
+    "start_with_macos": "Start at Login",
+    "start_with_system": "开机启动",
+    "start_minimized": "启动时最小化",
+    "actions": "操作",
+    "open_settings": "打开设置",
+    "excluded_apps": "排除的应用",
+    "open_log": "打开日志文件",
+    "quit": "退出 SmoothScroll",
+    "status_on": "开",
+    "status_off": "关",
+    "current_app": {
+      "heading": "Current app",
+      "category": "Category: {{category}}",
+      "profile": "Profile",
+      "default": "Default",
+      "disabled": "Disabled (pass-through)",
+      "disable_for_this_app": "Disable smoothing for this app",
+      "smoothing_on": "Smoothing active",
+      "smoothing_off": "Smoothing disabled"
     }
-  },
-  "cheatsheet": {
-    "title": "键盘快捷键",
-    "toggle": "显示 / 隐藏此面板",
-    "toggle_alt": "同上 — 替代键",
-    "toggle_smoothing": "切换平滑滚动开关",
-    "close": "关闭对话框 / 此面板",
-    "tab": "在控件之间切换焦点",
-    "space_slider": "切换滑杆值（聚焦时）",
-    "arrows": "逐步调整滑杆",
-    "hint": "在任意位置按 ? 打开此面板"
-  },
-  "whatsnew": {
-    "title": "新功能",
-    "dismiss": "知道了",
-    "version_label": "版本 {{version}}",
-    "tagline": "这是您上次打开 SmoothScroll 后的更新内容。",
-    "view_changelog": "查看完整更新日志",
-    "section_added": "新增",
-    "section_fixed": "修复",
-    "section_performance": "性能",
-    "section_changed": "变更",
-    "minor_fixes_only": "一些错误修复和小幅改进。"
-  },
-  "backup": {
-    "title": "备份与恢复",
-    "description": "将设置导出为 JSON 文件,或从备份中恢复。在迁移到新机器时很有用。",
-    "export": "导出设置",
-    "import": "导入设置",
-    "exported": "设置导出成功",
-    "imported": "设置已导入。正在重新加载…",
-    "import_error": "无法解析备份文件。请确保它是从 SmoothScroll 导出的。",
-    "confirm_import": "导入将覆盖您当前的设置。是否继续?"
-  },
-  "apppicker": {
-    "title": "选择应用",
-    "search": "搜索正在运行的应用…",
-    "empty": "无匹配项。请尝试其他名称。",
-    "loading": "正在加载运行中的应用…",
-    "refresh": "刷新"
-  },
-  "onboarding_intro": {
-    "title": "欢迎使用 SmoothScroll",
-    "body": "我们将在一分钟内让您的滚轮变得丝滑顺畅。请在下方选择一种方式。",
-    "just_smooth": "直接平滑(推荐)",
-    "guided": "为我调整(3 个快捷步骤)"
-  },
-  "stats": {
-    "title": "您的统计(仅本地)",
-    "description": "这些数据保留在您的设备上,不会上传任何内容。",
-    "sessions": "会话数",
-    "using_for": "使用时长",
-    "reset": "重置统计",
-    "confirm_reset": "这将清除所有本地存储的统计数据。是否继续?"
-  },
-  "battery": {
-    "low_hint": "电量较低。平滑滚动会增加少量 CPU 开销 — 可以考虑暂时关闭。"
-  },
-  "precision": {
-    "ctrl_label": "Ctrl + 滚轮直接传递",
-    "cmd_label": "Cmd + 滚轮直接传递",
-    "ctrl_help": "推荐用于 Photoshop、Figma、浏览器、VS Code 中的缩放。",
-    "alt_label": "Alt + 滚轮直接传递",
-    "alt_help": "推荐用于编辑器和时间线(Premiere、DAW 等)。",
-    "clear_inertia_label": "按下修饰键时清除惯性",
-    "clear_inertia_help": "按下修饰键时立即停止待执行的平滑滚动,使缩放反应更即时。"
   },
   "onboarding": {
     "skip": "跳过",
@@ -503,23 +546,14 @@
       }
     }
   },
-  "tray": {
-    "quick_access": "快速访问",
-    "smooth_scrolling": "平滑滚动",
-    "start_with_windows": "开机启动",
-    "start_with_system": "开机启动",
-    "start_minimized": "启动时最小化",
-    "actions": "操作",
-    "open_settings": "打开设置",
-    "excluded_apps": "排除的应用",
-    "open_log": "打开日志文件",
-    "quit": "退出 SmoothScroll",
-    "status_on": "开",
-    "status_off": "关"
-  },
-  "monitor_profiles": {
-    "description": "为特定监视器分配滚动配置文件。应用配置文件始终优先。",
-    "global_default": "默认（全局）",
-    "saved": "已保存监视器 {{device}} 的配置"
+  "error_boundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. The app will attempt to continue.",
+    "show_details": "Show technical details",
+    "reload": "Reload",
+    "report": "Report",
+    "email_subject": "[SmoothScroll] UI Error Report",
+    "unknown_error": "Unknown error",
+    "no_stack": "No stack trace"
   }
 }

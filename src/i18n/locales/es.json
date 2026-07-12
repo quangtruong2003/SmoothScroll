@@ -17,7 +17,6 @@
     "theme": "Apariencia",
     "touchpad": "Touchpad de precisión",
     "game_mode": "Modo juego",
-    "edge_scroll": "Desplazamiento automático en los bordes",
     "about": "Acerca de",
     "advanced_scroll": "Desplazamiento avanzado"
   },
@@ -27,367 +26,30 @@
   "permission": {
     "title": "Se requiere acceso de Accesibilidad",
     "body": "SmoothScroll necesita el permiso de Accessibility para capturar los eventos de la rueda del ratón y reemitirlos con animación suave. Abre System Settings → Privacy & Security → Accessibility y activa SmoothScroll.",
+    "macos_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
+    "windows_subtitle": "SmoothScroll needs Accessibility permission",
     "open": "Solicitar permiso",
+    "check_now": "I just granted it — check now",
+    "checking": "Checking...",
+    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
     "polling": "Detectaré cuando lo concedas y continuaré.",
+    "linux_checking": "Checking system requirements...",
+    "linux_retry": "Check Again After Setup",
+    "linux_retry_hint": "After running the commands above, click 'Check Again'",
     "linux_uinput_title": "Se requiere permiso de acceso",
     "linux_uinput_body": "SmoothScroll necesita acceso a /dev/uinput para suavizar el desplazamiento.\n\nEjecuta los siguientes comandos y cierra sesión:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nDespués de iniciar sesión, reinicia SmoothScroll.",
     "linux_uinput_hint": "Después de ejecutar los comandos anteriores, cierra sesión y vuelve a iniciarla, luego reinicia SmoothScroll.",
+    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
+    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
+    "linux_x11_subtitle": "Running on X11",
     "linux_flatpak_title": "SmoothScroll no es compatible con Flatpak",
+    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
     "linux_flatpak_body": "El sandbox de Flatpak bloquea el acceso a /dev/uinput necesario para la interceptación del desplazamiento. Instala SmoothScroll desde .deb o .AppImage.",
-    "linux_flatpak_hint": "Instala SmoothScroll desde .deb o .AppImage."
-  },
-  "tabs": {
-    "scroll": {
-      "label": "Desplazamiento",
-      "title": "Desplazamiento",
-      "description": "Activa el desplazamiento, ajusta tamaño del paso, easing, dirección y apariencia."
-    },
-    "devices": {
-      "label": "Dispositivos",
-      "title": "Dispositivos de entrada",
-      "description": "Suavizado de teclado y panel táctil."
-    },
-    "advanced": {
-      "label": "Avanzado",
-      "title": "Avanzado",
-      "description": "Ventana de aceleración, ratio de cola, modificadores de precisión y auto-desplazamiento de borde."
-    },
-    "apps": {
-      "label": "Apps",
-      "title": "Por aplicación",
-      "description": "Perfiles y exclusiones adaptados a aplicaciones específicas."
-    },
-    "behavior": {
-      "label": "Comportamiento",
-      "title": "Comportamiento",
-      "description": "Comportamiento de la app, atajos y reducir movimiento."
-    },
-    "about": {
-      "label": "Acerca de",
-      "title": "Acerca de",
-      "description": "Versión, actualizaciones y registros."
-    },
-    "gamemode": {
-      "label": "Modo juego",
-      "title": "Modo juego",
-      "description": "Desactivar el desplazamiento suave automáticamente para juegos conocidos."
-    }
-  },
-  "presets": {
-    "slow": "Lento",
-    "default": "Predeterminado",
-    "fast": "Rápido",
-    "snappy": "Ágil",
-    "mac_like": "Estilo Mac",
-    "linear": "Lineal",
-    "currently": "Actualmente: {{preset}}"
-  },
-  "settings": {
-    "step_size": {
-      "title": "Tamaño del paso",
-      "desc": "Píxeles desplazados por muesca de rueda"
-    },
-    "anim_time": {
-      "title": "Duración de la animación",
-      "desc": "Cuánto dura cada movimiento de desplazamiento"
-    },
-    "accel_window": {
-      "title": "Ventana de aceleración",
-      "desc": "Las muescas dentro de esta ventana acumulan impulso"
-    },
-    "accel_max": {
-      "title": "Aceleración máxima",
-      "desc": "Límite del multiplicador de aceleración"
-    },
-    "tail_ratio": {
-      "title": "Proporción cola/cabeza",
-      "desc": "Valores más altos dan una curva ease-out más marcada"
-    },
-    "easing_toggle": {
-      "title": "Suavizado",
-      "desc": "Aplicar curva de easing a cada movimiento de desplazamiento"
-    },
-    "easing_curve": {
-      "title": "Curva de easing",
-      "desc": "Forma de la curva de desaceleración",
-      "preview": "Vista previa",
-      "ExponentialOut": "Exponential Out (predeterminado)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
-      "Linear": "Lineal"
-    },
-    "reverse_wheel": {
-      "title": "Invertir dirección",
-      "desc": "Invertir el sentido del desplazamiento (estilo natural)"
-    },
-    "horizontal_smoothness": {
-      "title": "Desplazamiento horizontal suave",
-      "desc": "Aplicar suavizado a la rueda inclinable y a Mayús+rueda"
-    },
-    "horizontal_invert": {
-      "title": "Invertir dirección horizontal",
-      "desc": "Invertir la dirección del desplazamiento horizontal"
-    },
-    "smooth_zoom": {
-      "title": "Zoom suave",
-      "desc": "Aplicar suavizado al zoom Ctrl+rueda en apps de diseño"
-    },
-    "zoom_invert": {
-      "title": "Invertir dirección del zoom",
-      "desc": "Desplazar hacia arriba para alejar"
-    },
-    "global_hotkey": {
-      "title": "Atajo global",
-      "desc": "Pulsa la combinación elegida desde cualquier lugar para alternar el desplazamiento suave"
-    },
-    "hotkey_accelerator": {
-      "title": "Combinación de teclas",
-      "desc": "Haz clic y pulsa las teclas que quieras usar",
-      "press": "Pulsa una combinación de teclas…",
-      "empty": "Haz clic para grabar",
-      "aria": "Entrada de combinación de teclas",
-      "saved": "Atajo guardado"
-    },
-    "start_with_os": {
-      "title": "Iniciar con Windows",
-      "desc": "Iniciar SmoothScroll al iniciar sesión"
-    },
-    "start_minimized": {
-      "title": "Iniciar minimizado en la bandeja",
-      "desc": "Ocultar la ventana de configuración al iniciar"
-    },
-    "theme": {
-      "title": "Tema",
-      "desc": "Claro, oscuro o seguir al sistema",
-      "Light": "Claro",
-      "Dark": "Oscuro",
-      "System": "Sistema"
-    },
-    "reduce_motion": {
-      "title": "Respetar «Reducir movimiento» del sistema",
-      "desc": "Cuando el sistema solicita reducir el movimiento, el desplazamiento se vuelve instantáneo en lugar de suave",
-      "auto": "Auto (seguir sistema)",
-      "always": "Siempre instantáneo",
-      "never": "Siempre suave",
-      "status_on": "Reducir movimiento del sistema: ACTIVADO",
-      "status_off": "Reducir movimiento del sistema: DESACTIVADO"
-    },
-    "reset_to_default": "Restablecer valores predeterminados",
-    "edge_scroll": {
-      "enable": "Activar desplazamiento automático en los bordes",
-      "zone_size": "Tamaño de zona: {{value}}px",
-      "max_speed": "Velocidad máxima: {{value}} muescas/s"
-    },
-    "touchpad": {
-      "detected": "Detectado",
-      "source": {
-        "Wheel": "Rueda del ratón",
-        "HighResWheel": "Rueda de alta resolución",
-        "Touchpad": "Touchpad de precisión"
-      },
-      "enable": {
-        "title": "Desplazamiento suave del touchpad",
-        "desc": "Aplicar easing a la entrada de touchpad de alta resolución"
-      },
-      "pixel_multiplier": {
-        "title": "Multiplicador de píxeles",
-        "desc": "Escalar los deltas de píxel sin procesar del touchpad"
-      },
-      "acceleration": {
-        "title": "Factor de aceleración",
-        "desc": "Amplifica gestos rápidos. 0 desactiva la aceleración."
-      }
-    },
-    "force_enable_all": {
-      "title": "Forzar suavizado en todas las apps",
-      "desc": "Anular la desactivación automática para apps nativas de Windows"
-    },
-    "max_velocity": {
-      "title": "Velocidad máxima",
-      "desc": "Velocidad de desplazamiento máxima antes de que la aceleración alcance su pico"
-    }
-  },
-  "excluded": {
-    "empty": "Ninguna aplicación excluida. El desplazamiento suave está activo en todas partes.",
-    "add": "Añadir aplicación",
-    "remove_aria": "Eliminar {{name}}",
-    "added": "{{name}} añadida a la lista de exclusiones",
-    "removed": "{{name}} eliminada de la lista de exclusiones",
-    "dialog": {
-      "title": "Excluir una aplicación",
-      "desc": "Elige una aplicación en ejecución o escribe su nombre de proceso (sin .exe).",
-      "filter": "Filtrar…",
-      "manual": "O escribe el nombre del proceso…",
-      "manual_button": "Añadir",
-      "cancel": "Cancelar",
-      "scanning": "Escaneando procesos…",
-      "no_match": "No hay procesos coincidentes."
-    }
-  },
-  "profiles": {
-    "description": "Configuraciones de desplazamiento personalizadas que puedes asignar a aplicaciones específicas.",
-    "empty": "Aún no hay perfiles personalizados. Crea uno para ajustar el desplazamiento por aplicación.",
-    "create": "Crear perfil",
-    "created": "Perfil \"{{name}}\" creado",
-    "deleted": "Perfil \"{{name}}\" eliminado",
-    "saved": "Perfil \"{{name}}\" guardado",
-    "delete_confirm": "¿Eliminar el perfil \"{{name}}\"?",
-    "delete_confirm_desc": "Este perfil se eliminará permanentemente. Las aplicaciones asignadas deben desasignarse primero.",
-    "delete": "Eliminar",
-    "name_required": "El nombre del perfil es obligatorio",
-    "edit_aria": "Editar {{name}}",
-    "delete_aria": "Eliminar {{name}}",
-    "edit_title": "Editar perfil: {{name}}",
-    "assigned_to": "Asignado a {{count}} aplicación",
-    "assigned_to_plural": "Asignado a {{count}} aplicaciones",
-    "unassigned": "No asignado a ninguna aplicación",
-    "create_dialog": {
-      "title": "Crear perfil",
-      "desc": "Asigna un nombre al nuevo perfil. Podrás editar sus ajustes a continuación.",
-      "placeholder": "p. ej. Rápido, Estilo Mac, Lectura lenta"
-    },
-    "field": {
-      "name": "Nombre del perfil",
-      "name_desc": "Etiqueta amigable mostrada en la lista de aplicaciones"
-    },
-    "suggest": {
-      "title": "Sugerido para {{category}}",
-      "disable": "Desactivar suavizado",
-      "custom_preset": "Preajuste personalizado ({{step}}px, {{ms}}ms)",
-      "use": "Usar sugerencia",
-      "pick_manually": "Elegir manualmente"
-    }
-  },
-  "app_profiles": {
-    "description": "Elige cómo se comporta SmoothScroll en aplicaciones específicas.",
-    "empty": "Sin sustituciones por aplicación. Todas las aplicaciones usan tus ajustes globales.",
-    "assign": "Asignar aplicación",
-    "assigned": "{{name}} → {{profile}}",
-    "removed": "Sustitución eliminada para {{name}}",
-    "remove_aria": "Eliminar sustitución para {{name}}",
-    "disabled": "Desactivado (pass-through)",
-    "unknown_profile": "Perfil desconocido",
-    "dialog": {
-      "title": "Asignar perfil a una aplicación",
-      "desc": "Elige el perfil a usar y luego selecciona la aplicación a asignar.",
-      "select_profile": "Perfil a asignar"
-    }
-  },
-  "game_mode": {
-    "auto_disable": "Desactivar automáticamente en juegos",
-    "status_label": "Estado",
-    "status_active": "🎮 Activo — desplazamiento suave en pausa",
-    "status_inactive": "Inactivo",
-    "known_games": "Juegos conocidos",
-    "placeholder": "game.exe"
-  },
-  "errors": {
-    "autostart_failed": "No se pudo cambiar la configuración de inicio automático",
-    "hotkey_toggle_failed": "No se pudo alternar el atajo",
-    "hotkey_save_failed": "No se pudo guardar la combinación",
-    "excluded_add_failed": "No se pudo añadir la aplicación a la lista de exclusiones",
-    "excluded_remove_failed": "No se pudo eliminar la aplicación de la lista de exclusiones",
-    "profile_create_failed": "No se pudo crear el perfil",
-    "profile_in_use": "No se puede eliminar: el perfil está asignado a {{count}} aplicación",
-    "profile_in_use_plural": "No se puede eliminar: el perfil está asignado a {{count}} aplicaciones",
-    "app_profile_assign_failed": "No se pudo asignar el perfil a la aplicación",
-    "app_profile_remove_failed": "No se pudo eliminar la sustitución de la aplicación",
-    "save_failed": "No se pudieron guardar los ajustes. Los cambios se mantienen en memoria pero no se conservarán."
-  },
-  "language": {
-    "select_label": "Idioma de visualización",
-    "en": "English",
-    "vi": "Tiếng Việt",
-    "zh": "中文",
-    "fr": "Français",
-    "de": "Deutsch",
-    "hi": "हिन्दी",
-    "id": "Indonesia",
-    "it": "Italiano",
-    "ja": "日本語",
-    "ko": "한국어",
-    "pt-BR": "Português (Brasil)",
-    "es": "Español",
-    "tr": "Türkçe",
-    "ru": "Русский"
-  },
-  "common": {
-    "loading_settings": "Cargando ajustes…",
-    "load_failed": "No se pudieron cargar los ajustes: {{error}}",
-    "cancel": "Cancelar",
-    "save": "Guardar",
-    "add": "Añadir"
-  },
-  "about": {
-    "version": "Versión",
-    "author": "Autor",
-    "open_logs": "Abrir carpeta de registros",
-    "rerun_setup": "Volver a ejecutar el asistente de configuración",
-    "homepage": "Página principal",
-    "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
-    "updates": "Actualizaciones",
-    "check_now": "Comprobar ahora",
-    "checking": "Comprobando…",
-    "up_to_date": "Estás usando la versión más reciente.",
-    "update_available": "Actualización disponible: v{{version}}",
-    "install_now": "Instalar ahora",
-    "downloading": "Descargando… {{pct}}%",
-    "ready_to_restart": "Actualización instalada. Reinicia para aplicar.",
-    "restart_now": "Reiniciar ahora",
-    "show_release_notes": "Mostrar notas de la versión"
-  },
-  "support": {
-    "title": "Apoya este proyecto",
-    "description": "Gracias por usar SmoothScroll. Si te resulta útil, puedes invitarme a un café:",
-    "buy_me_a_coffee": "Invítame a un café",
-    "or_bank_transfer": "O transferencia bancaria directa:",
-    "bank_account": "Cuenta",
-    "bank_name": "Banco",
-    "copy_account": "Copiar número de cuenta",
-    "copied_toast": "Número de cuenta copiado",
-    "copy_failed": "No se pudo copiar. Manual: {{account}}",
-    "qr_load_failed": "No se pudo cargar el QR",
-    "qr_zoom_title": "Escanea para transferir",
-    "qr_alt": "VietQR para transferencia bancaria",
-    "donate_button": "Toca aquí para donar"
-  },
-  "forced_update": {
-    "title": "Actualización requerida",
-    "description": "Hay una nueva versión disponible. Debes actualizar SmoothScroll para seguir usándolo. (Actual: v{{current}} → Nueva: v{{latest}})",
-    "unknown_version": "?",
-    "notes_heading": "Novedades",
-    "install": "Descargar e instalar",
-    "downloading": "Descargando… {{pct}}%",
-    "downloading_btn": "Descargando…",
-    "installed_btn": "Instalado",
-    "restarting": "Actualización instalada. Reiniciando…",
-    "quit": "Salir",
-    "skip": "Omitir (dispositivo de confianza)",
-    "error": "Actualización fallida: {{message}}"
-  },
-  "tray": {
-    "quick_access": "Acceso rápido",
-    "smooth_scrolling": "Desplazamiento suave",
-    "start_with_windows": "Iniciar con Windows",
-    "start_with_system": "Iniciar con el sistema",
-    "start_minimized": "Iniciar minimizado",
-    "actions": "Acciones",
-    "open_settings": "Abrir ajustes",
-    "excluded_apps": "Aplicaciones excluidas",
-    "open_log": "Abrir archivo de registro",
-    "quit": "Salir de SmoothScroll",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "current_app": {
-      "heading": "Aplicación actual",
-      "category": "Categoría: {{category}}",
-      "profile": "Perfil",
-      "default": "Predeterminado",
-      "disabled": "Desactivado (pass-through)",
-      "disable_for_this_app": "Desactivar suavizado para esta aplicación",
-      "smoothing_on": "Suavizado activo",
-      "smoothing_off": "Suavizado desactivado"
-    }
+    "linux_flatpak_hint": "Instala SmoothScroll desde .deb o .AppImage.",
+    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
+    "session_label": "Session:",
+    "wayland_hint": "Wayland may require additional setup"
   },
   "feel": {
     "anim": {
@@ -461,19 +123,378 @@
     "sessions": "Sesiones",
     "using_for": "Usando desde",
     "reset": "Restablecer estadísticas",
-    "confirm_reset": "Esto borrará todas las estadísticas locales. ¿Continuar?"
+    "confirm_reset": "Esto borrará todas las estadísticas locales. ¿Continuar?",
+    "today": "Today's Scroll Stats",
+    "distance": "Distance",
+    "active_time": "Active",
+    "notches": "Notches",
+    "top_apps": "Top Apps",
+    "peak_velocity": "Peak velocity",
+    "profile_switches": "Profile switches",
+    "notches_sec": "notches/sec"
   },
   "battery": {
     "low_hint": "Batería baja. El desplazamiento suave consume algo de CPU — considera desactivarlo temporalmente."
   },
-  "precision": {
-    "ctrl_label": "Pasar Ctrl + rueda directo",
-    "cmd_label": "Pasar Cmd + rueda directo",
-    "ctrl_help": "Recomendado para zoom en Photoshop, Figma, navegadores, VS Code.",
-    "alt_label": "Pasar Alt + rueda directo",
-    "alt_help": "Recomendado para editores y líneas de tiempo (Premiere, DAW).",
-    "clear_inertia_label": "Borrar inercia al pulsar modificador",
-    "clear_inertia_help": "Detiene el desplazamiento suave pendiente al pulsar un modificador para que el zoom responda al instante."
+  "tabs": {
+    "scroll": {
+      "label": "Desplazamiento",
+      "title": "Desplazamiento",
+      "description": "Activa el desplazamiento, ajusta tamaño del paso, easing, dirección y apariencia."
+    },
+    "devices": {
+      "label": "Dispositivos",
+      "title": "Dispositivos de entrada",
+      "description": "Suavizado de teclado y panel táctil."
+    },
+    "advanced": {
+      "label": "Avanzado",
+      "title": "Avanzado",
+      "description": "Ventana de aceleración, ratio de cola, modificadores de precisión y auto-desplazamiento de borde."
+    },
+    "apps": {
+      "label": "Apps",
+      "title": "Por aplicación",
+      "description": "Perfiles y exclusiones adaptados a aplicaciones específicas."
+    },
+    "behavior": {
+      "label": "Comportamiento",
+      "title": "Comportamiento",
+      "description": "Comportamiento de la app, atajos y reducir movimiento."
+    },
+    "about": {
+      "label": "Acerca de",
+      "title": "Acerca de",
+      "description": "Versión, actualizaciones y registros."
+    },
+    "gamemode": {
+      "label": "Modo juego",
+      "title": "Modo juego",
+      "description": "Desactivar el desplazamiento suave automáticamente para juegos conocidos."
+    },
+    "stats": {
+      "label": "Stats",
+      "title": "Scroll Statistics",
+      "description": "Daily scroll analytics and per-app breakdown."
+    }
+  },
+  "presets": {
+    "slow": "Lento",
+    "default": "Predeterminado",
+    "fast": "Rápido",
+    "snappy": "Ágil",
+    "mac_like": "Estilo Mac",
+    "linear": "Lineal",
+    "currently": "Actualmente: {{preset}}"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Tamaño del paso",
+      "desc": "Píxeles desplazados por muesca de rueda"
+    },
+    "anim_time": {
+      "title": "Duración de la animación",
+      "desc": "Cuánto dura cada movimiento de desplazamiento"
+    },
+    "max_velocity": {
+      "title": "Velocidad máxima",
+      "desc": "Velocidad de desplazamiento máxima antes de que la aceleración alcance su pico"
+    },
+    "accel_max": {
+      "title": "Aceleración máxima",
+      "desc": "Límite del multiplicador de aceleración"
+    },
+    "tail_ratio": {
+      "title": "Proporción cola/cabeza",
+      "desc": "Valores más altos dan una curva ease-out más marcada"
+    },
+    "easing_toggle": {
+      "title": "Suavizado",
+      "desc": "Aplicar curva de easing a cada movimiento de desplazamiento"
+    },
+    "easing_curve": {
+      "title": "Curva de easing",
+      "desc": "Forma de la curva de desaceleración",
+      "preview": "Vista previa",
+      "ExponentialOut": "Exponential Out (predeterminado)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Lineal"
+    },
+    "reverse_wheel": {
+      "title": "Invertir dirección",
+      "desc": "Invertir el sentido del desplazamiento (estilo natural)"
+    },
+    "horizontal_smoothness": {
+      "title": "Desplazamiento horizontal suave",
+      "desc": "Aplicar suavizado a la rueda inclinable y a Mayús+rueda"
+    },
+    "horizontal_invert": {
+      "title": "Invertir dirección horizontal",
+      "desc": "Invertir la dirección del desplazamiento horizontal"
+    },
+    "smooth_zoom": {
+      "title": "Zoom suave",
+      "desc": "Aplicar suavizado al zoom Ctrl+rueda en apps de diseño"
+    },
+    "zoom_invert": {
+      "title": "Invertir dirección del zoom",
+      "desc": "Desplazar hacia arriba para alejar"
+    },
+    "global_hotkey": {
+      "title": "Atajo global",
+      "desc": "Pulsa la combinación elegida desde cualquier lugar para alternar el desplazamiento suave"
+    },
+    "hotkey_accelerator": {
+      "title": "Combinación de teclas",
+      "desc": "Haz clic y pulsa las teclas que quieras usar",
+      "press": "Pulsa una combinación de teclas…",
+      "empty": "Haz clic para grabar",
+      "aria": "Entrada de combinación de teclas",
+      "saved": "Atajo guardado"
+    },
+    "start_with_os": {
+      "title": "Iniciar con Windows",
+      "desc": "Iniciar SmoothScroll al iniciar sesión"
+    },
+    "start_minimized": {
+      "title": "Iniciar minimizado en la bandeja",
+      "desc": "Ocultar la ventana de configuración al iniciar"
+    },
+    "theme": {
+      "title": "Tema",
+      "desc": "Claro, oscuro o seguir al sistema",
+      "Light": "Claro",
+      "Dark": "Oscuro",
+      "System": "Sistema"
+    },
+    "auto_disable_windows_apps": {
+      "title": "Auto-disable in Windows apps",
+      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+    },
+    "force_enable_all": {
+      "title": "Forzar suavizado en todas las apps",
+      "desc": "Anular la desactivación automática para apps nativas de Windows"
+    },
+    "reduce_motion": {
+      "title": "Respetar «Reducir movimiento» del sistema",
+      "desc": "Cuando el sistema solicita reducir el movimiento, el desplazamiento se vuelve instantáneo en lugar de suave",
+      "auto": "Auto (seguir sistema)",
+      "always": "Siempre instantáneo",
+      "never": "Siempre suave",
+      "status_on": "Reducir movimiento del sistema: ACTIVADO",
+      "status_off": "Reducir movimiento del sistema: DESACTIVADO"
+    },
+    "reset_to_default": "Restablecer valores predeterminados",
+    "touchpad": {
+      "detected": "Detectado",
+      "source": {
+        "Wheel": "Rueda del ratón",
+        "HighResWheel": "Rueda de alta resolución",
+        "Touchpad": "Touchpad de precisión"
+      },
+      "enable": {
+        "title": "Desplazamiento suave del touchpad",
+        "desc": "Aplicar easing a la entrada de touchpad de alta resolución"
+      },
+      "pixel_multiplier": {
+        "title": "Multiplicador de píxeles",
+        "desc": "Escalar los deltas de píxel sin procesar del touchpad"
+      },
+      "acceleration": {
+        "title": "Factor de aceleración",
+        "desc": "Amplifica gestos rápidos. 0 desactiva la aceleración."
+      }
+    }
+  },
+  "excluded": {
+    "empty": "Ninguna aplicación excluida. El desplazamiento suave está activo en todas partes.",
+    "add": "Añadir aplicación",
+    "remove_aria": "Eliminar {{name}}",
+    "added": "{{name}} añadida a la lista de exclusiones",
+    "removed": "{{name}} eliminada de la lista de exclusiones",
+    "dialog": {
+      "title": "Excluir una aplicación",
+      "desc": "Elige una aplicación en ejecución o escribe su nombre de proceso (sin .exe).",
+      "filter": "Filtrar…",
+      "manual": "O escribe el nombre del proceso…",
+      "manual_button": "Añadir",
+      "cancel": "Cancelar",
+      "scanning": "Escaneando procesos…",
+      "no_match": "No hay procesos coincidentes."
+    }
+  },
+  "profiles": {
+    "description": "Configuraciones de desplazamiento personalizadas que puedes asignar a aplicaciones específicas.",
+    "empty": "Aún no hay perfiles personalizados. Crea uno para ajustar el desplazamiento por aplicación.",
+    "create": "Crear perfil",
+    "created": "Perfil \"{{name}}\" creado",
+    "deleted": "Perfil \"{{name}}\" eliminado",
+    "saved": "Perfil \"{{name}}\" guardado",
+    "delete_confirm": "¿Eliminar el perfil \"{{name}}\"?",
+    "delete_confirm_desc": "Este perfil se eliminará permanentemente. Las aplicaciones asignadas deben desasignarse primero.",
+    "delete": "Eliminar",
+    "name_required": "El nombre del perfil es obligatorio",
+    "edit_aria": "Editar {{name}}",
+    "delete_aria": "Eliminar {{name}}",
+    "edit_title": "Editar perfil: {{name}}",
+    "assigned_to": "Asignado a {{count}} aplicación",
+    "assigned_to_plural": "Asignado a {{count}} aplicaciones",
+    "unassigned": "No asignado a ninguna aplicación",
+    "create_dialog": {
+      "title": "Crear perfil",
+      "desc": "Asigna un nombre al nuevo perfil. Podrás editar sus ajustes a continuación.",
+      "placeholder": "p. ej. Rápido, Estilo Mac, Lectura lenta"
+    },
+    "field": {
+      "name": "Nombre del perfil",
+      "name_desc": "Etiqueta amigable mostrada en la lista de aplicaciones"
+    },
+    "suggest": {
+      "title": "Sugerido para {{category}}",
+      "disable": "Desactivar suavizado",
+      "custom_preset": "Preajuste personalizado ({{step}}px, {{ms}}ms)",
+      "use": "Usar sugerencia",
+      "pick_manually": "Elegir manualmente"
+    }
+  },
+  "app_profiles": {
+    "description": "Elige cómo se comporta SmoothScroll en aplicaciones específicas.",
+    "empty": "Sin sustituciones por aplicación. Todas las aplicaciones usan tus ajustes globales.",
+    "assign": "Asignar aplicación",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "Sustitución eliminada para {{name}}",
+    "remove_aria": "Eliminar sustitución para {{name}}",
+    "disabled": "Desactivado (pass-through)",
+    "unknown_profile": "Perfil desconocido",
+    "dialog": {
+      "title": "Asignar perfil a una aplicación",
+      "desc": "Elige el perfil a usar y luego selecciona la aplicación a asignar.",
+      "select_profile": "Perfil a asignar"
+    }
+  },
+  "monitor_profiles": {
+    "description": "Asigna perfiles de desplazamiento a monitores específicos. Los perfiles de aplicación siempre tienen prioridad.",
+    "global_default": "Predeterminado (global)"
+  },
+  "game_mode": {
+    "auto_disable": "Desactivar automáticamente en juegos",
+    "status_label": "Estado",
+    "status_active": "🎮 Activo — desplazamiento suave en pausa",
+    "status_inactive": "Inactivo",
+    "known_games": "Juegos conocidos",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "No se pudo cambiar la configuración de inicio automático",
+    "hotkey_toggle_failed": "No se pudo alternar el atajo",
+    "hotkey_save_failed": "No se pudo guardar la combinación",
+    "excluded_add_failed": "No se pudo añadir la aplicación a la lista de exclusiones",
+    "excluded_remove_failed": "No se pudo eliminar la aplicación de la lista de exclusiones",
+    "profile_create_failed": "No se pudo crear el perfil",
+    "profile_in_use": "No se puede eliminar: el perfil está asignado a {{count}} aplicación",
+    "profile_in_use_plural": "No se puede eliminar: el perfil está asignado a {{count}} aplicaciones",
+    "app_profile_assign_failed": "No se pudo asignar el perfil a la aplicación",
+    "app_profile_remove_failed": "No se pudo eliminar la sustitución de la aplicación",
+    "save_failed": "No se pudieron guardar los ajustes. Los cambios se mantienen en memoria pero no se conservarán."
+  },
+  "language": {
+    "select_label": "Idioma de visualización",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "Cargando ajustes…",
+    "load_failed": "No se pudieron cargar los ajustes: {{error}}",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "add": "Añadir"
+  },
+  "about": {
+    "version": "Versión",
+    "author": "Autor",
+    "open_logs": "Abrir carpeta de registros",
+    "rerun_setup": "Volver a ejecutar el asistente de configuración",
+    "homepage": "Página principal",
+    "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
+    "updates": "Actualizaciones",
+    "check_now": "Comprobar ahora",
+    "checking": "Comprobando…",
+    "up_to_date": "Estás usando la versión más reciente.",
+    "update_available": "Actualización disponible: v{{version}}",
+    "install_now": "Instalar ahora",
+    "downloading": "Descargando… {{pct}}%",
+    "ready_to_restart": "Actualización instalada. Reinicia para aplicar.",
+    "restart_now": "Reiniciar ahora",
+    "beta_badge_label": "BETA",
+    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "show_release_notes": "Mostrar notas de la versión"
+  },
+  "support": {
+    "title": "Apoya este proyecto",
+    "description": "Gracias por usar SmoothScroll. Si te resulta útil, puedes invitarme a un café:",
+    "buy_me_a_coffee": "Invítame a un café",
+    "or_bank_transfer": "O transferencia bancaria directa:",
+    "bank_account": "Cuenta",
+    "bank_name": "Banco",
+    "copy_account": "Copiar número de cuenta",
+    "copied_toast": "Número de cuenta copiado",
+    "copy_failed": "No se pudo copiar. Manual: {{account}}",
+    "qr_load_failed": "No se pudo cargar el QR",
+    "qr_zoom_title": "Escanea para transferir",
+    "qr_alt": "VietQR para transferencia bancaria",
+    "donate_button": "Toca aquí para donar"
+  },
+  "forced_update": {
+    "title": "Actualización requerida",
+    "description": "Hay una nueva versión disponible. Debes actualizar SmoothScroll para seguir usándolo. (Actual: v{{current}} → Nueva: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "Novedades",
+    "install": "Descargar e instalar",
+    "downloading": "Descargando… {{pct}}%",
+    "downloading_btn": "Descargando…",
+    "installed_btn": "Instalado",
+    "restarting": "Actualización instalada. Reiniciando…",
+    "quit": "Salir",
+    "skip": "Omitir (dispositivo de confianza)",
+    "error": "Actualización fallida: {{message}}"
+  },
+  "tray": {
+    "quick_access": "Acceso rápido",
+    "smooth_scrolling": "Desplazamiento suave",
+    "start_with_windows": "Iniciar con Windows",
+    "start_with_macos": "Start at Login",
+    "start_with_system": "Iniciar con el sistema",
+    "start_minimized": "Iniciar minimizado",
+    "actions": "Acciones",
+    "open_settings": "Abrir ajustes",
+    "excluded_apps": "Aplicaciones excluidas",
+    "open_log": "Abrir archivo de registro",
+    "quit": "Salir de SmoothScroll",
+    "status_on": "ON",
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Aplicación actual",
+      "category": "Categoría: {{category}}",
+      "profile": "Perfil",
+      "default": "Predeterminado",
+      "disabled": "Desactivado (pass-through)",
+      "disable_for_this_app": "Desactivar suavizado para esta aplicación",
+      "smoothing_on": "Suavizado activo",
+      "smoothing_off": "Suavizado desactivado"
+    }
   },
   "onboarding": {
     "skip": "Omitir",
@@ -525,9 +546,14 @@
       }
     }
   },
-  "monitor_profiles": {
-    "description": "Asigna perfiles de desplazamiento a monitores específicos. Los perfiles de aplicación siempre tienen prioridad.",
-    "global_default": "Predeterminado (global)",
-    "saved": "Perfil de monitor guardado para {{device}}"
+  "error_boundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. The app will attempt to continue.",
+    "show_details": "Show technical details",
+    "reload": "Reload",
+    "report": "Report",
+    "email_subject": "[SmoothScroll] UI Error Report",
+    "unknown_error": "Unknown error",
+    "no_stack": "No stack trace"
   }
 }

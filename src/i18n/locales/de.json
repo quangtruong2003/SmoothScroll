@@ -17,7 +17,6 @@
     "theme": "Erscheinungsbild",
     "touchpad": "Präzisions-Touchpad",
     "game_mode": "Spielemodus",
-    "edge_scroll": "Automatisches Bildlaufen am Rand",
     "about": "Über",
     "advanced_scroll": "Erweitertes Scrollen"
   },
@@ -27,367 +26,30 @@
   "permission": {
     "title": "Bedienungshilfen-Zugriff erforderlich",
     "body": "SmoothScroll benötigt die Accessibility-Berechtigung, um Mausrad-Ereignisse zu erfassen und mit sanfter Animation erneut auszulösen. Öffnen Sie System Settings → Privacy & Security → Accessibility und aktivieren Sie SmoothScroll.",
+    "macos_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
+    "windows_subtitle": "SmoothScroll needs Accessibility permission",
     "open": "Berechtigung anfordern",
+    "check_now": "I just granted it — check now",
+    "checking": "Checking...",
+    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
     "polling": "Sobald Sie die Berechtigung erteilen, erkenne ich es und mache weiter.",
+    "linux_checking": "Checking system requirements...",
+    "linux_retry": "Check Again After Setup",
+    "linux_retry_hint": "After running the commands above, click 'Check Again'",
     "linux_uinput_title": "Zugriffsberechtigung erforderlich",
     "linux_uinput_body": "SmoothScroll benötigt Zugriff auf /dev/uinput für Scroll-Glättung.\n\nFühren Sie die folgenden Befehle aus und melden Sie sich ab:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nMelden Sie sich nach dem Abmelden erneut an und starten Sie SmoothScroll neu.",
     "linux_uinput_hint": "Nachdem Sie die oben genannten Befehle ausgeführt haben, melden Sie sich ab und wieder an, dann starten Sie SmoothScroll neu.",
+    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
+    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
+    "linux_x11_subtitle": "Running on X11",
     "linux_flatpak_title": "SmoothScroll unterstützt Flatpak nicht",
+    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
     "linux_flatpak_body": "Die Flatpak-Sandbox blockiert den Zugriff auf /dev/uinput, der für Scroll-Interception erforderlich ist. Bitte installieren Sie SmoothScroll von .deb oder .AppImage.",
-    "linux_flatpak_hint": "Bitte installieren Sie SmoothScroll von .deb oder .AppImage."
-  },
-  "tabs": {
-    "scroll": {
-      "label": "Scrollen",
-      "title": "Scrollen",
-      "description": "Scrollen aktivieren, Schrittgröße, Easing, Richtung und Optik anpassen."
-    },
-    "devices": {
-      "label": "Geräte",
-      "title": "Eingabegeräte",
-      "description": "Tastatur- und Touchpad-Smoothing."
-    },
-    "advanced": {
-      "label": "Erweitert",
-      "title": "Erweitert",
-      "description": "Beschleunigungsfenster, Tail-Ratio, Präzisions-Modifikatoren und Rand-Autoscroll."
-    },
-    "apps": {
-      "label": "Apps",
-      "title": "Pro App",
-      "description": "Profile und Ausschlüsse für bestimmte Anwendungen."
-    },
-    "behavior": {
-      "label": "Verhalten",
-      "title": "Verhalten",
-      "description": "App-Verhalten, Hotkeys und Reduzierte Bewegung."
-    },
-    "about": {
-      "label": "Info",
-      "title": "Info",
-      "description": "Version, Updates und Logs."
-    },
-    "gamemode": {
-      "label": "Spielmodus",
-      "title": "Spielmodus",
-      "description": "Glattes Scrollen für bekannte Spiele automatisch deaktivieren."
-    }
-  },
-  "presets": {
-    "slow": "Langsam",
-    "default": "Standard",
-    "fast": "Schnell",
-    "snappy": "Reaktionsschnell",
-    "mac_like": "Mac-Stil",
-    "linear": "Linear",
-    "currently": "Aktuell: {{preset}}"
-  },
-  "settings": {
-    "step_size": {
-      "title": "Schrittgröße",
-      "desc": "Pixel pro Mausradraste"
-    },
-    "anim_time": {
-      "title": "Animationsdauer",
-      "desc": "Dauer jeder Scrollbewegung"
-    },
-    "accel_window": {
-      "title": "Beschleunigungsfenster",
-      "desc": "Rasten in diesem Fenster summieren Schwung"
-    },
-    "accel_max": {
-      "title": "Maximale Beschleunigung",
-      "desc": "Obergrenze des Beschleunigungsfaktors"
-    },
-    "tail_ratio": {
-      "title": "Verhältnis Ende zu Anfang",
-      "desc": "Höhere Werte ergeben eine schärfere Ease-Out-Kurve"
-    },
-    "easing_toggle": {
-      "title": "Glättung",
-      "desc": "Easing-Kurve auf jede Scrollbewegung anwenden"
-    },
-    "easing_curve": {
-      "title": "Easing-Kurve",
-      "desc": "Form der Verzögerungskurve",
-      "preview": "Vorschau",
-      "ExponentialOut": "Exponential Out (Standard)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
-      "Linear": "Linear"
-    },
-    "reverse_wheel": {
-      "title": "Richtung umkehren",
-      "desc": "Scrollrichtung umkehren (natürlicher Stil)"
-    },
-    "horizontal_smoothness": {
-      "title": "Horizontales Scrollen glätten",
-      "desc": "Glättung auf Tilt-Wheel und Umschalt+Mausrad anwenden"
-    },
-    "horizontal_invert": {
-      "title": "Horizontale Richtung umkehren",
-      "desc": "Richtung des horizontalen Scrollens umkehren"
-    },
-    "smooth_zoom": {
-      "title": "Sanftes Zoomen",
-      "desc": "Glättung auf Ctrl+Rad-Zoom in Design-Apps anwenden"
-    },
-    "zoom_invert": {
-      "title": "Zoomrichtung umkehren",
-      "desc": "Nach oben scrollen zum Verkleinern"
-    },
-    "global_hotkey": {
-      "title": "Globaler Tastenkürzel",
-      "desc": "Drücken Sie die Tastenkombination überall, um sanftes Scrollen umzuschalten"
-    },
-    "hotkey_accelerator": {
-      "title": "Tastenkombination",
-      "desc": "Klicken und gewünschte Tasten drücken",
-      "press": "Drücken Sie eine Tastenkombination…",
-      "empty": "Klicken zum Aufzeichnen",
-      "aria": "Eingabe der Tastenkombination",
-      "saved": "Tastenkombination gespeichert"
-    },
-    "start_with_os": {
-      "title": "Mit Windows starten",
-      "desc": "SmoothScroll bei der Anmeldung starten"
-    },
-    "start_minimized": {
-      "title": "Minimiert in Taskleiste starten",
-      "desc": "Einstellungsfenster beim Start ausblenden"
-    },
-    "theme": {
-      "title": "Design",
-      "desc": "Hell, dunkel oder System folgen",
-      "Light": "Hell",
-      "Dark": "Dunkel",
-      "System": "System"
-    },
-    "reduce_motion": {
-      "title": "System-Einstellung „Bewegung reduzieren“ beachten",
-      "desc": "Wenn das System reduzierte Bewegung anfordert, wird das Scrollen sofort statt sanft",
-      "auto": "Automatisch (System folgen)",
-      "always": "Immer sofort",
-      "never": "Immer sanft",
-      "status_on": "System: Bewegung reduziert: AN",
-      "status_off": "System: Bewegung reduziert: AUS"
-    },
-    "reset_to_default": "Auf Standard zurücksetzen",
-    "edge_scroll": {
-      "enable": "Automatisches Bildlaufen am Rand aktivieren",
-      "zone_size": "Zonengröße: {{value}}px",
-      "max_speed": "Maximale Geschwindigkeit: {{value}} Rasten/s"
-    },
-    "touchpad": {
-      "detected": "Erkannt",
-      "source": {
-        "Wheel": "Mausrad",
-        "HighResWheel": "Hochauflösendes Mausrad",
-        "Touchpad": "Präzisions-Touchpad"
-      },
-      "enable": {
-        "title": "Sanftes Touchpad-Scrollen",
-        "desc": "Easing auf hochauflösende Touchpad-Eingabe anwenden"
-      },
-      "pixel_multiplier": {
-        "title": "Pixel-Multiplikator",
-        "desc": "Rohe Pixeldeltas vom Touchpad skalieren"
-      },
-      "acceleration": {
-        "title": "Beschleunigungsfaktor",
-        "desc": "Schnelle Wischbewegungen verstärken. 0 deaktiviert die Beschleunigung."
-      }
-    },
-    "force_enable_all": {
-      "title": "Glätten für alle Apps erzwingen",
-      "desc": "Automatische Deaktivierung für Windows-native Apps aufheben"
-    },
-    "max_velocity": {
-      "title": "Maximale Geschwindigkeit",
-      "desc": "Maximale Scrollgeschwindigkeit bevor die Beschleunigung ihr Maximum erreicht"
-    }
-  },
-  "excluded": {
-    "empty": "Keine Apps ausgeschlossen. Sanftes Scrollen ist überall aktiv.",
-    "add": "App hinzufügen",
-    "remove_aria": "{{name}} entfernen",
-    "added": "{{name}} zur Ausschlussliste hinzugefügt",
-    "removed": "{{name}} aus der Ausschlussliste entfernt",
-    "dialog": {
-      "title": "App ausschließen",
-      "desc": "Wählen Sie eine laufende App oder geben Sie den Prozessnamen ein (ohne .exe).",
-      "filter": "Filtern…",
-      "manual": "Oder Prozessname eingeben…",
-      "manual_button": "Hinzufügen",
-      "cancel": "Abbrechen",
-      "scanning": "Prozesse werden gescannt…",
-      "no_match": "Keine passenden Prozesse."
-    }
-  },
-  "profiles": {
-    "description": "Benutzerdefinierte Scrolleinstellungen, die Sie bestimmten Apps zuweisen können.",
-    "empty": "Noch keine benutzerdefinierten Profile. Erstellen Sie eines, um das Scrollverhalten pro App zu optimieren.",
-    "create": "Profil erstellen",
-    "created": "Profil \"{{name}}\" erstellt",
-    "deleted": "Profil \"{{name}}\" gelöscht",
-    "saved": "Profil \"{{name}}\" gespeichert",
-    "delete_confirm": "Profil \"{{name}}\" löschen?",
-    "delete_confirm_desc": "Dieses Profil wird dauerhaft entfernt. Zugewiesene Apps müssen zuvor abgemeldet werden.",
-    "delete": "Löschen",
-    "name_required": "Profilname ist erforderlich",
-    "edit_aria": "{{name}} bearbeiten",
-    "delete_aria": "{{name}} löschen",
-    "edit_title": "Profil bearbeiten: {{name}}",
-    "assigned_to": "Zugewiesen zu {{count}} App",
-    "assigned_to_plural": "Zugewiesen zu {{count}} Apps",
-    "unassigned": "Keiner App zugewiesen",
-    "create_dialog": {
-      "title": "Profil erstellen",
-      "desc": "Geben Sie Ihrem neuen Profil einen Namen. Die Einstellungen können Sie anschließend anpassen.",
-      "placeholder": "z. B. Schnell, Mac-Stil, Langsames Lesen"
-    },
-    "field": {
-      "name": "Profilname",
-      "name_desc": "Beschriftung in der App-Liste"
-    },
-    "suggest": {
-      "title": "Vorgeschlagen für {{category}}",
-      "disable": "Glättung deaktivieren",
-      "custom_preset": "Benutzerdefiniertes Preset ({{step}}px, {{ms}}ms)",
-      "use": "Vorschlag verwenden",
-      "pick_manually": "Manuell auswählen"
-    }
-  },
-  "app_profiles": {
-    "description": "Wählen Sie, wie sich SmoothScroll in bestimmten Apps verhält.",
-    "empty": "Keine Pro-App-Überschreibungen. Alle Apps verwenden Ihre globalen Einstellungen.",
-    "assign": "App zuweisen",
-    "assigned": "{{name}} → {{profile}}",
-    "removed": "Überschreibung für {{name}} entfernt",
-    "remove_aria": "Überschreibung für {{name}} entfernen",
-    "disabled": "Deaktiviert (Pass-Through)",
-    "unknown_profile": "Unbekanntes Profil",
-    "dialog": {
-      "title": "Profil einer App zuweisen",
-      "desc": "Wählen Sie das Profil und dann die App, der es zugewiesen werden soll.",
-      "select_profile": "Zuzuweisendes Profil"
-    }
-  },
-  "game_mode": {
-    "auto_disable": "In Spielen automatisch deaktivieren",
-    "status_label": "Status",
-    "status_active": "🎮 Aktiv — sanftes Scrollen pausiert",
-    "status_inactive": "Inaktiv",
-    "known_games": "Bekannte Spiele",
-    "placeholder": "game.exe"
-  },
-  "errors": {
-    "autostart_failed": "Autostart-Einstellung konnte nicht geändert werden",
-    "hotkey_toggle_failed": "Tastenkürzel konnte nicht umgeschaltet werden",
-    "hotkey_save_failed": "Tastenkombination konnte nicht gespeichert werden",
-    "excluded_add_failed": "App konnte nicht zur Ausschlussliste hinzugefügt werden",
-    "excluded_remove_failed": "App konnte nicht aus der Ausschlussliste entfernt werden",
-    "profile_create_failed": "Profil konnte nicht erstellt werden",
-    "profile_in_use": "Löschen nicht möglich: Profil ist {{count}} App zugewiesen",
-    "profile_in_use_plural": "Löschen nicht möglich: Profil ist {{count}} Apps zugewiesen",
-    "app_profile_assign_failed": "Profil konnte der App nicht zugewiesen werden",
-    "app_profile_remove_failed": "App-Überschreibung konnte nicht entfernt werden",
-    "save_failed": "Einstellungen konnten nicht gespeichert werden. Änderungen bleiben im Speicher, sind aber nicht persistent."
-  },
-  "language": {
-    "select_label": "Anzeigesprache",
-    "en": "English",
-    "vi": "Tiếng Việt",
-    "zh": "中文",
-    "fr": "Français",
-    "de": "Deutsch",
-    "hi": "हिन्दी",
-    "id": "Indonesia",
-    "it": "Italiano",
-    "ja": "日本語",
-    "ko": "한국어",
-    "pt-BR": "Português (Brasil)",
-    "es": "Español",
-    "tr": "Türkçe",
-    "ru": "Русский"
-  },
-  "common": {
-    "loading_settings": "Einstellungen werden geladen…",
-    "load_failed": "Einstellungen konnten nicht geladen werden: {{error}}",
-    "cancel": "Abbrechen",
-    "save": "Speichern",
-    "add": "Hinzufügen"
-  },
-  "about": {
-    "version": "Version",
-    "author": "Autor",
-    "open_logs": "Protokollordner öffnen",
-    "rerun_setup": "Einrichtungsassistent erneut ausführen",
-    "homepage": "Startseite",
-    "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
-    "updates": "Updates",
-    "check_now": "Jetzt prüfen",
-    "checking": "Wird geprüft…",
-    "up_to_date": "Sie verwenden die neueste Version.",
-    "update_available": "Update verfügbar: v{{version}}",
-    "install_now": "Jetzt installieren",
-    "downloading": "Wird heruntergeladen… {{pct}}%",
-    "ready_to_restart": "Update installiert. Neustart zur Anwendung erforderlich.",
-    "restart_now": "Jetzt neu starten",
-    "show_release_notes": "Versionshinweise anzeigen"
-  },
-  "support": {
-    "title": "Dieses Projekt unterstützen",
-    "description": "Danke, dass du SmoothScroll nutzt. Wenn es dir hilft, kannst du mir einen Kaffee ausgeben:",
-    "buy_me_a_coffee": "Einen Kaffee spendieren",
-    "or_bank_transfer": "Oder per Banküberweisung:",
-    "bank_account": "Kontonummer",
-    "bank_name": "Bank",
-    "copy_account": "Kontonummer kopieren",
-    "copied_toast": "Kontonummer kopiert",
-    "copy_failed": "Konnte nicht kopiert werden. Manuell: {{account}}",
-    "qr_load_failed": "QR-Code konnte nicht geladen werden",
-    "qr_zoom_title": "Zum Überweisen scannen",
-    "qr_alt": "VietQR für Banküberweisung",
-    "donate_button": "Hier tippen, um zu spenden"
-  },
-  "forced_update": {
-    "title": "Update erforderlich",
-    "description": "Eine neue Version ist verfügbar. Sie müssen SmoothScroll aktualisieren, um es weiter zu verwenden. (Aktuell: v{{current}} → Neu: v{{latest}})",
-    "unknown_version": "?",
-    "notes_heading": "Neuerungen",
-    "install": "Herunterladen & installieren",
-    "downloading": "Wird heruntergeladen… {{pct}}%",
-    "downloading_btn": "Wird heruntergeladen…",
-    "installed_btn": "Installiert",
-    "restarting": "Update installiert. Neustart…",
-    "quit": "Beenden",
-    "skip": "Überspringen (vertrautes Gerät)",
-    "error": "Update fehlgeschlagen: {{message}}"
-  },
-  "tray": {
-    "quick_access": "Schnellzugriff",
-    "smooth_scrolling": "Sanftes Scrollen",
-    "start_with_windows": "Mit Windows starten",
-    "start_with_system": "Mit System starten",
-    "start_minimized": "Minimiert starten",
-    "actions": "Aktionen",
-    "open_settings": "Einstellungen öffnen",
-    "excluded_apps": "Ausgeschlossene Apps",
-    "open_log": "Protokolldatei öffnen",
-    "quit": "SmoothScroll beenden",
-    "status_on": "AN",
-    "status_off": "AUS",
-    "current_app": {
-      "heading": "Aktuelle App",
-      "category": "Kategorie: {{category}}",
-      "profile": "Profil",
-      "default": "Standard",
-      "disabled": "Deaktiviert (Pass-Through)",
-      "disable_for_this_app": "Glättung für diese App deaktivieren",
-      "smoothing_on": "Glättung aktiv",
-      "smoothing_off": "Glättung deaktiviert"
-    }
+    "linux_flatpak_hint": "Bitte installieren Sie SmoothScroll von .deb oder .AppImage.",
+    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
+    "session_label": "Session:",
+    "wayland_hint": "Wayland may require additional setup"
   },
   "feel": {
     "anim": {
@@ -461,19 +123,378 @@
     "sessions": "Sitzungen",
     "using_for": "In Verwendung seit",
     "reset": "Statistiken zurücksetzen",
-    "confirm_reset": "Dadurch werden alle lokal gespeicherten Statistiken gelöscht. Fortfahren?"
+    "confirm_reset": "Dadurch werden alle lokal gespeicherten Statistiken gelöscht. Fortfahren?",
+    "today": "Today's Scroll Stats",
+    "distance": "Distance",
+    "active_time": "Active",
+    "notches": "Notches",
+    "top_apps": "Top Apps",
+    "peak_velocity": "Peak velocity",
+    "profile_switches": "Profile switches",
+    "notches_sec": "notches/sec"
   },
   "battery": {
     "low_hint": "Akku schwach. Sanftes Scrollen kostet etwas CPU — Sie können es vorübergehend deaktivieren."
   },
-  "precision": {
-    "ctrl_label": "Strg + Mausrad direkt durchreichen",
-    "cmd_label": "Cmd + Mausrad direkt durchreichen",
-    "ctrl_help": "Empfohlen für Zoom in Photoshop, Figma, Browser, VS Code.",
-    "alt_label": "Alt + Mausrad direkt durchreichen",
-    "alt_help": "Empfohlen für Editoren und Timelines (Premiere, DAWs).",
-    "clear_inertia_label": "Trägheit beim Drücken eines Modifikators löschen",
-    "clear_inertia_help": "Stoppt anstehendes sanftes Scrollen sobald ein Modifikator gedrückt wird, damit Zoom sofort reagiert."
+  "tabs": {
+    "scroll": {
+      "label": "Scrollen",
+      "title": "Scrollen",
+      "description": "Scrollen aktivieren, Schrittgröße, Easing, Richtung und Optik anpassen."
+    },
+    "devices": {
+      "label": "Geräte",
+      "title": "Eingabegeräte",
+      "description": "Tastatur- und Touchpad-Smoothing."
+    },
+    "advanced": {
+      "label": "Erweitert",
+      "title": "Erweitert",
+      "description": "Beschleunigungsfenster, Tail-Ratio, Präzisions-Modifikatoren und Rand-Autoscroll."
+    },
+    "apps": {
+      "label": "Apps",
+      "title": "Pro App",
+      "description": "Profile und Ausschlüsse für bestimmte Anwendungen."
+    },
+    "behavior": {
+      "label": "Verhalten",
+      "title": "Verhalten",
+      "description": "App-Verhalten, Hotkeys und Reduzierte Bewegung."
+    },
+    "about": {
+      "label": "Info",
+      "title": "Info",
+      "description": "Version, Updates und Logs."
+    },
+    "gamemode": {
+      "label": "Spielmodus",
+      "title": "Spielmodus",
+      "description": "Glattes Scrollen für bekannte Spiele automatisch deaktivieren."
+    },
+    "stats": {
+      "label": "Stats",
+      "title": "Scroll Statistics",
+      "description": "Daily scroll analytics and per-app breakdown."
+    }
+  },
+  "presets": {
+    "slow": "Langsam",
+    "default": "Standard",
+    "fast": "Schnell",
+    "snappy": "Reaktionsschnell",
+    "mac_like": "Mac-Stil",
+    "linear": "Linear",
+    "currently": "Aktuell: {{preset}}"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Schrittgröße",
+      "desc": "Pixel pro Mausradraste"
+    },
+    "anim_time": {
+      "title": "Animationsdauer",
+      "desc": "Dauer jeder Scrollbewegung"
+    },
+    "max_velocity": {
+      "title": "Maximale Geschwindigkeit",
+      "desc": "Maximale Scrollgeschwindigkeit bevor die Beschleunigung ihr Maximum erreicht"
+    },
+    "accel_max": {
+      "title": "Maximale Beschleunigung",
+      "desc": "Obergrenze des Beschleunigungsfaktors"
+    },
+    "tail_ratio": {
+      "title": "Verhältnis Ende zu Anfang",
+      "desc": "Höhere Werte ergeben eine schärfere Ease-Out-Kurve"
+    },
+    "easing_toggle": {
+      "title": "Glättung",
+      "desc": "Easing-Kurve auf jede Scrollbewegung anwenden"
+    },
+    "easing_curve": {
+      "title": "Easing-Kurve",
+      "desc": "Form der Verzögerungskurve",
+      "preview": "Vorschau",
+      "ExponentialOut": "Exponential Out (Standard)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Linear"
+    },
+    "reverse_wheel": {
+      "title": "Richtung umkehren",
+      "desc": "Scrollrichtung umkehren (natürlicher Stil)"
+    },
+    "horizontal_smoothness": {
+      "title": "Horizontales Scrollen glätten",
+      "desc": "Glättung auf Tilt-Wheel und Umschalt+Mausrad anwenden"
+    },
+    "horizontal_invert": {
+      "title": "Horizontale Richtung umkehren",
+      "desc": "Richtung des horizontalen Scrollens umkehren"
+    },
+    "smooth_zoom": {
+      "title": "Sanftes Zoomen",
+      "desc": "Glättung auf Ctrl+Rad-Zoom in Design-Apps anwenden"
+    },
+    "zoom_invert": {
+      "title": "Zoomrichtung umkehren",
+      "desc": "Nach oben scrollen zum Verkleinern"
+    },
+    "global_hotkey": {
+      "title": "Globaler Tastenkürzel",
+      "desc": "Drücken Sie die Tastenkombination überall, um sanftes Scrollen umzuschalten"
+    },
+    "hotkey_accelerator": {
+      "title": "Tastenkombination",
+      "desc": "Klicken und gewünschte Tasten drücken",
+      "press": "Drücken Sie eine Tastenkombination…",
+      "empty": "Klicken zum Aufzeichnen",
+      "aria": "Eingabe der Tastenkombination",
+      "saved": "Tastenkombination gespeichert"
+    },
+    "start_with_os": {
+      "title": "Mit Windows starten",
+      "desc": "SmoothScroll bei der Anmeldung starten"
+    },
+    "start_minimized": {
+      "title": "Minimiert in Taskleiste starten",
+      "desc": "Einstellungsfenster beim Start ausblenden"
+    },
+    "theme": {
+      "title": "Design",
+      "desc": "Hell, dunkel oder System folgen",
+      "Light": "Hell",
+      "Dark": "Dunkel",
+      "System": "System"
+    },
+    "auto_disable_windows_apps": {
+      "title": "Auto-disable in Windows apps",
+      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+    },
+    "force_enable_all": {
+      "title": "Glätten für alle Apps erzwingen",
+      "desc": "Automatische Deaktivierung für Windows-native Apps aufheben"
+    },
+    "reduce_motion": {
+      "title": "System-Einstellung „Bewegung reduzieren“ beachten",
+      "desc": "Wenn das System reduzierte Bewegung anfordert, wird das Scrollen sofort statt sanft",
+      "auto": "Automatisch (System folgen)",
+      "always": "Immer sofort",
+      "never": "Immer sanft",
+      "status_on": "System: Bewegung reduziert: AN",
+      "status_off": "System: Bewegung reduziert: AUS"
+    },
+    "reset_to_default": "Auf Standard zurücksetzen",
+    "touchpad": {
+      "detected": "Erkannt",
+      "source": {
+        "Wheel": "Mausrad",
+        "HighResWheel": "Hochauflösendes Mausrad",
+        "Touchpad": "Präzisions-Touchpad"
+      },
+      "enable": {
+        "title": "Sanftes Touchpad-Scrollen",
+        "desc": "Easing auf hochauflösende Touchpad-Eingabe anwenden"
+      },
+      "pixel_multiplier": {
+        "title": "Pixel-Multiplikator",
+        "desc": "Rohe Pixeldeltas vom Touchpad skalieren"
+      },
+      "acceleration": {
+        "title": "Beschleunigungsfaktor",
+        "desc": "Schnelle Wischbewegungen verstärken. 0 deaktiviert die Beschleunigung."
+      }
+    }
+  },
+  "excluded": {
+    "empty": "Keine Apps ausgeschlossen. Sanftes Scrollen ist überall aktiv.",
+    "add": "App hinzufügen",
+    "remove_aria": "{{name}} entfernen",
+    "added": "{{name}} zur Ausschlussliste hinzugefügt",
+    "removed": "{{name}} aus der Ausschlussliste entfernt",
+    "dialog": {
+      "title": "App ausschließen",
+      "desc": "Wählen Sie eine laufende App oder geben Sie den Prozessnamen ein (ohne .exe).",
+      "filter": "Filtern…",
+      "manual": "Oder Prozessname eingeben…",
+      "manual_button": "Hinzufügen",
+      "cancel": "Abbrechen",
+      "scanning": "Prozesse werden gescannt…",
+      "no_match": "Keine passenden Prozesse."
+    }
+  },
+  "profiles": {
+    "description": "Benutzerdefinierte Scrolleinstellungen, die Sie bestimmten Apps zuweisen können.",
+    "empty": "Noch keine benutzerdefinierten Profile. Erstellen Sie eines, um das Scrollverhalten pro App zu optimieren.",
+    "create": "Profil erstellen",
+    "created": "Profil \"{{name}}\" erstellt",
+    "deleted": "Profil \"{{name}}\" gelöscht",
+    "saved": "Profil \"{{name}}\" gespeichert",
+    "delete_confirm": "Profil \"{{name}}\" löschen?",
+    "delete_confirm_desc": "Dieses Profil wird dauerhaft entfernt. Zugewiesene Apps müssen zuvor abgemeldet werden.",
+    "delete": "Löschen",
+    "name_required": "Profilname ist erforderlich",
+    "edit_aria": "{{name}} bearbeiten",
+    "delete_aria": "{{name}} löschen",
+    "edit_title": "Profil bearbeiten: {{name}}",
+    "assigned_to": "Zugewiesen zu {{count}} App",
+    "assigned_to_plural": "Zugewiesen zu {{count}} Apps",
+    "unassigned": "Keiner App zugewiesen",
+    "create_dialog": {
+      "title": "Profil erstellen",
+      "desc": "Geben Sie Ihrem neuen Profil einen Namen. Die Einstellungen können Sie anschließend anpassen.",
+      "placeholder": "z. B. Schnell, Mac-Stil, Langsames Lesen"
+    },
+    "field": {
+      "name": "Profilname",
+      "name_desc": "Beschriftung in der App-Liste"
+    },
+    "suggest": {
+      "title": "Vorgeschlagen für {{category}}",
+      "disable": "Glättung deaktivieren",
+      "custom_preset": "Benutzerdefiniertes Preset ({{step}}px, {{ms}}ms)",
+      "use": "Vorschlag verwenden",
+      "pick_manually": "Manuell auswählen"
+    }
+  },
+  "app_profiles": {
+    "description": "Wählen Sie, wie sich SmoothScroll in bestimmten Apps verhält.",
+    "empty": "Keine Pro-App-Überschreibungen. Alle Apps verwenden Ihre globalen Einstellungen.",
+    "assign": "App zuweisen",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "Überschreibung für {{name}} entfernt",
+    "remove_aria": "Überschreibung für {{name}} entfernen",
+    "disabled": "Deaktiviert (Pass-Through)",
+    "unknown_profile": "Unbekanntes Profil",
+    "dialog": {
+      "title": "Profil einer App zuweisen",
+      "desc": "Wählen Sie das Profil und dann die App, der es zugewiesen werden soll.",
+      "select_profile": "Zuzuweisendes Profil"
+    }
+  },
+  "monitor_profiles": {
+    "description": "Weisen Sie Bildschirmen Scrollprofile zu. App-Profil haben immer Vorrang.",
+    "global_default": "Standard (global)"
+  },
+  "game_mode": {
+    "auto_disable": "In Spielen automatisch deaktivieren",
+    "status_label": "Status",
+    "status_active": "🎮 Aktiv — sanftes Scrollen pausiert",
+    "status_inactive": "Inaktiv",
+    "known_games": "Bekannte Spiele",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "Autostart-Einstellung konnte nicht geändert werden",
+    "hotkey_toggle_failed": "Tastenkürzel konnte nicht umgeschaltet werden",
+    "hotkey_save_failed": "Tastenkombination konnte nicht gespeichert werden",
+    "excluded_add_failed": "App konnte nicht zur Ausschlussliste hinzugefügt werden",
+    "excluded_remove_failed": "App konnte nicht aus der Ausschlussliste entfernt werden",
+    "profile_create_failed": "Profil konnte nicht erstellt werden",
+    "profile_in_use": "Löschen nicht möglich: Profil ist {{count}} App zugewiesen",
+    "profile_in_use_plural": "Löschen nicht möglich: Profil ist {{count}} Apps zugewiesen",
+    "app_profile_assign_failed": "Profil konnte der App nicht zugewiesen werden",
+    "app_profile_remove_failed": "App-Überschreibung konnte nicht entfernt werden",
+    "save_failed": "Einstellungen konnten nicht gespeichert werden. Änderungen bleiben im Speicher, sind aber nicht persistent."
+  },
+  "language": {
+    "select_label": "Anzeigesprache",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "Einstellungen werden geladen…",
+    "load_failed": "Einstellungen konnten nicht geladen werden: {{error}}",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "add": "Hinzufügen"
+  },
+  "about": {
+    "version": "Version",
+    "author": "Autor",
+    "open_logs": "Protokollordner öffnen",
+    "rerun_setup": "Einrichtungsassistent erneut ausführen",
+    "homepage": "Startseite",
+    "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
+    "updates": "Updates",
+    "check_now": "Jetzt prüfen",
+    "checking": "Wird geprüft…",
+    "up_to_date": "Sie verwenden die neueste Version.",
+    "update_available": "Update verfügbar: v{{version}}",
+    "install_now": "Jetzt installieren",
+    "downloading": "Wird heruntergeladen… {{pct}}%",
+    "ready_to_restart": "Update installiert. Neustart zur Anwendung erforderlich.",
+    "restart_now": "Jetzt neu starten",
+    "beta_badge_label": "BETA",
+    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "show_release_notes": "Versionshinweise anzeigen"
+  },
+  "support": {
+    "title": "Dieses Projekt unterstützen",
+    "description": "Danke, dass du SmoothScroll nutzt. Wenn es dir hilft, kannst du mir einen Kaffee ausgeben:",
+    "buy_me_a_coffee": "Einen Kaffee spendieren",
+    "or_bank_transfer": "Oder per Banküberweisung:",
+    "bank_account": "Kontonummer",
+    "bank_name": "Bank",
+    "copy_account": "Kontonummer kopieren",
+    "copied_toast": "Kontonummer kopiert",
+    "copy_failed": "Konnte nicht kopiert werden. Manuell: {{account}}",
+    "qr_load_failed": "QR-Code konnte nicht geladen werden",
+    "qr_zoom_title": "Zum Überweisen scannen",
+    "qr_alt": "VietQR für Banküberweisung",
+    "donate_button": "Hier tippen, um zu spenden"
+  },
+  "forced_update": {
+    "title": "Update erforderlich",
+    "description": "Eine neue Version ist verfügbar. Sie müssen SmoothScroll aktualisieren, um es weiter zu verwenden. (Aktuell: v{{current}} → Neu: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "Neuerungen",
+    "install": "Herunterladen & installieren",
+    "downloading": "Wird heruntergeladen… {{pct}}%",
+    "downloading_btn": "Wird heruntergeladen…",
+    "installed_btn": "Installiert",
+    "restarting": "Update installiert. Neustart…",
+    "quit": "Beenden",
+    "skip": "Überspringen (vertrautes Gerät)",
+    "error": "Update fehlgeschlagen: {{message}}"
+  },
+  "tray": {
+    "quick_access": "Schnellzugriff",
+    "smooth_scrolling": "Sanftes Scrollen",
+    "start_with_windows": "Mit Windows starten",
+    "start_with_macos": "Start at Login",
+    "start_with_system": "Mit System starten",
+    "start_minimized": "Minimiert starten",
+    "actions": "Aktionen",
+    "open_settings": "Einstellungen öffnen",
+    "excluded_apps": "Ausgeschlossene Apps",
+    "open_log": "Protokolldatei öffnen",
+    "quit": "SmoothScroll beenden",
+    "status_on": "AN",
+    "status_off": "AUS",
+    "current_app": {
+      "heading": "Aktuelle App",
+      "category": "Kategorie: {{category}}",
+      "profile": "Profil",
+      "default": "Standard",
+      "disabled": "Deaktiviert (Pass-Through)",
+      "disable_for_this_app": "Glättung für diese App deaktivieren",
+      "smoothing_on": "Glättung aktiv",
+      "smoothing_off": "Glättung deaktiviert"
+    }
   },
   "onboarding": {
     "skip": "Überspringen",
@@ -525,9 +546,14 @@
       }
     }
   },
-  "monitor_profiles": {
-    "description": "Weisen Sie Bildschirmen Scrollprofile zu. App-Profil haben immer Vorrang.",
-    "global_default": "Standard (global)",
-    "saved": "Bildschirmprofil für {{device}} gespeichert"
+  "error_boundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. The app will attempt to continue.",
+    "show_details": "Show technical details",
+    "reload": "Reload",
+    "report": "Report",
+    "email_subject": "[SmoothScroll] UI Error Report",
+    "unknown_error": "Unknown error",
+    "no_stack": "No stack trace"
   }
 }

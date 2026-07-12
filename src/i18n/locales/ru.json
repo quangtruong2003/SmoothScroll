@@ -17,7 +17,6 @@
     "theme": "Оформление",
     "touchpad": "Точный тачпад",
     "game_mode": "Игровой режим",
-    "edge_scroll": "Автопрокрутка у края экрана",
     "about": "О программе",
     "advanced_scroll": "Расширенная прокрутка"
   },
@@ -27,367 +26,30 @@
   "permission": {
     "title": "Требуется доступ к Универсальному доступу",
     "body": "SmoothScroll нужен доступ Accessibility, чтобы перехватывать события колеса мыши и заново отправлять их с плавной анимацией. Откройте System Settings → Privacy & Security → Accessibility и включите SmoothScroll.",
+    "macos_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
+    "windows_subtitle": "SmoothScroll needs Accessibility permission",
     "open": "Запросить разрешение",
+    "check_now": "I just granted it — check now",
+    "checking": "Checking...",
+    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
     "polling": "Я обнаружу момент, когда вы предоставите доступ, и продолжу.",
+    "linux_checking": "Checking system requirements...",
+    "linux_retry": "Check Again After Setup",
+    "linux_retry_hint": "After running the commands above, click 'Check Again'",
     "linux_uinput_title": "Требуется разрешение на доступ",
     "linux_uinput_body": "SmoothScroll требуется доступ к /dev/uinput для сглаживания прокрутки.\n\nВыполните следующие команды и выйдите из системы:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nПосле повторного входа перезапустите SmoothScroll.",
     "linux_uinput_hint": "После выполнения вышеуказанных команд выйдите из системы и войдите снова, затем перезапустите SmoothScroll.",
+    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
+    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
+    "linux_x11_subtitle": "Running on X11",
     "linux_flatpak_title": "SmoothScroll не поддерживает Flatpak",
+    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
     "linux_flatpak_body": "Песочница Flatpak блокирует доступ к /dev/uinput, необходимый для перехвата прокрутки. Установите SmoothScroll из .deb или .AppImage.",
-    "linux_flatpak_hint": "Установите SmoothScroll из .deb или .AppImage."
-  },
-  "tabs": {
-    "scroll": {
-      "label": "Прокрутка",
-      "title": "Прокрутка",
-      "description": "Включите прокрутку, настройте размер шага, easing, направление и внешний вид."
-    },
-    "devices": {
-      "label": "Устройства",
-      "title": "Устройства ввода",
-      "description": "Сглаживание клавиатуры и тачпада."
-    },
-    "advanced": {
-      "label": "Расширенные",
-      "title": "Расширенные",
-      "description": "Окно ускорения, соотношение хвоста, модификаторы точности и автопрокрутка у края."
-    },
-    "apps": {
-      "label": "Приложения",
-      "title": "По приложениям",
-      "description": "Профили и исключения для конкретных приложений."
-    },
-    "behavior": {
-      "label": "Поведение",
-      "title": "Поведение",
-      "description": "Поведение приложения, горячие клавиши и уменьшение движения."
-    },
-    "about": {
-      "label": "О программе",
-      "title": "О программе",
-      "description": "Версия, обновления и журналы."
-    },
-    "gamemode": {
-      "label": "Игровой режим",
-      "title": "Игровой режим",
-      "description": "Автоматически отключать плавную прокрутку для известных игр."
-    }
-  },
-  "presets": {
-    "slow": "Медленно",
-    "default": "По умолчанию",
-    "fast": "Быстро",
-    "snappy": "Резко",
-    "mac_like": "Стиль Mac",
-    "linear": "Линейно",
-    "currently": "Сейчас: {{preset}}"
-  },
-  "settings": {
-    "step_size": {
-      "title": "Размер шага",
-      "desc": "Пикселей прокрутки за один щелчок колеса"
-    },
-    "anim_time": {
-      "title": "Длительность анимации",
-      "desc": "Сколько длится каждое движение прокрутки"
-    },
-    "accel_window": {
-      "title": "Окно ускорения",
-      "desc": "Щелчки в этом окне накапливают импульс"
-    },
-    "accel_max": {
-      "title": "Максимальное ускорение",
-      "desc": "Предел множителя ускорения"
-    },
-    "tail_ratio": {
-      "title": "Соотношение хвоста и головы",
-      "desc": "Большие значения дают более резкую кривую ease-out"
-    },
-    "easing_toggle": {
-      "title": "Сглаживание",
-      "desc": "Применять кривую easing к каждому движению прокрутки"
-    },
-    "easing_curve": {
-      "title": "Кривая easing",
-      "desc": "Форма кривой замедления",
-      "preview": "Предпросмотр",
-      "ExponentialOut": "Exponential Out (по умолчанию)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
-      "Linear": "Линейно"
-    },
-    "reverse_wheel": {
-      "title": "Инвертировать направление",
-      "desc": "Изменить направление прокрутки (естественный стиль)"
-    },
-    "horizontal_smoothness": {
-      "title": "Плавная горизонтальная прокрутка",
-      "desc": "Применять сглаживание к наклонному колесу и Shift+колесо"
-    },
-    "horizontal_invert": {
-      "title": "Инвертировать горизонтальное направление",
-      "desc": "Изменить направление горизонтальной прокрутки"
-    },
-    "smooth_zoom": {
-      "title": "Плавное масштабирование",
-      "desc": "Применять сглаживание к зуму Ctrl+колесо в приложениях дизайна"
-    },
-    "zoom_invert": {
-      "title": "Инвертировать направление зума",
-      "desc": "Прокрутка вверх уменьшает масштаб"
-    },
-    "global_hotkey": {
-      "title": "Глобальная горячая клавиша",
-      "desc": "Нажмите выбранную комбинацию где угодно, чтобы переключить плавную прокрутку"
-    },
-    "hotkey_accelerator": {
-      "title": "Комбинация клавиш",
-      "desc": "Нажмите и используйте нужные клавиши",
-      "press": "Нажмите комбинацию клавиш…",
-      "empty": "Нажмите для записи",
-      "aria": "Поле ввода комбинации клавиш",
-      "saved": "Горячая клавиша сохранена"
-    },
-    "start_with_os": {
-      "title": "Запускать вместе с Windows",
-      "desc": "Запускать SmoothScroll при входе в систему"
-    },
-    "start_minimized": {
-      "title": "Запускать свернутым в трей",
-      "desc": "Скрывать окно настроек при запуске"
-    },
-    "theme": {
-      "title": "Тема",
-      "desc": "Светлая, тёмная или как в системе",
-      "Light": "Светлая",
-      "Dark": "Тёмная",
-      "System": "Системная"
-    },
-    "reduce_motion": {
-      "title": "Учитывать «Уменьшить движение» системы",
-      "desc": "Когда система запрашивает уменьшение движения, прокрутка становится мгновенной вместо плавной",
-      "auto": "Авто (как в системе)",
-      "always": "Всегда мгновенно",
-      "never": "Всегда плавно",
-      "status_on": "Уменьшить движение системы: ВКЛ",
-      "status_off": "Уменьшить движение системы: ВЫКЛ"
-    },
-    "reset_to_default": "Сбросить по умолчанию",
-    "edge_scroll": {
-      "enable": "Включить автопрокрутку у края экрана",
-      "zone_size": "Размер зоны: {{value}}px",
-      "max_speed": "Макс. скорость: {{value}} щелчков/с"
-    },
-    "touchpad": {
-      "detected": "Обнаружено",
-      "source": {
-        "Wheel": "Колесо мыши",
-        "HighResWheel": "Колесо высокого разрешения",
-        "Touchpad": "Точный тачпад"
-      },
-      "enable": {
-        "title": "Плавная прокрутка тачпадом",
-        "desc": "Применять easing к вводу тачпада высокого разрешения"
-      },
-      "pixel_multiplier": {
-        "title": "Множитель пикселей",
-        "desc": "Масштабировать сырые пиксельные дельты тачпада"
-      },
-      "acceleration": {
-        "title": "Коэффициент ускорения",
-        "desc": "Усиливать резкие движения. 0 отключает ускорение."
-      }
-    },
-    "force_enable_all": {
-      "title": "Принудительно включить для всех приложений",
-      "desc": "Отключить автоматическое отключение для нативных приложений Windows"
-    },
-    "max_velocity": {
-      "title": "Максимальная скорость",
-      "desc": "Максимальная скорость прокрутки до пика ускорения"
-    }
-  },
-  "excluded": {
-    "empty": "Нет исключённых приложений. Плавная прокрутка активна везде.",
-    "add": "Добавить приложение",
-    "remove_aria": "Удалить {{name}}",
-    "added": "{{name}} добавлено в список исключений",
-    "removed": "{{name}} удалено из списка исключений",
-    "dialog": {
-      "title": "Исключить приложение",
-      "desc": "Выберите запущенное приложение или введите имя процесса (без .exe).",
-      "filter": "Фильтр…",
-      "manual": "Или введите имя процесса…",
-      "manual_button": "Добавить",
-      "cancel": "Отмена",
-      "scanning": "Сканирование процессов…",
-      "no_match": "Совпадающих процессов нет."
-    }
-  },
-  "profiles": {
-    "description": "Пользовательские настройки прокрутки, которые можно назначить конкретным приложениям.",
-    "empty": "Пока нет пользовательских профилей. Создайте один, чтобы настроить прокрутку для каждого приложения.",
-    "create": "Создать профиль",
-    "created": "Профиль «{{name}}» создан",
-    "deleted": "Профиль «{{name}}» удалён",
-    "saved": "Профиль «{{name}}» сохранён",
-    "delete_confirm": "Удалить профиль «{{name}}»?",
-    "delete_confirm_desc": "Этот профиль будет удалён навсегда. Сначала необходимо отвязать назначенные приложения.",
-    "delete": "Удалить",
-    "name_required": "Имя профиля обязательно",
-    "edit_aria": "Редактировать {{name}}",
-    "delete_aria": "Удалить {{name}}",
-    "edit_title": "Редактировать профиль: {{name}}",
-    "assigned_to": "Назначен {{count}} приложению",
-    "assigned_to_plural": "Назначен {{count}} приложениям",
-    "unassigned": "Не назначен ни одному приложению",
-    "create_dialog": {
-      "title": "Создать профиль",
-      "desc": "Дайте новому профилю имя. Настройки можно будет отредактировать далее.",
-      "placeholder": "напр. Быстрый, Стиль Mac, Медленное чтение"
-    },
-    "field": {
-      "name": "Имя профиля",
-      "name_desc": "Понятная метка, отображаемая в списке приложений"
-    },
-    "suggest": {
-      "title": "Предложение для {{category}}",
-      "disable": "Отключить сглаживание",
-      "custom_preset": "Пользовательский пресет ({{step}}px, {{ms}}ms)",
-      "use": "Использовать предложение",
-      "pick_manually": "Выбрать вручную"
-    }
-  },
-  "app_profiles": {
-    "description": "Выберите, как SmoothScroll работает в конкретных приложениях.",
-    "empty": "Нет переопределений по приложениям. Все приложения используют глобальные настройки.",
-    "assign": "Назначить приложение",
-    "assigned": "{{name}} → {{profile}}",
-    "removed": "Переопределение для {{name}} удалено",
-    "remove_aria": "Удалить переопределение для {{name}}",
-    "disabled": "Отключено (pass-through)",
-    "unknown_profile": "Неизвестный профиль",
-    "dialog": {
-      "title": "Назначить профиль приложению",
-      "desc": "Выберите профиль для использования, затем выберите приложение для назначения.",
-      "select_profile": "Профиль для назначения"
-    }
-  },
-  "game_mode": {
-    "auto_disable": "Автоматически отключать в играх",
-    "status_label": "Статус",
-    "status_active": "🎮 Активно — плавная прокрутка приостановлена",
-    "status_inactive": "Неактивно",
-    "known_games": "Известные игры",
-    "placeholder": "game.exe"
-  },
-  "errors": {
-    "autostart_failed": "Не удалось изменить настройку автозапуска",
-    "hotkey_toggle_failed": "Не удалось переключить горячую клавишу",
-    "hotkey_save_failed": "Не удалось сохранить комбинацию клавиш",
-    "excluded_add_failed": "Не удалось добавить приложение в список исключений",
-    "excluded_remove_failed": "Не удалось удалить приложение из списка исключений",
-    "profile_create_failed": "Не удалось создать профиль",
-    "profile_in_use": "Удаление невозможно: профиль назначен {{count}} приложению",
-    "profile_in_use_plural": "Удаление невозможно: профиль назначен {{count}} приложениям",
-    "app_profile_assign_failed": "Не удалось назначить профиль приложению",
-    "app_profile_remove_failed": "Не удалось удалить переопределение приложения",
-    "save_failed": "Не удалось сохранить настройки. Изменения хранятся в памяти, но не сохранятся."
-  },
-  "language": {
-    "select_label": "Язык интерфейса",
-    "en": "English",
-    "vi": "Tiếng Việt",
-    "zh": "中文",
-    "fr": "Français",
-    "de": "Deutsch",
-    "hi": "हिन्दी",
-    "id": "Indonesia",
-    "it": "Italiano",
-    "ja": "日本語",
-    "ko": "한국어",
-    "pt-BR": "Português (Brasil)",
-    "es": "Español",
-    "tr": "Türkçe",
-    "ru": "Русский"
-  },
-  "common": {
-    "loading_settings": "Загрузка настроек…",
-    "load_failed": "Не удалось загрузить настройки: {{error}}",
-    "cancel": "Отмена",
-    "save": "Сохранить",
-    "add": "Добавить"
-  },
-  "about": {
-    "version": "Версия",
-    "author": "Автор",
-    "open_logs": "Открыть папку журналов",
-    "rerun_setup": "Снова запустить мастер настройки",
-    "homepage": "Главная страница",
-    "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
-    "updates": "Обновления",
-    "check_now": "Проверить сейчас",
-    "checking": "Проверка…",
-    "up_to_date": "У вас установлена последняя версия.",
-    "update_available": "Доступно обновление: v{{version}}",
-    "install_now": "Установить",
-    "downloading": "Загрузка… {{pct}}%",
-    "ready_to_restart": "Обновление установлено. Перезапустите для применения.",
-    "restart_now": "Перезапустить",
-    "show_release_notes": "Показать примечания к выпуску"
-  },
-  "support": {
-    "title": "Поддержать проект",
-    "description": "Спасибо, что используете SmoothScroll. Если он вам полезен, можете угостить меня кофе:",
-    "buy_me_a_coffee": "Купить кофе",
-    "or_bank_transfer": "Или прямой банковский перевод:",
-    "bank_account": "Счёт",
-    "bank_name": "Банк",
-    "copy_account": "Копировать номер счёта",
-    "copied_toast": "Номер счёта скопирован",
-    "copy_failed": "Не удалось скопировать. Вручную: {{account}}",
-    "qr_load_failed": "Не удалось загрузить QR",
-    "qr_zoom_title": "Отсканируйте для перевода",
-    "qr_alt": "VietQR для банковского перевода",
-    "donate_button": "Нажмите, чтобы поддержать"
-  },
-  "forced_update": {
-    "title": "Требуется обновление",
-    "description": "Доступна новая версия. Чтобы продолжить пользоваться SmoothScroll, необходимо обновить. (Текущая: v{{current}} → Новая: v{{latest}})",
-    "unknown_version": "?",
-    "notes_heading": "Что нового",
-    "install": "Скачать и установить",
-    "downloading": "Загрузка… {{pct}}%",
-    "downloading_btn": "Загрузка…",
-    "installed_btn": "Установлено",
-    "restarting": "Обновление установлено. Перезапуск…",
-    "quit": "Выйти",
-    "skip": "Пропустить (доверенное устройство)",
-    "error": "Ошибка обновления: {{message}}"
-  },
-  "tray": {
-    "quick_access": "Быстрый доступ",
-    "smooth_scrolling": "Плавная прокрутка",
-    "start_with_windows": "Запускать вместе с Windows",
-    "start_with_system": "Запускать с системой",
-    "start_minimized": "Запускать свёрнутым",
-    "actions": "Действия",
-    "open_settings": "Открыть настройки",
-    "excluded_apps": "Исключённые приложения",
-    "open_log": "Открыть файл журнала",
-    "quit": "Выйти из SmoothScroll",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "current_app": {
-      "heading": "Текущее приложение",
-      "category": "Категория: {{category}}",
-      "profile": "Профиль",
-      "default": "По умолчанию",
-      "disabled": "Отключено (pass-through)",
-      "disable_for_this_app": "Отключить сглаживание для этого приложения",
-      "smoothing_on": "Сглаживание включено",
-      "smoothing_off": "Сглаживание отключено"
-    }
+    "linux_flatpak_hint": "Установите SmoothScroll из .deb или .AppImage.",
+    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
+    "session_label": "Session:",
+    "wayland_hint": "Wayland may require additional setup"
   },
   "feel": {
     "anim": {
@@ -461,19 +123,378 @@
     "sessions": "Сессий",
     "using_for": "Используется",
     "reset": "Сбросить статистику",
-    "confirm_reset": "Это очистит всю локальную статистику. Продолжить?"
+    "confirm_reset": "Это очистит всю локальную статистику. Продолжить?",
+    "today": "Today's Scroll Stats",
+    "distance": "Distance",
+    "active_time": "Active",
+    "notches": "Notches",
+    "top_apps": "Top Apps",
+    "peak_velocity": "Peak velocity",
+    "profile_switches": "Profile switches",
+    "notches_sec": "notches/sec"
   },
   "battery": {
     "low_hint": "Батарея разряжена. Плавная прокрутка немного нагружает CPU — рассмотрите её временное отключение."
   },
-  "precision": {
-    "ctrl_label": "Пропускать Ctrl + колесо",
-    "cmd_label": "Пропускать Cmd + колесо",
-    "ctrl_help": "Рекомендуется для масштабирования в Photoshop, Figma, браузерах, VS Code.",
-    "alt_label": "Пропускать Alt + колесо",
-    "alt_help": "Рекомендуется для редакторов и таймлайнов (Premiere, DAW).",
-    "clear_inertia_label": "Сбрасывать инерцию при нажатии модификатора",
-    "clear_inertia_help": "Останавливает текущую плавную прокрутку при нажатии модификатора, чтобы зум реагировал мгновенно."
+  "tabs": {
+    "scroll": {
+      "label": "Прокрутка",
+      "title": "Прокрутка",
+      "description": "Включите прокрутку, настройте размер шага, easing, направление и внешний вид."
+    },
+    "devices": {
+      "label": "Устройства",
+      "title": "Устройства ввода",
+      "description": "Сглаживание клавиатуры и тачпада."
+    },
+    "advanced": {
+      "label": "Расширенные",
+      "title": "Расширенные",
+      "description": "Окно ускорения, соотношение хвоста, модификаторы точности и автопрокрутка у края."
+    },
+    "apps": {
+      "label": "Приложения",
+      "title": "По приложениям",
+      "description": "Профили и исключения для конкретных приложений."
+    },
+    "behavior": {
+      "label": "Поведение",
+      "title": "Поведение",
+      "description": "Поведение приложения, горячие клавиши и уменьшение движения."
+    },
+    "about": {
+      "label": "О программе",
+      "title": "О программе",
+      "description": "Версия, обновления и журналы."
+    },
+    "gamemode": {
+      "label": "Игровой режим",
+      "title": "Игровой режим",
+      "description": "Автоматически отключать плавную прокрутку для известных игр."
+    },
+    "stats": {
+      "label": "Stats",
+      "title": "Scroll Statistics",
+      "description": "Daily scroll analytics and per-app breakdown."
+    }
+  },
+  "presets": {
+    "slow": "Медленно",
+    "default": "По умолчанию",
+    "fast": "Быстро",
+    "snappy": "Резко",
+    "mac_like": "Стиль Mac",
+    "linear": "Линейно",
+    "currently": "Сейчас: {{preset}}"
+  },
+  "settings": {
+    "step_size": {
+      "title": "Размер шага",
+      "desc": "Пикселей прокрутки за один щелчок колеса"
+    },
+    "anim_time": {
+      "title": "Длительность анимации",
+      "desc": "Сколько длится каждое движение прокрутки"
+    },
+    "max_velocity": {
+      "title": "Максимальная скорость",
+      "desc": "Максимальная скорость прокрутки до пика ускорения"
+    },
+    "accel_max": {
+      "title": "Максимальное ускорение",
+      "desc": "Предел множителя ускорения"
+    },
+    "tail_ratio": {
+      "title": "Соотношение хвоста и головы",
+      "desc": "Большие значения дают более резкую кривую ease-out"
+    },
+    "easing_toggle": {
+      "title": "Сглаживание",
+      "desc": "Применять кривую easing к каждому движению прокрутки"
+    },
+    "easing_curve": {
+      "title": "Кривая easing",
+      "desc": "Форма кривой замедления",
+      "preview": "Предпросмотр",
+      "ExponentialOut": "Exponential Out (по умолчанию)",
+      "CubicOut": "Cubic Out",
+      "QuinticOut": "Quintic Out",
+      "Linear": "Линейно"
+    },
+    "reverse_wheel": {
+      "title": "Инвертировать направление",
+      "desc": "Изменить направление прокрутки (естественный стиль)"
+    },
+    "horizontal_smoothness": {
+      "title": "Плавная горизонтальная прокрутка",
+      "desc": "Применять сглаживание к наклонному колесу и Shift+колесо"
+    },
+    "horizontal_invert": {
+      "title": "Инвертировать горизонтальное направление",
+      "desc": "Изменить направление горизонтальной прокрутки"
+    },
+    "smooth_zoom": {
+      "title": "Плавное масштабирование",
+      "desc": "Применять сглаживание к зуму Ctrl+колесо в приложениях дизайна"
+    },
+    "zoom_invert": {
+      "title": "Инвертировать направление зума",
+      "desc": "Прокрутка вверх уменьшает масштаб"
+    },
+    "global_hotkey": {
+      "title": "Глобальная горячая клавиша",
+      "desc": "Нажмите выбранную комбинацию где угодно, чтобы переключить плавную прокрутку"
+    },
+    "hotkey_accelerator": {
+      "title": "Комбинация клавиш",
+      "desc": "Нажмите и используйте нужные клавиши",
+      "press": "Нажмите комбинацию клавиш…",
+      "empty": "Нажмите для записи",
+      "aria": "Поле ввода комбинации клавиш",
+      "saved": "Горячая клавиша сохранена"
+    },
+    "start_with_os": {
+      "title": "Запускать вместе с Windows",
+      "desc": "Запускать SmoothScroll при входе в систему"
+    },
+    "start_minimized": {
+      "title": "Запускать свернутым в трей",
+      "desc": "Скрывать окно настроек при запуске"
+    },
+    "theme": {
+      "title": "Тема",
+      "desc": "Светлая, тёмная или как в системе",
+      "Light": "Светлая",
+      "Dark": "Тёмная",
+      "System": "Системная"
+    },
+    "auto_disable_windows_apps": {
+      "title": "Auto-disable in Windows apps",
+      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+    },
+    "force_enable_all": {
+      "title": "Принудительно включить для всех приложений",
+      "desc": "Отключить автоматическое отключение для нативных приложений Windows"
+    },
+    "reduce_motion": {
+      "title": "Учитывать «Уменьшить движение» системы",
+      "desc": "Когда система запрашивает уменьшение движения, прокрутка становится мгновенной вместо плавной",
+      "auto": "Авто (как в системе)",
+      "always": "Всегда мгновенно",
+      "never": "Всегда плавно",
+      "status_on": "Уменьшить движение системы: ВКЛ",
+      "status_off": "Уменьшить движение системы: ВЫКЛ"
+    },
+    "reset_to_default": "Сбросить по умолчанию",
+    "touchpad": {
+      "detected": "Обнаружено",
+      "source": {
+        "Wheel": "Колесо мыши",
+        "HighResWheel": "Колесо высокого разрешения",
+        "Touchpad": "Точный тачпад"
+      },
+      "enable": {
+        "title": "Плавная прокрутка тачпадом",
+        "desc": "Применять easing к вводу тачпада высокого разрешения"
+      },
+      "pixel_multiplier": {
+        "title": "Множитель пикселей",
+        "desc": "Масштабировать сырые пиксельные дельты тачпада"
+      },
+      "acceleration": {
+        "title": "Коэффициент ускорения",
+        "desc": "Усиливать резкие движения. 0 отключает ускорение."
+      }
+    }
+  },
+  "excluded": {
+    "empty": "Нет исключённых приложений. Плавная прокрутка активна везде.",
+    "add": "Добавить приложение",
+    "remove_aria": "Удалить {{name}}",
+    "added": "{{name}} добавлено в список исключений",
+    "removed": "{{name}} удалено из списка исключений",
+    "dialog": {
+      "title": "Исключить приложение",
+      "desc": "Выберите запущенное приложение или введите имя процесса (без .exe).",
+      "filter": "Фильтр…",
+      "manual": "Или введите имя процесса…",
+      "manual_button": "Добавить",
+      "cancel": "Отмена",
+      "scanning": "Сканирование процессов…",
+      "no_match": "Совпадающих процессов нет."
+    }
+  },
+  "profiles": {
+    "description": "Пользовательские настройки прокрутки, которые можно назначить конкретным приложениям.",
+    "empty": "Пока нет пользовательских профилей. Создайте один, чтобы настроить прокрутку для каждого приложения.",
+    "create": "Создать профиль",
+    "created": "Профиль «{{name}}» создан",
+    "deleted": "Профиль «{{name}}» удалён",
+    "saved": "Профиль «{{name}}» сохранён",
+    "delete_confirm": "Удалить профиль «{{name}}»?",
+    "delete_confirm_desc": "Этот профиль будет удалён навсегда. Сначала необходимо отвязать назначенные приложения.",
+    "delete": "Удалить",
+    "name_required": "Имя профиля обязательно",
+    "edit_aria": "Редактировать {{name}}",
+    "delete_aria": "Удалить {{name}}",
+    "edit_title": "Редактировать профиль: {{name}}",
+    "assigned_to": "Назначен {{count}} приложению",
+    "assigned_to_plural": "Назначен {{count}} приложениям",
+    "unassigned": "Не назначен ни одному приложению",
+    "create_dialog": {
+      "title": "Создать профиль",
+      "desc": "Дайте новому профилю имя. Настройки можно будет отредактировать далее.",
+      "placeholder": "напр. Быстрый, Стиль Mac, Медленное чтение"
+    },
+    "field": {
+      "name": "Имя профиля",
+      "name_desc": "Понятная метка, отображаемая в списке приложений"
+    },
+    "suggest": {
+      "title": "Предложение для {{category}}",
+      "disable": "Отключить сглаживание",
+      "custom_preset": "Пользовательский пресет ({{step}}px, {{ms}}ms)",
+      "use": "Использовать предложение",
+      "pick_manually": "Выбрать вручную"
+    }
+  },
+  "app_profiles": {
+    "description": "Выберите, как SmoothScroll работает в конкретных приложениях.",
+    "empty": "Нет переопределений по приложениям. Все приложения используют глобальные настройки.",
+    "assign": "Назначить приложение",
+    "assigned": "{{name}} → {{profile}}",
+    "removed": "Переопределение для {{name}} удалено",
+    "remove_aria": "Удалить переопределение для {{name}}",
+    "disabled": "Отключено (pass-through)",
+    "unknown_profile": "Неизвестный профиль",
+    "dialog": {
+      "title": "Назначить профиль приложению",
+      "desc": "Выберите профиль для использования, затем выберите приложение для назначения.",
+      "select_profile": "Профиль для назначения"
+    }
+  },
+  "monitor_profiles": {
+    "description": "Назначьте профили прокрутки для конкретных мониторов. Профили приложений всегда имеют приоритет.",
+    "global_default": "По умолчанию (глобальный)"
+  },
+  "game_mode": {
+    "auto_disable": "Автоматически отключать в играх",
+    "status_label": "Статус",
+    "status_active": "🎮 Активно — плавная прокрутка приостановлена",
+    "status_inactive": "Неактивно",
+    "known_games": "Известные игры",
+    "placeholder": "game.exe"
+  },
+  "errors": {
+    "autostart_failed": "Не удалось изменить настройку автозапуска",
+    "hotkey_toggle_failed": "Не удалось переключить горячую клавишу",
+    "hotkey_save_failed": "Не удалось сохранить комбинацию клавиш",
+    "excluded_add_failed": "Не удалось добавить приложение в список исключений",
+    "excluded_remove_failed": "Не удалось удалить приложение из списка исключений",
+    "profile_create_failed": "Не удалось создать профиль",
+    "profile_in_use": "Удаление невозможно: профиль назначен {{count}} приложению",
+    "profile_in_use_plural": "Удаление невозможно: профиль назначен {{count}} приложениям",
+    "app_profile_assign_failed": "Не удалось назначить профиль приложению",
+    "app_profile_remove_failed": "Не удалось удалить переопределение приложения",
+    "save_failed": "Не удалось сохранить настройки. Изменения хранятся в памяти, но не сохранятся."
+  },
+  "language": {
+    "select_label": "Язык интерфейса",
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文",
+    "fr": "Français",
+    "de": "Deutsch",
+    "hi": "हिन्दी",
+    "id": "Indonesia",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ko": "한국어",
+    "pt-BR": "Português (Brasil)",
+    "es": "Español",
+    "tr": "Türkçe",
+    "ru": "Русский"
+  },
+  "common": {
+    "loading_settings": "Загрузка настроек…",
+    "load_failed": "Не удалось загрузить настройки: {{error}}",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "add": "Добавить"
+  },
+  "about": {
+    "version": "Версия",
+    "author": "Автор",
+    "open_logs": "Открыть папку журналов",
+    "rerun_setup": "Снова запустить мастер настройки",
+    "homepage": "Главная страница",
+    "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
+    "updates": "Обновления",
+    "check_now": "Проверить сейчас",
+    "checking": "Проверка…",
+    "up_to_date": "У вас установлена последняя версия.",
+    "update_available": "Доступно обновление: v{{version}}",
+    "install_now": "Установить",
+    "downloading": "Загрузка… {{pct}}%",
+    "ready_to_restart": "Обновление установлено. Перезапустите для применения.",
+    "restart_now": "Перезапустить",
+    "beta_badge_label": "BETA",
+    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "show_release_notes": "Показать примечания к выпуску"
+  },
+  "support": {
+    "title": "Поддержать проект",
+    "description": "Спасибо, что используете SmoothScroll. Если он вам полезен, можете угостить меня кофе:",
+    "buy_me_a_coffee": "Купить кофе",
+    "or_bank_transfer": "Или прямой банковский перевод:",
+    "bank_account": "Счёт",
+    "bank_name": "Банк",
+    "copy_account": "Копировать номер счёта",
+    "copied_toast": "Номер счёта скопирован",
+    "copy_failed": "Не удалось скопировать. Вручную: {{account}}",
+    "qr_load_failed": "Не удалось загрузить QR",
+    "qr_zoom_title": "Отсканируйте для перевода",
+    "qr_alt": "VietQR для банковского перевода",
+    "donate_button": "Нажмите, чтобы поддержать"
+  },
+  "forced_update": {
+    "title": "Требуется обновление",
+    "description": "Доступна новая версия. Чтобы продолжить пользоваться SmoothScroll, необходимо обновить. (Текущая: v{{current}} → Новая: v{{latest}})",
+    "unknown_version": "?",
+    "notes_heading": "Что нового",
+    "install": "Скачать и установить",
+    "downloading": "Загрузка… {{pct}}%",
+    "downloading_btn": "Загрузка…",
+    "installed_btn": "Установлено",
+    "restarting": "Обновление установлено. Перезапуск…",
+    "quit": "Выйти",
+    "skip": "Пропустить (доверенное устройство)",
+    "error": "Ошибка обновления: {{message}}"
+  },
+  "tray": {
+    "quick_access": "Быстрый доступ",
+    "smooth_scrolling": "Плавная прокрутка",
+    "start_with_windows": "Запускать вместе с Windows",
+    "start_with_macos": "Start at Login",
+    "start_with_system": "Запускать с системой",
+    "start_minimized": "Запускать свёрнутым",
+    "actions": "Действия",
+    "open_settings": "Открыть настройки",
+    "excluded_apps": "Исключённые приложения",
+    "open_log": "Открыть файл журнала",
+    "quit": "Выйти из SmoothScroll",
+    "status_on": "ON",
+    "status_off": "OFF",
+    "current_app": {
+      "heading": "Текущее приложение",
+      "category": "Категория: {{category}}",
+      "profile": "Профиль",
+      "default": "По умолчанию",
+      "disabled": "Отключено (pass-through)",
+      "disable_for_this_app": "Отключить сглаживание для этого приложения",
+      "smoothing_on": "Сглаживание включено",
+      "smoothing_off": "Сглаживание отключено"
+    }
   },
   "onboarding": {
     "skip": "Пропустить",
@@ -525,9 +546,14 @@
       }
     }
   },
-  "monitor_profiles": {
-    "description": "Назначьте профили прокрутки для конкретных мониторов. Профили приложений всегда имеют приоритет.",
-    "global_default": "По умолчанию (глобальный)",
-    "saved": "Профиль монитора сохранён для {{device}}"
+  "error_boundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. The app will attempt to continue.",
+    "show_details": "Show technical details",
+    "reload": "Reload",
+    "report": "Report",
+    "email_subject": "[SmoothScroll] UI Error Report",
+    "unknown_error": "Unknown error",
+    "no_stack": "No stack trace"
   }
 }

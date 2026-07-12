@@ -9,15 +9,14 @@
     "animation": "Hoạt ảnh",
     "direction": "Hướng",
     "behavior": "Hành vi",
-    "precision": "Phím bổ trợ chính xác",
     "excluded_apps": "Ứng dụng loại trừ",
+    "monitor_profiles": "Monitor profiles",
     "profiles": "Hồ sơ cuộn",
     "app_profiles": "Cuộn theo ứng dụng",
     "language": "Ngôn ngữ",
     "theme": "Giao diện",
     "touchpad": "Touchpad chính xác",
     "game_mode": "Chế độ game",
-    "edge_scroll": "Tự cuộn ở cạnh màn hình",
     "about": "Giới thiệu",
     "advanced_scroll": "Cuộn nâng cao"
   },
@@ -27,17 +26,30 @@
   "permission": {
     "title": "Cần quyền Trợ năng",
     "body": "SmoothScroll cần quyền Accessibility để bắt sự kiện cuộn chuột và phát lại với hiệu ứng mượt. Mở System Settings → Privacy & Security → Accessibility và bật SmoothScroll.",
+    "macos_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
+    "windows_subtitle": "SmoothScroll needs Accessibility permission",
     "open": "Yêu cầu quyền",
     "check_now": "Tôi vừa cấp xong — kiểm tra ngay",
     "checking": "Đang kiểm tra…",
     "still_denied": "Vẫn chưa được cấp. Hãy chắc chắn SmoothScroll đã BẬT trong System Settings.",
     "polling": "Đang theo dõi quyền. Tôi sẽ tự tiếp tục khi được cấp.",
+    "linux_checking": "Checking system requirements...",
+    "linux_retry": "Check Again After Setup",
+    "linux_retry_hint": "After running the commands above, click 'Check Again'",
     "linux_uinput_title": "Yêu cầu quyền truy cập",
     "linux_uinput_body": "SmoothScroll cần quyền truy cập /dev/uinput để làm mượt cuộn.\n\nChạy các lệnh sau và đăng xuất:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nSau khi đăng nhập lại, khởi động lại SmoothScroll.",
     "linux_uinput_hint": "Sau khi chạy các lệnh trên, đăng xuất và đăng nhập lại, sau đó khởi động lại SmoothScroll.",
+    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
+    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
+    "linux_x11_subtitle": "Running on X11",
     "linux_flatpak_title": "SmoothScroll không hỗ trợ Flatpak",
+    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
     "linux_flatpak_body": "Flatpak sandbox chặn truy cập /dev/uinput cần thiết cho việc chặn cuộn. Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage.",
-    "linux_flatpak_hint": "Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage."
+    "linux_flatpak_hint": "Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage.",
+    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
+    "session_label": "Session:",
+    "wayland_hint": "Wayland may require additional setup"
   },
   "feel": {
     "anim": {
@@ -111,7 +123,15 @@
     "sessions": "Số phiên",
     "using_for": "Đã dùng",
     "reset": "Đặt lại thống kê",
-    "confirm_reset": "Việc này sẽ xoá toàn bộ thống kê lưu trên máy. Tiếp tục?"
+    "confirm_reset": "Việc này sẽ xoá toàn bộ thống kê lưu trên máy. Tiếp tục?",
+    "today": "Today's Scroll Stats",
+    "distance": "Distance",
+    "active_time": "Active",
+    "notches": "Notches",
+    "top_apps": "Top Apps",
+    "peak_velocity": "Peak velocity",
+    "profile_switches": "Profile switches",
+    "notches_sec": "notches/sec"
   },
   "battery": {
     "low_hint": "Pin yếu. Cuộn mượt tiêu tốn một chút CPU — bạn có thể tạm tắt nếu cần."
@@ -151,6 +171,11 @@
       "label": "Chế độ game",
       "title": "Chế độ game",
       "description": "Tự động tắt cuộn mượt cho các game đã biết."
+    },
+    "stats": {
+      "label": "Stats",
+      "title": "Scroll Statistics",
+      "description": "Daily scroll analytics and per-app breakdown."
     }
   },
   "presets": {
@@ -171,9 +196,9 @@
       "title": "Thời gian hoạt ảnh",
       "desc": "Mỗi lần cuộn kéo dài bao lâu"
     },
-    "accel_window": {
-      "title": "Cửa sổ tăng tốc",
-      "desc": "Các nấc trong cửa sổ này sẽ cộng dồn lực đẩy"
+    "max_velocity": {
+      "title": "Max velocity",
+      "desc": "Maximum scroll speed before acceleration reaches its peak"
     },
     "accel_max": {
       "title": "Tăng tốc tối đa",
@@ -244,10 +269,14 @@
       "System": "Theo hệ thống"
     },
     "auto_disable_windows_apps": {
-    "title": "Tự tắt trong app Windows",
-    "desc": "Tạm dừng smooth scrolling trong các app Windows có sẵn (đã có smooth scroll native). SmoothScroll sẽ tự bật lại khi bạn chuyển sang app khác."
-  },
-  "reduce_motion": {
+      "title": "Tự tắt trong app Windows",
+      "desc": "Tạm dừng smooth scrolling trong các app Windows có sẵn (đã có smooth scroll native). SmoothScroll sẽ tự bật lại khi bạn chuyển sang app khác."
+    },
+    "force_enable_all": {
+      "title": "Force Smooth on All Apps",
+      "desc": "Override auto-disable for Windows native apps"
+    },
+    "reduce_motion": {
       "title": "Tôn trọng Giảm chuyển động của hệ thống",
       "desc": "Khi hệ thống yêu cầu giảm chuyển động, cuộn sẽ tức thì thay vì mượt",
       "auto": "Tự động (theo hệ thống)",
@@ -257,11 +286,6 @@
       "status_off": "Giảm chuyển động hệ thống: TẮT"
     },
     "reset_to_default": "Đặt về mặc định",
-    "edge_scroll": {
-      "enable": "Bật tự cuộn ở cạnh màn hình",
-      "zone_size": "Kích thước vùng: {{value}}px",
-      "max_speed": "Tốc độ tối đa: {{value}} nấc/giây"
-    },
     "touchpad": {
       "detected": "Đã phát hiện",
       "source": {
@@ -348,6 +372,10 @@
       "desc": "Chọn hồ sơ muốn dùng, sau đó chọn ứng dụng để gán.",
       "select_profile": "Hồ sơ áp dụng"
     }
+  },
+  "monitor_profiles": {
+    "description": "Assign a scroll profile to each monitor. When you move to a different monitor, SmoothScroll switches automatically.",
+    "global_default": "Global default"
   },
   "game_mode": {
     "auto_disable": "Tự tắt khi chơi game",
@@ -447,6 +475,7 @@
     "quick_access": "Truy cập nhanh",
     "smooth_scrolling": "Cuộn mượt",
     "start_with_windows": "Khởi động cùng Windows",
+    "start_with_macos": "Start at Login",
     "start_with_system": "Khởi động cùng hệ thống",
     "start_minimized": "Khởi động ẩn",
     "actions": "Thao tác",
@@ -466,15 +495,6 @@
       "smoothing_on": "Làm mượt đang bật",
       "smoothing_off": "Làm mượt đang tắt"
     }
-  },
-  "precision": {
-    "ctrl_label": "Cho phép Ctrl + cuộn đi thẳng",
-    "cmd_label": "Cho phép Cmd + cuộn đi thẳng",
-    "ctrl_help": "Khuyên dùng cho zoom trong Photoshop, Figma, trình duyệt, VS Code.",
-    "alt_label": "Cho phép Alt + cuộn đi thẳng",
-    "alt_help": "Khuyên dùng cho trình biên tập và timeline (Premiere, DAW).",
-    "clear_inertia_label": "Xoá quán tính khi nhấn phím bổ trợ",
-    "clear_inertia_help": "Dừng cuộn mượt đang chạy ngay khi nhấn phím bổ trợ để zoom phản hồi tức thì."
   },
   "onboarding": {
     "skip": "Bỏ qua",
@@ -525,5 +545,15 @@
         "help": "Nhanh, ít quán tính."
       }
     }
+  },
+  "error_boundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. The app will attempt to continue.",
+    "show_details": "Show technical details",
+    "reload": "Reload",
+    "report": "Report",
+    "email_subject": "[SmoothScroll] UI Error Report",
+    "unknown_error": "Unknown error",
+    "no_stack": "No stack trace"
   }
 }

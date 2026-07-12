@@ -61,7 +61,7 @@ export function OnboardingWizard({ onClose }: Props) {
             </div>
           </div>
           <h2 className="mb-2 text-center text-xl font-semibold">
-            {t("onboarding_intro.title", "Welcome to SmoothScroll")}
+            {t("onboarding_intro.title")}
           </h2>
           <p className="mx-auto mb-6 max-w-md text-center text-sm text-muted-foreground">
             {t(

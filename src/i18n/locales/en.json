@@ -46,7 +46,10 @@
     "linux_flatpak_title": "Flatpak Not Supported",
     "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
     "linux_flatpak_body": "Flatpak sandbox blocks access to /dev/uinput which is required for scroll interception. Please install SmoothScroll from .deb or .AppImage instead.",
-    "linux_flatpak_hint": "Please install SmoothScroll from .deb or .AppImage instead."
+    "linux_flatpak_hint": "Please install SmoothScroll from .deb or .AppImage instead.",
+    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
+    "session_label": "Session:",
+    "wayland_hint": "Wayland may require additional setup"
   },
   "feel": {
     "anim": {
@@ -266,14 +269,14 @@
       "System": "System"
     },
     "auto_disable_windows_apps": {
-    "title": "Auto-disable in Windows apps",
-    "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
-  },
-  "force_enable_all": {
-    "title": "Force Smooth on All Apps",
-    "desc": "Override auto-disable for Windows native apps"
-  },
-  "reduce_motion": {
+      "title": "Auto-disable in Windows apps",
+      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+    },
+    "force_enable_all": {
+      "title": "Force Smooth on All Apps",
+      "desc": "Override auto-disable for Windows native apps"
+    },
+    "reduce_motion": {
       "title": "Respect system Reduce Motion",
       "desc": "When the system requests reduced motion, scroll becomes instant instead of smooth",
       "auto": "Auto (follow system)",
@@ -542,5 +545,15 @@
         "help": "Fast with little inertia."
       }
     }
+  },
+  "error_boundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. The app will attempt to continue.",
+    "show_details": "Show technical details",
+    "reload": "Reload",
+    "report": "Report",
+    "email_subject": "[SmoothScroll] UI Error Report",
+    "unknown_error": "Unknown error",
+    "no_stack": "No stack trace"
   }
 }

@@ -50,10 +50,10 @@ function ErrorFallback({ error }: ErrorFallbackProps) {
   };
 
   const handleReport = () => {
-    const subject = encodeURIComponent("[SmoothScroll] UI Error Report");
+    const subject = encodeURIComponent(t("error_boundary.email_subject"));
     const body = encodeURIComponent(
-      `Error: ${error?.message ?? "Unknown error"}\n` +
-        `Stack: ${error?.stack ?? "No stack trace"}\n` +
+      `Error: ${error?.message ?? t("error_boundary.unknown_error")}\n` +
+        `Stack: ${error?.stack ?? t("error_boundary.no_stack")}\n` +
         `URL: ${window.location.href}\n` +
         `User Agent: ${navigator.userAgent}\n`
     );
@@ -70,20 +70,17 @@ function ErrorFallback({ error }: ErrorFallbackProps) {
         <div className="p-6 space-y-4">
           <div className="space-y-1">
             <h2 className="text-lg font-semibold leading-none tracking-tight text-destructive">
-              {t("error_boundary.title", "Something went wrong")}
+              {t("error_boundary.title")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {t(
-                "error_boundary.description",
-                "An unexpected error occurred. The app will attempt to continue."
-              )}
+              {t("error_boundary.description")}
             </p>
           </div>
 
           {error && (
             <details className="group">
               <summary className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground">
-                {t("error_boundary.show_details", "Show technical details")}
+                {t("error_boundary.show_details")}
               </summary>
               <pre className="mt-2 max-h-32 overflow-auto rounded-md border bg-muted/30 p-3 text-xs font-mono whitespace-pre-wrap break-all">
                 {error.message}
@@ -94,10 +91,10 @@ function ErrorFallback({ error }: ErrorFallbackProps) {
 
           <div className="flex gap-2 pt-2">
             <Button className="flex-1" onClick={handleReload}>
-              {t("error_boundary.reload", "Reload")}
+              {t("error_boundary.reload")}
             </Button>
             <Button variant="outline" onClick={handleReport}>
-              {t("error_boundary.report", "Report")}
+              {t("error_boundary.report")}
             </Button>
           </div>
         </div>

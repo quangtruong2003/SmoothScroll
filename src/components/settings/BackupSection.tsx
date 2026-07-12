@@ -94,10 +94,7 @@ export function BackupSection() {
     } catch {
       showStatus({
         kind: "error",
-        message: t(
-          "backup.import_error",
-          "Could not parse backup file. Make sure it was exported from SmoothScroll.",
-        ),
+        message: t("backup.import_error"),
       });
     }
   };

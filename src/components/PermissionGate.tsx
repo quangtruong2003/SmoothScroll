@@ -37,7 +37,7 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
             accessible: false,
             flatpak: false,
             session_type: "unknown",
-            error_message: "Unable to check platform status. Please restart SmoothScroll.",
+            error_message: t("permission.platform_error"),
           });
         })
         .finally(() => setIsLoading(false));
@@ -96,7 +96,7 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
         accessible: false,
         flatpak: false,
         session_type: "unknown",
-        error_message: "Unable to check platform status. Please restart SmoothScroll.",
+        error_message: t("permission.platform_error"),
       });
     } finally {
       setIsLoading(false);
@@ -110,8 +110,8 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         <p className="text-sm text-muted-foreground">
           {IS_LINUX
-            ? t("permission.linux_checking", "Checking system requirements...")
-            : t("permission.checking", "Checking...")}
+            ? t("permission.linux_checking")
+            : t("permission.checking")}
         </p>
       </div>
     );
@@ -132,15 +132,15 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
           <div>
             <h1 className="permission-error-title text-xl font-semibold">
               {isFlatpak
-                ? t("permission.linux_flatpak_title", "Flatpak Not Supported")
-                : t("permission.linux_uinput_title", "Permission Access Required")}
+                ? t("permission.linux_flatpak_title")
+                : t("permission.linux_uinput_title")}
             </h1>
             <p className="permission-error-subtitle text-sm text-muted-foreground">
               {isFlatpak
-                ? t("permission.linux_flatpak_subtitle", "SmoothScroll cannot run in a Flatpak sandbox")
+                ? t("permission.linux_flatpak_subtitle")
                 : platformStatus.session_type === "wayland"
-                  ? t("permission.linux_wayland_subtitle", "Running on Wayland - uinput access needed")
-                  : t("permission.linux_x11_subtitle", "Running on X11")}
+                  ? t("permission.linux_wayland_subtitle")
+                  : t("permission.linux_x11_subtitle")}
             </p>
           </div>
         </div>
@@ -154,13 +154,13 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
           {/* Session type indicator */}
           {!isFlatpak && (
             <div className="permission-session-indicator flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-medium">Session:</span>
+              <span className="font-medium">{t("permission.session_label")}</span>
               <code className="permission-session-code px-2 py-0.5 bg-muted rounded">
                 {platformStatus.session_type || "unknown"}
               </code>
               {platformStatus.session_type === "wayland" && (
                 <span className="text-amber-600 dark:text-amber-400">
-                  ⚠ Wayland may require additional setup
+                  {"⚠ " + t("permission.wayland_hint")}
                 </span>
               )}
             </div>
@@ -173,16 +173,16 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
             <>
               <Button onClick={retryLinux} className="w-full gap-2">
                 <RefreshCw className="h-4 w-4" />
-                {t("permission.linux_retry", "Check Again After Setup")}
+                {t("permission.linux_retry")}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                {t("permission.linux_retry_hint", "After running the commands above, click 'Check Again'")}
+                {t("permission.linux_retry_hint")}
               </p>
             </>
           )}
           {isFlatpak && (
             <p className="text-sm text-muted-foreground">
-              {t("permission.linux_flatpak_hint", "Please install SmoothScroll from .deb or .AppImage instead.")}
+              {t("permission.linux_flatpak_hint")}
             </p>
           )}
         </div>
@@ -199,31 +199,25 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
         </div>
         <div>
           <h1 className="permission-title text-xl font-semibold">
-            {t("permission.title", "Accessibility access required")}
+            {t("permission.title")}
           </h1>
           <p className="permission-subtitle text-sm text-muted-foreground">
             {IS_MAC
-              ? t("permission.macos_subtitle", "SmoothScroll needs Accessibility permission")
-              : t("permission.windows_subtitle", "SmoothScroll needs Accessibility permission")}
+              ? t("permission.macos_subtitle")
+              : t("permission.windows_subtitle")}
           </p>
         </div>
       </div>
 
       <p className="permission-body text-sm text-muted-foreground">
         {IS_MAC
-          ? t(
-              "permission.macos_body",
-              "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-            )
-          : t(
-              "permission.body",
-              "Open Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-            )}
+          ? t("permission.macos_body")
+          : t("permission.body")}
       </p>
 
       <div className="permission-actions flex flex-wrap gap-2">
         <Button onClick={requestPrompt}>
-          {t("permission.open", "Open System Settings")}
+          {t("permission.open")}
         </Button>
         <Button
           variant="outline"
@@ -233,10 +227,10 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
           {status === "checking" ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {t("permission.checking", "Checking...")}
+              {t("permission.checking")}
             </>
           ) : (
-            t("permission.check_now", "I just granted it — check now")
+            t("permission.check_now")
           )}
         </Button>
       </div>
@@ -244,19 +238,13 @@ export function PermissionGate({ onGranted }: { onGranted: () => void }) {
       {status === "denied" && (
         <p className="permission-status-denied text-sm text-destructive flex items-center gap-2" role="status" aria-live="polite">
           <AlertTriangle className="h-4 w-4" />
-          {t(
-            "permission.still_denied",
-            "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
-          )}
+          {t("permission.still_denied")}
         </p>
       )}
       {status === "polling" && (
         <div className="permission-status-polling flex items-center gap-2 text-sm text-muted-foreground" role="status" aria-live="polite">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t(
-            "permission.polling",
-            "Watching for permission. I'll continue automatically once granted.",
-          )}
+          {t("permission.polling")}
         </div>
       )}
     </div>
