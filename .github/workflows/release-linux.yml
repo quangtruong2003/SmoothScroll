@@ -241,9 +241,7 @@ jobs:
           "
 
       - name: Build Tauri app (release-fast)
-        env:
-          TAURI_BUILD_PROFILE: release-fast
-        run: pnpm tauri build
+        run: pnpm tauri build -- --profile release-fast
 
       - name: Generate latest-linux.json
         run: |
