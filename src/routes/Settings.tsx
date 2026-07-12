@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useSettingsStore, useTheme } from "@/stores/settingsStore";
 import { applyTheme, watchSystemTheme } from "@/lib/theme";
-import { tauri } from "@/lib/tauri";
+import { tauri, type AppSettings } from "@/lib/tauri";
 import { Sidebar, type TabKey } from "@/components/Sidebar";
 import { WindowChrome } from "@/components/WindowChrome";
 import { EnableHeader } from "@/components/settings/EnableHeader";
@@ -31,6 +31,7 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const load = useSettingsStore((s) => s.load);
   const setEnabledFromEvent = useSettingsStore((s) => s.setEnabledFromEvent);
+  const setStartWithOsFromEvent = useSettingsStore((s) => s.setStartWithOsFromEvent);
   const theme = useTheme();
   const loading = useSettingsStore((s) => s.loading);
   const error = useSettingsStore((s) => s.error);
@@ -72,6 +73,20 @@ export function SettingsPage() {
       });
     };
   }, [setEnabledFromEvent]);
+
+  useEffect(() => {
+    const unlistenPromise = listen<Partial<AppSettings>>("settings-changed", (event) => {
+      const next = event.payload;
+      if (next && typeof next.start_with_os === "boolean") {
+        setStartWithOsFromEvent(next.start_with_os);
+      }
+    });
+    return () => {
+      unlistenPromise.then((u) => u()).catch(() => {
+        // ignore
+      });
+    };
+  }, [setStartWithOsFromEvent]);
 
   useEffect(() => {
     const unlistenPromise = listen<string>("navigate-to", (event) => {

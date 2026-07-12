@@ -62,16 +62,13 @@ export function TrayPanel() {
   const load = useSettingsStore((s) => s.load);
 
   const [enabled, setEnabledState] = useState(false);
-  const [autostart, setAutostartState] = useState(false);
+  const autostart = useSettingsStore((s) => s.settings?.start_with_os ?? false);
+  const patch = useSettingsStore((s) => s.patch);
 
   useEffect(() => {
     invoke<boolean>('get_enabled').then(setEnabledState, () => {
       // ignore
     });
-    invoke<boolean>('get_autostart').then(setAutostartState, () => {
-      // ignore
-    });
-
     if (!settings) void load();
 
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
@@ -79,9 +76,6 @@ export function TrayPanel() {
     });
     const unlistenSettings = listen<Partial<AppSettings>>('settings-changed', (event) => {
       const s = event.payload;
-      if (s && typeof s.start_with_os === 'boolean') {
-        setAutostartState(s.start_with_os);
-      }
       if (s && typeof s.theme === 'string') {
         applyTheme(s.theme);
       }
@@ -136,9 +130,9 @@ export function TrayPanel() {
   }, []);
 
   const handleSetAutostart = useCallback(async (v: boolean) => {
-    setAutostartState(v);
+    patch({ start_with_os: v });
     await invoke('set_autostart', { enabled: v });
-  }, []);
+  }, [patch]);
 
   const handleOpenSettings = useCallback(async () => {
     await invoke('close_tray_panel');
