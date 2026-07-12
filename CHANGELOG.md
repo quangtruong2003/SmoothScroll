@@ -7,6 +7,18 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.20.0] - 2026-07-12
+
+### Added
+- add --platform, --dry-run, getLatestTag with platform-aware tag filtering
+- add --platform flag with parseArgs/readPlatformVersion/writePlatformVersion
+- add --linux-deb and --linux-appimage flags
+- add OG/Twitter cards, JSON-LD, canonical URLs, security headers
+
+### Fixed
+- sync all 14 locales and remove hardcoded English strings
+- sync autostart toggle between TrayPanel and Settings page
+- full-window takeover + safer restart + indeterminate progress
 ## [1.19.5] - 2026-07-11
 
 ### Fixed
