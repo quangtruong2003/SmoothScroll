@@ -3,6 +3,11 @@
 //! Initializes the scroll engine, IPC server, and mouse hook.
 //! The Swift Menu Bar app (macos/SmoothScrollMenuBar) connects via IPC.
 
+#[link(name = "CoreGraphics", kind = "framework")]
+#[link(name = "CoreFoundation", kind = "framework")]
+#[link(name = "AppKit", kind = "framework")]
+extern "C" {}
+
 use arc_swap::ArcSwap;
 use parking_lot::{Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
