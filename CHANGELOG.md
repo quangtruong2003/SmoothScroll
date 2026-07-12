@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-07-12
+
+### Fixed
+- update engine-macos files
 ## [1.1.2] - 2026-07-12
 
 ### Fixed
