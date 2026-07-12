@@ -41,7 +41,7 @@ impl HookEventSink for EngineSink {
         let mut engine = self.state.engine.lock();
         engine.on_wheel_with_source(delta, now_ms, source, &eff);
         self.state.engine_signal.signal();
-        HookDecision::Block
+        HookDecision::Swallow
     }
 
     fn on_hwheel_ext(
@@ -60,6 +60,6 @@ impl HookEventSink for EngineSink {
         let mut engine = self.state.engine.lock();
         engine.on_hwheel_with_source(delta, now_ms, source, &eff);
         self.state.engine_signal.signal();
-        HookDecision::Block
+        HookDecision::Swallow
     }
 }
