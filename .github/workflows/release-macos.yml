@@ -145,10 +145,9 @@ jobs:
 
       - name: Build Rust engine binary (standalone)
         run: |
-          cargo build --profile release-fast -p smoothscroll-app --target ${{ matrix.target }}
-          # Copy binary to a known location for bundling
+          cargo build --profile release-fast -p smoothscroll-engine-macos --target ${{ matrix.target }}
           mkdir -p engine-bin
-          cp target/${{ matrix.target }}/release-fast/smoothscroll-app engine-bin/smoothscroll-engine
+          cp target/${{ matrix.target }}/release-fast/smoothscroll-engine-macos engine-bin/smoothscroll-engine
 
       - name: Build Swift app
         run: |
