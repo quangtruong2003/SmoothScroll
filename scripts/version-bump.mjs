@@ -73,11 +73,58 @@ export function parseCommitMessage(raw) {
   return { type, subject, body, breaking };
 }
 
-export function readCurrentVersion() {
+export function readCurrentVersion(platform) {
+  if (platform) {
+    return readPlatformVersion(platform, REPO_ROOT);
+  }
   const cargoToml = readFileSync(resolve(REPO_ROOT, 'Cargo.toml'), 'utf8');
   const match = /^\[workspace\.package\][\s\S]*?^version\s*=\s*"([^"]+)"/m.exec(cargoToml);
   if (!match) throw new Error('Cannot find workspace.package.version in Cargo.toml');
   return match[1];
+}
+
+export function parseArgs(argv) {
+  const args = {};
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg.startsWith('--')) {
+      const key = arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+      const next = argv[i + 1];
+      if (next === undefined || next.startsWith('--')) {
+        args[key] = true;
+      } else {
+        args[key] = next;
+        i++;
+      }
+    }
+  }
+  return args;
+}
+
+export function readPlatformVersion(platform, repoRoot) {
+  const filePath = resolve(repoRoot, `VERSION.${platform}`);
+  if (!existsSync(filePath)) throw new Error(`Version file not found: VERSION.${platform}`);
+  return readFileSync(filePath, 'utf8').trim();
+}
+
+export function writePlatformVersion(platform, version, repoRoot) {
+  const filePath = resolve(repoRoot, `VERSION.${platform}`);
+  writeFileSync(filePath, version);
+}
+
+export function getLatestTag(platform) {
+  let pattern;
+  if (platform === 'macos') pattern = 'mac/v*';
+  else if (platform === 'linux') pattern = 'linux/v*';
+  else pattern = 'v[0-9]*';
+  try {
+    const tags = execFileSync('git', ['tag', '-l', pattern, '--sort=-v:refname'], {
+      cwd: REPO_ROOT, encoding: 'utf8',
+    }).trim();
+    return tags ? tags.split('\n')[0] : '';
+  } catch {
+    return '';
+  }
 }
 
 export function bumpCargoToml(filePath, newVersion, isWorkspace) {
@@ -165,7 +212,10 @@ function setGithubOutput(key, value) {
 }
 
 async function main() {
-  const lastTag = process.env.LAST_TAG || '';
+  const args = parseArgs(process.argv);
+  const platform = args.platform || null;
+  const dryRun = args.dryRun === true;
+
   const headMsg = process.env.HEAD_COMMIT_MSG || '';
 
   if (/\[skip release\]/i.test(headMsg)) {
@@ -173,11 +223,12 @@ async function main() {
     process.exit(78);
   }
 
+  const lastTag = process.env.LAST_TAG || getLatestTag(platform);
   const commits = getCommits(lastTag);
   console.log(`Analyzing ${commits.length} commit(s) since ${lastTag || 'beginning'}`);
 
   const releaseAs = parseReleaseAsFooter(headMsg);
-  const currentVersion = readCurrentVersion();
+  const currentVersion = readCurrentVersion(platform);
   let newVersion;
 
   if (releaseAs) {
@@ -193,12 +244,36 @@ async function main() {
     console.log(`Bump ${bump}: ${currentVersion} -> ${newVersion}`);
   }
 
-  bumpCargoToml(resolve(REPO_ROOT, 'Cargo.toml'), newVersion, true);
-  bumpCargoToml(resolve(REPO_ROOT, 'crates/core/Cargo.toml'), newVersion, false);
-  bumpCargoToml(resolve(REPO_ROOT, 'crates/platform/Cargo.toml'), newVersion, false);
-  bumpCargoToml(resolve(REPO_ROOT, 'src-tauri/Cargo.toml'), newVersion, false);
-  bumpJsonVersion(resolve(REPO_ROOT, 'package.json'), newVersion);
-  bumpJsonVersion(resolve(REPO_ROOT, 'src-tauri/tauri.conf.json'), newVersion);
+  const tagPrefix = platform === 'macos' ? 'mac' : platform === 'linux' ? 'linux' : '';
+  const tag = tagPrefix ? `${tagPrefix}/v${newVersion}` : `v${newVersion}`;
+
+  if (dryRun) {
+    console.log(`[DRY RUN] Would bump to ${newVersion} for platform=${platform || 'all'}`);
+    setGithubOutput('version', newVersion);
+    setGithubOutput('tag', tag);
+    setGithubOutput('is_prerelease', String(/-/.test(newVersion)));
+    setGithubOutput('skipped', 'false');
+    return;
+  }
+
+  if (platform) {
+    writePlatformVersion(platform, newVersion, REPO_ROOT);
+    if (platform === 'windows') {
+      bumpCargoToml(resolve(REPO_ROOT, 'Cargo.toml'), newVersion, true);
+      bumpCargoToml(resolve(REPO_ROOT, 'crates/core/Cargo.toml'), newVersion, false);
+      bumpCargoToml(resolve(REPO_ROOT, 'crates/platform/Cargo.toml'), newVersion, false);
+      bumpCargoToml(resolve(REPO_ROOT, 'src-tauri/Cargo.toml'), newVersion, false);
+      bumpJsonVersion(resolve(REPO_ROOT, 'package.json'), newVersion);
+      bumpJsonVersion(resolve(REPO_ROOT, 'src-tauri/tauri.conf.json'), newVersion);
+    }
+  } else {
+    bumpCargoToml(resolve(REPO_ROOT, 'Cargo.toml'), newVersion, true);
+    bumpCargoToml(resolve(REPO_ROOT, 'crates/core/Cargo.toml'), newVersion, false);
+    bumpCargoToml(resolve(REPO_ROOT, 'crates/platform/Cargo.toml'), newVersion, false);
+    bumpCargoToml(resolve(REPO_ROOT, 'src-tauri/Cargo.toml'), newVersion, false);
+    bumpJsonVersion(resolve(REPO_ROOT, 'package.json'), newVersion);
+    bumpJsonVersion(resolve(REPO_ROOT, 'src-tauri/tauri.conf.json'), newVersion);
+  }
 
   const groups = groupCommitsByType(commits);
   const dateISO = new Date().toISOString().slice(0, 10);
@@ -212,9 +287,9 @@ async function main() {
 
   const isPrerelease = /-/.test(newVersion);
   setGithubOutput('version', newVersion);
-  setGithubOutput('tag', `v${newVersion}`);
+  setGithubOutput('tag', tag);
   setGithubOutput('is_prerelease', String(isPrerelease));
-  console.log(`Wrote outputs: version=${newVersion}, tag=v${newVersion}, is_prerelease=${isPrerelease}`);
+  console.log(`Wrote outputs: version=${newVersion}, tag=${tag}, is_prerelease=${isPrerelease}`);
 }
 
 const invokedFromCli = process.argv[1] && resolve(process.argv[1]) === resolve(__filename);

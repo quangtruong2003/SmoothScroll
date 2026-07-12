@@ -8,6 +8,9 @@ import {
   parseCommitMessage,
   generateChangelogEntry,
   updateChangelog,
+  readPlatformVersion,
+  writePlatformVersion,
+  parseArgs,
 } from './version-bump.mjs';
 import { mkdtempSync, writeFileSync as wfs, readFileSync as rfs } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -177,4 +180,60 @@ test('updateChangelog: inserts entry below Unreleased when version absent', () =
   const result = rfs(path, 'utf8');
   assert.ok(result.includes('## [1.1.0]'));
   assert.ok(result.includes('### Added\n- Feature'));
+});
+
+test('parseArgs: extracts --platform value', () => {
+  const args = parseArgs(['node', 'script.mjs', '--platform', 'windows']);
+  assert.equal(args.platform, 'windows');
+});
+
+test('parseArgs: treats --dry-run as boolean true when no value follows', () => {
+  const args = parseArgs(['node', 'script.mjs', '--platform', 'linux', '--dry-run']);
+  assert.equal(args.platform, 'linux');
+  assert.equal(args.dryRun, true);
+});
+
+test('parseArgs: treats --dry-run as boolean true when another flag follows', () => {
+  const args = parseArgs(['node', 'script.mjs', '--dry-run', '--platform', 'linux']);
+  assert.equal(args.dryRun, true);
+  assert.equal(args.platform, 'linux');
+});
+
+test('parseArgs: returns empty object when no flags', () => {
+  const args = parseArgs(['node', 'script.mjs']);
+  assert.equal(args.platform, undefined);
+  assert.equal(args.dryRun, undefined);
+});
+
+test('readPlatformVersion: reads VERSION.windows', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'version-'));
+  wfs(join(dir, 'VERSION.windows'), '1.19.5');
+  const result = readPlatformVersion('windows', dir);
+  assert.equal(result, '1.19.5');
+});
+
+test('readPlatformVersion: reads VERSION.macos', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'version-'));
+  wfs(join(dir, 'VERSION.macos'), '2.0.0');
+  const result = readPlatformVersion('macos', dir);
+  assert.equal(result, '2.0.0');
+});
+
+test('readPlatformVersion: throws on invalid platform', () => {
+  assert.throws(() => readPlatformVersion('invalid', '/tmp'));
+});
+
+test('writePlatformVersion: writes VERSION.macos', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'version-'));
+  writePlatformVersion('macos', '2.0.0', dir);
+  const result = rfs(join(dir, 'VERSION.macos'), 'utf8');
+  assert.equal(result, '2.0.0');
+});
+
+test('writePlatformVersion: overwrites existing VERSION.linux', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'version-'));
+  wfs(join(dir, 'VERSION.linux'), '1.0.0');
+  writePlatformVersion('linux', '1.1.0', dir);
+  const result = rfs(join(dir, 'VERSION.linux'), 'utf8');
+  assert.equal(result, '1.1.0');
 });
