@@ -1,4 +1,5 @@
 import { useEffect, useReducer } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { SettingsPage } from "./routes/Settings";
 import { PermissionGate } from "./components/PermissionGate";
@@ -79,7 +80,14 @@ export default function App() {
     };
   }, [state.kind]);
 
-  // 4) Render
+  // 4) Resize window for update modal.
+  useEffect(() => {
+    if (state.kind === "update-required") {
+      void invoke("resize_for_update");
+    }
+  }, [state.kind]);
+
+  // 5) Render
   return (
     <ErrorBoundary>
       <AppContent state={state} showSplash={showSplash} dispatch={dispatch} />
@@ -120,7 +128,10 @@ function AppContent({ state, showSplash, dispatch }: AppContentProps) {
           update={state.update}
           currentVersion={state.currentVersion}
           canSkip={state.trusted}
-          onSkip={() => dispatch({ type: "UPDATE_SKIPPED" })}
+          onSkip={() => {
+            void invoke("restore_window_size");
+            dispatch({ type: "UPDATE_SKIPPED" });
+          }}
         />
       );
 
