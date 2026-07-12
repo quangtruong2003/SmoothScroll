@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-07-12
+
+### Fixed
+- replace HookDecision::Block with Swallow
 ## [1.1.3] - 2026-07-12
 
 ### Fixed
