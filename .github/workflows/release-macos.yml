@@ -1,12 +1,13 @@
 name: Release (macOS)
+# DISABLED: macOS releases paused. Use workflow_dispatch to trigger manually.
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'macos/**'
-      - 'crates/**'
-      - 'VERSION.macos'
+  # push:
+  #   branches: [master]
+  #   paths:
+  #     - 'macos/**'
+  #     - 'crates/**'
+  #     - 'VERSION.macos'
   workflow_dispatch:
 
 concurrency:
@@ -208,6 +209,7 @@ jobs:
         with:
           tag_name: ${{ needs.bump.outputs.tag }}
           name: "macOS v${{ needs.bump.outputs.version }}"
+          make_latest: false
           files: |
             dmg-tmp/*.dmg
 

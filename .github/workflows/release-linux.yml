@@ -1,15 +1,16 @@
 name: Release (Linux)
+# DISABLED: Linux releases paused. Use workflow_dispatch to trigger manually.
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'src-tauri/**'
-      - 'src/**'
-      - 'crates/**'
-      - 'scripts/**'
-      - 'package.json'
-      - 'VERSION.linux'
+  # push:
+  #   branches: [master]
+  #   paths:
+  #     - 'src-tauri/**'
+  #     - 'src/**'
+  #     - 'crates/**'
+  #     - 'scripts/**'
+  #     - 'package.json'
+  #     - 'VERSION.linux'
   workflow_dispatch:
 
 concurrency:
@@ -248,6 +249,7 @@ jobs:
         with:
           tag_name: ${{ needs.bump.outputs.tag }}
           name: "Linux v${{ needs.bump.outputs.version }}"
+          make_latest: false
           files: |
             target/release-fast/bundle/deb/*.deb
             target/release-fast/bundle/appimage/*.AppImage

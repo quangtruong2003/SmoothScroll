@@ -257,6 +257,7 @@ jobs:
         with:
           tag_name: ${{ needs.bump.outputs.tag }}
           generate_release_notes: true
+          make_latest: true
           files: |
             target/release/bundle/nsis/*.exe
             target/release/bundle/nsis/*.sig
