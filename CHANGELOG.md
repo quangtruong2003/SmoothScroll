@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.1.9] - 2026-07-12
+
+### Fixed
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
 ## [1.1.8] - 2026-07-12
 
 ### Fixed
