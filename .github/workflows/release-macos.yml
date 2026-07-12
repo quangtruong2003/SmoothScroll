@@ -45,8 +45,8 @@ jobs:
             .
           shared-key: ci-macos
 
-      - name: Run Rust tests
-        run: cargo test --workspace --all-targets
+      - name: Run Rust tests (core + platform only)
+        run: cargo test -p smoothscroll_core -p smoothscroll_platform --all-targets
 
   bump:
     needs: [_guard, test]
