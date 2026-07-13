@@ -41,7 +41,9 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
   const [processes, setProcesses] = useState<ProcessInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [manualName, setManualName] = useState("");
-  const [selectedProfileId, setSelectedProfileId] = useState<string>(DISABLED_PROFILE_ID);
+  const [selectedProfileId, setSelectedProfileId] = useState<string>(
+    settings?.profiles?.[0]?.id ?? DISABLED_PROFILE_ID,
+  );
   const [suggestion, setSuggestion] = useState<ProfileSuggestion | null>(null);
   const [showSuggestion, setShowSuggestion] = useState(true);
 
