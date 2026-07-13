@@ -14,6 +14,7 @@ import { IS_LINUX, IS_MAC } from '@/lib/platform';
 import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
 import { CurrentAppCard } from './tray/CurrentAppCard';
+import { ProfilePill } from './tray/ProfilePill';
 
 interface MenuItemProps {
   icon?: React.ReactNode;
@@ -168,6 +169,7 @@ export function TrayPanel() {
         {!IS_LINUX && (
           <div className="tray-section">
             <CurrentAppCard />
+            <ProfilePill />
           </div>
         )}
 
