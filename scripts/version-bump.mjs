@@ -66,7 +66,7 @@ export function parseCommitMessage(raw) {
   const subjectLine = lines[0] || '';
   const body = lines.slice(2).join('\n');
 
-  const match = /^(\w+)(\([^)]*\))?(!)?:\s*(.+)$/.exec(subjectLine);
+  const match = /^@?\s*(\w+)(\([^)]*\))?(!)?:\s*(.+)$/.exec(subjectLine);
   if (!match) return null;
   const [, type, , bang, subject] = match;
   const breaking = Boolean(bang) || /^BREAKING CHANGE:/m.test(body);

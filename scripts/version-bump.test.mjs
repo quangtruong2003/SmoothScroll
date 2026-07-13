@@ -141,6 +141,19 @@ test('parseCommitMessage: handles scope', () => {
   assert.equal(parsed.subject, 'button hover');
 });
 
+test('parseCommitMessage: tolerates "@ " prefix (e.g. from git hook)', () => {
+  const parsed = parseCommitMessage('@ fix: prevent silent app disable');
+  assert.equal(parsed.type, 'fix');
+  assert.equal(parsed.subject, 'prevent silent app disable');
+  assert.equal(parsed.breaking, false);
+});
+
+test('parseCommitMessage: tolerates "@ " prefix with scope', () => {
+  const parsed = parseCommitMessage('@ fix(core): handle edge case');
+  assert.equal(parsed.type, 'fix');
+  assert.equal(parsed.subject, 'handle edge case');
+});
+
 test('parseCommitMessage: returns null for malformed subject', () => {
   const parsed = parseCommitMessage('no conv format here');
   assert.equal(parsed, null);
