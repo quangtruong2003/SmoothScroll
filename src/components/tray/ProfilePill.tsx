@@ -81,6 +81,7 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
         <ProfilePickerPopover
           processName={processName}
           selectedProfileId={profileId}
+          triggerRef={rowRef}
           onClose={() => setOpen(false)}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}

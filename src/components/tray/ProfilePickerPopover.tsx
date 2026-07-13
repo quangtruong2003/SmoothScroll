@@ -1,4 +1,5 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { Check, Ban, Globe } from "lucide-react";
@@ -7,6 +8,7 @@ import { useSettingsStore } from "@/stores/settingsStore";
 interface Props {
   processName: string;
   selectedProfileId?: string;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -15,6 +17,7 @@ interface Props {
 export function ProfilePickerPopover({
   processName,
   selectedProfileId,
+  triggerRef,
   onClose,
   onMouseEnter,
   onMouseLeave,
@@ -22,6 +25,7 @@ export function ProfilePickerPopover({
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const ref = useRef<HTMLDivElement | null>(null);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
 
   const profiles = (settings?.profiles ?? [])
     .slice()
@@ -29,6 +33,14 @@ export function ProfilePickerPopover({
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
     )
     .slice(0, 8);
+
+  // Position popover relative to trigger
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+  }, [triggerRef]);
 
   const apply = useCallback(
     async (profileId: string | null) => {
@@ -54,12 +66,13 @@ export function ProfilePickerPopover({
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  return (
+  const popover = (
     <div
       ref={ref}
       className="tray-profile-popover"
       role="listbox"
       tabIndex={-1}
+      style={pos ? { position: "fixed", top: pos.top, right: pos.right } : undefined}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -107,4 +120,6 @@ export function ProfilePickerPopover({
       ))}
     </div>
   );
+
+  return createPortal(popover, document.body);
 }
