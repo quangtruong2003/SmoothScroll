@@ -33,6 +33,7 @@ landing/test-results/
 .playwright-mcp/
 
 videos/
+scripts/
 
 .cursor/
 .superpowers/
