@@ -8,6 +8,11 @@ import { useSettingsStore } from '@/stores/settingsStore';
 
 const mockInvoke = vi.fn();
 
+/** Wrap component in a .tray-panel-root so `closest()` finds it. */
+function PanelWrapper({ children }: { children: React.ReactNode }) {
+  return <div className="tray-panel-root">{children}</div>;
+}
+
 const mockCtx = {
   process_name: 'Notepad.exe',
   current_profile_id: 'p1',
@@ -56,12 +61,12 @@ beforeEach(() => {
 
 describe('ProfilePill', () => {
   it('renders current profile name', () => {
-    render(<ProfilePill ctx={mockCtx} />);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     expect(screen.getByText(/Reading/)).toBeInTheDocument();
   });
 
   it('opens popover on click and selects disable option', async () => {
-    render(<ProfilePill ctx={mockCtx} />);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
@@ -74,7 +79,7 @@ describe('ProfilePill', () => {
   });
 
   it('selects default option to unassign profile', async () => {
-    render(<ProfilePill ctx={mockCtx} />);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
@@ -86,7 +91,7 @@ describe('ProfilePill', () => {
   });
 
   it('selects a user profile', async () => {
-    render(<ProfilePill ctx={mockCtx} />);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
@@ -99,7 +104,7 @@ describe('ProfilePill', () => {
   });
 
   it('closes popover on Escape key', async () => {
-    render(<ProfilePill ctx={mockCtx} />);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     await screen.findByRole('listbox');
     await userEvent.keyboard('{Escape}');
@@ -110,7 +115,7 @@ describe('ProfilePill', () => {
 
   it('returns null when no profiles exist', () => {
     useSettingsStore.setState({ settings: { profiles: [], app_profiles: {} } } as any);
-    const { container } = render(<ProfilePill ctx={mockCtx} />);
-    expect(container.firstChild).toBeNull();
+    const { container } = render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    expect(container.querySelector('.tray-row')).toBeNull();
   });
 });

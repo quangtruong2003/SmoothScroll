@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { Check, Ban, Globe } from "lucide-react";
@@ -8,12 +9,18 @@ interface Props {
   processName: string;
   selectedProfileId?: string;
   onClose: () => void;
+  /** Bounding rect of the tray panel, used for portal positioning. */
+  panelRect: DOMRect;
+  /** Bounding rect of the pill row, used to align the flyout top. */
+  pillRect: DOMRect;
 }
 
 export function ProfilePickerPopover({
   processName,
   selectedProfileId,
   onClose,
+  panelRect,
+  pillRect,
 }: Props) {
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
@@ -26,7 +33,7 @@ export function ProfilePickerPopover({
     )
     .slice(0, 8);
 
-  const apply = async (profileId: string | null) => {
+  const apply = useCallback(async (profileId: string | null) => {
     try {
       if (profileId === null) {
         await invoke("unassign_app_profile", { processName });
@@ -37,7 +44,7 @@ export function ProfilePickerPopover({
     } catch {
       // keep popover open for retry
     }
-  };
+  }, [processName, onClose]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -47,8 +54,23 @@ export function ProfilePickerPopover({
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  return (
-    <div ref={ref} className="tray-profile-popover" role="listbox" tabIndex={-1}>
+  // Flyout: right edge touches panel left edge, top aligns with pill row.
+  const gap = 6;
+  const flyoutRight = panelRect.left - gap;
+  const flyoutTop = pillRect.top;
+
+  return createPortal(
+    <div
+      ref={ref}
+      className="tray-profile-popover"
+      role="listbox"
+      tabIndex={-1}
+      style={{
+        right: `${window.innerWidth - flyoutRight}px`,
+        top: `${flyoutTop}px`,
+        width: `${panelRect.width}px`,
+      }}
+    >
       <button
         type="button"
         role="option"
@@ -91,6 +113,7 @@ export function ProfilePickerPopover({
           )}
         </button>
       ))}
-    </div>
+    </div>,
+    document.body,
   );
 }

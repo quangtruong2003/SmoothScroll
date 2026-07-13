@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
@@ -13,7 +13,11 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [rects, setRects] = useState<{
+    panel: DOMRect;
+    pill: DOMRect;
+  } | null>(null);
+  const rowRef = useRef<HTMLDivElement | null>(null);
 
   const profiles = settings?.profiles ?? [];
   const processName = ctx?.process_name ?? "";
@@ -21,11 +25,37 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
     ? settings?.app_profiles[processName]
     : undefined;
 
+  const updateRects = useCallback(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const panelRoot = row.closest(".tray-panel-root");
+    if (!panelRoot) return;
+    setRects({
+      panel: panelRoot.getBoundingClientRect(),
+      pill: row.getBoundingClientRect(),
+    });
+  }, []);
+
+  const toggleOpen = useCallback(() => {
+    setOpen((prev) => {
+      if (!prev) updateRects();
+      return !prev;
+    });
+  }, [updateRects]);
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node))
+      const target = e.target as Node;
+      // Close if click is outside the pill row AND outside the portal flyout.
+      const flyout = document.querySelector(".tray-profile-popover");
+      if (
+        rowRef.current &&
+        !rowRef.current.contains(target) &&
+        (!flyout || !flyout.contains(target))
+      ) {
         setOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -39,25 +69,27 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
       t("tray.profile_default");
 
   return (
-    <div ref={rootRef} className="tray-row" style={{ position: 'relative' }}>
+    <div ref={rowRef} className="tray-row">
       <span className="tray-row-label tray-profile-pill-label">
         {t("tray.profile_label")}: {selectedLabel}
       </span>
       <button
         type="button"
         className="tray-row-icon"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={toggleOpen}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("tray.profile_label")}
       >
         <ChevronDown className="h-4 w-4" />
       </button>
-      {open && (
+      {open && rects && (
         <ProfilePickerPopover
           processName={processName}
           selectedProfileId={profileId}
           onClose={() => setOpen(false)}
+          panelRect={rects.panel}
+          pillRect={rects.pill}
         />
       )}
     </div>
