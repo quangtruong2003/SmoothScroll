@@ -7,6 +7,30 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.21.0] - 2026-07-13
+
+### Added
+- adjust ForcedUpdateModal layout for 350x280 window
+- resize window for update, restore on skip
+- add resize_for_update and restore_window_size commands
+- implement standalone engine-macos and auto-launch from Swift app
+
+### Fixed
+- exclude macOS crate from Linux test runs, remove duplicate tests.yml
+- disable macOS/Linux releases, ensure Windows is latest
+- link to _dispatch_main_q directly to resolve GCD linker error
+- link libSystem for GCD functions in event_tap
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+- force framework linking via RUSTFLAGS env var during standalone engine build
+- link macOS frameworks via rustc #[link] attributes
+- link CoreGraphics unconditionally
+- add build.rs to link CoreGraphics and AppKit frameworks
+- replace HookDecision::Block with Swallow
+- update engine-macos files
+- ensure engine-macos compiles correctly with updated dependencies
+- fix engine-macos compilation errors
+- fix macos workflow file
 ## [1.1.12] - 2026-07-12
 
 ### Fixed
