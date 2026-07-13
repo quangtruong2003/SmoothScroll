@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useForegroundApp } from '@/hooks/useForegroundApp';
 import { IS_LINUX, IS_MAC } from '@/lib/platform';
 import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
@@ -58,6 +59,7 @@ function MenuItem({
 
 export function TrayPanel() {
   const { t } = useTranslation();
+  const { ctx, refresh } = useForegroundApp();
 
   const settings = useSettingsStore((s) => s.settings);
   const load = useSettingsStore((s) => s.load);
@@ -168,8 +170,8 @@ export function TrayPanel() {
         {/* Current foreground app */}
         {!IS_LINUX && (
           <div className="tray-section">
-            <CurrentAppCard />
-            <ProfilePill />
+            <CurrentAppCard ctx={ctx} refresh={refresh} />
+            <ProfilePill ctx={ctx} />
           </div>
         )}
 

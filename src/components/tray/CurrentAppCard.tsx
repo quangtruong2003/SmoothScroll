@@ -12,8 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { tauri, type AppCategory } from "@/lib/tauri";
-import { useForegroundApp } from "@/hooks/useForegroundApp";
+import { tauri, type AppCategory, type ForegroundAppContext } from "@/lib/tauri";
 
 const CATEGORY_ICON: Record<AppCategory, LucideIcon> = {
   Browser: Globe,
@@ -40,8 +39,12 @@ function prettifyProcessName(raw: string): string {
     .join(" ");
 }
 
-export function CurrentAppCard() {
-  const { ctx, refresh } = useForegroundApp();
+interface CurrentAppCardProps {
+  ctx: ForegroundAppContext | null;
+  refresh: () => Promise<void>;
+}
+
+export function CurrentAppCard({ ctx, refresh }: CurrentAppCardProps) {
 
   const handleToggle = useCallback(async (enabled: boolean) => {
     const name = ctx?.process_name;

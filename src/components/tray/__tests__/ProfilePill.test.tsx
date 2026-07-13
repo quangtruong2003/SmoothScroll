@@ -8,16 +8,13 @@ import { useSettingsStore } from '@/stores/settingsStore';
 
 const mockInvoke = vi.fn();
 
-vi.mock('@/hooks/useForegroundApp', () => ({
-  useForegroundApp: () => ({
-    ctx: {
-      process_name: 'Notepad.exe',
-      current_profile_id: 'p1',
-      is_excluded: false,
-    },
-    refresh: vi.fn(),
-  }),
-}));
+const mockCtx = {
+  process_name: 'Notepad.exe',
+  current_profile_id: 'p1',
+  is_excluded: false,
+  suggested_category: null,
+  app_icon_base64: null,
+} as any;
 
 vi.mock('@tauri-apps/api/core', () => ({
   invoke: (...args: unknown[]) => mockInvoke(...args),
@@ -59,12 +56,12 @@ beforeEach(() => {
 
 describe('ProfilePill', () => {
   it('renders current profile name', () => {
-    render(<ProfilePill />);
+    render(<ProfilePill ctx={mockCtx} />);
     expect(screen.getByText(/Reading/)).toBeInTheDocument();
   });
 
   it('opens popover on click and selects disable option', async () => {
-    render(<ProfilePill />);
+    render(<ProfilePill ctx={mockCtx} />);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
@@ -77,7 +74,7 @@ describe('ProfilePill', () => {
   });
 
   it('selects default option to unassign profile', async () => {
-    render(<ProfilePill />);
+    render(<ProfilePill ctx={mockCtx} />);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
@@ -89,7 +86,7 @@ describe('ProfilePill', () => {
   });
 
   it('selects a user profile', async () => {
-    render(<ProfilePill />);
+    render(<ProfilePill ctx={mockCtx} />);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
@@ -102,7 +99,7 @@ describe('ProfilePill', () => {
   });
 
   it('closes popover on Escape key', async () => {
-    render(<ProfilePill />);
+    render(<ProfilePill ctx={mockCtx} />);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     await screen.findByRole('listbox');
     await userEvent.keyboard('{Escape}');

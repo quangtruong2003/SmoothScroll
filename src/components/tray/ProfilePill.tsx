@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
-import { useForegroundApp } from "@/hooks/useForegroundApp";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { ProfilePickerPopover } from "./ProfilePickerPopover";
+import type { ForegroundAppContext } from "@/lib/tauri";
 
-export function ProfilePill(): React.ReactNode | null {
+interface ProfilePillProps {
+  ctx: ForegroundAppContext | null;
+}
+
+export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
   const { t } = useTranslation();
-  const { ctx } = useForegroundApp();
   const settings = useSettingsStore((s) => s.settings);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -36,7 +39,7 @@ export function ProfilePill(): React.ReactNode | null {
       t("tray.profile_default");
 
   return (
-    <div ref={rootRef} className="tray-row">
+    <div ref={rootRef} className="tray-row" style={{ position: 'relative' }}>
       <span className="tray-row-label tray-profile-pill-label">
         {t("tray.profile_label")}: {selectedLabel}
       </span>

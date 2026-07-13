@@ -935,6 +935,14 @@ body[data-platform="linux"] .tray-panel-root [data-state="checked"] {
   background: rgba(108,92,231,0.12);
 }
 
+.tray-profile-option:hover {
+  background: rgba(108,92,231,0.15);
+}
+.tray-profile-option:focus-visible {
+  outline: 2px solid hsl(var(--ring, 262 83% 58%));
+  outline-offset: -2px;
+}
+
 .tray-profile-divider {
   height: 1px;
   margin: 4px 8px;
