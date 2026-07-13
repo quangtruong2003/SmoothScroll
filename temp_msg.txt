@@ -1,7 +1,0 @@
-chore: replace remaining em-dashes with hyphens (2 comments)
-
-In github.ts and ambientEffects.ts comments, plus one dot-grid-overlay
-test comment. User-facing copy and i18n already cleaned in previous
-batch.
-
-Spec Section 9.G mandates zero em-dashes anywhere in code.
