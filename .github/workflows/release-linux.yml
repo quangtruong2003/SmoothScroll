@@ -120,7 +120,7 @@ jobs:
           path: src/lib/engine-wasm/
 
       - name: Run Rust tests
-        run: cargo test --workspace --all-targets
+        run: cargo test --workspace --all-targets --exclude smoothscroll-engine-macos
 
       - name: Run TypeScript/Vitest tests
         run: pnpm test
