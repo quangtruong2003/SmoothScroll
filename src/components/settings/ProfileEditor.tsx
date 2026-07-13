@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { SettingRow } from "./SettingRow";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { toast } from "@/components/ui/toast";
@@ -57,13 +56,13 @@ export function ProfileEditor({ profile, onClose }: Props) {
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="!flex !flex-col !p-0 !gap-0 sm:max-w-2xl max-h-[85vh]">
+        <DialogHeader className="px-6 pt-6 pb-3 shrink-0">
           <DialogTitle>{t("profiles.edit_title", { name: profile.name })}</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 -mx-6 px-6">
-          <div className="space-y-1 divide-y">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6">
+          <div className="space-y-1 divide-y py-1">
             <SettingRow
               htmlFor="profile-name"
               title={t("profiles.field.name")}
@@ -210,9 +209,9 @@ export function ProfileEditor({ profile, onClose }: Props) {
               />
             </SettingRow>
           </div>
-        </ScrollArea>
+        </div>
 
-        <DialogFooter>
+        <DialogFooter className="px-6 py-4 shrink-0 border-t">
           <Button variant="ghost" onClick={onClose} disabled={saving}>
             {t("common.cancel")}
           </Button>

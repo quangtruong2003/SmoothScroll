@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 beforeAll(() => {
-  // Radix scroll-area uses ResizeObserver; stub it for jsdom.
+  // Radix primitives use ResizeObserver; stub it for jsdom.
   (globalThis as any).ResizeObserver =
     (globalThis as any).ResizeObserver ??
     class {
@@ -41,24 +41,17 @@ const fakeProfile: any = {
 };
 
 describe('ProfileEditor layout', () => {
-  it('scroll area uses min-h-0 so reverse direction row stays reachable', () => {
+  it('scrollable region uses min-h-0 so trailing rows stay reachable', () => {
     render(
       <ProfileEditor profile={fakeProfile} onClose={() => undefined} />,
     );
 
-    // Viewport is rendered into the Dialog Portal — query the document, not the root container.
-    const viewport = document.body.querySelector(
-      '[data-radix-scroll-area-viewport]',
-    );
-    expect(viewport).toBeTruthy();
-
-    // ScrollArea Root (parent of viewport) must include min-h-0 so flex children
-    // can shrink under the dialog's max-h-[85vh] cap. Without it, the viewport
-    // grows to its content height and the trailing rows (reverse direction)
-    // get clipped with no visible scrollbar.
-    const scrollRoot = viewport!.parentElement;
-    expect(scrollRoot).toBeTruthy();
-    expect(scrollRoot!.className).toMatch(/min-h-0/);
+    // The scrollable div is rendered into the Dialog Portal.
+    const scrollable = document.body.querySelector(
+      '.overflow-y-auto.min-h-0',
+    ) as HTMLElement;
+    expect(scrollable).toBeTruthy();
+    expect(scrollable.className).toMatch(/min-h-0/);
 
     // reverse_wheel Switch must be in the DOM and labelled.
     const reverseSwitch = screen.getByLabelText('settings.reverse_wheel.title');
