@@ -9,6 +9,8 @@ interface Props {
   processName: string;
   selectedProfileId?: string;
   onClose: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   /** Bounding rect of the tray panel, used for portal positioning. */
   panelRect: DOMRect;
   /** Bounding rect of the pill row, used to align the flyout top. */
@@ -19,6 +21,8 @@ export function ProfilePickerPopover({
   processName,
   selectedProfileId,
   onClose,
+  onMouseEnter,
+  onMouseLeave,
   panelRect,
   pillRect,
 }: Props) {
@@ -65,6 +69,8 @@ export function ProfilePickerPopover({
       className="tray-profile-popover"
       role="listbox"
       tabIndex={-1}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         right: `${window.innerWidth - flyoutRight}px`,
         top: `${flyoutTop}px`,

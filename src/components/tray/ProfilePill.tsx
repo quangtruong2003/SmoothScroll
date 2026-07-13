@@ -18,6 +18,7 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
     pill: DOMRect;
   } | null>(null);
   const rowRef = useRef<HTMLDivElement | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const profiles = settings?.profiles ?? [];
   const processName = ctx?.process_name ?? "";
@@ -36,18 +37,28 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
     });
   }, []);
 
-  const toggleOpen = useCallback(() => {
-    setOpen((prev) => {
-      if (!prev) updateRects();
-      return !prev;
-    });
-  }, [updateRects]);
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
 
+  const scheduleClose = useCallback(() => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 150);
+  }, [cancelClose]);
+
+  // Cleanup timer on unmount
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  // Click-outside handler (for touch / click, supplement to hover)
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
       const target = e.target as Node;
-      // Close if click is outside the pill row AND outside the portal flyout.
       const flyout = document.querySelector(".tray-profile-popover");
       if (
         rowRef.current &&
@@ -69,14 +80,22 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
       t("tray.profile_default");
 
   return (
-    <div ref={rowRef} className="tray-row">
+    <div
+      ref={rowRef}
+      className="tray-row"
+      onMouseEnter={() => {
+        cancelClose();
+        updateRects();
+        setOpen(true);
+      }}
+      onMouseLeave={scheduleClose}
+    >
       <span className="tray-row-label tray-profile-pill-label">
         {t("tray.profile_label")}: {selectedLabel}
       </span>
       <button
         type="button"
         className="tray-row-icon"
-        onClick={toggleOpen}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("tray.profile_label")}
@@ -88,6 +107,8 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
           processName={processName}
           selectedProfileId={profileId}
           onClose={() => setOpen(false)}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
           panelRect={rects.panel}
           pillRect={rects.pill}
         />
