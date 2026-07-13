@@ -7,6 +7,22 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.23.0] - 2026-07-13
+
+### Added
+- integrate profile picker into tray panel
+- add tray profile pill and popover
+- add tray profile picker i18n and styles
+
+### Fixed
+- align profile dropdown style with tray menu items, add heavy shadow
+- popover position absolute with dropdown offset
+- revert to dropdown popover, add hover-open with delayed close
+- open flyout on hover, close when mouse leaves both pill and flyout
+- use theme vars for picker CSS, convert to side-flyout portal
+- pass ctx/refresh props correctly after hook refactor
+- popover positioning, lift shared foreground state, add option hover/focus styles
+- use spec-required tray.profile_* i18n keys in picker components
 ## [1.22.0] - 2026-07-13
 
 ### Added
