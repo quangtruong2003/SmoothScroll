@@ -110,7 +110,7 @@ describe('ProfilePill', () => {
 
   it('returns null when no profiles exist', () => {
     useSettingsStore.setState({ settings: { profiles: [], app_profiles: {} } } as any);
-    const { container } = render(<ProfilePill />);
+    const { container } = render(<ProfilePill ctx={mockCtx} />);
     expect(container.firstChild).toBeNull();
   });
 });
