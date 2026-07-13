@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from "react";
-import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { Check, Ban, Globe } from "lucide-react";
@@ -11,10 +10,6 @@ interface Props {
   onClose: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
-  /** Bounding rect of the tray panel, used for portal positioning. */
-  panelRect: DOMRect;
-  /** Bounding rect of the pill row, used to align the flyout top. */
-  pillRect: DOMRect;
 }
 
 export function ProfilePickerPopover({
@@ -23,8 +18,6 @@ export function ProfilePickerPopover({
   onClose,
   onMouseEnter,
   onMouseLeave,
-  panelRect,
-  pillRect,
 }: Props) {
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
@@ -37,18 +30,21 @@ export function ProfilePickerPopover({
     )
     .slice(0, 8);
 
-  const apply = useCallback(async (profileId: string | null) => {
-    try {
-      if (profileId === null) {
-        await invoke("unassign_app_profile", { processName });
-      } else {
-        await invoke("assign_app_profile", { processName, profileId });
+  const apply = useCallback(
+    async (profileId: string | null) => {
+      try {
+        if (profileId === null) {
+          await invoke("unassign_app_profile", { processName });
+        } else {
+          await invoke("assign_app_profile", { processName, profileId });
+        }
+        onClose();
+      } catch {
+        // keep popover open for retry
       }
-      onClose();
-    } catch {
-      // keep popover open for retry
-    }
-  }, [processName, onClose]);
+    },
+    [processName, onClose],
+  );
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -58,12 +54,7 @@ export function ProfilePickerPopover({
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  // Flyout: right edge touches panel left edge, top aligns with pill row.
-  const gap = 6;
-  const flyoutRight = panelRect.left - gap;
-  const flyoutTop = pillRect.top;
-
-  return createPortal(
+  return (
     <div
       ref={ref}
       className="tray-profile-popover"
@@ -71,11 +62,6 @@ export function ProfilePickerPopover({
       tabIndex={-1}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      style={{
-        right: `${window.innerWidth - flyoutRight}px`,
-        top: `${flyoutTop}px`,
-        width: `${panelRect.width}px`,
-      }}
     >
       <button
         type="button"
@@ -119,7 +105,6 @@ export function ProfilePickerPopover({
           )}
         </button>
       ))}
-    </div>,
-    document.body,
+    </div>
   );
 }
