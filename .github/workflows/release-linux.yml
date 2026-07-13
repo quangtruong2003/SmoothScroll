@@ -277,3 +277,4 @@ jobs:
                   gh release delete "$tag" --cleanup-tag --yes || echo "  failed to delete $tag"
                 fi
               done
+
