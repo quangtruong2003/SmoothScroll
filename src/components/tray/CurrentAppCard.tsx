@@ -1,6 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { useCallback } from "react";
 import {
   AppWindow,
   Globe,
@@ -14,7 +12,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { tauri, type ForegroundAppContext, type AppCategory } from "@/lib/tauri";
+import { tauri, type AppCategory } from "@/lib/tauri";
+import { useForegroundApp } from "@/hooks/useForegroundApp";
 
 const CATEGORY_ICON: Record<AppCategory, LucideIcon> = {
   Browser: Globe,
@@ -42,28 +41,18 @@ function prettifyProcessName(raw: string): string {
 }
 
 export function CurrentAppCard() {
-  const [ctx, setCtx] = useState<ForegroundAppContext | null>(null);
+  const { ctx, refresh } = useForegroundApp();
 
-  const refresh = useCallback(async () => {
-    try {
-      const c = await tauri.getForegroundAppContext();
-      setCtx(c);
-    } catch {
-      setCtx(null);
+  const handleToggle = useCallback(async (enabled: boolean) => {
+    const name = ctx?.process_name;
+    if (!name) return;
+    if (enabled) {
+      await tauri.unassignAppProfile(name).catch(() => { /* ignore */ });
+    } else {
+      await tauri.assignAppProfile(name, "__disabled__").catch(() => { /* ignore */ });
     }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-    const un = listen("settings-changed", () => void refresh());
-    const interval = window.setInterval(() => void refresh(), 2000);
-    return () => {
-      un.then((u) => u()).catch(() => {
-        // ignore
-      });
-      window.clearInterval(interval);
-    };
-  }, [refresh]);
+    await refresh();
+  }, [ctx?.process_name, refresh]);
 
   if (!ctx?.process_name) return null;
 
@@ -71,22 +60,6 @@ export function CurrentAppCard() {
   const category = ctx.suggested_category ?? "Unknown";
   const Icon = CATEGORY_ICON[category];
   const displayName = prettifyProcessName(ctx.process_name);
-
-  const handleToggle = async (enabled: boolean) => {
-    const name = ctx.process_name;
-    if (!name) return;
-    if (enabled) {
-      await invoke("unassign_app_profile", { processName: name }).catch(() => {
-        // ignore
-      });
-    } else {
-      await invoke("assign_app_profile", {
-        processName: name,
-        profileId: "__disabled__",
-      });
-    }
-    await refresh();
-  };
 
   return (
     <div className="tray-row">
