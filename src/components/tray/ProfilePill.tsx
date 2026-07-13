@@ -31,14 +31,14 @@ export function ProfilePill(): React.ReactNode | null {
   if (!processName || profiles.length === 0) return null;
 
   const selectedLabel = ctx?.is_excluded
-    ? t("tray.current_app.disabled")
+    ? t("tray.profile_disabled")
     : profiles.find((p) => p.id === profileId)?.name ??
-      t("tray.current_app.default");
+      t("tray.profile_default");
 
   return (
     <div ref={rootRef} className="tray-row">
       <span className="tray-row-label tray-profile-pill-label">
-        {t("tray.current_app.profile")}: {selectedLabel}
+        {t("tray.profile_label")}: {selectedLabel}
       </span>
       <button
         type="button"
@@ -46,7 +46,7 @@ export function ProfilePill(): React.ReactNode | null {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={t("tray.current_app.profile")}
+        aria-label={t("tray.profile_label")}
       >
         <ChevronDown className="h-4 w-4" />
       </button>

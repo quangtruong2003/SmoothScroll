@@ -57,7 +57,7 @@ export function ProfilePickerPopover({
         onClick={() => apply(null)}
       >
         <Globe className="h-4 w-4" />
-        <span>{t("tray.current_app.default")}</span>
+        <span>{t("tray.profile_default")}</span>
         {selectedProfileId === undefined && (
           <Check className="ml-auto h-4 w-4" />
         )}
@@ -70,7 +70,7 @@ export function ProfilePickerPopover({
         onClick={() => apply("__disabled__")}
       >
         <Ban className="h-4 w-4" />
-        <span>{t("tray.current_app.disable_for_this_app")}</span>
+        <span>{t("tray.profile_disable")}</span>
         {selectedProfileId === "__disabled__" && (
           <Check className="ml-auto h-4 w-4" />
         )}
