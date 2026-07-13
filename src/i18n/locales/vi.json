@@ -485,6 +485,11 @@
     "quit": "Thoát SmoothScroll",
     "status_on": "BẬT",
     "status_off": "TẮT",
+    "profile_label": "Hồ sơ",
+    "profile_default": "Mặc định (global)",
+    "profile_disable": "Tắt cho ứng dụng này",
+    "profile_disabled": "Đã tắt",
+    "profile_manage": "Quản lý hồ sơ…",
     "current_app": {
       "heading": "Ứng dụng hiện tại",
       "category": "Loại: {{category}}",

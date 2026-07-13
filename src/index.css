@@ -890,6 +890,58 @@ body[data-platform="linux"] .tray-panel-root [data-state="checked"] {
 }
 
 /* ---------------------------------------------------------------------
+ * Tray profile picker — pill trigger + popover menu.
+ * ------------------------------------------------------------------- */
+.tray-profile-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  margin: 4px 0;
+  background: var(--tray-muted, rgba(255,255,255,0.03));
+  border: 1px solid var(--tray-border, rgba(255,255,255,0.06));
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--tray-text-secondary, rgba(255,255,255,0.7));
+}
+
+.tray-profile-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  width: 100%;
+  z-index: 50;
+  background: var(--tray-surface, rgba(30,30,35,0.98));
+  border: 1px solid var(--tray-border, rgba(255,255,255,0.08));
+  border-radius: 10px;
+  padding: 4px 0;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+}
+
+.tray-profile-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--tray-text, rgba(255,255,255,0.9));
+  background: transparent;
+  border: none;
+}
+
+.tray-profile-option[aria-selected="true"] {
+  background: rgba(108,92,231,0.12);
+}
+
+.tray-profile-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--tray-border, rgba(255,255,255,0.06));
+}
+
+/* ---------------------------------------------------------------------
  * Settings window content area.
  *
  * - macOS: ~12px left/right padding, smaller title font (SF Pro Title 3

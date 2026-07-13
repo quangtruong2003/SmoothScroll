@@ -485,6 +485,11 @@
     "quit": "退出 SmoothScroll",
     "status_on": "开",
     "status_off": "关",
+    "profile_label": "Profile",
+    "profile_default": "Default (global)",
+    "profile_disable": "Disable for this app",
+    "profile_disabled": "Disabled",
+    "profile_manage": "Manage profiles…",
     "current_app": {
       "heading": "Current app",
       "category": "Category: {{category}}",

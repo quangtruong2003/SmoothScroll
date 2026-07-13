@@ -485,6 +485,11 @@
     "quit": "SmoothScroll beenden",
     "status_on": "AN",
     "status_off": "AUS",
+    "profile_label": "Profile",
+    "profile_default": "Default (global)",
+    "profile_disable": "Disable for this app",
+    "profile_disabled": "Disabled",
+    "profile_manage": "Manage profiles…",
     "current_app": {
       "heading": "Aktuelle App",
       "category": "Kategorie: {{category}}",

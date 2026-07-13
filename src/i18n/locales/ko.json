@@ -485,6 +485,11 @@
     "quit": "SmoothScroll 종료",
     "status_on": "ON",
     "status_off": "OFF",
+    "profile_label": "Profile",
+    "profile_default": "Default (global)",
+    "profile_disable": "Disable for this app",
+    "profile_disabled": "Disabled",
+    "profile_manage": "Manage profiles…",
     "current_app": {
       "heading": "현재 앱",
       "category": "카테고리: {{category}}",

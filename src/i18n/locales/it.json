@@ -485,6 +485,11 @@
     "quit": "Esci da SmoothScroll",
     "status_on": "ON",
     "status_off": "OFF",
+    "profile_label": "Profile",
+    "profile_default": "Default (global)",
+    "profile_disable": "Disable for this app",
+    "profile_disabled": "Disabled",
+    "profile_manage": "Manage profiles…",
     "current_app": {
       "heading": "App corrente",
       "category": "Categoria: {{category}}",
