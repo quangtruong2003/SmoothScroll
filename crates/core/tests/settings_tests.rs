@@ -315,3 +315,27 @@ fn horizontal_invert_round_trips_through_serde() {
     let back: AppSettings = serde_json::from_str(&json).unwrap();
     assert!(back.horizontal_invert);
 }
+
+// --- Task 1: ScrollProfile.max_velocity ---
+
+#[test]
+fn scroll_profile_default_max_velocity() {
+    let p = ScrollProfile::new("test-id", "Test");
+    assert_eq!(p.max_velocity, 20);
+}
+
+#[test]
+fn scroll_profile_clamp_clamps_max_velocity() {
+    let mut p = ScrollProfile::new("a", "A");
+    p.max_velocity = 10;
+    p.clamp();
+    assert_eq!(p.max_velocity, 10);
+
+    p.max_velocity = 60;
+    p.clamp();
+    assert_eq!(p.max_velocity, 50);
+
+    p.max_velocity = 1;
+    p.clamp();
+    assert_eq!(p.max_velocity, 5);
+}

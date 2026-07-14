@@ -77,6 +77,12 @@ pub struct ScrollProfile {
     pub easing_mode: EasingMode,
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
+    #[serde(default = "default_max_velocity")]
+    pub max_velocity: i32,
+}
+
+fn default_max_velocity() -> i32 {
+    20
 }
 
 impl ScrollProfile {
@@ -93,6 +99,7 @@ impl ScrollProfile {
             easing_mode: EasingMode::QuinticOut,
             reverse_wheel_direction: false,
             horizontal_smoothness: true,
+            max_velocity: default_max_velocity(),
         }
     }
 
@@ -102,6 +109,7 @@ impl ScrollProfile {
         self.animation_time_ms = self.animation_time_ms.clamp(10, 2000);
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
+        self.max_velocity = self.max_velocity.clamp(5, 50);
     }
 }
 
