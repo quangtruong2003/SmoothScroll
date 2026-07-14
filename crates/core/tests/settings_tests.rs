@@ -339,3 +339,35 @@ fn scroll_profile_clamp_clamps_max_velocity() {
     p.clamp();
     assert_eq!(p.max_velocity, 5);
 }
+
+// --- Task 2: canonicalize_process_name ---
+
+#[test]
+fn canonicalize_process_name_strips_exe() {
+    assert_eq!(AppSettings::canonicalize_process_name("Blender.EXE"), "blender");
+}
+
+#[test]
+fn canonicalize_process_name_lowercases() {
+    assert_eq!(AppSettings::canonicalize_process_name("BLENDER"), "blender");
+}
+
+#[test]
+fn canonicalize_process_name_trims_whitespace() {
+    assert_eq!(AppSettings::canonicalize_process_name(" blender "), "blender");
+}
+
+#[test]
+fn canonicalize_process_name_collapses_whitespace() {
+    assert_eq!(AppSettings::canonicalize_process_name("Foo Bar.exe"), "foo bar");
+}
+
+#[test]
+fn canonicalize_process_name_preserves_unicode_lower() {
+    assert_eq!(AppSettings::canonicalize_process_name("ỨngDụng"), "ứngdụng");
+}
+
+#[test]
+fn canonicalize_process_name_empty_returns_empty() {
+    assert_eq!(AppSettings::canonicalize_process_name(""), "");
+}

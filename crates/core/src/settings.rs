@@ -349,6 +349,29 @@ impl AppSettings {
         }
     }
 
+    /// Canonical key form: trim → strip ".exe"/".EXE" → lower → collapse whitespace.
+    /// Always returns a non-empty trimmed lowercased String. Empty or whitespace-only
+    /// input returns `String::new()`. Unicode letters lower correctly via `str::to_lowercase`.
+    pub fn canonicalize_process_name(input: &str) -> String {
+        let trimmed = input.trim();
+        if trimmed.is_empty() {
+            return String::new();
+        }
+        let without_exe = if trimmed.len() >= 4
+            && trimmed.is_char_boundary(trimmed.len() - 4)
+            && trimmed[trimmed.len() - 4..].eq_ignore_ascii_case(".exe")
+        {
+            &trimmed[..trimmed.len() - 4]
+        } else {
+            trimmed
+        };
+        without_exe
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+            .to_lowercase()
+    }
+
     /// Special profile ID for disabled (pass-through) apps.
     pub const DISABLED_PROFILE_ID: &'static str = "__disabled__";
 
