@@ -356,7 +356,9 @@
       "custom_preset": "Custom preset ({{step}}px, {{ms}}ms)",
       "use": "Use suggestion",
       "pick_manually": "Pick manually"
-    }
+    },
+    "preset": "Apply preset",
+    "preset_desc": "Override feel with a one-click preset. Adjust sliders below for fine control."
   },
   "app_profiles": {
     "description": "Choose how SmoothScroll behaves in specific apps.",

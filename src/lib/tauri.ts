@@ -32,6 +32,7 @@ export interface ScrollProfile {
   easing_mode: EasingMode;
   reverse_wheel_direction: boolean;
   horizontal_smoothness: boolean;
+  max_velocity: number;
 }
 
 export interface AppSettings {
