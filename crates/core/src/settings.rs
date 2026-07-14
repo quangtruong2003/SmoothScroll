@@ -407,6 +407,20 @@ impl AppSettings {
             .any(|n| n.eq_ignore_ascii_case(process_name))
     }
 
+    /// O(1) HashMap lookup by canonical key. Stored keys are guaranteed canonical
+    /// because `try_load` calls `canonicalize_app_profile_keys_on_load` after
+    /// `migrate_from_v1`, and `assign_profile` writes canonical keys only.
+    pub fn app_profiles_lookup(&self, process_name: &str) -> Option<&str> {
+        if process_name.is_empty() {
+            return None;
+        }
+        let target = Self::canonicalize_process_name(process_name);
+        if target.is_empty() {
+            return None;
+        }
+        self.app_profiles.get(&target).map(|s| s.as_str())
+    }
+
     /// Case-insensitive exact-match check against the excluded list.
     /// Also checks app_profiles for "__disabled__" assignment.
     pub fn is_excluded(&self, process_name: &str) -> bool {
@@ -414,7 +428,7 @@ impl AppSettings {
             return false;
         }
         // Check new system first
-        if let Some(profile_id) = self.app_profiles.get(process_name) {
+        if let Some(profile_id) = self.app_profiles_lookup(process_name) {
             if profile_id == Self::DISABLED_PROFILE_ID {
                 return true;
             }
@@ -431,7 +445,7 @@ impl AppSettings {
         if process_name.is_empty() {
             return None;
         }
-        let profile_id = self.app_profiles.get(process_name)?;
+        let profile_id = self.app_profiles_lookup(process_name)?;
         if profile_id == Self::DISABLED_PROFILE_ID {
             return None; // Pass-through
         }

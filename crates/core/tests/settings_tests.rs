@@ -371,3 +371,31 @@ fn canonicalize_process_name_preserves_unicode_lower() {
 fn canonicalize_process_name_empty_returns_empty() {
     assert_eq!(AppSettings::canonicalize_process_name(""), "");
 }
+
+// --- Task 3: app_profiles_lookup ---
+
+#[test]
+fn app_profiles_lookup_case_insensitive() {
+    let mut s = AppSettings::default();
+    // Insert canonical key (mimics post-migration or post-assign state)
+    s.app_profiles.insert("blender".into(), "fast".into());
+    assert_eq!(s.app_profiles_lookup("BLENDER"), Some("fast"));
+    assert_eq!(s.app_profiles_lookup("blender.exe"), Some("fast"));
+    assert_eq!(s.app_profiles_lookup(" Blender "), Some("fast"));
+}
+
+#[test]
+fn app_profiles_lookup_missing() {
+    let s = AppSettings::default();
+    assert_eq!(s.app_profiles_lookup("chrome"), None);
+}
+
+#[test]
+fn is_excluded_case_insensitive() {
+    let mut s = AppSettings::default();
+    s.app_profiles
+        .insert("bad".into(), AppSettings::DISABLED_PROFILE_ID.to_string());
+    assert!(s.is_excluded("bad"));
+    assert!(s.is_excluded("BAD"));
+    assert!(s.is_excluded("bad.exe"));
+}
