@@ -399,3 +399,30 @@ fn is_excluded_case_insensitive() {
     assert!(s.is_excluded("BAD"));
     assert!(s.is_excluded("bad.exe"));
 }
+
+// --- Task 4: assign_profile canonicalization ---
+
+#[test]
+fn assign_profile_canonicalizes_key() {
+    let mut s = AppSettings::default();
+    s.assign_profile("Blender.exe".to_string(), Some("fast".to_string()));
+    assert_eq!(s.app_profiles.get("blender"), Some(&"fast".to_string()));
+    assert!(!s.app_profiles.contains_key("Blender.exe"));
+}
+
+#[test]
+fn assign_profile_removes_when_none() {
+    let mut s = AppSettings::default();
+    s.assign_profile("Blender.exe".to_string(), Some("fast".to_string()));
+    s.assign_profile("BLENDER".to_string(), None);
+    assert!(s.app_profiles.is_empty());
+}
+
+#[test]
+fn assign_profile_wipes_aliases() {
+    let mut s = AppSettings::default();
+    s.app_profiles.insert("BLENDER".into(), "old".into());
+    s.assign_profile("blender".to_string(), Some("new".to_string()));
+    assert_eq!(s.app_profiles.len(), 1);
+    assert_eq!(s.app_profiles.get("blender"), Some(&"new".to_string()));
+}

@@ -453,13 +453,28 @@ impl AppSettings {
     }
 
     /// Assign a profile to an app. Use None to remove assignment.
+    /// Canonicalizes the key and wipes any alias siblings.
     pub fn assign_profile(&mut self, process_name: String, profile_id: Option<String>) {
+        let canonical = Self::canonicalize_process_name(&process_name);
+        if canonical.is_empty() {
+            tracing::warn!(input = %process_name, "rejecting empty canonical key");
+            return;
+        }
+        let aliases: Vec<String> = self
+            .app_profiles
+            .keys()
+            .filter(|k| k.eq_ignore_ascii_case(&canonical) && **k != canonical)
+            .cloned()
+            .collect();
+        for alias in aliases {
+            self.app_profiles.remove(&alias);
+        }
         match profile_id {
             Some(id) => {
-                self.app_profiles.insert(process_name, id);
+                self.app_profiles.insert(canonical, id);
             }
             None => {
-                self.app_profiles.remove(&process_name);
+                self.app_profiles.remove(&canonical);
             }
         }
     }
