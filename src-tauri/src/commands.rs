@@ -603,7 +603,7 @@ pub fn unassign_app_profile(
 ) -> Result<(), String> {
     {
         let mut s = state.settings.write();
-        s.app_profiles.remove(&process_name);
+        s.assign_profile(process_name.clone(), None);
     }
 
     let snapshot = state.settings.read().clone();

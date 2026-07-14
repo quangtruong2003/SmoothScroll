@@ -152,7 +152,7 @@ impl EngineSink {
                 return None;
             }
 
-            if let Some(profile_id) = s.app_profiles.get(process_name) {
+            if let Some(profile_id) = s.app_profiles_lookup(process_name) {
                 if profile_id != smoothscroll_core::settings::AppSettings::DISABLED_PROFILE_ID {
                     let per_profile = self.state.effective_per_profile.read();
                     if let Some(eff) = per_profile.get(profile_id) {
