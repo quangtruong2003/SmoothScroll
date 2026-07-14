@@ -465,3 +465,33 @@ fn canonicalize_app_profile_keys_on_load_noop_when_canonical() {
     s.canonicalize_app_profile_keys_on_load();
     assert_eq!(s.app_profiles, before);
 }
+
+// --- Task 6: with_profile sources max_velocity from profile ---
+
+#[test]
+fn with_profile_uses_profile_max_velocity() {
+    let s = AppSettings::default();
+    let mut profile = ScrollProfile::new("p", "P");
+    profile.max_velocity = 35;
+    let eff = EffectiveSettings::with_profile(&s, &profile);
+    assert_eq!(eff.max_velocity, 35.0);
+}
+
+#[test]
+fn with_profile_falls_back_when_no_profile() {
+    let mut s = AppSettings::default();
+    s.max_velocity = 25.0;
+    let eff = EffectiveSettings::from_settings(&s);
+    assert_eq!(eff.max_velocity, 25.0);
+}
+
+#[test]
+fn with_profile_keeps_other_fields_from_base() {
+    let mut s = AppSettings::default();
+    s.horizontal_invert = true;
+    s.touchpad_smoothing_enabled = true;
+    let profile = ScrollProfile::new("p", "P");
+    let eff = EffectiveSettings::with_profile(&s, &profile);
+    assert_eq!(eff.horizontal_invert, true);
+    assert_eq!(eff.touchpad_smoothing_enabled, true);
+}

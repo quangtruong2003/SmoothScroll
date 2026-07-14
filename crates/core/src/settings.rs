@@ -597,7 +597,7 @@ impl EffectiveSettings {
         Self {
             step_size_px: profile.step_size_px,
             animation_time_ms: profile.animation_time_ms,
-            max_velocity: base.max_velocity,
+            max_velocity: profile.max_velocity as f64,
             acceleration_max: profile.acceleration_max,
             tail_to_head_ratio: profile.tail_to_head_ratio,
             animation_easing: profile.animation_easing,
