@@ -426,3 +426,42 @@ fn assign_profile_wipes_aliases() {
     assert_eq!(s.app_profiles.len(), 1);
     assert_eq!(s.app_profiles.get("blender"), Some(&"new".to_string()));
 }
+
+// --- Task 5: canonicalize_app_profile_keys ---
+
+#[test]
+fn canonicalize_app_profile_keys_renames() {
+    let mut s = AppSettings::default();
+    s.app_profiles
+        .insert("Blender.EXE".into(), "fast".into());
+    s.canonicalize_app_profile_keys();
+    assert!(s.app_profiles.contains_key("blender"));
+    assert!(!s.app_profiles.contains_key("Blender.EXE"));
+}
+
+#[test]
+fn canonicalize_app_profile_keys_collision_resolves() {
+    let mut s = AppSettings::default();
+    s.app_profiles.insert("Blender".into(), "fast".into());
+    s.app_profiles
+        .insert("blender.exe".into(), "slow".into());
+    s.canonicalize_app_profile_keys();
+    assert_eq!(s.app_profiles.len(), 1);
+}
+
+#[test]
+fn canonicalize_app_profile_keys_skips_empty() {
+    let mut s = AppSettings::default();
+    s.app_profiles.insert("   ".into(), "fast".into());
+    s.canonicalize_app_profile_keys();
+    assert!(s.app_profiles.is_empty());
+}
+
+#[test]
+fn canonicalize_app_profile_keys_on_load_noop_when_canonical() {
+    let mut s = AppSettings::default();
+    s.app_profiles.insert("blender".into(), "fast".into());
+    let before = s.app_profiles.clone();
+    s.canonicalize_app_profile_keys_on_load();
+    assert_eq!(s.app_profiles, before);
+}

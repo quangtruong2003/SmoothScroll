@@ -478,6 +478,63 @@ impl AppSettings {
             }
         }
     }
+
+    /// In-place: rename keys to canonical form. Collision = keep existing entry,
+    /// drop new one. Keys are processed in sorted order so that collision outcomes
+    /// are deterministic across runs (independent of `HashMap` iteration order).
+    pub fn canonicalize_app_profile_keys(&mut self) {
+        use std::collections::hash_map::Entry;
+        let mut original_keys: Vec<String> = self.app_profiles.keys().cloned().collect();
+        original_keys.sort();
+        for key in original_keys {
+            let canonical = Self::canonicalize_process_name(&key);
+            if canonical == key {
+                continue;
+            }
+            if canonical.is_empty() {
+                tracing::warn!(key = %key, "dropping empty canonical app-profile key");
+                self.app_profiles.remove(&key);
+                continue;
+            }
+            if let Some(value) = self.app_profiles.remove(&key) {
+                match self.app_profiles.entry(canonical.clone()) {
+                    Entry::Occupied(_) => {
+                        tracing::warn!(
+                            old_key = %key,
+                            target = %canonical,
+                            "app-profile key collision during canonicalization, keeping existing"
+                        );
+                    }
+                    Entry::Vacant(v) => {
+                        v.insert(value);
+                    }
+                }
+            }
+        }
+    }
+
+    /// Idempotent: only rewrites when keys are non-canonical. Logs once if anything
+    /// was rewritten.
+    pub fn canonicalize_app_profile_keys_on_load(&mut self) {
+        let needs_migration = self
+            .app_profiles
+            .keys()
+            .any(|k| Self::canonicalize_process_name(k) != *k);
+        if !needs_migration {
+            return;
+        }
+        let before = self.app_profiles.len();
+        self.canonicalize_app_profile_keys();
+        let rewritten = before - self.app_profiles.len();
+        if rewritten > 0 {
+            tracing::info!(
+                "canonicalized {} app-profile keys (from {} to {} unique keys)",
+                rewritten,
+                before,
+                self.app_profiles.len()
+            );
+        }
+    }
 }
 
 /// Hot-path subset of AppSettings — only fields the engine needs per event.
@@ -667,6 +724,7 @@ fn try_load() -> Result<AppSettings, SettingsError> {
     let mut settings: AppSettings = serde_json::from_slice(&bytes)?;
     settings.clamp();
     settings.migrate_from_v1();
+    settings.canonicalize_app_profile_keys_on_load();
     settings.seed_native_smooth_excludes();
     Ok(settings)
 }
