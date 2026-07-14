@@ -21,6 +21,8 @@ import {
 import { SettingRow } from "./SettingRow";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { toast } from "@/components/ui/toast";
+import { cn } from "@/lib/utils";
+import { PRESETS, ORDER, type PresetKey } from "@/lib/scrollPresets";
 import type { ScrollProfile, EasingMode } from "@/lib/tauri";
 
 interface Props {
@@ -35,6 +37,27 @@ export function ProfileEditor({ profile, onClose }: Props) {
   const [saving, setSaving] = useState(false);
 
   const patch = (p: Partial<ScrollProfile>) => setDraft((d) => ({ ...d, ...p }));
+
+  const applyPreset = (key: PresetKey) => {
+    const p = PRESETS[key];
+    setDraft((d) => ({
+      ...d,
+      step_size_px: p.step_size_px,
+      animation_time_ms: p.animation_time_ms,
+      max_velocity: p.max_velocity,
+      acceleration_max: p.acceleration_max,
+    }));
+  };
+
+  const isPresetActive = (key: PresetKey): boolean => {
+    const p = PRESETS[key];
+    return (
+      draft.step_size_px === p.step_size_px &&
+      draft.animation_time_ms === p.animation_time_ms &&
+      draft.max_velocity === p.max_velocity &&
+      draft.acceleration_max === p.acceleration_max
+    );
+  };
 
   const handleSave = async () => {
     const name = draft.name.trim();
@@ -63,6 +86,27 @@ export function ProfileEditor({ profile, onClose }: Props) {
 
         <div className="flex-1 min-h-0 overflow-y-auto px-6">
           <div className="space-y-1 divide-y py-1">
+            <SettingRow title={t("profiles.preset")} description={t("profiles.preset_desc")}>
+              <div className="flex flex-wrap gap-1.5">
+                {ORDER.map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => applyPreset(k)}
+                    className={cn(
+                      "rounded-md border px-2 py-1 text-xs font-medium transition-colors",
+                      "outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      isPresetActive(k)
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background hover:bg-accent",
+                    )}
+                  >
+                    {t(`presets.${k}`)}
+                  </button>
+                ))}
+              </div>
+            </SettingRow>
+
             <SettingRow
               htmlFor="profile-name"
               title={t("profiles.field.name")}
@@ -107,6 +151,23 @@ export function ProfileEditor({ profile, onClose }: Props) {
                 step={10}
                 className="w-48"
                 onValueChange={([v]) => patch({ animation_time_ms: v })}
+              />
+            </SettingRow>
+
+            <SettingRow
+              htmlFor="profile-max-velocity"
+              title={t("settings.max_velocity.title")}
+              description={t("settings.max_velocity.desc")}
+              trailing={String(draft.max_velocity)}
+            >
+              <Slider
+                id="profile-max-velocity"
+                value={[draft.max_velocity]}
+                min={5}
+                max={50}
+                step={1}
+                className="w-48"
+                onValueChange={([v]) => setDraft((d) => ({ ...d, max_velocity: v }))}
               />
             </SettingRow>
 
