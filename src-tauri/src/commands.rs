@@ -479,7 +479,8 @@ pub fn list_profiles(state: State<'_, Arc<AppState>>) -> Vec<ScrollProfile> {
 
 /// Create a new scroll profile with default settings.
 #[tauri::command]
-pub fn create_profile(
+pub fn create_profile<R: tauri::Runtime>(
+    app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     name: String,
 ) -> Result<ScrollProfile, String> {
@@ -499,14 +500,16 @@ pub fn create_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    state.commit_settings(snapshot);
+    state.commit_settings(snapshot.clone());
+    emit_settings_changed(&app, &snapshot);
 
     Ok(profile)
 }
 
 /// Update an existing profile.
 #[tauri::command]
-pub fn update_profile(
+pub fn update_profile<R: tauri::Runtime>(
+    app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     profile: ScrollProfile,
 ) -> Result<(), String> {
@@ -529,14 +532,19 @@ pub fn update_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    state.commit_settings(snapshot);
+    state.commit_settings(snapshot.clone());
+    emit_settings_changed(&app, &snapshot);
 
     Ok(())
 }
 
 /// Delete a profile. Returns error if apps are assigned to it.
 #[tauri::command]
-pub fn delete_profile(state: State<'_, Arc<AppState>>, profile_id: String) -> Result<(), String> {
+pub fn delete_profile<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, Arc<AppState>>,
+    profile_id: String,
+) -> Result<(), String> {
     {
         let mut s = state.settings.write();
 
@@ -564,14 +572,16 @@ pub fn delete_profile(state: State<'_, Arc<AppState>>, profile_id: String) -> Re
     }
 
     let snapshot = state.settings.read().clone();
-    state.commit_settings(snapshot);
+    state.commit_settings(snapshot.clone());
+    emit_settings_changed(&app, &snapshot);
 
     Ok(())
 }
 
 /// Assign a profile to an app. Use profile_id = None to remove assignment.
 #[tauri::command]
-pub fn assign_app_profile(
+pub fn assign_app_profile<R: tauri::Runtime>(
+    app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     process_name: String,
     profile_id: Option<String>,
@@ -590,14 +600,16 @@ pub fn assign_app_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    state.commit_settings(snapshot);
+    state.commit_settings(snapshot.clone());
+    emit_settings_changed(&app, &snapshot);
 
     Ok(())
 }
 
 /// Remove profile assignment from an app.
 #[tauri::command]
-pub fn unassign_app_profile(
+pub fn unassign_app_profile<R: tauri::Runtime>(
+    app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     process_name: String,
 ) -> Result<(), String> {
@@ -607,7 +619,8 @@ pub fn unassign_app_profile(
     }
 
     let snapshot = state.settings.read().clone();
-    state.commit_settings(snapshot);
+    state.commit_settings(snapshot.clone());
+    emit_settings_changed(&app, &snapshot);
 
     Ok(())
 }

@@ -44,7 +44,17 @@ export function ProfilePickerPopover({
 
   const apply = useCallback(
     async (profileId: string | null) => {
+      // Normalize sentinel "__disabled__" for idempotency check; null = "Default (global)".
+      const currentId = selectedProfileId ?? null;
+      const nextId = profileId ?? null;
+      const isSame = currentId === nextId;
+
       try {
+        if (isSame) {
+          // Re-selecting the current entry just closes the popover.
+          onClose();
+          return;
+        }
         if (profileId === null) {
           await invoke("unassign_app_profile", { processName });
         } else {
@@ -55,7 +65,7 @@ export function ProfilePickerPopover({
         // keep popover open for retry
       }
     },
-    [processName, onClose],
+    [processName, selectedProfileId, onClose],
   );
 
   useEffect(() => {

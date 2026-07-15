@@ -4,14 +4,14 @@ import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import {
   MousePointer2,
-  Monitor,
+  // Monitor,
   Settings,
   Power,
 } from 'lucide-react';
 import { applyTheme } from '../lib/theme';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useForegroundApp } from '@/hooks/useForegroundApp';
-import { IS_LINUX, IS_MAC } from '@/lib/platform';
+import { IS_LINUX /*, IS_MAC */ } from '@/lib/platform';
 import type { AppSettings } from '@/lib/tauri';
 import { Switch } from '@/components/ui/switch';
 import { CurrentAppCard } from './tray/CurrentAppCard';
@@ -63,10 +63,12 @@ export function TrayPanel() {
 
   const settings = useSettingsStore((s) => s.settings);
   const load = useSettingsStore((s) => s.load);
+  const setAll = useSettingsStore((s) => s.setAll);
 
   const [enabled, setEnabledState] = useState(false);
-  const autostart = useSettingsStore((s) => s.settings?.start_with_os ?? false);
-  const patch = useSettingsStore((s) => s.patch);
+  // HIDDEN: autostart toggle — restore together with the Start-with-OS MenuItem.
+  // const autostart = useSettingsStore((s) => s.settings?.start_with_os ?? false);
+  // const patch = useSettingsStore((s) => s.patch);
 
   useEffect(() => {
     invoke<boolean>('get_enabled').then(setEnabledState, () => {
@@ -77,18 +79,18 @@ export function TrayPanel() {
     const unlistenEnabled = listen<boolean>('enabled-changed', (event) => {
       setEnabledState(Boolean(event.payload));
     });
-    const unlistenSettings = listen<Partial<AppSettings>>('settings-changed', (event) => {
-      const s = event.payload;
-      if (s && typeof s.theme === 'string') {
-        applyTheme(s.theme);
-      }
+    // The tray panel is its own WebView with its own Zustand store; sync it from
+    // Rust broadcasts so profile/profile-assignment changes from the Settings
+    // window show up immediately (without restarting the app).
+    const unlistenSettings = listen<AppSettings>('settings-changed', (event) => {
+      if (event.payload) setAll(event.payload);
     });
 
     return () => {
       void unlistenEnabled.then((u) => u());
       void unlistenSettings.then((u) => u());
     };
-  }, [load]);
+  }, [load, setAll]);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -132,10 +134,11 @@ export function TrayPanel() {
     await invoke('set_enabled', { enabled: v });
   }, []);
 
-  const handleSetAutostart = useCallback(async (v: boolean) => {
-    patch({ start_with_os: v });
-    await invoke('set_autostart', { enabled: v });
-  }, [patch]);
+  // HIDDEN: autostart handler — restore together with the Start-with-OS MenuItem.
+  // const handleSetAutostart = useCallback(async (v: boolean) => {
+  //   patch({ start_with_os: v });
+  //   await invoke('set_autostart', { enabled: v });
+  // }, [patch]);
 
   const handleOpenSettings = useCallback(async () => {
     await invoke('close_tray_panel');
@@ -184,6 +187,9 @@ export function TrayPanel() {
             onToggle={handleSetEnabled}
             icon={<MousePointer2 className="h-4 w-4" />}
           />
+          {/*
+            HIDDEN: Start with OS toggle — disabled per user request (re-enable by
+            uncommenting the block below).
           <MenuItem
             label={
               IS_LINUX
@@ -197,6 +203,7 @@ export function TrayPanel() {
             onToggle={handleSetAutostart}
             icon={<Monitor className="h-4 w-4" />}
           />
+          */}
         </div>
 
         {/* Divider */}
