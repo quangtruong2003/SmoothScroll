@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -43,6 +43,7 @@ export function ProfileEditor({ profile, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [presetPopoverOpen, setPresetPopoverOpen] = useState(false);
   const [confirmPresetKey, setConfirmPresetKey] = useState<PresetKey | null>(null);
+  const dialogContentRef = useRef<HTMLDivElement>(null);
 
   const patch = (p: Partial<ScrollProfile>) => setDraft((d) => ({ ...d, ...p }));
 
@@ -111,7 +112,10 @@ export function ProfileEditor({ profile, onClose }: Props) {
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="!flex !flex-col !p-0 !gap-0 sm:max-w-2xl max-h-[85vh]">
+      <DialogContent
+        ref={dialogContentRef}
+        className="!flex !flex-col !p-0 !gap-0 sm:max-w-2xl max-h-[85vh]"
+      >
         <DialogHeader className="px-6 pt-6 pb-3 shrink-0">
           <div className="flex items-center justify-between gap-3">
             <DialogTitle>{t("profiles.edit_title", { name: profile.name })}</DialogTitle>
@@ -122,6 +126,7 @@ export function ProfileEditor({ profile, onClose }: Props) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent
+                container={dialogContentRef.current}
                 align="end"
                 role="dialog"
                 aria-label={t("profiles.apply_preset")}
