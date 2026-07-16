@@ -457,7 +457,7 @@ fn touchpad_batch_keeps_captured_easing() {
 }
 
 #[test]
-fn zoom_easing_uses_global_step_settings() {
+fn zoom_batch_keeps_captured_easing() {
     let profile = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 5, true);
     let global = effective_with(
         1_500,
@@ -465,19 +465,57 @@ fn zoom_easing_uses_global_step_settings() {
         5,
         true,
     );
-    let mut profile_registered = SmoothScrollEngine::new();
+    let mut profile_drained = SmoothScrollEngine::new();
+    let mut global_drained = SmoothScrollEngine::new();
     let mut global_registered = SmoothScrollEngine::new();
 
-    profile_registered.on_wheel_zoom(120, 1_000, InputSource::Wheel, &profile);
+    profile_drained.on_wheel_zoom(120, 1_000, InputSource::Wheel, &profile);
+    global_drained.on_wheel_zoom(120, 1_000, InputSource::Wheel, &profile);
     global_registered.on_wheel_zoom(120, 1_000, InputSource::Wheel, &global);
 
-    let actual: Vec<_> = (0..8)
-        .map(|_| profile_registered.step(1000.0 / 120.0, &global).zoom)
+    let profile_output: Vec<_> = (0..8)
+        .map(|_| profile_drained.step(1000.0 / 120.0, &profile).zoom)
         .collect();
-    let expected: Vec<_> = (0..8)
+    let global_output: Vec<_> = (0..8)
+        .map(|_| global_drained.step(1000.0 / 120.0, &global).zoom)
+        .collect();
+    let control: Vec<_> = (0..8)
         .map(|_| global_registered.step(1000.0 / 120.0, &global).zoom)
         .collect();
-    assert_eq!(actual, expected, "zoom must use global per-frame easing");
+
+    assert_eq!(profile_output, global_output);
+    assert_ne!(profile_output, control);
+}
+
+#[test]
+fn touchpad_zoom_batch_keeps_captured_easing() {
+    let profile = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 5, true);
+    let global = effective_with(
+        1_500,
+        smoothscroll_core::easing::EasingMode::QuinticOut,
+        5,
+        true,
+    );
+    let mut profile_drained = SmoothScrollEngine::new();
+    let mut global_drained = SmoothScrollEngine::new();
+    let mut global_registered = SmoothScrollEngine::new();
+
+    profile_drained.on_wheel_zoom(120, 1_000, InputSource::Touchpad, &profile);
+    global_drained.on_wheel_zoom(120, 1_000, InputSource::Touchpad, &profile);
+    global_registered.on_wheel_zoom(120, 1_000, InputSource::Touchpad, &global);
+
+    let profile_output: Vec<_> = (0..8)
+        .map(|_| profile_drained.step(1000.0 / 120.0, &profile).zoom)
+        .collect();
+    let global_output: Vec<_> = (0..8)
+        .map(|_| global_drained.step(1000.0 / 120.0, &global).zoom)
+        .collect();
+    let control: Vec<_> = (0..8)
+        .map(|_| global_registered.step(1000.0 / 120.0, &global).zoom)
+        .collect();
+
+    assert_eq!(profile_output, global_output);
+    assert_ne!(profile_output, control);
 }
 
 #[test]

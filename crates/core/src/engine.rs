@@ -39,16 +39,10 @@ impl From<&EffectiveSettings> for EasingSnapshot {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-enum EasingSource {
-    Captured(EasingSnapshot),
-    PerFrame,
-}
-
 #[derive(Debug, Clone, Copy)]
 struct PendingBatch {
     remaining_px: f64,
-    easing: EasingSource,
+    easing: EasingSnapshot,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -82,7 +76,7 @@ impl Axis {
         pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
     }
 
-    fn add_pending(&mut self, pixels: f64, easing: EasingSource) {
+    fn add_pending(&mut self, pixels: f64, easing: EasingSnapshot) {
         if pixels.abs() < f64::EPSILON {
             return;
         }
@@ -99,16 +93,7 @@ impl Axis {
     }
 
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
-        self.register_notch_with_easing(
-            now_ms,
-            delta,
-            settings,
-            EasingSource::Captured(settings.into()),
-        );
-    }
-
-    fn register_notch_per_frame(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
-        self.register_notch_with_easing(now_ms, delta, settings, EasingSource::PerFrame);
+        self.register_notch_with_easing(now_ms, delta, settings, settings.into());
     }
 
     fn register_notch_with_easing(
@@ -116,7 +101,7 @@ impl Axis {
         now_ms: u64,
         delta: i32,
         settings: &EffectiveSettings,
-        easing: EasingSource,
+        easing: EasingSnapshot,
     ) {
         let notches = delta as f64 / WHEEL_DELTA as f64;
 
@@ -153,16 +138,7 @@ impl Axis {
         multiplier: f64,
         settings: &EffectiveSettings,
     ) {
-        self.register_pixels_with_easing(
-            px,
-            now_ms,
-            multiplier,
-            EasingSource::Captured(settings.into()),
-        );
-    }
-
-    fn register_pixels_per_frame(&mut self, px: f64, now_ms: u64, multiplier: f64) {
-        self.register_pixels_with_easing(px, now_ms, multiplier, EasingSource::PerFrame);
+        self.register_pixels_with_easing(px, now_ms, multiplier, settings.into());
     }
 
     fn register_pixels_with_easing(
@@ -170,14 +146,14 @@ impl Axis {
         px: f64,
         now_ms: u64,
         multiplier: f64,
-        easing: EasingSource,
+        easing: EasingSnapshot,
     ) {
         self.last_notch_ms = now_ms;
         self.velocity = 0.0;
         self.add_pending(px * multiplier, easing);
     }
 
-    fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> i32 {
+    fn step(&mut self, dt_ms: f64) -> i32 {
         // Decay velocity when no new notches (half-life ~200ms)
         const DECAY_HALF_LIFE_MS: f64 = 200.0;
         let decay = (-0.693 * dt_ms / DECAY_HALF_LIFE_MS).exp();
@@ -188,20 +164,13 @@ impl Axis {
 
         let mut emitted_px = 0.0;
         for batch in &mut self.pending {
-            let (duration, mode, ratio, enabled) = match batch.easing {
-                EasingSource::Captured(snapshot) => (
-                    snapshot.animation_time_ms,
-                    snapshot.easing_mode,
-                    snapshot.tail_to_head_ratio,
-                    snapshot.animation_easing,
-                ),
-                EasingSource::PerFrame => (
-                    settings.animation_time_ms,
-                    settings.easing_mode,
-                    settings.tail_to_head_ratio,
-                    settings.animation_easing,
-                ),
-            };
+            let snapshot = batch.easing;
+            let (duration, mode, ratio, enabled) = (
+                snapshot.animation_time_ms,
+                snapshot.easing_mode,
+                snapshot.tail_to_head_ratio,
+                snapshot.animation_easing,
+            );
             let frac = compute_easing_fraction(
                 dt_ms,
                 (duration as f64).max(1.0),
@@ -295,13 +264,12 @@ impl SmoothScrollEngine {
         let scaled_delta = ((delta as f64) * sensitivity) as i32;
         match source {
             InputSource::Wheel | InputSource::HighResWheel => {
-                self.z
-                    .register_notch_per_frame(now_ms, scaled_delta * dir, settings);
+                self.z.register_notch(now_ms, scaled_delta * dir, settings);
             }
             InputSource::Touchpad => {
                 let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.z
-                    .register_pixels_per_frame(px, now_ms, settings.touchpad_pixel_multiplier);
+                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier, settings);
             }
         }
     }
@@ -345,11 +313,11 @@ impl SmoothScrollEngine {
                 zoom: 0,
             };
         }
-        let v = self.v.step(dt_ms, settings);
-        let h = self.h.step(dt_ms, settings);
+        let v = self.v.step(dt_ms);
+        let h = self.h.step(dt_ms);
         // Always drain zoom axis — even if smooth_zoom is disabled, complete
         // any in-flight animation before stopping.
-        let z = self.z.step(dt_ms, settings);
+        let z = self.z.step(dt_ms);
         EngineOutput {
             vertical: v,
             horizontal: h,
@@ -392,12 +360,16 @@ mod tests {
     #[test]
     fn add_pending_coalesces_only_adjacent_matching_easing() {
         let settings = EffectiveSettings::from_settings(&crate::settings::AppSettings::default());
-        let captured = EasingSource::Captured((&settings).into());
+        let captured: EasingSnapshot = (&settings).into();
+        let different = EasingSnapshot {
+            animation_time_ms: captured.animation_time_ms + 1,
+            ..captured
+        };
         let mut axis = Axis::default();
 
         axis.add_pending(10.0, captured);
         axis.add_pending(20.0, captured);
-        axis.add_pending(30.0, EasingSource::PerFrame);
+        axis.add_pending(30.0, different);
         axis.add_pending(40.0, captured);
 
         assert_eq!(axis.pending.len(), 3);
