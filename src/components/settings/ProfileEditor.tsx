@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -121,6 +122,7 @@ export function ProfileEditor({ profile, onClose }: Props) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent
+                align="end"
                 role="dialog"
                 aria-label={t("profiles.apply_preset")}
                 onOpenAutoFocus={(event) => event.preventDefault()}
@@ -315,45 +317,34 @@ export function ProfileEditor({ profile, onClose }: Props) {
           </div>
         </div>
 
-        {confirmPresetKey && (
-          <div
-            role="alertdialog"
-            aria-labelledby="apply-preset-confirm-title"
-            aria-describedby="apply-preset-confirm-body"
-            className="fixed inset-0 z-[60] grid place-items-center bg-black/80 p-6"
-          >
-            <div className="w-full max-w-lg space-y-4 border bg-background p-6 shadow-lg sm:rounded-lg">
-              <div className="space-y-1.5">
-                <h2 id="apply-preset-confirm-title" className="text-lg font-semibold leading-none tracking-tight">
-                  {t("profiles.apply_preset_confirm_title")}
-                </h2>
-                <p id="apply-preset-confirm-body" className="text-sm text-muted-foreground">
-                  {t("profiles.apply_preset_confirm_body")}
-                </p>
-              </div>
-              <DialogFooter>
-                <Button variant="ghost" onClick={cancelConfirmPreset}>
-                  {t("common.cancel")}
-                </Button>
-                <Button onClick={confirmApplyPreset}>
-                  {t("profiles.apply_preset_confirm")}
-                </Button>
-              </DialogFooter>
-            </div>
-          </div>
-        )}
-
-        {!confirmPresetKey && (
-          <DialogFooter className="px-6 py-4 shrink-0 border-t">
-            <Button variant="ghost" onClick={onClose} disabled={saving}>
+        <DialogFooter className="px-6 py-4 shrink-0 border-t">
+          <Button variant="ghost" onClick={onClose} disabled={saving}>
+            {t("common.cancel")}
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+      <Dialog
+        open={confirmPresetKey !== null}
+        onOpenChange={(open) => !open && cancelConfirmPreset()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("profiles.apply_preset_confirm_title")}</DialogTitle>
+            <DialogDescription>{t("profiles.apply_preset_confirm_body")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={cancelConfirmPreset}>
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {t("common.save")}
+            <Button onClick={confirmApplyPreset}>
+              {t("profiles.apply_preset_confirm")}
             </Button>
           </DialogFooter>
-        )}
-      </DialogContent>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
