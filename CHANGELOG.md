@@ -7,6 +7,36 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.24.0] - 2026-07-16
+
+### Added
+- add accessible profile preset affordance
+- ProfileEditor gains preset picker row + max_velocity slider
+- add profiles.preset + profiles.preset_desc; feat(ui): ScrollProfile type gains max_velocity
+- EffectiveSettings.with_profile sources max_velocity from profile
+- migrate app_profile keys to canonical form on load
+- assign_profile canonicalizes key and wipes alias siblings
+- app_profiles_lookup O(1) helper, patch is_excluded + get_profile_for_process
+- canonicalize_process_name pure helper
+- ScrollProfile.max_velocity field + default + clamp
+
+### Fixed
+- dismiss operation notifications on click
+- compact operation notifications
+- preserve profile zoom animation easing
+- apply profile zoom settings
+- sync selected tray profile immediately
+- sync profile assignments from tray
+- drain registered profile horizontal scroll
+- contain preset popover in editor dialog
+- avoid nested modal preset focus trap
+- restore preset popover autofocus
+- use dialog for preset confirmation
+- preserve easing per pending scroll batch
+- broadcast profile changes + hide Start-with-OS toggle
+- remove deprecated baseUrl from tsconfig, use paths with bundler resolution
+- add max_velocity to test mock, ignoreDeprecations for baseUrl
+- resolve_active uses app_profiles_lookup, unassign routes through assign_profile
 ### Added
 - ProfileEditor: Apply preset… popover with overwrite confirmation
 
