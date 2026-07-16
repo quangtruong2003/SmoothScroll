@@ -37,6 +37,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 beforeEach(() => {
+  mockInvoke.mockReset();
   useSettingsStore.setState({
     settings: {
       profiles: [
@@ -126,6 +127,121 @@ describe('ProfilePill', () => {
       processName: 'Notepad.exe',
       profileId: 'p2',
     });
+  });
+
+  it('updates pill label immediately after assigning a different profile', async () => {
+    const settings = useSettingsStore.getState().settings!;
+    useSettingsStore.setState({
+      settings: {
+        ...settings,
+        profiles: [
+          ...settings.profiles,
+          { ...settings.profiles[0], id: 'p2', name: 'Writing' },
+        ],
+      },
+    } as any);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    await userEvent.click(
+      within(listbox).getByRole('option', { name: /Writing/ }),
+    );
+
+    expect(await screen.findByText('tray.profile_label: Writing')).toBeInTheDocument();
+  });
+
+  it('keeps old pill label while assignment is pending', async () => {
+    const settings = useSettingsStore.getState().settings!;
+    useSettingsStore.setState({
+      settings: {
+        ...settings,
+        profiles: [
+          ...settings.profiles,
+          { ...settings.profiles[0], id: 'p2', name: 'Writing' },
+        ],
+      },
+    } as any);
+    let resolveAssignment!: () => void;
+    mockInvoke.mockImplementationOnce(
+      () => new Promise<void>((resolve) => { resolveAssignment = resolve; }),
+    );
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    await userEvent.click(
+      within(listbox).getByRole('option', { name: /Writing/ }),
+    );
+
+    expect(screen.getByText('tray.profile_label: Reading')).toBeInTheDocument();
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+    resolveAssignment();
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+  });
+
+  it('ignores another profile selection while assignment is pending', async () => {
+    const settings = useSettingsStore.getState().settings!;
+    useSettingsStore.setState({
+      settings: {
+        ...settings,
+        profiles: [
+          ...settings.profiles,
+          { ...settings.profiles[0], id: 'p2', name: 'Writing' },
+          { ...settings.profiles[0], id: 'p3', name: 'Coding' },
+        ],
+      },
+    } as any);
+    let resolveAssignment!: () => void;
+    mockInvoke.mockImplementationOnce(
+      () => new Promise<void>((resolve) => { resolveAssignment = resolve; }),
+    );
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    await userEvent.click(
+      within(listbox).getByRole('option', { name: /Writing/ }),
+    );
+    await userEvent.click(
+      within(listbox).getByRole('option', { name: /Coding/ }),
+    );
+
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+
+    resolveAssignment();
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps old pill label and popover open when assignment is rejected', async () => {
+    const settings = useSettingsStore.getState().settings!;
+    useSettingsStore.setState({
+      settings: {
+        ...settings,
+        profiles: [
+          ...settings.profiles,
+          { ...settings.profiles[0], id: 'p2', name: 'Writing' },
+        ],
+      },
+    } as any);
+    mockInvoke.mockRejectedValueOnce(new Error('assignment failed'));
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    await userEvent.click(
+      within(listbox).getByRole('option', { name: /Writing/ }),
+    );
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith('assign_app_profile', {
+        processName: 'Notepad.exe',
+        profileId: 'p2',
+      });
+    });
+    expect(screen.getByText('tray.profile_label: Reading')).toBeInTheDocument();
+    expect(listbox).toBeInTheDocument();
   });
 
   it('closes popover on Escape key', async () => {

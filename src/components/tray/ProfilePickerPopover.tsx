@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { invoke } from "@tauri-apps/api/core";
 import { Check, Ban, Globe } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 
@@ -24,7 +23,11 @@ export function ProfilePickerPopover({
 }: Props) {
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
+  const assignAppProfile = useSettingsStore((s) => s.assignAppProfile);
+  const unassignAppProfile = useSettingsStore((s) => s.unassignAppProfile);
   const ref = useRef<HTMLDivElement | null>(null);
+  const applyingRef = useRef(false);
+  const [isApplying, setIsApplying] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
 
   const profiles = (settings?.profiles ?? [])
@@ -44,6 +47,8 @@ export function ProfilePickerPopover({
 
   const apply = useCallback(
     async (profileId: string | null) => {
+      if (applyingRef.current) return;
+
       // Normalize sentinel "__disabled__" for idempotency check; null = "Default (global)".
       const currentId = selectedProfileId ?? null;
       const nextId = profileId ?? null;
@@ -55,17 +60,22 @@ export function ProfilePickerPopover({
           onClose();
           return;
         }
+        applyingRef.current = true;
+        setIsApplying(true);
         if (profileId === null) {
-          await invoke("unassign_app_profile", { processName });
+          await unassignAppProfile(processName);
         } else {
-          await invoke("assign_app_profile", { processName, profileId });
+          await assignAppProfile(processName, profileId);
         }
         onClose();
       } catch {
         // keep popover open for retry
+      } finally {
+        applyingRef.current = false;
+        setIsApplying(false);
       }
     },
-    [processName, selectedProfileId, onClose],
+    [assignAppProfile, onClose, processName, selectedProfileId, unassignAppProfile],
   );
 
   useEffect(() => {
@@ -91,6 +101,7 @@ export function ProfilePickerPopover({
         role="option"
         aria-selected={selectedProfileId === undefined}
         className="tray-profile-option"
+        disabled={isApplying}
         onClick={() => apply(null)}
       >
         <Globe className="h-4 w-4" />
@@ -104,6 +115,7 @@ export function ProfilePickerPopover({
         role="option"
         aria-selected={selectedProfileId === "__disabled__"}
         className="tray-profile-option"
+        disabled={isApplying}
         onClick={() => apply("__disabled__")}
       >
         <Ban className="h-4 w-4" />
@@ -120,6 +132,7 @@ export function ProfilePickerPopover({
           role="option"
           aria-selected={selectedProfileId === p.id}
           className="tray-profile-option"
+          disabled={isApplying}
           onClick={() => apply(p.id)}
         >
           <span>{p.name}</span>
