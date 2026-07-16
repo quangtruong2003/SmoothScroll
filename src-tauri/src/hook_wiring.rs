@@ -837,10 +837,10 @@ mod tests {
     }
 
     #[test]
-    fn per_app_profile_easing_honored() {
+    fn per_app_profile_duration_honored() {
         let mut settings = AppSettings::default();
         settings.animation_time_ms = 1500;
-        settings.easing_mode = smoothscroll_core::easing::EasingMode::QuinticOut;
+        settings.easing_mode = smoothscroll_core::easing::EasingMode::Linear;
         let mut profile = ScrollProfile::new("blender", "Blender");
         profile.animation_time_ms = 50;
         profile.easing_mode = smoothscroll_core::easing::EasingMode::Linear;
@@ -863,7 +863,27 @@ mod tests {
             frames += 1;
         }
         assert!(frames < 30, "captured 50ms profile took {frames} frames");
+    }
 
+    #[test]
+    fn per_app_profile_easing_mode_honored() {
+        let mut settings = AppSettings::default();
+        settings.animation_time_ms = 50;
+        settings.easing_mode = smoothscroll_core::easing::EasingMode::QuinticOut;
+        let mut profile = ScrollProfile::new("blender", "Blender");
+        profile.animation_time_ms = 50;
+        profile.easing_mode = smoothscroll_core::easing::EasingMode::Linear;
+        settings.profiles.push(profile.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
+
+        let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
+        let state = make_state_with_processes(settings, Some("blender.exe"), None);
+        state
+            .effective_per_profile
+            .write()
+            .insert(profile.id, Arc::new(profile_eff.clone()));
+        let sink = EngineSink::new(state.clone());
+        let global = state.effective.load_full();
         let mut profile_control = SmoothScrollEngine::new();
         profile_control.on_wheel_with_source(
             120,
