@@ -9,8 +9,9 @@
 //! them atomically without locking the engine.
 
 use crate::constants::{BASE_STEP_PX, EMIT_UNIT, PULSE_CLAMP_MAX, PULSE_CLAMP_MIN, WHEEL_DELTA};
-use crate::easing::compute_easing_fraction;
+use crate::easing::{compute_easing_fraction, EasingMode};
 use crate::settings::EffectiveSettings;
+use std::collections::VecDeque;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct EngineOutput {
@@ -19,9 +20,40 @@ pub struct EngineOutput {
     pub zoom: i32,
 }
 
-#[derive(Debug, Default, Clone, Copy)]
-struct Axis {
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct EasingSnapshot {
+    animation_time_ms: i32,
+    easing_mode: EasingMode,
+    tail_to_head_ratio: i32,
+    animation_easing: bool,
+}
+
+impl From<&EffectiveSettings> for EasingSnapshot {
+    fn from(settings: &EffectiveSettings) -> Self {
+        Self {
+            animation_time_ms: settings.animation_time_ms,
+            easing_mode: settings.easing_mode,
+            tail_to_head_ratio: settings.tail_to_head_ratio,
+            animation_easing: settings.animation_easing,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum EasingSource {
+    Captured(EasingSnapshot),
+    PerFrame,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct PendingBatch {
     remaining_px: f64,
+    easing: EasingSource,
+}
+
+#[derive(Debug, Default, Clone)]
+struct Axis {
+    pending: VecDeque<PendingBatch>,
     last_notch_ms: u64,
     pub(crate) velocity: f64,
     unit_accum: f64,
@@ -33,24 +65,59 @@ type ZoomAxis = Axis;
 
 impl Axis {
     fn flush_instant(&mut self) -> i32 {
-        if self.remaining_px.abs() < 0.1 {
-            self.remaining_px = 0.0;
+        let remaining_px: f64 = self.pending.iter().map(|batch| batch.remaining_px).sum();
+        self.pending.clear();
+        if remaining_px.abs() < 0.1 {
             self.unit_accum = 0.0;
             return 0;
         }
-        let wheel_units = (self.remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+        let wheel_units = (remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
         let units = wheel_units / EMIT_UNIT as f64;
         self.unit_accum += units;
         let pulses = self.unit_accum.trunc() as i32;
         self.unit_accum -= pulses as f64;
-        self.remaining_px = 0.0;
         // NOTE: instant-mode pulse clamp drops anything beyond PULSE_CLAMP_MAX.
         // Intentional: instant means "no carry-over" — flushing in one frame is
         // the contract, even if it caps very large pending momentum.
         pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
     }
 
+    fn add_pending(&mut self, pixels: f64, easing: EasingSource) {
+        if pixels.abs() < f64::EPSILON {
+            return;
+        }
+        if let Some(last) = self.pending.back_mut() {
+            if last.easing == easing {
+                last.remaining_px += pixels;
+                return;
+            }
+        }
+        self.pending.push_back(PendingBatch {
+            remaining_px: pixels,
+            easing,
+        });
+    }
+
     fn register_notch(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
+        self.register_notch_with_easing(
+            now_ms,
+            delta,
+            settings,
+            EasingSource::Captured(settings.into()),
+        );
+    }
+
+    fn register_notch_per_frame(&mut self, now_ms: u64, delta: i32, settings: &EffectiveSettings) {
+        self.register_notch_with_easing(now_ms, delta, settings, EasingSource::PerFrame);
+    }
+
+    fn register_notch_with_easing(
+        &mut self,
+        now_ms: u64,
+        delta: i32,
+        settings: &EffectiveSettings,
+        easing: EasingSource,
+    ) {
         let notches = delta as f64 / WHEEL_DELTA as f64;
 
         // Compute instantaneous velocity from inter-notch interval
@@ -76,13 +143,38 @@ impl Axis {
             1.0 + velocity_ratio * velocity_ratio * (settings.acceleration_max as f64 - 1.0);
 
         let pixels = notches * settings.step_size_px as f64 * accel_factor;
-        self.remaining_px += pixels;
+        self.add_pending(pixels, easing);
     }
 
-    fn register_pixels(&mut self, px: f64, now_ms: u64, multiplier: f64) {
+    fn register_pixels(
+        &mut self,
+        px: f64,
+        now_ms: u64,
+        multiplier: f64,
+        settings: &EffectiveSettings,
+    ) {
+        self.register_pixels_with_easing(
+            px,
+            now_ms,
+            multiplier,
+            EasingSource::Captured(settings.into()),
+        );
+    }
+
+    fn register_pixels_per_frame(&mut self, px: f64, now_ms: u64, multiplier: f64) {
+        self.register_pixels_with_easing(px, now_ms, multiplier, EasingSource::PerFrame);
+    }
+
+    fn register_pixels_with_easing(
+        &mut self,
+        px: f64,
+        now_ms: u64,
+        multiplier: f64,
+        easing: EasingSource,
+    ) {
         self.last_notch_ms = now_ms;
         self.velocity = 0.0;
-        self.remaining_px += px * multiplier;
+        self.add_pending(px * multiplier, easing);
     }
 
     fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> i32 {
@@ -94,25 +186,39 @@ impl Axis {
             self.velocity = 0.0;
         }
 
-        if self.remaining_px.abs() < 0.1 {
-            self.remaining_px = 0.0;
+        let mut emitted_px = 0.0;
+        for batch in &mut self.pending {
+            let (duration, mode, ratio, enabled) = match batch.easing {
+                EasingSource::Captured(snapshot) => (
+                    snapshot.animation_time_ms,
+                    snapshot.easing_mode,
+                    snapshot.tail_to_head_ratio,
+                    snapshot.animation_easing,
+                ),
+                EasingSource::PerFrame => (
+                    settings.animation_time_ms,
+                    settings.easing_mode,
+                    settings.tail_to_head_ratio,
+                    settings.animation_easing,
+                ),
+            };
+            let frac = compute_easing_fraction(
+                dt_ms,
+                (duration as f64).max(1.0),
+                mode,
+                ratio as f64,
+                enabled,
+            );
+            let emit_px = batch.remaining_px * frac;
+            batch.remaining_px -= emit_px;
+            emitted_px += emit_px;
+        }
+        self.pending.retain(|batch| batch.remaining_px.abs() >= 0.1);
+        if self.pending.is_empty() {
             self.unit_accum = 0.0;
-            return 0;
         }
 
-        let duration = (settings.animation_time_ms as f64).max(1.0);
-        let frac = compute_easing_fraction(
-            dt_ms,
-            duration,
-            settings.easing_mode,
-            settings.tail_to_head_ratio as f64,
-            settings.animation_easing,
-        );
-
-        let emit_px = self.remaining_px * frac;
-        self.remaining_px -= emit_px;
-
-        let wheel_units = (emit_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+        let wheel_units = (emitted_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
         let units = wheel_units / EMIT_UNIT as f64;
         self.unit_accum += units;
 
@@ -169,7 +275,7 @@ impl SmoothScrollEngine {
                 }
                 let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.v
-                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
+                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier, settings);
             }
         }
     }
@@ -189,12 +295,13 @@ impl SmoothScrollEngine {
         let scaled_delta = ((delta as f64) * sensitivity) as i32;
         match source {
             InputSource::Wheel | InputSource::HighResWheel => {
-                self.z.register_notch(now_ms, scaled_delta * dir, settings);
+                self.z
+                    .register_notch_per_frame(now_ms, scaled_delta * dir, settings);
             }
             InputSource::Touchpad => {
                 let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.z
-                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
+                    .register_pixels_per_frame(px, now_ms, settings.touchpad_pixel_multiplier);
             }
         }
     }
@@ -223,7 +330,7 @@ impl SmoothScrollEngine {
                 }
                 let px = (delta as f64 / WHEEL_DELTA as f64) * BASE_STEP_PX * dir as f64;
                 self.h
-                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier);
+                    .register_pixels(px, now_ms, settings.touchpad_pixel_multiplier, settings);
             }
         }
     }
@@ -259,9 +366,7 @@ impl SmoothScrollEngine {
     }
 
     pub fn has_pending_work(&self) -> bool {
-        self.v.remaining_px.abs() >= 0.1
-            || self.h.remaining_px.abs() >= 0.1
-            || self.z.remaining_px.abs() >= 0.1
+        !self.v.pending.is_empty() || !self.h.pending.is_empty() || !self.z.pending.is_empty()
     }
 
     /// Returns the current vertical axis velocity (notches/sec) for stats tracking.
@@ -273,11 +378,11 @@ impl SmoothScrollEngine {
     /// the modifier-passthrough hot path to clear inertia the moment a
     /// precision modifier (Ctrl/Alt) is pressed, so zoom feels immediate.
     pub fn reset_axes(&mut self) {
-        self.v.remaining_px = 0.0;
+        self.v.pending.clear();
         self.v.unit_accum = 0.0;
-        self.h.remaining_px = 0.0;
+        self.h.pending.clear();
         self.h.unit_accum = 0.0;
-        self.z.remaining_px = 0.0;
+        self.z.pending.clear();
         self.z.unit_accum = 0.0;
     }
 }
