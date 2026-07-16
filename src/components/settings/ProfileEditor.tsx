@@ -115,7 +115,7 @@ export function ProfileEditor({ profile, onClose }: Props) {
         <DialogHeader className="px-6 pt-6 pb-3 shrink-0">
           <div className="flex items-center justify-between gap-3">
             <DialogTitle>{t("profiles.edit_title", { name: profile.name })}</DialogTitle>
-            <Popover modal open={presetPopoverOpen} onOpenChange={setPresetPopoverOpen}>
+            <Popover open={presetPopoverOpen} onOpenChange={setPresetPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button type="button" variant="outline" size="sm">
                   {t("profiles.apply_preset")}
