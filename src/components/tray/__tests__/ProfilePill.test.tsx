@@ -90,16 +90,41 @@ describe('ProfilePill', () => {
     });
   });
 
-  it('selects a user profile', async () => {
+  it('closes popover without IPC when reselecting assigned profile', async () => {
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     await userEvent.click(screen.getByRole('button', { name: /profile/i }));
     const listbox = await screen.findByRole('listbox');
+    mockInvoke.mockClear();
     await userEvent.click(
       within(listbox).getByRole('option', { name: /Reading/ }),
     );
+    expect(mockInvoke).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+  });
+
+  it('assigns a different user profile', async () => {
+    const settings = useSettingsStore.getState().settings!;
+    useSettingsStore.setState({
+      settings: {
+        ...settings,
+        profiles: [
+          ...settings.profiles,
+          { ...settings.profiles[0], id: 'p2', name: 'Writing' },
+        ],
+      },
+    } as any);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    mockInvoke.mockClear();
+    await userEvent.click(
+      within(listbox).getByRole('option', { name: /Writing/ }),
+    );
     expect(mockInvoke).toHaveBeenCalledWith('assign_app_profile', {
       processName: 'Notepad.exe',
-      profileId: 'p1',
+      profileId: 'p2',
     });
   });
 
