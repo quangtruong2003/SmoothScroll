@@ -852,7 +852,7 @@ mod tests {
         state
             .effective_per_profile
             .write()
-            .insert(profile.id, Arc::new(profile_eff));
+            .insert(profile.id, Arc::new(profile_eff.clone()));
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
 
@@ -863,6 +863,26 @@ mod tests {
             frames += 1;
         }
         assert!(frames < 30, "captured 50ms profile took {frames} frames");
+
+        let mut profile_control = SmoothScrollEngine::new();
+        profile_control.on_wheel_with_source(
+            120,
+            0,
+            smoothscroll_core::input_source::InputSource::Wheel,
+            &profile_eff,
+        );
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+
+        let mut expected = Vec::new();
+        let mut actual = Vec::new();
+        for _ in 0..8 {
+            expected.push(profile_control.step(1000.0 / 120.0, &profile_eff).vertical);
+            actual.push(state.engine.lock().step(1000.0 / 120.0, &global).vertical);
+        }
+        assert_eq!(
+            actual, expected,
+            "Sink must register the assigned profile easing mode"
+        );
     }
     #[test]
     fn game_mode_active_passes_through() {
