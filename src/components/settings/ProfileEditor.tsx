@@ -18,6 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { SettingRow } from "./SettingRow";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { toast } from "@/components/ui/toast";
@@ -35,6 +40,8 @@ export function ProfileEditor({ profile, onClose }: Props) {
   const updateProfile = useSettingsStore((s) => s.updateProfile);
   const [draft, setDraft] = useState<ScrollProfile>(profile);
   const [saving, setSaving] = useState(false);
+  const [presetPopoverOpen, setPresetPopoverOpen] = useState(false);
+  const [confirmPresetKey, setConfirmPresetKey] = useState<PresetKey | null>(null);
 
   const patch = (p: Partial<ScrollProfile>) => setDraft((d) => ({ ...d, ...p }));
 
@@ -59,6 +66,30 @@ export function ProfileEditor({ profile, onClose }: Props) {
     );
   };
 
+  const isPresetPristine =
+    draft.step_size_px === profile.step_size_px &&
+    draft.animation_time_ms === profile.animation_time_ms &&
+    draft.max_velocity === profile.max_velocity &&
+    draft.acceleration_max === profile.acceleration_max;
+
+  const selectPreset = (key: PresetKey) => {
+    if (isPresetPristine) {
+      applyPreset(key);
+      setPresetPopoverOpen(false);
+      return;
+    }
+    setPresetPopoverOpen(false);
+    setConfirmPresetKey(key);
+  };
+
+  const cancelConfirmPreset = () => setConfirmPresetKey(null);
+
+  const confirmApplyPreset = () => {
+    if (confirmPresetKey) applyPreset(confirmPresetKey);
+    setConfirmPresetKey(null);
+    setPresetPopoverOpen(false);
+  };
+
   const handleSave = async () => {
     const name = draft.name.trim();
     if (!name) {
@@ -81,32 +112,44 @@ export function ProfileEditor({ profile, onClose }: Props) {
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="!flex !flex-col !p-0 !gap-0 sm:max-w-2xl max-h-[85vh]">
         <DialogHeader className="px-6 pt-6 pb-3 shrink-0">
-          <DialogTitle>{t("profiles.edit_title", { name: profile.name })}</DialogTitle>
+          <div className="flex items-center justify-between gap-3">
+            <DialogTitle>{t("profiles.edit_title", { name: profile.name })}</DialogTitle>
+            <Popover modal open={presetPopoverOpen} onOpenChange={setPresetPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button type="button" variant="outline" size="sm">
+                  {t("profiles.apply_preset")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                role="dialog"
+                aria-label={t("profiles.apply_preset")}
+                onOpenAutoFocus={(event) => event.preventDefault()}
+              >
+                <div className="flex flex-wrap gap-1.5">
+                  {ORDER.map((k) => (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => selectPreset(k)}
+                      className={cn(
+                        "rounded-md border px-2 py-1 text-xs font-medium transition-colors",
+                        "outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        isPresetActive(k)
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background hover:bg-accent",
+                      )}
+                    >
+                      {t(`presets.${k}`)}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto px-6">
           <div className="space-y-1 divide-y py-1">
-            <SettingRow title={t("profiles.preset")} description={t("profiles.preset_desc")}>
-              <div className="flex flex-wrap gap-1.5">
-                {ORDER.map((k) => (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => applyPreset(k)}
-                    className={cn(
-                      "rounded-md border px-2 py-1 text-xs font-medium transition-colors",
-                      "outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      isPresetActive(k)
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background hover:bg-accent",
-                    )}
-                  >
-                    {t(`presets.${k}`)}
-                  </button>
-                ))}
-              </div>
-            </SettingRow>
-
             <SettingRow
               htmlFor="profile-name"
               title={t("profiles.field.name")}
@@ -272,14 +315,44 @@ export function ProfileEditor({ profile, onClose }: Props) {
           </div>
         </div>
 
-        <DialogFooter className="px-6 py-4 shrink-0 border-t">
-          <Button variant="ghost" onClick={onClose} disabled={saving}>
-            {t("common.cancel")}
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {t("common.save")}
-          </Button>
-        </DialogFooter>
+        {confirmPresetKey && (
+          <div
+            role="alertdialog"
+            aria-labelledby="apply-preset-confirm-title"
+            aria-describedby="apply-preset-confirm-body"
+            className="fixed inset-0 z-[60] grid place-items-center bg-black/80 p-6"
+          >
+            <div className="w-full max-w-lg space-y-4 border bg-background p-6 shadow-lg sm:rounded-lg">
+              <div className="space-y-1.5">
+                <h2 id="apply-preset-confirm-title" className="text-lg font-semibold leading-none tracking-tight">
+                  {t("profiles.apply_preset_confirm_title")}
+                </h2>
+                <p id="apply-preset-confirm-body" className="text-sm text-muted-foreground">
+                  {t("profiles.apply_preset_confirm_body")}
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={cancelConfirmPreset}>
+                  {t("common.cancel")}
+                </Button>
+                <Button onClick={confirmApplyPreset}>
+                  {t("profiles.apply_preset_confirm")}
+                </Button>
+              </DialogFooter>
+            </div>
+          </div>
+        )}
+
+        {!confirmPresetKey && (
+          <DialogFooter className="px-6 py-4 shrink-0 border-t">
+            <Button variant="ghost" onClick={onClose} disabled={saving}>
+              {t("common.cancel")}
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {t("common.save")}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
