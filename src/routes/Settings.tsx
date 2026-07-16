@@ -31,7 +31,7 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const load = useSettingsStore((s) => s.load);
   const setEnabledFromEvent = useSettingsStore((s) => s.setEnabledFromEvent);
-  const setStartWithOsFromEvent = useSettingsStore((s) => s.setStartWithOsFromEvent);
+  const setAll = useSettingsStore((s) => s.setAll);
   const theme = useTheme();
   const loading = useSettingsStore((s) => s.loading);
   const error = useSettingsStore((s) => s.error);
@@ -75,18 +75,15 @@ export function SettingsPage() {
   }, [setEnabledFromEvent]);
 
   useEffect(() => {
-    const unlistenPromise = listen<Partial<AppSettings>>("settings-changed", (event) => {
-      const next = event.payload;
-      if (next && typeof next.start_with_os === "boolean") {
-        setStartWithOsFromEvent(next.start_with_os);
-      }
+    const unlistenPromise = listen<AppSettings>("settings-changed", (event) => {
+      setAll(event.payload);
     });
     return () => {
       unlistenPromise.then((u) => u()).catch(() => {
         // ignore
       });
     };
-  }, [setStartWithOsFromEvent]);
+  }, [setAll]);
 
   useEffect(() => {
     const unlistenPromise = listen<string>("navigate-to", (event) => {
