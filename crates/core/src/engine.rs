@@ -392,3 +392,25 @@ impl Default for SmoothScrollEngine {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn add_pending_coalesces_only_adjacent_matching_easing() {
+        let settings = EffectiveSettings::from_settings(&crate::settings::AppSettings::default());
+        let captured = EasingSource::Captured((&settings).into());
+        let mut axis = Axis::default();
+
+        axis.add_pending(10.0, captured);
+        axis.add_pending(20.0, captured);
+        axis.add_pending(30.0, EasingSource::PerFrame);
+        axis.add_pending(40.0, captured);
+
+        assert_eq!(axis.pending.len(), 3);
+        assert_eq!(axis.pending[0].remaining_px, 30.0);
+        assert_eq!(axis.pending[1].remaining_px, 30.0);
+        assert_eq!(axis.pending[2].remaining_px, 40.0);
+    }
+}

@@ -413,3 +413,116 @@ fn captured_easing_mode_survives_global_step_settings() {
         "profile easing mode must survive global step settings"
     );
 }
+
+#[test]
+fn mixed_profile_batches_keep_their_own_easing() {
+    let fast = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 5, true);
+    let slow = effective_with(
+        1_500,
+        smoothscroll_core::easing::EasingMode::Linear,
+        5,
+        true,
+    );
+    let global = effective_with(
+        220,
+        smoothscroll_core::easing::EasingMode::QuinticOut,
+        5,
+        true,
+    );
+    let mut engine = SmoothScrollEngine::new();
+
+    on_wheel(&mut engine, 120, 1_000, &fast);
+    on_wheel(&mut engine, 120, 1_100, &slow);
+
+    let first = engine.step(50.0, &global);
+    assert!(first.vertical >= 120, "fast batch should drain first");
+    assert!(
+        engine.has_pending_work(),
+        "slow batch should remain pending"
+    );
+}
+
+#[test]
+fn touchpad_batch_keeps_captured_easing() {
+    let profile = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 5, true);
+    let global = effective_with(
+        1_500,
+        smoothscroll_core::easing::EasingMode::QuinticOut,
+        5,
+        true,
+    );
+    let mut engine = SmoothScrollEngine::new();
+
+    engine.on_wheel_with_source(120, 1_000, InputSource::Touchpad, &profile);
+
+    let mut frames = 0;
+    while engine.has_pending_work() && frames < 200 {
+        engine.step(1000.0 / 120.0, &global);
+        frames += 1;
+    }
+    assert!(
+        frames < 45,
+        "captured 50ms touchpad batch took {frames} frames"
+    );
+}
+
+#[test]
+fn zoom_easing_uses_global_step_settings() {
+    let profile = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 5, true);
+    let global = effective_with(
+        1_500,
+        smoothscroll_core::easing::EasingMode::QuinticOut,
+        5,
+        true,
+    );
+    let mut profile_registered = SmoothScrollEngine::new();
+    let mut global_registered = SmoothScrollEngine::new();
+
+    profile_registered.on_wheel_zoom(120, 1_000, InputSource::Wheel, &profile);
+    global_registered.on_wheel_zoom(120, 1_000, InputSource::Wheel, &global);
+
+    let actual: Vec<_> = (0..8)
+        .map(|_| profile_registered.step(1000.0 / 120.0, &global).zoom)
+        .collect();
+    let expected: Vec<_> = (0..8)
+        .map(|_| global_registered.step(1000.0 / 120.0, &global).zoom)
+        .collect();
+    assert_eq!(actual, expected, "zoom must use global per-frame easing");
+}
+
+#[test]
+fn instant_mode_flushes_mixed_scroll_batches() {
+    let fast = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 5, true);
+    let slow = effective_with(
+        1_500,
+        smoothscroll_core::easing::EasingMode::Linear,
+        5,
+        true,
+    );
+    let mut instant = eff();
+    let mut engine = SmoothScrollEngine::new();
+    on_wheel(&mut engine, 120, 0, &fast);
+    on_wheel(&mut engine, 120, 100, &slow);
+
+    instant.instant_mode = true;
+    let out = engine.step(1000.0 / 120.0, &instant);
+    assert_eq!(out.vertical, 288, "instant mode should flush both batches");
+    assert!(!engine.has_pending_work());
+}
+
+#[test]
+fn reset_axes_clears_all_pending_batches() {
+    let settings = eff();
+    let mut engine = SmoothScrollEngine::new();
+    on_wheel(&mut engine, 120, 0, &settings);
+    on_hwheel(&mut engine, 120, 0, &settings);
+    engine.on_wheel_zoom(120, 0, InputSource::Wheel, &settings);
+    assert!(engine.has_pending_work());
+
+    engine.reset_axes();
+    assert!(!engine.has_pending_work());
+    assert_eq!(
+        engine.step(1000.0 / 120.0, &settings),
+        EngineOutput::default()
+    );
+}
