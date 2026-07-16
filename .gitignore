@@ -34,7 +34,7 @@ landing/test-results/
 
 videos/
 scripts/
-docs/
+/docs/
 
 .cursor/
 .superpowers/
