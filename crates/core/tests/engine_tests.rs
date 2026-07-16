@@ -8,6 +8,19 @@ fn eff() -> EffectiveSettings {
     EffectiveSettings::from_settings(&AppSettings::default())
 }
 
+fn effective_with(
+    animation_time_ms: i32,
+    easing_mode: smoothscroll_core::easing::EasingMode,
+    tail_to_head_ratio: i32,
+    animation_easing: bool,
+) -> EffectiveSettings {
+    let mut s = AppSettings::default();
+    s.animation_time_ms = animation_time_ms;
+    s.easing_mode = easing_mode;
+    s.tail_to_head_ratio = tail_to_head_ratio;
+    s.animation_easing = animation_easing;
+    EffectiveSettings::from_settings(&s)
+}
 fn on_wheel(e: &mut SmoothScrollEngine, delta: i32, now_ms: u64, eff: &EffectiveSettings) {
     e.on_wheel_with_source(delta, now_ms, InputSource::Wheel, eff);
 }
@@ -301,4 +314,94 @@ fn velocity_tracking_smooth_acceleration() {
         engine.on_wheel_with_source(120, now + 50 + i as u64 * 50, InputSource::Wheel, &eff);
     }
     assert!(engine.has_pending_work());
+}
+
+#[test]
+fn captured_animation_settings_survive_global_step_settings() {
+    let profile = effective_with(
+        50,
+        smoothscroll_core::easing::EasingMode::Linear,
+        1,
+        true,
+    );
+    let global = effective_with(
+        1500,
+        smoothscroll_core::easing::EasingMode::QuinticOut,
+        20,
+        true,
+    );
+    let mut engine = SmoothScrollEngine::new();
+    on_wheel(&mut engine, 120, 1000, &profile);
+
+    let mut frames = 0;
+    while engine.has_pending_work() && frames < 200 {
+        engine.step(1000.0 / 120.0, &global);
+        frames += 1;
+    }
+    assert!(frames < 30, "captured 50ms profile took {frames} frames");
+}
+
+#[test]
+fn captured_tail_ratio_survives_global_step_ratio() {
+    let profile = effective_with(
+        500,
+        smoothscroll_core::easing::EasingMode::ExponentialOut,
+        1,
+        true,
+    );
+    let global = effective_with(
+        500,
+        smoothscroll_core::easing::EasingMode::ExponentialOut,
+        20,
+        true,
+    );
+    let mut profile_engine = SmoothScrollEngine::new();
+    let mut global_engine = SmoothScrollEngine::new();
+    on_wheel(&mut profile_engine, 120, 1000, &profile);
+    on_wheel(&mut global_engine, 120, 1000, &global);
+
+    let mut profile_frames = 0;
+    let mut global_frames = 0;
+    while profile_engine.has_pending_work() && profile_frames < 300 {
+        profile_engine.step(1000.0 / 120.0, &global);
+        profile_frames += 1;
+    }
+    while global_engine.has_pending_work() && global_frames < 300 {
+        global_engine.step(1000.0 / 120.0, &global);
+        global_frames += 1;
+    }
+    assert!(
+        profile_frames > global_frames * 2,
+        "ratio 1 should drain slower: profile={profile_frames}, global={global_frames}"
+    );
+}
+#[test]
+fn captured_easing_mode_survives_global_step_settings() {
+    let profile = effective_with(
+        500,
+        smoothscroll_core::easing::EasingMode::Linear,
+        5,
+        true,
+    );
+    let global = effective_with(
+        500,
+        smoothscroll_core::easing::EasingMode::QuinticOut,
+        5,
+        true,
+    );
+    let mut control = SmoothScrollEngine::new();
+    let mut profile_registered = SmoothScrollEngine::new();
+    on_wheel(&mut control, 120, 1000, &profile);
+    on_wheel(&mut profile_registered, 120, 1000, &profile);
+
+    let mut expected = Vec::new();
+    let mut actual = Vec::new();
+    for _ in 0..8 {
+        expected.push(control.step(1000.0 / 120.0, &profile).vertical);
+        actual.push(profile_registered.step(1000.0 / 120.0, &global).vertical);
+    }
+    assert_eq!(
+        actual, expected,
+        "profile easing mode must survive global step settings"
+    );
 }

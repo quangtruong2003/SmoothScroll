@@ -393,7 +393,7 @@ mod tests {
     use arc_swap::ArcSwap;
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
-    use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+    use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ScrollProfile};
     use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
         Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
@@ -836,6 +836,32 @@ mod tests {
         assert!(!state.engine.lock().has_pending_work());
     }
 
+    #[test]
+    fn per_app_profile_easing_honored() {
+        let mut settings = AppSettings::default();
+        settings.animation_time_ms = 1500;
+        let mut profile = ScrollProfile::new("blender", "Blender");
+        profile.animation_time_ms = 50;
+        settings.profiles.push(profile.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
+
+        let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
+        let state = make_state_with_processes(settings, Some("blender.exe"), None);
+        state
+            .effective_per_profile
+            .write()
+            .insert(profile.id, Arc::new(profile_eff));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+
+        let global = state.effective.load_full();
+        let mut frames = 0;
+        while state.engine.lock().has_pending_work() && frames < 200 {
+            state.engine.lock().step(1000.0 / 120.0, &global);
+            frames += 1;
+        }
+        assert!(frames < 30, "captured 50ms profile took {frames} frames");
+    }
     #[test]
     fn game_mode_active_passes_through() {
         let s = AppSettings::default();
