@@ -125,7 +125,6 @@ export function ProfileEditor({ profile, onClose }: Props) {
                 align="end"
                 role="dialog"
                 aria-label={t("profiles.apply_preset")}
-                onOpenAutoFocus={(event) => event.preventDefault()}
               >
                 <div className="flex flex-wrap gap-1.5">
                   {ORDER.map((k) => (
