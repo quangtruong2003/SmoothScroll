@@ -840,8 +840,10 @@ mod tests {
     fn per_app_profile_easing_honored() {
         let mut settings = AppSettings::default();
         settings.animation_time_ms = 1500;
+        settings.easing_mode = smoothscroll_core::easing::EasingMode::QuinticOut;
         let mut profile = ScrollProfile::new("blender", "Blender");
         profile.animation_time_ms = 50;
+        profile.easing_mode = smoothscroll_core::easing::EasingMode::Linear;
         settings.profiles.push(profile.clone());
         settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
 

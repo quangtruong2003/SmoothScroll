@@ -390,16 +390,24 @@ fn captured_easing_mode_survives_global_step_settings() {
         true,
     );
     let mut control = SmoothScrollEngine::new();
+    let mut global_control = SmoothScrollEngine::new();
     let mut profile_registered = SmoothScrollEngine::new();
     on_wheel(&mut control, 120, 1000, &profile);
+    on_wheel(&mut global_control, 120, 1000, &global);
     on_wheel(&mut profile_registered, 120, 1000, &profile);
 
     let mut expected = Vec::new();
+    let mut global_schedule = Vec::new();
     let mut actual = Vec::new();
     for _ in 0..8 {
         expected.push(control.step(1000.0 / 120.0, &profile).vertical);
+        global_schedule.push(global_control.step(1000.0 / 120.0, &global).vertical);
         actual.push(profile_registered.step(1000.0 / 120.0, &global).vertical);
     }
+    assert_ne!(
+        expected, global_schedule,
+        "profile and global easing controls must produce distinct schedules"
+    );
     assert_eq!(
         actual, expected,
         "profile easing mode must survive global step settings"
