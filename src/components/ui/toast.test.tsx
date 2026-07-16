@@ -1,37 +1,40 @@
 // @vitest-environment jsdom
-import { render } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const { sonnerMock } = vi.hoisted(() => ({
-  sonnerMock: vi.fn((_props: Record<string, unknown>) => null),
-}));
-
-vi.mock("sonner", () => ({
-  Toaster: sonnerMock,
-  toast: vi.fn(),
-}));
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { toast } from "sonner";
 
 import { Toaster } from "./toast";
 
 describe("Toaster", () => {
-  beforeEach(() => {
-    sonnerMock.mockClear();
+  afterEach(() => {
+    toast.dismiss();
   });
 
-  it("uses compact, short-lived operation notifications", () => {
-    render(<Toaster />);
+  it("dismisses only clicked toast and uses 1500ms duration", async () => {
+    let renderedToaster: ReturnType<typeof Toaster>;
+    function TestToaster() {
+      renderedToaster = Toaster();
+      return renderedToaster;
+    }
 
-    expect(sonnerMock.mock.calls[0][0]).toEqual(
-      expect.objectContaining({
-        duration: 2500,
-        toastOptions: expect.objectContaining({
-          className: "text-xs",
-          style: expect.objectContaining({
-            width: "300px",
-            padding: "10px 12px",
-          }),
-        }),
-      }),
-    );
+    render(<TestToaster />);
+
+    expect(renderedToaster!.props.children.props.duration).toBe(1500);
+
+    toast("First", { duration: Infinity });
+    toast("Second", { duration: Infinity });
+
+    const first = await screen.findByText("First");
+    const second = await screen.findByText("Second");
+    const firstToast = first.closest("[data-sonner-toast]");
+    const secondToast = second.closest("[data-sonner-toast]");
+
+    expect(firstToast).not.toBeNull();
+    expect(secondToast).not.toBeNull();
+
+    fireEvent.click(first);
+
+    await waitFor(() => expect(document.body.contains(firstToast)).toBe(false));
+    expect(document.body.contains(secondToast)).toBe(true);
   });
 });
