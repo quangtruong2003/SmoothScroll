@@ -338,11 +338,7 @@ impl SmoothScrollEngine {
     pub fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> EngineOutput {
         if settings.instant_mode {
             let v = self.v.flush_instant();
-            let h = if settings.horizontal_smoothness {
-                self.h.flush_instant()
-            } else {
-                0
-            };
+            let h = self.h.flush_instant();
             return EngineOutput {
                 vertical: v,
                 horizontal: h,
@@ -350,11 +346,7 @@ impl SmoothScrollEngine {
             };
         }
         let v = self.v.step(dt_ms, settings);
-        let h = if settings.horizontal_smoothness {
-            self.h.step(dt_ms, settings)
-        } else {
-            0
-        };
+        let h = self.h.step(dt_ms, settings);
         // Always drain zoom axis — even if smooth_zoom is disabled, complete
         // any in-flight animation before stopping.
         let z = self.z.step(dt_ms, settings);

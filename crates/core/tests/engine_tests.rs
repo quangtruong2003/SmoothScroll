@@ -142,7 +142,7 @@ fn engine_finishes_within_reasonable_time() {
 }
 
 #[test]
-fn horizontal_smoothness_off_zeroes_horizontal_output_only() {
+fn registered_horizontal_batch_drains_when_horizontal_smoothness_is_off() {
     let mut s = AppSettings::default();
     s.horizontal_smoothness = false;
     let eff = EffectiveSettings::from_settings(&s);
@@ -160,7 +160,7 @@ fn horizontal_smoothness_off_zeroes_horizontal_output_only() {
             break;
         }
     }
-    assert_eq!(total_h, 0, "horizontal output should be suppressed");
+    assert!(total_h.abs() > 0, "registered horizontal batch should drain");
     assert!(total_v.abs() > 0, "vertical should still emit");
 }
 

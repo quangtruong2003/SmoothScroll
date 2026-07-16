@@ -866,6 +866,41 @@ mod tests {
     }
 
     #[test]
+    fn profile_horizontal_batch_drains_with_global_horizontal_smoothing_disabled() {
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = false;
+        let mut profile = ScrollProfile::new("blender", "Blender");
+        profile.horizontal_smoothness = true;
+        settings.profiles.push(profile.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
+
+        let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
+        let state = make_state_with_processes(settings, Some("blender.exe"), None);
+        state
+            .effective_per_profile
+            .write()
+            .insert(profile.id, Arc::new(profile_eff));
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Swallow);
+
+        let global = state.effective.load_full();
+        let mut horizontal = 0;
+        for _ in 0..500 {
+            horizontal += state.engine.lock().step(1000.0 / 120.0, &global).horizontal;
+            if !state.engine.lock().has_pending_work() {
+                break;
+            }
+        }
+
+        assert!(horizontal > 0, "profile horizontal batch should emit scroll");
+        assert!(
+            !state.engine.lock().has_pending_work(),
+            "profile horizontal batch should drain under global frame settings"
+        );
+    }
+
+    #[test]
     fn per_app_profile_easing_mode_honored() {
         let mut settings = AppSettings::default();
         settings.animation_time_ms = 50;
