@@ -358,7 +358,11 @@
       "pick_manually": "Pick manually"
     },
     "preset": "Apply preset",
-    "preset_desc": "Override feel with a one-click preset. Adjust sliders below for fine control."
+    "preset_desc": "Override feel with a one-click preset. Adjust sliders below for fine control.",
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "Choose how SmoothScroll behaves in specific apps.",

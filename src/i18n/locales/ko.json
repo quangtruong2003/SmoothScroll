@@ -356,7 +356,11 @@
       "custom_preset": "사용자 정의 프리셋 ({{step}}px, {{ms}}ms)",
       "use": "추천 사용",
       "pick_manually": "수동으로 선택"
-    }
+    },
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "특정 앱에서 SmoothScroll의 동작 방식을 선택하세요.",

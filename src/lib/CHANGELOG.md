@@ -7,6 +7,215 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+- ProfileEditor: Apply preset… popover with overwrite confirmation
+
+### Fixed
+- Per-app profile easing and tail-to-head ratio now persist through scroll drain
+
+## [1.22.0] - 2026-07-13
+
+### Added
+- adjust ForcedUpdateModal layout for 350x280 window
+- resize window for update, restore on skip
+- add resize_for_update and restore_window_size commands
+- implement standalone engine-macos and auto-launch from Swift app
+- add --platform, --dry-run, getLatestTag with platform-aware tag filtering
+- add --platform flag with parseArgs/readPlatformVersion/writePlatformVersion
+- add --linux-deb and --linux-appimage flags
+- add OG/Twitter cards, JSON-LD, canonical URLs, security headers
+- footer tagline detects OS (Windows/macOS/Linux)
+- swap static tray screenshot for interactive TrayPreview
+- add Quit state machine (running→quitting→closed→running)
+- add Open Settings bounce feedback
+- wire Smooth Scrolling toggle + status dot
+- add TrayPreview static shell
+- add tray-labels mini dictionary (en/vi/zh)
+- add tray.css preview styles
+
+### Fixed
+- handle existing tags in release workflows
+- profile editor dialog scroll and input clipping
+- handle @ prefix in conventional commit parser
+- exclude macOS crate from Linux test runs, remove duplicate tests.yml
+- disable macOS/Linux releases, ensure Windows is latest
+- link to _dispatch_main_q directly to resolve GCD linker error
+- link libSystem for GCD functions in event_tap
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+- force framework linking via RUSTFLAGS env var during standalone engine build
+- link macOS frameworks via rustc #[link] attributes
+- link CoreGraphics unconditionally
+- add build.rs to link CoreGraphics and AppKit frameworks
+- replace HookDecision::Block with Swallow
+- update engine-macos files
+- ensure engine-macos compiles correctly with updated dependencies
+- fix engine-macos compilation errors
+- fix macos workflow file
+- bundle Rust engine binary into .app, fix compilation errors (missing import, borrow, active_profile)
+- add continue-on-error to macOS upload step (race condition between matrix builds)
+- lower DMG size check to 100KB, disable updater for macOS
+- disable updater for Linux builds, remove latest-linux.json
+- test only core+platform crates on macOS (skip src-tauri pre-existing errors)
+- add macros feature to tokio for select! macro
+- reset mac/linux to 0.0.1, fix macOS build (test job, debug steps, DMG verify, remove continue-on-error)
+- use --profile release-fast CLI flag instead of env var for Linux build
+- sync all 14 locales and remove hardcoded English strings
+- sync autostart toggle between TrayPanel and Settings page
+- full-window takeover + safer restart + indeterminate progress
+- revert Windows to default release profile for signing
+- add missing direction_sync_enabled to settingsStore test fixture
+- use TAURI_BUILD_PROFILE env var instead of --profile flag
+- persist settings across restart and remove preset label
+- respect HookDecision to swallow original scroll and document macOS stubs
+- correct macOS F12 keycode and use kCGKeyboardEventKeycode constant
+- emit IPC events as PascalCase to match Swift client
+- emit SettingsChanged IPC event to match Swift client
+- remove duplicate AppState import in ipc_socket_server
+- add client-side cache busting and remove dead vercel config
+- remove dot grid spotlight, increase dot size 30%, lazy-load GIFs, add cache headers
+- upgrade objc2-app-kit to 0.3 and objc2-foundation to 0.3 for MainThreadMarker support
+- upgrade objc2 to 0.6 for correct MainThreadMarker path
+
+### Performance
+- speed up release workflow with parallel jobs and release-fast profile
+## [1.21.0] - 2026-07-13
+
+### Added
+- adjust ForcedUpdateModal layout for 350x280 window
+- resize window for update, restore on skip
+- add resize_for_update and restore_window_size commands
+- implement standalone engine-macos and auto-launch from Swift app
+
+### Fixed
+- exclude macOS crate from Linux test runs, remove duplicate tests.yml
+- disable macOS/Linux releases, ensure Windows is latest
+- link to _dispatch_main_q directly to resolve GCD linker error
+- link libSystem for GCD functions in event_tap
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+- force framework linking via RUSTFLAGS env var during standalone engine build
+- link macOS frameworks via rustc #[link] attributes
+- link CoreGraphics unconditionally
+- add build.rs to link CoreGraphics and AppKit frameworks
+- replace HookDecision::Block with Swallow
+- update engine-macos files
+- ensure engine-macos compiles correctly with updated dependencies
+- fix engine-macos compilation errors
+- fix macos workflow file
+## [1.1.12] - 2026-07-12
+
+### Fixed
+- link to _dispatch_main_q directly to resolve GCD linker error
+## [1.1.11] - 2026-07-12
+
+### Fixed
+- link libSystem for GCD functions in event_tap
+## [1.1.10] - 2026-07-12
+
+### Fixed
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+## [1.1.9] - 2026-07-12
+
+### Fixed
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+## [1.1.8] - 2026-07-12
+
+### Fixed
+- force framework linking via RUSTFLAGS env var during standalone engine build
+## [1.1.7] - 2026-07-12
+
+### Fixed
+- link macOS frameworks via rustc #[link] attributes
+## [1.1.6] - 2026-07-12
+
+### Fixed
+- link CoreGraphics unconditionally
+## [1.1.5] - 2026-07-12
+
+### Fixed
+- add build.rs to link CoreGraphics and AppKit frameworks
+## [1.1.4] - 2026-07-12
+
+### Fixed
+- replace HookDecision::Block with Swallow
+## [1.1.3] - 2026-07-12
+
+### Fixed
+- update engine-macos files
+## [1.1.2] - 2026-07-12
+
+### Fixed
+- ensure engine-macos compiles correctly with updated dependencies
+## [1.1.1] - 2026-07-12
+
+### Fixed
+- fix engine-macos compilation errors
+## [1.20.2] - 2026-07-12
+
+### Fixed
+- bundle Rust engine binary into .app, fix compilation errors (missing import, borrow, active_profile)
+- add continue-on-error to macOS upload step (race condition between matrix builds)
+- lower DMG size check to 100KB, disable updater for macOS
+- disable updater for Linux builds, remove latest-linux.json
+## [1.20.1] - 2026-07-12
+
+### Fixed
+- add macros feature to tokio for select! macro
+- reset mac/linux to 0.0.1, fix macOS build (test job, debug steps, DMG verify, remove continue-on-error)
+- use --profile release-fast CLI flag instead of env var for Linux build
+## [1.20.0] - 2026-07-12
+
+### Added
+- add --platform, --dry-run, getLatestTag with platform-aware tag filtering
+- add --platform flag with parseArgs/readPlatformVersion/writePlatformVersion
+- add --linux-deb and --linux-appimage flags
+- add OG/Twitter cards, JSON-LD, canonical URLs, security headers
+
+### Fixed
+- sync all 14 locales and remove hardcoded English strings
+- sync autostart toggle between TrayPanel and Settings page
+- full-window takeover + safer restart + indeterminate progress
+## [1.19.5] - 2026-07-11
+
+### Fixed
+- revert Windows to default release profile for signing
+## [1.19.4] - 2026-07-11
+
+### Fixed
+- add missing direction_sync_enabled to settingsStore test fixture
+## [1.19.3] - 2026-07-11
+
+### Fixed
+- use TAURI_BUILD_PROFILE env var instead of --profile flag
+## [1.19.2] - 2026-07-11
+
+### Performance
+- speed up release workflow with parallel jobs and release-fast profile
+## [1.19.1] - 2026-07-11
+
+### Fixed
+- persist settings across restart and remove preset label
+## [1.19.0] - 2026-07-11
+
+### Added
+- footer tagline detects OS (Windows/macOS/Linux)
+- swap static tray screenshot for interactive TrayPreview
+- add Quit state machine (running→quitting→closed→running)
+- add Open Settings bounce feedback
+- wire Smooth Scrolling toggle + status dot
+- add TrayPreview static shell
+- add tray-labels mini dictionary (en/vi/zh)
+- add tray.css preview styles
+
+### Fixed
+- respect HookDecision to swallow original scroll and document macOS stubs
+- correct macOS F12 keycode and use kCGKeyboardEventKeycode constant
+- emit IPC events as PascalCase to match Swift client
+- emit SettingsChanged IPC event to match Swift client
+- remove duplicate AppState import in ipc_socket_server
+- add client-side cache busting and remove dead vercel config
+- remove dot grid spotlight, increase dot size 30%, lazy-load GIFs, add cache headers
 ## [1.18.9] - 2026-07-10
 
 ### Fixed

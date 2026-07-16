@@ -356,7 +356,11 @@
       "custom_preset": "Préréglage personnalisé ({{step}}px, {{ms}}ms)",
       "use": "Utiliser la suggestion",
       "pick_manually": "Choisir manuellement"
-    }
+    },
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "Choisissez le comportement de SmoothScroll pour chaque application.",

@@ -356,7 +356,11 @@
       "custom_preset": "Hồ sơ tuỳ chỉnh ({{step}}px, {{ms}}ms)",
       "use": "Dùng gợi ý",
       "pick_manually": "Tự chọn"
-    }
+    },
+    "apply_preset": "Áp dụng preset…",
+    "apply_preset_confirm_title": "Thay thế cài đặt hiện tại?",
+    "apply_preset_confirm_body": "Hành động này sẽ ghi đè kích thước bước, thời gian hiệu ứng, vận tốc tối đa và gia tốc tối đa.",
+    "apply_preset_confirm": "Thay thế"
   },
   "app_profiles": {
     "description": "Chọn cách SmoothScroll hoạt động trong từng ứng dụng.",

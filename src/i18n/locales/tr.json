@@ -356,7 +356,11 @@
       "custom_preset": "Özel ön ayar ({{step}}px, {{ms}}ms)",
       "use": "Öneriyi kullan",
       "pick_manually": "Manuel olarak seç"
-    }
+    },
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "SmoothScroll'un belirli uygulamalarda nasıl davranacağını seçin.",

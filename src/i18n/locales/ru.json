@@ -356,7 +356,11 @@
       "custom_preset": "Пользовательский пресет ({{step}}px, {{ms}}ms)",
       "use": "Использовать предложение",
       "pick_manually": "Выбрать вручную"
-    }
+    },
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "Выберите, как SmoothScroll работает в конкретных приложениях.",

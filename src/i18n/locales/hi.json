@@ -356,7 +356,11 @@
       "custom_preset": "कस्टम प्रीसेट ({{step}}px, {{ms}}ms)",
       "use": "सुझाव का उपयोग करें",
       "pick_manually": "मैन्युअल रूप से चुनें"
-    }
+    },
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "चुनें कि SmoothScroll विशिष्ट ऐप्स में कैसे व्यवहार करे।",

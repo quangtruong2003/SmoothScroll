@@ -7,6 +7,12 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+- ProfileEditor: Apply preset… popover with overwrite confirmation
+
+### Fixed
+- Per-app profile easing and tail-to-head ratio now persist through scroll drain
+
 ## [1.22.0] - 2026-07-13
 
 ### Added

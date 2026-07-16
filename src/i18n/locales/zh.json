@@ -356,7 +356,11 @@
       "custom_preset": "自定义预设（{{step}}px，{{ms}}ms）",
       "use": "使用建议",
       "pick_manually": "手动选择"
-    }
+    },
+    "apply_preset": "Apply preset…",
+    "apply_preset_confirm_title": "Replace current settings?",
+    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
+    "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
     "description": "选择 SmoothScroll 在特定应用中的行为方式。",
