@@ -3,7 +3,7 @@ import * as matchers from "@testing-library/jest-dom/matchers";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { PRESETS } from "@/lib/scrollPresets";
+import { ORDER, PRESETS } from "@/lib/scrollPresets";
 import type { ScrollProfile } from "@/lib/tauri";
 
 expect.extend(matchers);
@@ -53,6 +53,23 @@ beforeEach(() => {
 });
 
 describe("ProfileEditor preset popover", () => {
+  it("focuses first preset chip inside editor dialog when opened", async () => {
+    const user = userEvent.setup();
+    render(<ProfileEditor profile={profile} onClose={vi.fn()} />);
+
+    const editorDialog = screen.getByRole("dialog", { name: "profiles.edit_title" });
+    await user.click(screen.getByRole("button", { name: "Apply preset…" }));
+
+    const popover = screen.getByRole("dialog", { name: "Apply preset…" });
+    expect(popover).toBeInTheDocument();
+    expect(editorDialog).toContainElement(popover);
+    await waitFor(() =>
+      expect(
+        within(popover).getByRole("button", { name: `presets.${ORDER[0]}` }),
+      ).toHaveFocus(),
+    );
+  });
+
   it("saves only Mac-like preset fields from the popover", async () => {
     const user = userEvent.setup();
     render(<ProfileEditor profile={profile} onClose={vi.fn()} />);
