@@ -116,6 +116,9 @@ const mockProfile: ScrollProfile = {
   reverse_wheel_direction: false,
   horizontal_smoothness: true,
   max_velocity: 20,
+  smooth_zoom: true,
+  zoom_invert: false,
+  zoom_sensitivity: 1,
 };
 
 describe("settingsStore", () => {

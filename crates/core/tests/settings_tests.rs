@@ -248,6 +248,53 @@ fn effective_settings_with_profile_uses_profile_overrides() {
 }
 
 #[test]
+fn effective_settings_with_profile_overrides_zoom_settings() {
+    let mut settings = AppSettings::default();
+    settings.smooth_zoom = true;
+    settings.zoom_invert = false;
+    settings.zoom_sensitivity = 0.5;
+    let mut profile = ScrollProfile::new("test", "Test");
+    profile.smooth_zoom = false;
+    profile.zoom_invert = true;
+    profile.zoom_sensitivity = 2.5;
+
+    let effective = EffectiveSettings::with_profile(&settings, &profile);
+
+    assert!(!effective.smooth_zoom);
+    assert!(effective.zoom_invert);
+    assert_eq!(effective.zoom_sensitivity, 2.5);
+}
+
+#[test]
+fn old_profile_without_zoom_settings_uses_defaults() {
+    let profile: ScrollProfile = serde_json::from_str(
+        r#"{
+            "id":"test","name":"Test","step_size_px":144,"animation_time_ms":220,
+            "acceleration_max":10,"tail_to_head_ratio":5,"animation_easing":true,
+            "easing_mode":"QuinticOut","reverse_wheel_direction":false,
+            "horizontal_smoothness":true
+        }"#,
+    )
+    .unwrap();
+
+    assert!(profile.smooth_zoom);
+    assert!(!profile.zoom_invert);
+    assert_eq!(profile.zoom_sensitivity, 1.0);
+}
+
+#[test]
+fn profile_clamp_limits_zoom_sensitivity_like_global_settings() {
+    let mut profile = ScrollProfile::new("test", "Test");
+    profile.zoom_sensitivity = 99.0;
+    profile.clamp();
+    assert_eq!(profile.zoom_sensitivity, 4.0);
+
+    profile.zoom_sensitivity = 0.0;
+    profile.clamp();
+    assert_eq!(profile.zoom_sensitivity, 0.25);
+}
+
+#[test]
 fn effective_settings_is_copy() {
     let s = AppSettings::default();
     let eff = EffectiveSettings::from_settings(&s);

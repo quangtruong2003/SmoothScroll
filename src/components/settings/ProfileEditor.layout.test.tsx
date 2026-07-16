@@ -38,6 +38,9 @@ const fakeProfile: any = {
   easing_mode: 'ExponentialOut',
   reverse_wheel_direction: false,
   horizontal_smoothness: true,
+  smooth_zoom: true,
+  zoom_invert: false,
+  zoom_sensitivity: 1,
 };
 
 describe('ProfileEditor layout', () => {

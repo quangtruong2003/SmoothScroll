@@ -33,6 +33,9 @@ export interface ScrollProfile {
   reverse_wheel_direction: boolean;
   horizontal_smoothness: boolean;
   max_velocity: number;
+  smooth_zoom: boolean;
+  zoom_invert: boolean;
+  zoom_sensitivity: number;
 }
 
 export interface AppSettings {

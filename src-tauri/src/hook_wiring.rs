@@ -294,7 +294,11 @@ impl EngineSink {
         #[cfg(target_os = "macos")]
         let ctrl_pressed = mods.cmd;
 
-        if ctrl_pressed && eff.smooth_zoom {
+        if ctrl_pressed && !eff.smooth_zoom {
+            return HookDecision::Pass;
+        }
+
+        if ctrl_pressed {
             // Ctrl+Wheel → zoom axis
             engine.on_wheel_zoom(delta, now, source, &eff);
         } else if mods.shift && eff.horizontal_smoothness {
@@ -1061,6 +1065,115 @@ mod tests {
             }
         }
         assert!(zoom_total < 0, "zoom_invert=true should make zoom negative");
+    }
+
+    #[test]
+    fn per_app_profile_zoom_settings_override_global_settings() {
+        let mut settings = AppSettings::default();
+        settings.smooth_zoom = true;
+        settings.zoom_invert = false;
+        settings.zoom_sensitivity = 0.5;
+        let mut profile = ScrollProfile::new("blender", "Blender");
+        profile.smooth_zoom = false;
+        profile.zoom_invert = true;
+        profile.zoom_sensitivity = 2.5;
+        settings.profiles.push(profile.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
+
+        let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
+        let state = make_state_with_processes(settings, Some("blender.exe"), None);
+        state
+            .effective_per_profile
+            .write()
+            .insert(profile.id, Arc::new(profile_eff));
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
+        let profile_eff = state
+            .effective_per_profile
+            .read()
+            .values()
+            .next()
+            .unwrap()
+            .clone();
+        assert!(profile_eff.zoom_invert);
+        assert_eq!(profile_eff.zoom_sensitivity, 2.5);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn active_profile_enables_and_scales_zoom_when_global_zoom_is_disabled() {
+        let mut settings = AppSettings::default();
+        settings.smooth_zoom = false;
+        settings.zoom_invert = false;
+        settings.zoom_sensitivity = 0.5;
+        let mut profile = ScrollProfile::new("blender", "Blender");
+        profile.smooth_zoom = true;
+        profile.zoom_invert = true;
+        profile.zoom_sensitivity = 2.0;
+        settings.profiles.push(profile.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
+
+        let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
+        let global_eff = EffectiveSettings::from_settings(&settings);
+        let state = make_state_with_processes(settings, Some("blender.exe"), None);
+        state
+            .effective_per_profile
+            .write()
+            .insert(profile.id, Arc::new(profile_eff));
+        let sink = EngineSink::new(state.clone());
+        let mods = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: false,
+            cmd: false,
+        };
+
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+
+        let mut expected = SmoothScrollEngine::new();
+        expected.on_wheel_zoom(
+            120,
+            0,
+            smoothscroll_core::input_source::InputSource::Wheel,
+            &profile_eff,
+        );
+        let mut low_sensitivity = profile_eff;
+        low_sensitivity.zoom_sensitivity = 0.5;
+        let mut low_sensitivity_engine = SmoothScrollEngine::new();
+        low_sensitivity_engine.on_wheel_zoom(
+            120,
+            0,
+            smoothscroll_core::input_source::InputSource::Wheel,
+            &low_sensitivity,
+        );
+
+        let mut actual_zoom = 0;
+        let mut expected_zoom = 0;
+        let mut low_sensitivity_zoom = 0;
+        for _ in 0..500 {
+            actual_zoom += state.engine.lock().step(1000.0 / 120.0, &global_eff).zoom;
+            expected_zoom += expected.step(1000.0 / 120.0, &global_eff).zoom;
+            low_sensitivity_zoom += low_sensitivity_engine
+                .step(1000.0 / 120.0, &global_eff)
+                .zoom;
+            if !state.engine.lock().has_pending_work()
+                && !expected.has_pending_work()
+                && !low_sensitivity_engine.has_pending_work()
+            {
+                break;
+            }
+        }
+
+        assert!(actual_zoom < 0, "profile zoom_invert should emit negative zoom");
+        assert_eq!(actual_zoom, expected_zoom);
+        assert!(actual_zoom.abs() > low_sensitivity_zoom.abs());
     }
 
     #[test]

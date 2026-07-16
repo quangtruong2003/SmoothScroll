@@ -318,6 +318,48 @@ export function ProfileEditor({ profile, onClose }: Props) {
                 onCheckedChange={(v) => patch({ horizontal_smoothness: v })}
               />
             </SettingRow>
+
+            <SettingRow
+              htmlFor="profile-smooth-zoom"
+              title={t("settings.smooth_zoom.title")}
+              description={t("settings.smooth_zoom.desc")}
+            >
+              <Switch
+                id="profile-smooth-zoom"
+                checked={draft.smooth_zoom}
+                onCheckedChange={(v) => patch({ smooth_zoom: v })}
+              />
+            </SettingRow>
+
+            <SettingRow
+              htmlFor="profile-zoom-invert"
+              title={t("settings.zoom_invert.title")}
+              description={t("settings.zoom_invert.desc")}
+            >
+              <Switch
+                id="profile-zoom-invert"
+                checked={draft.zoom_invert}
+                onCheckedChange={(v) => patch({ zoom_invert: v })}
+              />
+            </SettingRow>
+
+            <SettingRow
+              htmlFor="profile-zoom-sensitivity"
+              title={t("settings.zoom_sensitivity.title", { defaultValue: "Zoom sensitivity" })}
+              description={t("settings.zoom_sensitivity.desc", { defaultValue: "Scale Ctrl+Wheel zoom speed" })}
+              trailing={`${draft.zoom_sensitivity.toFixed(2)}x`}
+            >
+              <Slider
+                id="profile-zoom-sensitivity"
+                aria-label={t("settings.zoom_sensitivity.title", { defaultValue: "Zoom sensitivity" })}
+                value={[draft.zoom_sensitivity]}
+                min={0.25}
+                max={4}
+                step={0.25}
+                className="w-48"
+                onValueChange={([v]) => patch({ zoom_sensitivity: v })}
+              />
+            </SettingRow>
           </div>
         </div>
 

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({ className, ...props }, ref) => (
+>(({ className, "aria-label": ariaLabel, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
     className={cn(
@@ -25,6 +25,7 @@ const Slider = React.forwardRef<
       <SliderPrimitive.Range className="absolute h-full bg-primary motion-safe:transition-all" />
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb
+      aria-label={ariaLabel}
       className={cn(
         "block h-5 w-5 rounded-full border-2 border-primary bg-background shadow-sm ring-offset-background",
         "motion-safe:transition-transform motion-safe:duration-150",

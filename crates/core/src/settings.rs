@@ -79,10 +79,53 @@ pub struct ScrollProfile {
     pub horizontal_smoothness: bool,
     #[serde(default = "default_max_velocity")]
     pub max_velocity: i32,
+    #[serde(default = "default_true")]
+    pub smooth_zoom: bool,
+    #[serde(default = "default_false")]
+    pub zoom_invert: bool,
+    #[serde(default = "default_zoom_sensitivity")]
+    pub zoom_sensitivity: f64,
 }
 
 fn default_max_velocity() -> i32 {
     20
+}
+
+fn default_zoom_sensitivity() -> f64 {
+    1.0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn old_profiles_inherit_global_zoom_settings() {
+        let raw = serde_json::json!({
+            "smooth_zoom": false,
+            "zoom_invert": true,
+            "zoom_sensitivity": 2.5,
+            "profiles": [{
+                "id": "test",
+                "name": "Test",
+                "step_size_px": 144,
+                "animation_time_ms": 220,
+                "acceleration_max": 10,
+                "tail_to_head_ratio": 5,
+                "animation_easing": true,
+                "easing_mode": "QuinticOut",
+                "reverse_wheel_direction": false,
+                "horizontal_smoothness": true
+            }]
+        });
+        let mut settings: AppSettings = serde_json::from_value(raw.clone()).unwrap();
+        settings.migrate_missing_profile_zoom_settings(&raw);
+
+        let profile = &settings.profiles[0];
+        assert!(!profile.smooth_zoom);
+        assert!(profile.zoom_invert);
+        assert_eq!(profile.zoom_sensitivity, 2.5);
+    }
 }
 
 impl ScrollProfile {
@@ -100,6 +143,9 @@ impl ScrollProfile {
             reverse_wheel_direction: false,
             horizontal_smoothness: true,
             max_velocity: default_max_velocity(),
+            smooth_zoom: true,
+            zoom_invert: false,
+            zoom_sensitivity: default_zoom_sensitivity(),
         }
     }
 
@@ -110,6 +156,7 @@ impl ScrollProfile {
         self.acceleration_max = self.acceleration_max.clamp(1, 20);
         self.tail_to_head_ratio = self.tail_to_head_ratio.clamp(1, 20);
         self.max_velocity = self.max_velocity.clamp(5, 50);
+        self.zoom_sensitivity = self.zoom_sensitivity.clamp(0.25, 4.0);
     }
 }
 
@@ -345,6 +392,28 @@ impl AppSettings {
             for app in self.excluded_apps.drain(..) {
                 self.app_profiles
                     .insert(app, Self::DISABLED_PROFILE_ID.to_string());
+            }
+        }
+    }
+
+    fn migrate_missing_profile_zoom_settings(&mut self, raw: &serde_json::Value) {
+        let Some(raw_profiles) = raw.get("profiles").and_then(serde_json::Value::as_array) else {
+            return;
+        };
+
+        for (profile, raw_profile) in self.profiles.iter_mut().zip(raw_profiles) {
+            let Some(fields) = raw_profile.as_object() else {
+                continue;
+            };
+
+            if !fields.contains_key("smooth_zoom") {
+                profile.smooth_zoom = self.smooth_zoom;
+            }
+            if !fields.contains_key("zoom_invert") {
+                profile.zoom_invert = self.zoom_invert;
+            }
+            if !fields.contains_key("zoom_sensitivity") {
+                profile.zoom_sensitivity = self.zoom_sensitivity;
             }
         }
     }
@@ -613,9 +682,9 @@ impl EffectiveSettings {
             modifier_ctrl_passthrough: base.modifier_passthrough.ctrl,
             modifier_alt_passthrough: base.modifier_passthrough.alt,
             modifier_clear_inertia: base.modifier_passthrough.clear_inertia_on_press,
-            smooth_zoom: base.smooth_zoom,
-            zoom_invert: base.zoom_invert,
-            zoom_sensitivity: base.zoom_sensitivity,
+            smooth_zoom: profile.smooth_zoom,
+            zoom_invert: profile.zoom_invert,
+            zoom_sensitivity: profile.zoom_sensitivity,
         }
     }
 }
@@ -721,8 +790,10 @@ fn try_load() -> Result<AppSettings, SettingsError> {
         }
     }
     let bytes = std::fs::read(&path)?;
-    let mut settings: AppSettings = serde_json::from_slice(&bytes)?;
+    let raw: serde_json::Value = serde_json::from_slice(&bytes)?;
+    let mut settings: AppSettings = serde_json::from_value(raw.clone())?;
     settings.clamp();
+    settings.migrate_missing_profile_zoom_settings(&raw);
     settings.migrate_from_v1();
     settings.canonicalize_app_profile_keys_on_load();
     settings.seed_native_smooth_excludes();

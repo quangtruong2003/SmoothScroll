@@ -34,6 +34,9 @@ const profile: ScrollProfile = {
   easing_mode: "Linear",
   reverse_wheel_direction: true,
   horizontal_smoothness: false,
+  smooth_zoom: true,
+  zoom_invert: false,
+  zoom_sensitivity: 1,
 };
 
 beforeAll(() => {
@@ -88,5 +91,27 @@ describe("ProfileEditor preset popover", () => {
         (key) => saved[key as keyof ScrollProfile] !== profile[key as keyof ScrollProfile],
       ),
     ).toEqual(["step_size_px", "animation_time_ms", "max_velocity", "acceleration_max"]);
+  });
+
+  it("saves edited profile zoom settings", async () => {
+    const user = userEvent.setup();
+    render(<ProfileEditor profile={profile} onClose={vi.fn()} />);
+
+    await user.click(document.getElementById("profile-smooth-zoom")!);
+    await user.click(document.getElementById("profile-zoom-invert")!);
+    const sensitivity = screen.getByRole("slider", {
+      name: "settings.zoom_sensitivity.title",
+    });
+    await user.click(sensitivity);
+    await user.keyboard("{End}");
+    await user.click(screen.getByRole("button", { name: "common.save" }));
+
+    await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledTimes(1));
+    expect(mocks.updateProfile).toHaveBeenCalledWith({
+      ...profile,
+      smooth_zoom: false,
+      zoom_invert: true,
+      zoom_sensitivity: 4,
+    });
   });
 });
