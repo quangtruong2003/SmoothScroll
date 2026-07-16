@@ -318,12 +318,7 @@ fn velocity_tracking_smooth_acceleration() {
 
 #[test]
 fn captured_animation_settings_survive_global_step_settings() {
-    let profile = effective_with(
-        50,
-        smoothscroll_core::easing::EasingMode::Linear,
-        1,
-        true,
-    );
+    let profile = effective_with(50, smoothscroll_core::easing::EasingMode::Linear, 1, true);
     let global = effective_with(
         1500,
         smoothscroll_core::easing::EasingMode::QuinticOut,
@@ -377,12 +372,7 @@ fn captured_tail_ratio_survives_global_step_ratio() {
 }
 #[test]
 fn captured_easing_mode_survives_global_step_settings() {
-    let profile = effective_with(
-        500,
-        smoothscroll_core::easing::EasingMode::Linear,
-        5,
-        true,
-    );
+    let profile = effective_with(500, smoothscroll_core::easing::EasingMode::Linear, 5, true);
     let global = effective_with(
         500,
         smoothscroll_core::easing::EasingMode::QuinticOut,

@@ -38,9 +38,9 @@ const profile: ScrollProfile = {
 
 beforeAll(() => {
   globalThis.ResizeObserver ??= class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    observe() { return undefined; }
+    unobserve() { return undefined; }
+    disconnect() { return undefined; }
   } as typeof ResizeObserver;
   HTMLElement.prototype.hasPointerCapture ??= () => false;
   HTMLElement.prototype.setPointerCapture ??= () => undefined;
