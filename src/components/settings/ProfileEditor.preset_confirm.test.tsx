@@ -53,7 +53,9 @@ beforeEach(() => {
 });
 
 async function openDirtyPresetPopover(user: ReturnType<typeof userEvent.setup>) {
-  const stepSlider = screen.getAllByRole("slider")[0];
+  const stepSizeControl = document.getElementById("profile-step-size");
+  expect(stepSizeControl).not.toBeNull();
+  const stepSlider = within(stepSizeControl!).getByRole("slider");
   await user.click(stepSlider);
   await user.keyboard("{End}");
   expect(screen.getByText("500px")).toBeInTheDocument();
