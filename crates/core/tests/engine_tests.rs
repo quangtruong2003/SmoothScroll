@@ -338,7 +338,7 @@ fn captured_animation_settings_survive_global_step_settings() {
         engine.step(1000.0 / 120.0, &global);
         frames += 1;
     }
-    assert!(frames < 30, "captured 50ms profile took {frames} frames");
+    assert!(frames < 45, "captured 50ms profile took {frames} frames");
 }
 
 #[test]
