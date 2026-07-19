@@ -34,7 +34,7 @@ export function Navigation({ locale, pageKind = 'home' }: NavigationProps) {
       <header
         className={`fixed top-0 inset-x-0 z-40 transition-all duration-200 ${
           scrolled
-            ? 'bg-background/80 backdrop-blur-md border-b shadow-sm py-2'
+            ? 'bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border/60 shadow-sm py-2'
             : 'bg-transparent py-4'
         }`}
       >
