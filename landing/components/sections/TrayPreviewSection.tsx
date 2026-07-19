@@ -14,18 +14,16 @@ export function TrayPreviewSection({ dict }: TrayPreviewSectionProps) {
   const { locale } = useLanguage()
 
   return (
-    <section className="py-20 px-4 bg-muted/30 dark:bg-white/[0.04]">
+    <section className="bg-muted/30 px-4 py-20 dark:bg-white/[0.04]">
       <div className="container">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
           <FadeUp className="min-w-0">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{t.title}</h2>
-            <p className="text-lg text-muted-foreground break-words">{t.subtitle}</p>
+            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h2>
+            <p className="break-words text-lg text-muted-foreground">{t.subtitle}</p>
           </FadeUp>
           <FadeUp delay={0.15}>
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative max-w-sm w-full rounded-xl overflow-hidden shadow-2xl ring-1 ring-border">
-                <TrayPreview locale={locale} />
-              </div>
+            <div className="mx-auto max-w-sm lg:mx-0 lg:ml-auto">
+              <TrayPreview locale={locale} />
             </div>
           </FadeUp>
         </div>

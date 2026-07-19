@@ -17,7 +17,7 @@ for (const lang of LANGS) {
     test(`[${lang}] Hero loads on ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport)
       await setupLocale(page, lang)
-      await page.goto('/')
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
       await expect(page.locator('h1').first()).toBeVisible()
       await expect(page.locator('nav').first()).toBeVisible()
     })

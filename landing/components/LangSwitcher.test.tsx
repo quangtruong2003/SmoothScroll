@@ -1,63 +1,39 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { LangSwitcher } from './LangSwitcher'
 
 vi.mock('@/lib/i18n/provider', () => ({
-  useLanguage: () => ({
-    locale: 'en',
-    setLocale: vi.fn(),
-  }),
+  STORAGE_KEY: 'smoothscroll-locale',
+  useLanguage: () => ({ locale: 'en' }),
 }))
 
 describe('LangSwitcher', () => {
-  it('renders trigger button with aria-expanded false initially', () => {
-    render(<LangSwitcher />)
-    const trigger = screen.getByRole('button', { name: /current language/i })
-    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  it('renders a collapsed native disclosure', () => {
+    const { container } = render(<LangSwitcher pageKind="home" />)
+    expect(container.querySelector('details')).not.toHaveAttribute('open')
   })
 
-  it('opens menu on click (touch-friendly)', async () => {
-    const user = userEvent.setup()
-    render(<LangSwitcher />)
-    const trigger = screen.getByRole('button', { name: /current language/i })
-
-    await user.click(trigger)
-
-    expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByRole('menu')).toBeInTheDocument()
+  it('keeps localized links mounted while closed', () => {
+    render(<LangSwitcher pageKind="home" />)
+    expect(screen.getAllByRole('link', { hidden: true }).map((item) => item.getAttribute('href'))).toEqual(['/', '/vi', '/zh'])
   })
 
-  it('closes menu on second click', async () => {
+  it('opens localized links through the native disclosure', async () => {
     const user = userEvent.setup()
-    render(<LangSwitcher />)
-    const trigger = screen.getByRole('button', { name: /current language/i })
+    render(<LangSwitcher pageKind="home" />)
+    await user.click(screen.getByText('EN'))
 
-    await user.click(trigger)
-    await user.click(trigger)
-
-    expect(trigger).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('link').map((item) => item.getAttribute('href'))).toEqual(['/', '/vi', '/zh'])
   })
 
-  it('closes menu when Escape is pressed', async () => {
-    const user = userEvent.setup()
-    render(<LangSwitcher />)
-    const trigger = screen.getByRole('button', { name: /current language/i })
+  it('keeps guide language links on guide routes', () => {
+    render(<LangSwitcher pageKind="how-it-works" />)
 
-    await user.click(trigger)
-    expect(trigger).toHaveAttribute('aria-expanded', 'true')
-
-    await user.keyboard('{Escape}')
-    expect(trigger).toHaveAttribute('aria-expanded', 'false')
-  })
-
-  it('menu items have role=menuitem', async () => {
-    const user = userEvent.setup()
-    render(<LangSwitcher />)
-    await user.click(screen.getByRole('button', { name: /current language/i }))
-
-    const items = screen.getAllByRole('menuitem')
-    expect(items).toHaveLength(3)
+    expect(screen.getAllByRole('link', { hidden: true }).map((item) => item.getAttribute('href'))).toEqual([
+      '/how-it-works',
+      '/vi/how-it-works',
+      '/zh/how-it-works',
+    ])
   })
 })

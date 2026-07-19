@@ -19,10 +19,10 @@ export function FinalCTA({ dict }: FinalCTAProps) {
   }
 
   return (
-    <section className="py-20 px-4">
+    <section className="px-4 pt-8 pb-32 md:pt-12 md:pb-48">
       <div className="container">
         <Separator className="mb-16" />
-        <div className="text-center max-w-xl mx-auto space-y-6 bg-card text-card-foreground rounded-2xl p-6 sm:p-12">
+        <div data-final-cta className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-border bg-card p-8 text-center text-card-foreground sm:p-16">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             {f.title}
           </h2>
@@ -41,4 +41,3 @@ export function FinalCTA({ dict }: FinalCTAProps) {
     </section>
   )
 }
-

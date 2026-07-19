@@ -9,7 +9,7 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 const LOCAL = (name: string) => `${BASE}/assets/brand-icons/${name}.svg`
 
 export const BRANDS: Brand[] = [
-  { name: 'Windows 11',    slug: 'windows11',    src: LOCAL('windows11') },
+  { name: 'Windows 11',    slug: 'windows',      src: LOCAL('windows') },
   { name: 'macOS',         slug: 'apple',        src: LOCAL('apple'),              invertOnDark: true },
   { name: 'Chrome',        slug: 'chrome',       src: LOCAL('chrome') },
   { name: 'Edge',          slug: 'edge',          src: LOCAL('edge') },

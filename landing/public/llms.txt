@@ -1,0 +1,11 @@
+# SmoothScroll
+> Source-available smooth-scrolling utility with configurable easing and per-app controls.
+
+## Official pages
+- [English overview](https://smoothscroll.top/)
+- [Vietnamese overview](https://smoothscroll.top/vi/)
+- [Chinese overview](https://smoothscroll.top/zh/)
+- [How SmoothScroll works](https://smoothscroll.top/how-it-works/)
+- [Vietnamese guide](https://smoothscroll.top/vi/how-it-works/)
+- [Chinese guide](https://smoothscroll.top/zh/how-it-works/)
+- [Source, releases, issues, and license](https://github.com/quangtruong2003/SmoothScroll)

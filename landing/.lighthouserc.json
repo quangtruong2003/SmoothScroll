@@ -1,8 +1,8 @@
 {
   "ci": {
     "collect": {
-      "url": ["http://localhost:3000/en"],
-      "startServerCommand": "npx serve out -p 3000",
+      "url": ["http://localhost:3000/"],
+      "startServerCommand": "pnpm exec serve out -p 3000",
       "startServerReadyPattern": "HTTP"
     },
     "assert": {

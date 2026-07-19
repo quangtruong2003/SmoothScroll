@@ -113,14 +113,14 @@ export function Install({ dict }: InstallProps) {
   })()
 
   return (
-    <section id="install" className="py-20 px-4 scroll-mt-20">
+    <section id="install" className="scroll-mt-20 px-4 py-32 md:py-48">
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{i.title}</h2>
           <p className="text-muted-foreground text-lg">{i.subtitle}</p>
         </div>
 
-        <div className="max-w-2xl mx-auto">{block}</div>
+        <div className="mx-auto max-w-2xl border-y py-8">{block}</div>
 
         <div className="text-center mt-8 space-y-4">
           <DownloadCTA

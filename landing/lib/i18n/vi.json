@@ -1,5 +1,19 @@
 {
   "nav": { "github": "GitHub", "stars": "sao" },
+  "seo": {
+    "title": "SmoothScroll — Cuộn mượt tự nhiên trên Windows",
+    "description": "Tiện ích cuộn mượt Windows source-available với easing 120 Hz có thể cấu hình và điều khiển theo từng ứng dụng."
+  },
+  "geo": {
+    "title": "SmoothScroll là gì?",
+    "answer": "SmoothScroll là tiện ích cuộn mượt cho Windows. Nó biến input con lăn chuột thành đầu ra cuộn easing 120 Hz và cho phép cấu hình profile cùng ngoại lệ cho từng ứng dụng. Mã nguồn có thể xem theo FSL-1.1, chuyển sang Apache 2.0 sau hai năm từ mỗi bản phát hành, và không có telemetry.",
+    "evidence": "Được duy trì bởi những người đóng góp SmoothScroll · Cập nhật 2026-07-19",
+    "faqQuestion": "SmoothScroll là gì?",
+    "faqAnswer": "SmoothScroll là tiện ích cuộn mượt cho Windows với easing 120 Hz có thể cấu hình và điều khiển theo từng ứng dụng. Mã nguồn và giấy phép có trên GitHub.",
+    "guideLabel":  "Đọc cách SmoothScroll hoạt động",
+    "sourceLabel": "Kiểm tra mã nguồn và giấy phép trên GitHub",
+    "releaseLabel": "Xem bản phát hành mới nhất"
+  },
   "hero": {
     "eyebrow": "Dành cho Windows",
     "eyebrowLinux": "Linux sắp hỗ trợ",
@@ -116,7 +130,7 @@
       "caption": "Mọi tab, mọi cài đặt - quay trực tiếp",
       "alt": "Video demo cửa sổ cài đặt SmoothScroll: Cuộn, Thiết bị, Nâng cao, Ứng dụng, Game, Hành vi, Giới thiệu",
       "hint": "Mẹo: mỗi tab đều có hướng dẫn riêng bên dưới.",
-      "placeholder": "Screenshot sắp có - đặt ảnh chụp app của bạn tại public/assets/screen.gif"
+      "placeholder": "Không thể tải bản demo. Hãy tải lại trang để thử lại."
     },
     "bigPicture": {
       "title": "Bức tranh tổng thể",

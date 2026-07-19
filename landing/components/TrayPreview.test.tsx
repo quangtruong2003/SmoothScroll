@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
+
+vi.mock('./motion/FadeUp', () => ({
+  FadeUp: ({ children, ...props }: { children: React.ReactNode }) => <div {...props}>{children}</div>,
+}))
+
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { TrayPreview } from './TrayPreview'
+import { TrayPreviewSection } from './sections/TrayPreviewSection'
+import { LanguageProvider } from '@/lib/i18n/provider'
 
 describe('TrayPreview — static shell', () => {
   it('renders the SmoothScroll header in default ON state', () => {
@@ -24,6 +31,22 @@ describe('TrayPreview — static shell', () => {
     render(<TrayPreview locale="zh" />)
     expect(screen.getByText('平滑滚动')).toBeInTheDocument()
     expect(screen.getByText('已启用')).toBeInTheDocument()
+  })
+})
+
+describe('TrayPreviewSection — primary tray only', () => {
+  it('renders one live tray without decorative stack cards', () => {
+    render(
+      <LanguageProvider>
+        <TrayPreviewSection dict={{ trayPreview: { title: 'Tray', subtitle: 'Preview' } }} />
+      </LanguageProvider>,
+    )
+
+    expect(document.querySelector('[data-scene="stack"]')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('[data-stack-card]')).toHaveLength(0)
+    expect(screen.getAllByTestId('tray-preview')).toHaveLength(1)
+    expect(screen.getByText('Open Settings').closest('button')).toBeInTheDocument()
+    expect(screen.getByText('Quit').closest('button')).toBeInTheDocument()
   })
 })
 

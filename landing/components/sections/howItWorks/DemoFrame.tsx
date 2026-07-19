@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
 import { FadeUp } from '@/components/motion/FadeUp'
 import type { Dictionary } from '@/lib/i18n/dict'
@@ -22,16 +21,21 @@ export function DemoFrame({ demo }: DemoFrameProps) {
           <div className="relative overflow-hidden rounded-2xl border border-border shadow-2xl shadow-primary/5">
             <div className="overflow-hidden bg-background">
               {hasImage ? (
-                <Image
-                  src={`${BASE_PATH}/assets/screen.gif`}
-                  alt={demo.alt ?? ''}
-                  width={1600}
-                  height={1000}
+                <video
+                  aria-label={demo.alt ?? ''}
+                  poster={`${BASE_PATH}/assets/screen-poster.webp`}
+                  width={796}
+                  height={634}
                   className="h-auto w-full"
-                  unoptimized
-                  priority
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
                   onError={() => setImgError(true)}
-                />
+                >
+                  <source src={`${BASE_PATH}/assets/screen.webm`} type="video/webm" />
+                </video>
               ) : (
                 <div className="flex flex-col items-center justify-center gap-4 py-24 px-8 bg-gradient-to-br from-brand-from/10 to-brand-to/10 border border-dashed border-border m-4 rounded-xl">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
