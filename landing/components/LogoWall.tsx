@@ -30,7 +30,7 @@ export function LogoWall() {
       aria-label="Compatible apps and operating systems"
       className="logo-wall w-full overflow-hidden mask-fade"
     >
-      <div className="marquee-track">
+      <div className="marquee-track" aria-label="Compatible apps marquee">
         <ul role="list" className="marquee-segment">
           {BRANDS.map((b) => (
             <LogoCell key={b.slug} brand={b} />

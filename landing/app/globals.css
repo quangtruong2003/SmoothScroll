@@ -27,6 +27,9 @@
 
     --brand-from: 220 90% 65%;
     --brand-to: 260 80% 70%;
+    --surface-elevated: var(--card);
+    --ambient-accent: var(--brand-from);
+    --chapter-space: clamp(5rem, 10vw, 9rem);
   }
 
   .dark {
@@ -58,11 +61,16 @@
   }
   html {
     @apply bg-background;
+    overflow-x: hidden;
   }
   body {
     @apply text-foreground antialiased;
+    overflow-x: hidden;
     font-size: 16px;
     line-height: 1.6;
+  }
+  .font-display {
+    font-family: ui-sans-serif, system-ui, sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.02em;

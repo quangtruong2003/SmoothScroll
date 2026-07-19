@@ -1,3 +1,7 @@
+import en from './en.json'
+import vi from './vi.json'
+import zh from './zh.json'
+
 export type Locale = 'en' | 'vi' | 'zh'
 
 export const locales: Locale[] = ['en', 'vi', 'zh']
@@ -16,6 +20,17 @@ export interface Dictionary {
     en?: string
     vi?: string
     zh?: string
+  }
+  seo?: { title?: string; description?: string }
+  geo?: {
+    title?: string
+    answer?: string
+    evidence?: string
+    faqQuestion?: string
+    faqAnswer?: string
+    sourceLabel?: string
+    releaseLabel?: string
+    guideLabel?: string
   }
   hero?: {
     eyebrow?: string
@@ -200,24 +215,12 @@ export interface Dictionary {
   }
 }
 
-const dictionaries: Record<Locale, () => Promise<Dictionary>> = {
-  en: () => import('./en.json').then((m) => m.default as Dictionary),
-  vi: () => import('./vi.json').then((m) => m.default as Dictionary),
-  zh: () => import('./zh.json').then((m) => m.default as Dictionary),
+const dictionaries: Record<Locale, Dictionary> = { en, vi, zh }
+
+export function getDictionarySync(locale: Locale): Dictionary {
+  return dictionaries[locale] ?? dictionaries[defaultLocale]
 }
 
-export function getDictionary(locale: Locale): Promise<Dictionary> {
-  return dictionaries[locale]?.() ?? dictionaries[defaultLocale]()
-}
-
-/** Returns locale prefix for URLs. Default locale returns empty string. */
-export function localePrefix(locale: Locale): string {
-  return locale === defaultLocale ? '' : `/${locale}`
-}
-
-/** Build URL path. Avoids double-slash for default locale. basePath NOT included — Next.js <Link> handles it. */
-export function localePath(locale: Locale, path: string): string {
-  const prefix = localePrefix(locale)
-  const joined = `${prefix}${path}`
-  return joined.replace('//', '/') || '/'
+export async function getDictionary(locale: Locale): Promise<Dictionary> {
+  return getDictionarySync(locale)
 }

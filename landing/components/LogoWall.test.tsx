@@ -16,6 +16,7 @@ describe('LogoWall', () => {
     const { container } = render(<LogoWall />)
     const track = container.querySelector('.marquee-track')
     expect(track).not.toBeNull()
+    expect(track).toHaveAttribute('aria-label', 'Compatible apps marquee')
   })
 
   it('applies edge-fade mask to the region', () => {

@@ -7,6 +7,7 @@ export function BackgroundDotGrid() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let raf = 0
     const onMove = (e: MouseEvent) => {

@@ -12,40 +12,52 @@ export function ScrollDemo() {
     <section className="py-20 px-4">
       <div className="container">
         <FadeUp>
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-6 w-full">
-            <div className="text-center">
+          <div data-scroll-demo className="grid gap-6 lg:grid-cols-2 lg:items-start">
+            <div data-scroll-before className="text-center">
               {imgError.before ? (
-                <div className="rounded-lg border border-border max-w-[650px] w-full h-[366px] bg-muted flex items-center justify-center text-sm text-muted-foreground">
+                <div data-scroll-demo-fallback className="rounded-lg border border-border w-full aspect-[650/366] bg-muted flex items-center justify-center text-sm text-muted-foreground">
                   Before (demo unavailable)
                 </div>
               ) : (
-                <img
-                  src={`${BASE_PATH}/assets/before.gif`}
-                  alt="Jumpy, sluggish scrolling on Windows without SmoothScroll"
-                  className="rounded-lg border border-border max-w-[650px] w-full"
-                  width={650}
-                  height={366}
-                  loading="lazy"
-                  onError={() => setImgError((p) => ({ ...p, before: true }))}
-                />
+                <video
+                  aria-label="Jumpy, sluggish scrolling on Windows without SmoothScroll"
+                  poster={`${BASE_PATH}/assets/before-poster.webp`}
+                  className="rounded-lg border border-border w-full"
+                  width={946}
+                  height={482}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="none"
+                  onError={() => setImgError((current) => ({ ...current, before: true }))}
+                >
+                  <source src={`${BASE_PATH}/assets/before.webm`} type="video/webm" />
+                </video>
               )}
               <p className="text-xs text-muted-foreground mt-2">Before</p>
             </div>
-            <div className="text-center">
+            <div data-scroll-after className="text-center">
               {imgError.after ? (
-                <div className="rounded-lg border border-border max-w-[650px] w-full h-[366px] bg-muted flex items-center justify-center text-sm text-muted-foreground">
+                <div data-scroll-demo-fallback className="rounded-lg border border-border w-full aspect-[650/366] bg-muted flex items-center justify-center text-sm text-muted-foreground">
                   After (demo unavailable)
                 </div>
               ) : (
-                <img
-                  src={`${BASE_PATH}/assets/after.gif`}
-                  alt="Smooth, fluid scrolling on Windows with SmoothScroll installed"
-                  className="rounded-lg border border-border max-w-[650px] w-full"
-                  width={650}
-                  height={366}
-                  loading="lazy"
-                  onError={() => setImgError((p) => ({ ...p, after: true }))}
-                />
+                <video
+                  aria-label="Smooth, fluid scrolling on Windows with SmoothScroll installed"
+                  poster={`${BASE_PATH}/assets/after-poster.webp`}
+                  className="rounded-lg border border-border w-full"
+                  width={943}
+                  height={480}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="none"
+                  onError={() => setImgError((current) => ({ ...current, after: true }))}
+                >
+                  <source src={`${BASE_PATH}/assets/after.webm`} type="video/webm" />
+                </video>
               )}
               <p className="text-xs text-muted-foreground mt-2">After</p>
             </div>

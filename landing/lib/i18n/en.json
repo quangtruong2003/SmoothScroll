@@ -3,6 +3,20 @@
     "github": "GitHub",
     "stars": "stars"
   },
+  "seo": {
+    "title": "SmoothScroll — Natural Scroll Feel on Windows",
+    "description": "Source-available Windows smooth-scrolling utility with configurable 120 Hz easing and per-app controls."
+  },
+  "geo": {
+    "title": "What is SmoothScroll?",
+    "answer": "SmoothScroll is a Windows smooth-scrolling utility. It turns mouse-wheel input into eased 120 Hz scroll output and lets you configure profiles and exclusions for individual apps. It is source-available under FSL-1.1, converts to Apache 2.0 two years after each release, and is built without telemetry.",
+    "evidence": "Maintained by SmoothScroll contributors · Updated 2026-07-19",
+    "faqQuestion": "What is SmoothScroll?",
+    "faqAnswer": "SmoothScroll is a Windows smooth-scrolling utility with configurable 120 Hz easing and per-app controls. Its source and license are available on GitHub.",
+    "guideLabel":  "Read how SmoothScroll works",
+    "sourceLabel": "Verify source and license on GitHub",
+    "releaseLabel": "View latest release"
+  },
   "hero": {
     "eyebrow": "For Windows",
     "eyebrowLinux": "Linux coming soon",
@@ -165,7 +179,7 @@
       "caption": "Every tab, every setting - recorded in real time",
       "alt": "Animated walkthrough of the SmoothScroll settings window: Scroll, Devices, Advanced, Apps, Game mode, Behavior, About",
       "hint": "Tip: each tab gets its own tour below.",
-      "placeholder": "Screenshot coming soon - place your app screenshot at public/assets/screen.gif"
+      "placeholder": "Demo unavailable. Reload the page to try again."
     },
     "bigPicture": {
       "title": "The big picture",

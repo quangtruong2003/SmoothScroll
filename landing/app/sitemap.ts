@@ -1,14 +1,15 @@
 import type { MetadataRoute } from 'next'
-
-const BASE_URL = 'https://smoothscroll.top'
-const BASE = BASE_URL
+import { locales } from '@/lib/i18n/dict'
+import { absoluteLocaleUrl, type PageKind } from '@/lib/i18n/routing'
 
 export const dynamic = 'force-static'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date()
-  return [
-    { url: BASE, lastModified, changeFrequency: 'weekly', priority: 1 },
-    { url: `${BASE}/how-it-works`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
-  ]
+  const pages: PageKind[] = ['home', 'how-it-works']
+
+  return locales.flatMap((locale) => pages.map((page) => ({
+    url: absoluteLocaleUrl(locale, page),
+    changeFrequency: page === 'home' ? 'weekly' : 'monthly',
+    priority: page === 'home' ? 1 : 0.8,
+  })))
 }

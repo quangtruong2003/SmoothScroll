@@ -40,4 +40,17 @@ test.describe('Reduced motion behavior', () => {
     expect(animationName).toBe('none')
     await context.close()
   })
+
+  test('ScrollDemo stays static when prefers-reduced-motion: reduce', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' })
+    const page = await context.newPage()
+    await page.goto('/')
+
+    const scene = page.locator('[data-scroll-demo]')
+    await expect(scene).toBeVisible()
+    await expect(scene.locator('[data-scroll-before]')).toHaveCount(1)
+    await expect(scene.locator('[data-scroll-after]')).toHaveCount(1)
+
+    await context.close()
+  })
 })

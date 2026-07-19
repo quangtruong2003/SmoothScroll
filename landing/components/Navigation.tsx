@@ -4,27 +4,24 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Github } from 'lucide-react'
-import dynamic from 'next/dynamic'
-
-const ScrollToTop = dynamic(() => import('./ScrollToTop').then(m => m.ScrollToTop), { ssr: false })
+import { ScrollToTop } from './ScrollToTop'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { useGitHubStars } from '@/lib/useGitHubStars'
-import { useLanguage } from '@/lib/i18n/provider'
-import type { Dictionary } from '@/lib/i18n/dict'
+import type { Locale } from '@/lib/i18n/dict'
+import { localePath } from '@/lib/i18n/routing'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 interface NavigationProps {
-  locale: string
-  dict?: Dictionary | null
+  locale: Locale
+  pageKind?: 'home' | 'how-it-works'
 }
 
-export function Navigation({ locale, dict }: NavigationProps) {
+export function Navigation({ locale, pageKind = 'home' }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false)
   const stars = useGitHubStars()
-  const { locale: contextLocale } = useLanguage()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -42,42 +39,16 @@ export function Navigation({ locale, dict }: NavigationProps) {
         }`}
       >
         <nav className="container flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
-            <Image
-              src={`${BASE_PATH}/assets/icon-128.png`}
-              alt="SmoothScroll logo"
-              width={28}
-              height={28}
-              className="rounded-md"
-            />
+          <Link href={localePath(locale, 'home')} className="flex items-center gap-2 font-bold text-lg shrink-0">
+            <Image src={`${BASE_PATH}/assets/icon-128.png`} alt="SmoothScroll logo" width={28} height={28} className="rounded-md" />
             <span className="hidden sm:inline">SmoothScroll</span>
           </Link>
-
           <div className="flex items-center gap-2">
-            {stars !== null && (
-              <a
-                href="https://github.com/quangtruong2003/SmoothScroll"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden xl:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Star className="h-4 w-4" />
-                <span>{stars.toLocaleString()}</span>
-              </a>
-            )}
-            <a
-              href="https://github.com/quangtruong2003/SmoothScroll"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex"
-              aria-label="SmoothScroll on GitHub (opens new tab)"
-            >
-              <Button variant="ghost" size="sm">
-                <Github className="h-4 w-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">GitHub</span>
-              </Button>
+            {stars !== null && <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer" className="hidden xl:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"><Star className="h-4 w-4" /><span>{stars.toLocaleString()}</span></a>}
+            <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer" className="flex" aria-label="SmoothScroll on GitHub (opens new tab)">
+              <Button variant="ghost" size="sm"><Github className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">GitHub</span></Button>
             </a>
-            <LangSwitcher />
+            <LangSwitcher pageKind={pageKind} />
             <ThemeToggle />
           </div>
         </nav>

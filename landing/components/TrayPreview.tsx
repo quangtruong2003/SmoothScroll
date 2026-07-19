@@ -125,28 +125,16 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
           <div className="tray-divider" />
 
           <div className="tray-section tray-section-last">
-            <div
-              className={`tray-row tray-row-action${pulseSettings ? ' tray-row-pulse' : ''}`}
-              onClick={() => setPulseSettings(true)}
-              role="button"
-              tabIndex={0}
-            >
+            <button type="button" className={`tray-row tray-row-action tray-row-button border-0 bg-transparent p-0 text-left font-[inherit]${pulseSettings ? ' tray-row-pulse' : ''}`} onClick={() => setPulseSettings(true)}>
               <span className="tray-row-icon">
                 <Settings className="h-4 w-4" />
               </span>
-              <span className="tray-row-label">{labels.open_settings}</span>
-            </div>
-            <div
-              className="tray-row tray-row-action tray-row-destructive"
-              onClick={handleQuit}
-              role="button"
-              tabIndex={0}
-            >
+              <span className="tray-row-label">{labels.open_settings}</span></button>
+            <button type="button" className="tray-row tray-row-action tray-row-destructive tray-row-button border-0 bg-transparent p-0 text-left font-[inherit]" onClick={handleQuit}>
               <span className="tray-row-icon">
                 <Power className="h-4 w-4" />
               </span>
-              <span className="tray-row-label">{labels.quit}</span>
-            </div>
+              <span className="tray-row-label">{labels.quit}</span></button>
           </div>
         </div>
       )}

@@ -1,7 +1,21 @@
 {
   "nav": { "github": "GitHub", "stars": "星" },
+  "seo": {
+    "title": "SmoothScroll — Windows 自然顺滑滚动",
+    "description": "适用于 Windows 的源代码可见平滑滚动工具，提供可配置的 120 Hz 缓动和按应用控制。"
+  },
+  "geo": {
+    "title": "SmoothScroll 是什么？",
+    "answer": "SmoothScroll 是 Windows 平滑滚动工具。它将鼠标滚轮输入转换为 120 Hz 缓动滚动输出，并允许为单个应用配置配置文件和排除项。它采用 FSL-1.1 源代码可见许可证，每个版本发布两年后转换为 Apache 2.0，且不含遥测。",
+    "evidence": "由 SmoothScroll 贡献者维护 · 更新于 2026-07-19",
+    "faqQuestion": "SmoothScroll 是什么？",
+    "faqAnswer": "SmoothScroll 是 Windows 平滑滚动工具，提供可配置的 120 Hz 缓动和按应用控制。源代码和许可证可在 GitHub 查看。",
+    "guideLabel":  "阅读 SmoothScroll 工作原理",
+    "sourceLabel": "在 GitHub 验证源代码和许可证",
+    "releaseLabel": "查看最新版本"
+  },
   "hero": {
-    "eyebrow": "For Windows",
+      "eyebrow": "For Windows",
     "eyebrowLinux": "Linux coming soon",
     "eyebrowMac": "macOS coming soon",
     "title": "鼠标滚轮滚动，",
@@ -91,7 +105,7 @@
       "caption": "每个标签，每项设置 - 实时录制",
       "alt": "SmoothScroll 设置窗口动画演示：滚动、设备、高级、应用、游戏模式、行为、关于",
       "hint": "提示：每个标签下方都有专属介绍。",
-      "placeholder": "截图即将上线 - 请将应用截图放置于 public/assets/screen.gif"
+      "placeholder": "演示无法加载。请刷新页面后重试。"
     },
     "bigPicture": {
       "title": "整体流程",

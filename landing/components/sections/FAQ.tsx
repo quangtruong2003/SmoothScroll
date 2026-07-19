@@ -27,7 +27,7 @@ export function FAQ({ dict }: FAQProps) {
   }
 
   return (
-    <section className="py-20 px-4">
+    <section className="px-4 pt-32 pb-8 md:pt-48 md:pb-12">
       <div className="container">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-center sm:text-left flex-1">
@@ -44,7 +44,7 @@ export function FAQ({ dict }: FAQProps) {
             </Button>
           )}
         </div>
-        <div className="max-w-2xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <Accordion
             type="multiple"
             value={openItems}

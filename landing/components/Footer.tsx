@@ -25,12 +25,14 @@ export function Footer() {
     : (f?.taglineFallback ?? f?.tagline ?? '')
 
   return (
-    <footer className="border-t py-8 pb-8 sm:pb-8 mt-16">
+    <footer className="mt-16 border-t px-4 py-8 sm:px-0">
       <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">{tagline}</p>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
           <Link
             href="https://github.com/quangtruong2003/SmoothScroll"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-foreground transition-colors"
             aria-label="SmoothScroll repository on GitHub (opens new tab)"
           >
