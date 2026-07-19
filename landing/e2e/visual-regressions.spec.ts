@@ -1,5 +1,29 @@
 import { test, expect } from '@playwright/test'
 
+test('hero copy stays within its container on mobile and tablet', async ({ page }) => {
+  for (const viewport of [
+    { width: 375, height: 667 },
+    { width: 768, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+
+    const layout = await page.locator('[data-hero-layout]').evaluate((hero) => {
+      const container = hero.querySelector('.container')!.getBoundingClientRect()
+      const copy = hero.querySelector('[data-hero-copy]')!.getBoundingClientRect()
+      const heading = hero.querySelector('h1')!.getBoundingClientRect()
+      return {
+        containerWidth: container.width,
+        copyWidth: copy.width,
+        headingWidth: heading.width,
+      }
+    })
+
+    expect(layout.copyWidth).toBeLessThanOrEqual(layout.containerWidth)
+    expect(layout.headingWidth).toBeLessThanOrEqual(layout.containerWidth)
+  }
+})
+
 test('logo wall uses compact spacing and glyph-only Windows icon', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
