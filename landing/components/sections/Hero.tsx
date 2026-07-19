@@ -21,8 +21,8 @@ export function Hero({ locale, dict }: HeroProps) {
   return (
     <section data-hero-layout="editorial-split" className="min-h-[100dvh] flex items-center pt-28 pb-20 px-4">
       <div className="container">
-        <div className="grid grid-cols-1 items-center">
-          <div data-hero-copy className="mx-auto max-w-5xl flex flex-col items-center text-center gap-7">
+        <div className="grid min-w-0 grid-cols-1 items-center">
+          <div data-hero-copy className="mx-auto flex w-full min-w-0 max-w-5xl flex-col items-center gap-7 text-center">
             <p data-hero-eyebrow className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors duration-150">
               {eyebrow}
             </p>
