@@ -43,3 +43,4 @@ scripts/
 .env
 .env.local
 .env.*.local
+landing/pencil/

@@ -61,11 +61,11 @@
   }
   html {
     @apply bg-background;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   body {
     @apply text-foreground antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
     font-size: 16px;
     line-height: 1.6;
   }

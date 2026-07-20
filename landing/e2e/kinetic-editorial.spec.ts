@@ -27,13 +27,11 @@ test.describe('kinetic editorial landing shell', () => {
 
   for (const locale of LOCALES) {
     test(`[${locale}] keeps editorial hero usable across viewports`, async ({ page }) => {
-      await page.addInitScript((value) => {
-        window.localStorage.setItem('smoothscroll-locale', value)
-      }, locale)
+      const localePath = locale === 'en' ? '/' : `/${locale}/`
 
       for (const width of [320, 390]) {
         await page.setViewportSize({ width, height: 844 })
-        await page.goto('/')
+        await page.goto(localePath)
         await expectNoForbiddenLabels(page)
 
         const hero = page.locator('[data-hero-layout="editorial-split"]')
@@ -154,20 +152,18 @@ test.describe('kinetic editorial landing shell', () => {
 
     const scene = page.locator('[data-scroll-demo]')
     await expect(scene).toHaveCount(1)
-    const before = scene.locator('img[alt="Jumpy, sluggish scrolling on Windows without SmoothScroll"]')
-    const after = scene.locator('img[alt="Smooth, fluid scrolling on Windows with SmoothScroll installed"]')
-    await expect(before).toHaveAttribute('src', /\/assets\/before\.gif$/)
-    await expect(after).toHaveAttribute('src', /\/assets\/after\.gif$/)
-    await expect(before).toHaveAttribute('width', '650')
-    await expect(after).toHaveAttribute('height', '366')
-    await expect(before).toHaveAttribute('loading', 'lazy')
-    await expect(after).toHaveAttribute('loading', 'lazy')
+    const before = scene.locator('video[aria-label="Jumpy, sluggish scrolling on Windows without SmoothScroll"]')
+    const after = scene.locator('video[aria-label="Smooth, fluid scrolling on Windows with SmoothScroll installed"]')
+    await expect(before).toHaveAttribute('poster', /\/assets\/before-poster\.webp$/)
+    await expect(after).toHaveAttribute('poster', /\/assets\/after-poster\.webp$/)
+    await expect(before).toHaveAttribute('width', '946')
+    await expect(after).toHaveAttribute('height', '480')
+    await expect(before).toHaveAttribute('preload', 'none')
+    await expect(after).toHaveAttribute('preload', 'none')
 
-    await before.evaluate((image) => image.dispatchEvent(new Event('error')))
-    await after.evaluate((image) => image.dispatchEvent(new Event('error')))
-    await expect(scene.locator('[data-scroll-demo-fallback]')).toHaveCount(2)
-    await expect(scene).toContainText('Before (demo unavailable)')
-    await expect(scene).toContainText('After (demo unavailable)')
+    await expect(scene.locator('[data-scroll-demo-fallback]')).toHaveCount(0)
+    await expect(scene.locator('[data-scroll-before]')).toContainText('Before')
+    await expect(scene.locator('[data-scroll-after]')).toContainText('After')
   })
 
   test('keeps ScrollDemo compact on mobile', async ({ page }) => {

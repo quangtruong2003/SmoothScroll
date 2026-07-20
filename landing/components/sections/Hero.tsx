@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { LogoWall } from '@/components/LogoWall'
+import { HeroBackgroundVideo } from '@/components/sections/HeroBackgroundVideo'
 import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import { type Dictionary, type Locale } from '@/lib/i18n/dict'
 import { localePath } from '@/lib/i18n/routing'
@@ -19,11 +20,14 @@ export function Hero({ locale, dict }: HeroProps) {
   const eyebrow = isMac ? h.eyebrowMac : isLinux ? h.eyebrowLinux : h.eyebrow
 
   return (
-    <section data-hero-layout="editorial-split" className="min-h-[100dvh] flex items-center pt-28 pb-20 px-4">
-      <div className="container">
-        <div className="grid min-w-0 grid-cols-1 items-center">
-          <div data-hero-copy className="mx-auto flex w-full min-w-0 max-w-5xl flex-col items-center gap-7 text-center">
-            <p data-hero-eyebrow className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors duration-150">
+    <section data-hero-layout="editorial-split" className="relative min-h-[180dvh] px-4">
+      <div className="sticky top-0 flex min-h-[100dvh] items-center overflow-hidden pt-28 pb-20">
+        <HeroBackgroundVideo />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/90 dark:from-background/85 dark:via-background/55 dark:to-background/90" />
+        <div className="container relative z-10">
+          <div className="grid min-w-0 grid-cols-1 items-center">
+            <div data-hero-copy className="mx-auto flex w-full min-w-0 max-w-5xl flex-col items-center gap-7 text-center">
+              <p data-hero-eyebrow className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors duration-150">
               {eyebrow}
             </p>
 
@@ -57,9 +61,10 @@ export function Hero({ locale, dict }: HeroProps) {
               </Link>
             </div>
 
-            <p className="text-sm text-muted-foreground transition-colors duration-150">{h.trustLine}</p>
-            <div data-hero-social-proof className="w-full max-w-3xl">
-              <LogoWall />
+              <p className="text-sm text-muted-foreground transition-colors duration-150">{h.trustLine}</p>
+              <div data-hero-social-proof className="w-full max-w-3xl">
+                <LogoWall />
+              </div>
             </div>
           </div>
         </div>

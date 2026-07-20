@@ -24,6 +24,73 @@ test('hero copy stays within its container on mobile and tablet', async ({ page 
   }
 })
 
+test('hero copy stays centered on tablet and desktop', async ({ page }) => {
+  for (const viewport of [
+    { width: 795, height: 900 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+
+    const layout = await page.locator('[data-hero-layout]').evaluate((hero) => {
+      const copy = hero.querySelector('[data-hero-copy]')!
+      const rect = copy.getBoundingClientRect()
+      return {
+        center: rect.left + rect.width / 2,
+        textAlign: getComputedStyle(copy).textAlign,
+        viewportCenter: window.innerWidth / 2,
+      }
+    })
+
+    expect(Math.abs(layout.center - layout.viewportCenter)).toBeLessThanOrEqual(1)
+    expect(layout.textAlign).toBe('center')
+  }
+})
+
+test('hero media remains sticky across its scroll range', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await page.evaluate(() => window.scrollTo({ top: 250, behavior: 'instant' }))
+
+  const layout = await page.locator('[data-hero-layout]').evaluate((hero) => {
+    const sticky = hero.firstElementChild!.getBoundingClientRect()
+    const tail = hero.querySelector('[data-hero-social-proof]')!.getBoundingClientRect()
+    return {
+      stickyTop: sticky.top,
+      visibleBottomBlank: Math.min(hero.getBoundingClientRect().bottom, window.innerHeight) - tail.bottom,
+    }
+  })
+
+  expect(Math.abs(layout.stickyTop)).toBeLessThanOrEqual(1)
+  expect(layout.visibleBottomBlank).toBeLessThanOrEqual(132)
+})
+
+test('hero video follows theme and provides scroll distance', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('theme', 'light'))
+  await page.reload()
+
+  const lightVideo = page.locator('[data-hero-video="light"]')
+  const darkVideo = page.locator('[data-hero-video="dark"]')
+  await expect(lightVideo).toHaveAttribute('src', /smooth-scrolling-light-scrub\.mp4$/)
+  await expect(darkVideo).toHaveAttribute('src', /smooth-scrolling-dark-scrub\.mp4$/)
+  await expect(lightVideo).toHaveAttribute('muted', '')
+  await expect(lightVideo).toHaveAttribute('playsinline', '')
+  await expect.poll(() => page.locator('[data-hero-layout]').evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThan(900)
+  await expect.poll(() => lightVideo.evaluate((video) => (video as HTMLVideoElement).duration)).toBeGreaterThan(0)
+  await page.evaluate(() => window.scrollTo({ top: 250, behavior: 'instant' }))
+  await expect.poll(() => lightVideo.evaluate((video) => (video as HTMLVideoElement).currentTime)).toBeGreaterThan(1.4)
+  await expect.poll(() => lightVideo.evaluate((video) => (video as HTMLVideoElement).currentTime)).toBeLessThan(2.1)
+
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light')
+    document.documentElement.classList.add('dark')
+  })
+  await expect(darkVideo).toBeVisible()
+  await expect(lightVideo).toBeHidden()
+})
+
 test('logo wall uses compact spacing and glyph-only Windows icon', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
@@ -38,8 +105,6 @@ test('before and after demo stays compact on desktop', async ({ page }) => {
   await page.goto('/')
 
   const scene = page.locator('[data-scroll-demo]')
-  const before = scene.locator('[data-scroll-before]')
-  const after = scene.locator('[data-scroll-after]')
 
   await expect(scene).toBeVisible()
   const layout = await scene.evaluate((element) => {
@@ -54,12 +119,26 @@ test('before and after demo stays compact on desktop', async ({ page }) => {
 })
 
 test('final CTA follows dark theme surface tokens', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('theme', 'dark'))
   await page.goto('/')
+  await page.locator('html').evaluate((element) => {
+    element.classList.remove('light')
+    element.classList.add('dark')
+  })
 
   await expect(page.locator('html')).toHaveClass(/dark/)
   const cta = page.locator('[data-final-cta]')
   await expect(cta).toBeVisible()
-  const background = await cta.evaluate((element) => getComputedStyle(element).backgroundColor)
-  expect(background).not.toBe('rgb(255, 255, 255)')
+  const colors = await cta.evaluate((element) => {
+    const probe = document.createElement('div')
+    probe.style.backgroundColor = 'hsl(var(--card))'
+    document.body.append(probe)
+    const expected = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    return {
+      actual: getComputedStyle(element).backgroundColor,
+      expected,
+    }
+  })
+
+  expect(colors.actual).toBe(colors.expected)
 })
