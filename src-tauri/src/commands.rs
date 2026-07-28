@@ -409,6 +409,7 @@ pub fn resize_tray_panel<R: tauri::Runtime>(app: AppHandle<R>, width: u32, heigh
 #[tauri::command]
 pub fn show_main_window<R: tauri::Runtime>(app: AppHandle<R>) {
     if let Some(win) = app.get_webview_window("main") {
+        crate::webview_memory::set_backgrounded(&win, false);
         let _ = win.show();
         let _ = win.set_focus();
     }

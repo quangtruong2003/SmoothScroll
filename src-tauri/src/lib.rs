@@ -10,6 +10,7 @@ mod ipc_socket_server;
 mod settings_persistor;
 mod state;
 mod tray;
+mod webview_memory;
 
 #[cfg(test)]
 mod settings_persistor_tests;
@@ -197,6 +198,7 @@ pub fn run() {
             // A second instance was launched. Keep a single tray icon by
             // activating the existing instance instead of creating a new one.
             if let Some(win) = app.get_webview_window("main") {
+                crate::webview_memory::set_backgrounded(&win, false);
                 let _ = win.show();
                 let _ = win.set_focus();
             }
@@ -300,15 +302,26 @@ pub fn run() {
 
             if let Some(win) = app.get_webview_window("main") {
                 let win_clone = win.clone();
-                win.on_window_event(move |event| {
-                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                win.on_window_event(move |event| match event {
+                    tauri::WindowEvent::CloseRequested { api, .. } => {
                         api.prevent_close();
                         let _ = win_clone.hide();
+                        crate::webview_memory::set_backgrounded(&win_clone, true);
                     }
+                    tauri::WindowEvent::Focused(true) => {
+                        crate::webview_memory::set_backgrounded(&win_clone, false);
+                    }
+                    tauri::WindowEvent::Focused(false) | tauri::WindowEvent::Resized(_)
+                        if win_clone.is_minimized().unwrap_or(false) =>
+                    {
+                        crate::webview_memory::set_backgrounded(&win_clone, true);
+                    }
+                    _ => {}
                 });
 
                 // Always hide main window — silent boot
                 let _ = win.hide();
+                crate::webview_memory::set_backgrounded(&win, true);
             }
 
             tracing::info!(

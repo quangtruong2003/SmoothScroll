@@ -212,6 +212,7 @@ fn show_tray_panel<R: Runtime>(app: &AppHandle<R>) {
 
     if let Some(win) = app.get_webview_window(PANEL_LABEL) {
         position_panel_at_cursor(app, &win);
+        crate::webview_memory::set_backgrounded(&win, false);
         let _ = win.show();
         let _ = win.set_focus();
     }
@@ -221,6 +222,7 @@ fn show_tray_panel<R: Runtime>(app: &AppHandle<R>) {
 fn hide_tray_panel<R: Runtime>(app: &AppHandle<R>) {
     if let Some(win) = app.get_webview_window(PANEL_LABEL) {
         let _ = win.hide();
+        crate::webview_memory::set_backgrounded(&win, true);
     }
 }
 
@@ -280,7 +282,7 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                         // Right-click: toggle panel
                         if let Some(win) = app.get_webview_window(PANEL_LABEL) {
                             if win.is_visible().unwrap_or(false) {
-                                let _ = win.hide();
+                                hide_tray_panel(&app);
                                 return;
                             }
                         }
@@ -296,6 +298,7 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                         // Click-Ups around this DoubleClick, so this branch
                         // fires AFTER both ups have cancelled out.
                         if let Some(win) = app.get_webview_window("main") {
+                            crate::webview_memory::set_backgrounded(&win, false);
                             let _ = win.show();
                             let _ = win.set_focus();
                         }
@@ -307,15 +310,17 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
         })
         .build(app)?;
 
+    if let Some(win) = app.get_webview_window(PANEL_LABEL) {
+        crate::webview_memory::set_backgrounded(&win, true);
+    }
+
     // Hide the panel when it loses focus (click outside)
     {
         let app_focus = app.clone();
         if let Some(win) = app.get_webview_window(PANEL_LABEL) {
-            let win_hide = win.clone();
             win.on_window_event(move |event| {
                 if let tauri::WindowEvent::Focused(false) = event {
-                    let _ = win_hide.hide();
-                    let _ = app_focus;
+                    hide_tray_panel(&app_focus);
                 }
             });
         }
