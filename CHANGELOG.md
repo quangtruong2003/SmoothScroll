@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-07-29
+
+### Added
+- reduce background WebView2 memory
+
+### Fixed
+- complete macOS engine and menu bar integration
 ## [1.26.1] - 2026-07-28
 
 ### Added
