@@ -16,6 +16,7 @@ final class ReconnectionManager {
     }
 
     func start() {
+        guard task == nil else { return }
         task = Task { [weak self] in
             guard let self else { return }
             for await _ in await self.client.connectionLost {
@@ -29,20 +30,28 @@ final class ReconnectionManager {
         retryCount += 1
         settings.updateConnectionState(.reconnecting(attempt: retryCount))
 
-        while retryCount < maxRetryCount && !Task.isCancelled {
-            let delay = min(baseDelay * UInt64(1 << min(retryCount, 10)), UInt64(30_000_000_000))
-            try? await Task.sleep(nanoseconds: delay)
+        while retryCount <= maxRetryCount && !Task.isCancelled {
+            let exponent = min(retryCount - 1, 5)
+            let delay = min(baseDelay * UInt64(1 << exponent), UInt64(30_000_000_000))
+            do {
+                try await Task.sleep(nanoseconds: delay)
+            } catch {
+                return
+            }
 
             do {
                 try await client.connect()
                 await settings.loadInitialState()
+                guard settings.connectionState == .connected else {
+                    throw IpcError.message("Initial state load failed")
+                }
                 retryCount = 0
-                settings.updateConnectionState(.connected)
                 return
             } catch {
                 settings.updateConnectionState(.failed(error.localizedDescription))
             }
         }
+        settings.updateConnectionState(.failed("Unable to reconnect to SmoothScroll engine"))
         retryCount = 0
     }
 

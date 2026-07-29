@@ -15,7 +15,11 @@ struct SmoothScrollPopover: View {
                 connectionStatusView
 
                 // All controls disabled when disconnected
-                let isEnabled = settings.connectionState == .connected
+                let isEnabled = settings.connectionState == .connected && settings.accessibilityGranted
+
+                if !settings.accessibilityGranted {
+                    accessibilityBanner
+                }
 
                 // Smooth Scroll toggle
                 Toggle("Smooth Scroll", isOn: Binding(
@@ -49,12 +53,22 @@ struct SmoothScrollPopover: View {
                 Divider()
 
                 // Horizontal Scroll
-                Toggle("Horizontal Scroll", isOn: $settings.horizontalEnabled)
+                Toggle("Horizontal Scroll", isOn: Binding(
+                    get: { settings.horizontalEnabled },
+                    set: { newValue in
+                        Task { await settings.setHorizontalEnabled(newValue) }
+                    }
+                ))
                     .toggleStyle(.switch)
                     .disabled(!isEnabled)
 
                 // Zoom
-                Toggle("Zoom", isOn: $settings.zoomEnabled)
+                Toggle("Zoom", isOn: Binding(
+                    get: { settings.zoomEnabled },
+                    set: { newValue in
+                        Task { await settings.setZoomEnabled(newValue) }
+                    }
+                ))
                     .toggleStyle(.switch)
                     .disabled(!isEnabled)
 
@@ -71,11 +85,36 @@ struct SmoothScrollPopover: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
         }
-        .frame(width: 280)
+        .frame(width: 300)
+        .fixedSize(horizontal: true, vertical: true)
         .background(
             VisualEffectBlur(material: .popover, blendingMode: .behindWindow)
                 .ignoresSafeArea()
         )
+    }
+
+    private var accessibilityBanner: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Accessibility access required", systemImage: "hand.raised.fill")
+                .font(.system(size: 11, weight: .medium))
+            Text("Allow SmoothScroll to control scrolling in System Settings.")
+                .font(.system(size: 10))
+                .foregroundStyle(.secondary)
+            Button("Grant Access") {
+                Task { await settings.requestAccessibilityAccess() }
+            }
+            .controlSize(.small)
+
+            if settings.accessibilityPromptRequested {
+                Button("Check Again") {
+                    Task { await settings.refreshAccessibilityStatus() }
+                }
+                .controlSize(.small)
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 7))
     }
     
     @ViewBuilder

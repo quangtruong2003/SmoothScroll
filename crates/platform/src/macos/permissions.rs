@@ -26,7 +26,7 @@ type CFDictionaryRef = CFTypeRef;
 pub fn is_trusted(prompt: bool) -> bool {
     if prompt {
         // Build a CFDictionary with kAXTrustedCheckOptionPrompt = true.
-        let key = CFString::from_static_string("kAXTrustedCheckOptionPrompt");
+        let key = CFString::from_static_string("AXTrustedCheckOptionPrompt");
         let dict = CFMutableDictionary::from_CFType_pairs(&[(
             key.as_CFTypeRef(),
             CFBoolean::true_value().as_CFTypeRef(),

@@ -16,26 +16,24 @@ enum SocketPath {
             in: .userDomainMask
         ).first else {
             // Fallback: use temporary directory if Application Support unavailable
-            let tempPath = NSTemporaryDirectory() + "com.SmoothScroll.SmoothScroll/socket"
+            let tempPath = NSTemporaryDirectory() + "com.SmoothScroll.SmoothScroll"
             try? FileManager.default.createDirectory(
                 atPath: tempPath,
                 withIntermediateDirectories: true,
                 attributes: nil
             )
-            return tempPath
+            return (tempPath as NSString).appendingPathComponent("socket")
         }
 
-        let socketDir = appSupport
-            .appendingPathComponent("com.SmoothScroll.SmoothScroll")
-            .appendingPathComponent("socket")
+        let socketParent = appSupport.appendingPathComponent("com.SmoothScroll.SmoothScroll")
 
         // Ensure directory exists before returning
         try? FileManager.default.createDirectory(
-            at: socketDir,
+            at: socketParent,
             withIntermediateDirectories: true,
             attributes: nil
         )
 
-        return socketDir.path
+        return socketParent.appendingPathComponent("socket").path
     }()
 }

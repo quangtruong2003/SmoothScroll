@@ -3,7 +3,7 @@ use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
 use smoothscroll_platform::traits::{
-    Autostart, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter, ZoomEmitter,
+    Autostart, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter, ZoomEmitter,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -35,11 +35,27 @@ pub struct AppState {
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,
     pub hotkey_handle: Arc<Mutex<Option<HotkeyHandle>>>,
+    pub mouse_hook_handle: Arc<Mutex<Option<HookHandle>>>,
     pub engine_signal: Arc<EngineSignal>,
     pub enabled: Arc<AtomicBool>,
     pub persistor: Arc<crate::settings_persistor::SettingsPersistor>,
     pub reduce_motion: Arc<AtomicBool>,
     pub accessibility: Arc<dyn smoothscroll_platform::traits::AccessibilitySignals>,
+}
+
+pub fn install_mouse_hook(state: &Arc<AppState>) -> smoothscroll_platform::types::Result<()> {
+    let mut handle = state.mouse_hook_handle.lock();
+    if handle.is_some() {
+        return Ok(());
+    }
+
+    let sink = Arc::new(crate::hook_wiring::EngineSink::new(state.clone()));
+    *handle = Some(
+        state
+            .mouse_hook
+            .install(sink as Arc<dyn smoothscroll_platform::traits::HookEventSink>)?,
+    );
+    Ok(())
 }
 
 impl AppState {

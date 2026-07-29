@@ -153,13 +153,15 @@ jobs:
           cp target/${{ matrix.target }}/release-fast/smoothscroll-engine-macos engine-bin/smoothscroll-engine
 
       - name: Build Swift app
+        env:
+          MARKETING_VERSION: ${{ needs.bump.outputs.version }}
         run: |
           curl -fsSL https://github.com/yonaskolb/XcodeGen/releases/download/2.45.0/xcodegen.zip -o xcodegen.zip && \
           unzip -o xcodegen.zip && \
           chmod +x xcodegen/bin/xcodegen && \
           cd macos/SmoothScrollMenuBar && \
           ../../xcodegen/bin/xcodegen generate && \
-          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch == 'x64' && 'x86_64' || matrix.arch }} CONFIGURATION_BUILD_DIR=build/Release build
+          xcodebuild -project SmoothScrollMenuBar.xcodeproj -scheme SmoothScrollMenuBar -configuration Release -arch ${{ matrix.arch == 'x64' && 'x86_64' || matrix.arch }} MARKETING_VERSION="$MARKETING_VERSION" CONFIGURATION_BUILD_DIR=build/Release build
 
       - name: Debug app bundle
         run: |
@@ -178,6 +180,7 @@ jobs:
           APP_PATH="macos/SmoothScrollMenuBar/build/Release/SmoothScrollMenuBar.app"
           cp engine-bin/smoothscroll-engine "$APP_PATH/Contents/MacOS/smoothscroll-engine"
           chmod +x "$APP_PATH/Contents/MacOS/smoothscroll-engine"
+          codesign --force --deep --sign - "$APP_PATH"
           echo "App bundle after engine:"
           du -sh "$APP_PATH"
           ls -la "$APP_PATH/Contents/MacOS/"

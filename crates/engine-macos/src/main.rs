@@ -13,7 +13,7 @@ use parking_lot::{Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{self, EffectiveSettings};
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
 mod engine_thread;
@@ -51,7 +51,12 @@ fn main() {
     let effective_per_profile: HashMap<String, Arc<EffectiveSettings>> = loaded_settings
         .profiles
         .iter()
-        .map(|p| (p.id.clone(), Arc::new(EffectiveSettings::with_profile(&loaded_settings, p))))
+        .map(|p| {
+            (
+                p.id.clone(),
+                Arc::new(EffectiveSettings::with_profile(&loaded_settings, p)),
+            )
+        })
         .collect();
     let effective_per_profile_arc = Arc::new(RwLock::new(effective_per_profile));
 
@@ -67,6 +72,7 @@ fn main() {
         autostart: platform.autostart,
         hotkey: platform.hotkey,
         hotkey_handle: Arc::new(Mutex::new(None)),
+        mouse_hook_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
         persistor: Arc::new(settings_persistor::SettingsPersistor::spawn()),
@@ -77,31 +83,23 @@ fn main() {
     app_state.commit_settings(loaded_settings);
 
     // Start engine thread
-    let _engine_thread = engine_thread::EngineThread::spawn(app_state.clone(), frame_ms);
+    let engine_thread = engine_thread::EngineThread::spawn(app_state.clone(), frame_ms);
 
     // Install mouse hook
-    let hook_handle = if smoothscroll_platform::macos::is_accessibility_trusted(false) {
-        let sink = Arc::new(hook_wiring::EngineSink::new(app_state.clone()));
-        match app_state.mouse_hook.install(sink as Arc<dyn smoothscroll_platform::traits::HookEventSink>) {
-            Ok(h) => {
-                tracing::info!("Mouse hook installed");
-                Some(h)
-            }
-            Err(e) => {
-                tracing::warn!(error = %e, "hook install failed");
-                None
-            }
+    if smoothscroll_platform::macos::is_accessibility_trusted(false) {
+        match state::install_mouse_hook(&app_state) {
+            Ok(()) => tracing::info!("Mouse hook installed"),
+            Err(e) => tracing::warn!(error = %e, "hook install failed"),
         }
     } else {
         tracing::warn!("Accessibility not granted; hook not installed");
-        None
-    };
+    }
 
     // Start IPC server
     let rt = tokio::runtime::Runtime::new().expect("failed to create tokio runtime");
     rt.block_on(async {
         let socket_path = ipc_server::ipc_socket_path();
-        let (shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(());
+        let (_shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(());
         let ipc = Arc::new(ipc_server::IpcServer::new(
             socket_path.clone(),
             shutdown_rx,
@@ -123,20 +121,22 @@ fn main() {
         tracing::info!("Quit signal received, shutting down");
     });
 
-    drop(hook_handle);
+    *app_state.mouse_hook_handle.lock() = None;
+    drop(engine_thread);
     tracing::info!("Engine stopped");
 }
 
 fn init_logging() {
-    let log_path = if let Some(dirs) = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll") {
-        if let Some(home) = std::env::var_os("HOME") {
-            std::path::PathBuf::from(home).join("Library/Logs/SmoothScroll")
+    let log_path =
+        if let Some(dirs) = directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll") {
+            if let Some(home) = std::env::var_os("HOME") {
+                std::path::PathBuf::from(home).join("Library/Logs/SmoothScroll")
+            } else {
+                dirs.config_dir().join("logs")
+            }
         } else {
-            dirs.config_dir().join("logs")
-        }
-    } else {
-        std::env::temp_dir().join("SmoothScroll-logs")
-    };
+            std::env::temp_dir().join("SmoothScroll-logs")
+        };
     let _ = std::fs::create_dir_all(&log_path);
 
     let file_appender = tracing_appender::rolling::daily(&log_path, "engine");
@@ -150,6 +150,11 @@ fn init_logging() {
     let _ = tracing_subscriber::registry()
         .with(filter)
         .with(fmt::layer().with_target(false))
-        .with(fmt::layer().with_writer(file_writer).with_ansi(false).with_target(false))
+        .with(
+            fmt::layer()
+                .with_writer(file_writer)
+                .with_ansi(false)
+                .with_target(false),
+        )
         .try_init();
 }

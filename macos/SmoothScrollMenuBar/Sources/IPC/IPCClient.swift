@@ -6,7 +6,8 @@ import os
 private final class SocketIO: @unchecked Sendable {
     var fd: Int32 = -1
     var readBuffer = Data()
-    let queue = DispatchQueue(label: "com.SmoothScroll.IPCClient.IO", qos: .userInitiated)
+    let readQueue = DispatchQueue(label: "com.SmoothScroll.IPCClient.Read", qos: .userInitiated)
+    let writeQueue = DispatchQueue(label: "com.SmoothScroll.IPCClient.Write", qos: .userInitiated)
 
     func read() -> Data? {
         var buffer = [UInt8](repeating: 0, count: 4096)
@@ -71,6 +72,10 @@ actor IPCClient {
         connectionLostContinuation = cont
     }
 
+    private func notifyConnectionLost() {
+        connectionLostContinuation?.yield()
+    }
+
     // MARK: - Connect
 
     func connect() async throws {
@@ -122,7 +127,7 @@ actor IPCClient {
             close(io.fd)
             io.fd = -1
         }
-        connectionLostContinuation?.yield()
+        notifyConnectionLost()
     }
 
     // MARK: - Request/Response
@@ -141,18 +146,15 @@ actor IPCClient {
         var lineData = jsonData
         lineData.append(0x0A) // newline
 
-        // Store continuation FIRST (synchronous, no Task hop)
+        // Store the continuation before writing so a fast response cannot be lost.
         let response: IpcResponse = try await withCheckedThrowingContinuation { cont in
             pendingRequests[id] = cont
-        }
-
-        // Write request (on IO queue to avoid blocking actor)
-        do {
-            try io.queue.sync { try io.write(lineData) }
-        } catch {
-            pendingRequests.removeValue(forKey: id)?
-                .resume(throwing: IpcError.message("Write failed: \(error.localizedDescription)"))
-            throw error
+            do {
+                try io.writeQueue.sync { try io.write(lineData) }
+            } catch {
+                pendingRequests.removeValue(forKey: id)?
+                    .resume(throwing: IpcError.message("Write failed: \(error.localizedDescription)"))
+            }
         }
 
         // Decode result
@@ -171,7 +173,7 @@ actor IPCClient {
     private func readLoop() async {
         while !Task.isCancelled {
             let data: Data? = await withCheckedContinuation { (cont: CheckedContinuation<Data?, Never>) in
-                io.queue.async {
+                io.readQueue.async {
                     cont.resume(returning: self.io.read())
                 }
             }
@@ -194,14 +196,14 @@ actor IPCClient {
     }
 
     private func processMessage(_ data: Data) {
-        guard let response = try? JSONDecoder().decode(IpcResponse.self, from: data) else {
-            if let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
-                Task { @MainActor in
-                    SettingsStore.shared.handleEvent(event)
-                }
+        if let event = try? JSONDecoder().decode(IpcEvent.self, from: data) {
+            Task { @MainActor in
+                SettingsStore.shared.handleEvent(event)
             }
             return
         }
+
+        guard let response = try? JSONDecoder().decode(IpcResponse.self, from: data) else { return }
 
         guard let id = response.id else { return }
         if let cont = pendingRequests.removeValue(forKey: id) {

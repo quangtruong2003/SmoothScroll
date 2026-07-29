@@ -9,11 +9,10 @@
 use crate::traits::HookEventSink;
 use crate::types::{HookDecision, ModifierKeys, PlatformError, Result};
 use core_foundation::runloop::kCFRunLoopDefaultMode;
-use core_foundation::string::CFStringRef;
 use core_foundation_sys::base::{kCFAllocatorDefault, CFAllocatorRef, CFRelease};
 use core_foundation_sys::runloop::{
-    CFRunLoopAddSource, CFRunLoopGetMain, CFRunLoopRef, CFRunLoopRemoveSource,
-    CFRunLoopSourceInvalidate, CFRunLoopSourceRef, CFRunLoopWakeUp,
+    CFRunLoopAddSource, CFRunLoopGetCurrent, CFRunLoopGetMain, CFRunLoopRef, CFRunLoopRemoveSource,
+    CFRunLoopRunInMode, CFRunLoopSourceInvalidate, CFRunLoopSourceRef, CFRunLoopWakeUp,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
@@ -39,6 +38,12 @@ type CFTypeRef = *mut std::os::raw::c_void;
 const kCGHIDEventTap: u32 = 0;
 const kCGHeadInsertEventTap: u32 = 0;
 const kCGEventKeyDown: u32 = 10; // for hotkey interception
+const kCGEventTapDisabledByTimeout: u32 = u32::MAX - 1;
+const kCGEventTapDisabledByUserInput: u32 = u32::MAX;
+const CG_EVENT_MODIFIER_MASK: u32 = kCGEventFlagMaskShift
+    | kCGEventFlagMaskControl
+    | kCGEventFlagMaskAlternate
+    | kCGEventFlagMaskCommand;
 
 #[link(name = "CoreGraphics", kind = "framework")]
 extern "C" {
@@ -73,12 +78,14 @@ const kCGEventFlagMaskAlternate: u32 = 0x00080000;
 const kCGEventFlagMaskCommand: u32 = 0x00100000;
 
 // Event field keys defined as constants to avoid link errors (Quartz enums)
-const kCGScrollWheelEventDeltaAxis1: i64 = 96;
-const kCGScrollWheelEventDeltaAxis2: i64 = 97;
-const kCGScrollWheelEventPointDeltaAxis1: i64 = 126;
-const kCGScrollWheelEventPointDeltaAxis2: i64 = 127;
-const kCGScrollWheelEventIsContinuous: i64 = 124;
+const kCGScrollWheelEventDeltaAxis1: i64 = 11;
+const kCGScrollWheelEventDeltaAxis2: i64 = 12;
+const kCGScrollWheelEventPointDeltaAxis1: i64 = 96;
+const kCGScrollWheelEventPointDeltaAxis2: i64 = 97;
+const kCGScrollWheelEventIsContinuous: i64 = 88;
 const kCGKeyboardEventKeycode: i64 = 9;
+const kCGEventSourceUserData: i64 = 42;
+const SMOOTHSCROLL_EVENT_MARKER: i64 = 0x5353_4352_4F4C_4C;
 
 /// Classifies a scroll event's input source.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -213,7 +220,15 @@ unsafe extern "C" fn event_callback(
     let cb = &*cb_ptr;
 
     match event_type {
+        kCGEventTapDisabledByTimeout | kCGEventTapDisabledByUserInput => {
+            CGEventTapEnable(cb.tap, true);
+        }
         22 => {
+            if CGEventGetIntegerValueField(event, kCGEventSourceUserData)
+                == SMOOTHSCROLL_EVENT_MARKER
+            {
+                return event;
+            }
             // kCGEventScrollWheel — existing scroll handling
             let source = ScrollInputSource::from_event(event);
             let v_delta = read_vertical_delta(event);
@@ -225,8 +240,16 @@ unsafe extern "C" fn event_callback(
                 }
                 ScrollInputSource::Mouse => smoothscroll_core::input_source::InputSource::Wheel,
             };
-            let v_decision = cb.sink.on_wheel_ext(v_delta, mods, input_source);
-            let h_decision = cb.sink.on_hwheel_ext(h_delta, input_source);
+            let v_decision = if v_delta != 0 {
+                cb.sink.on_wheel_ext(v_delta, mods, input_source)
+            } else {
+                HookDecision::Pass
+            };
+            let h_decision = if h_delta != 0 {
+                cb.sink.on_hwheel_ext(h_delta, input_source)
+            } else {
+                HookDecision::Pass
+            };
             if v_decision == HookDecision::Swallow || h_decision == HookDecision::Swallow {
                 return std::ptr::null_mut();
             }
@@ -234,7 +257,7 @@ unsafe extern "C" fn event_callback(
         10 => {
             // kCGEventKeyDown — dispatch to hotkey registry
             let keycode = read_keycode(event);
-            let flags = CGEventGetFlags(event);
+            let flags = CGEventGetFlags(event) & CG_EVENT_MODIFIER_MASK;
             if let Some(reg) = HOTKEY_REGISTRY.get() {
                 reg.lock().unwrap().dispatch(keycode, flags);
             }
@@ -300,6 +323,36 @@ pub fn run_event_loop(
     Ok(())
 }
 
+/// Install and pump an event tap on a dedicated thread-owned run loop.
+///
+/// The standalone macOS engine does not run an NSApplication event loop. A
+/// dedicated CFRunLoop keeps the event tap alive without blocking IPC startup.
+pub fn run_event_loop_current_thread(installed: InstalledTap, stop: Arc<AtomicBool>) -> Result<()> {
+    while !stop.load(Ordering::SeqCst) && installed.running.load(Ordering::SeqCst) {
+        unsafe {
+            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, 0);
+        }
+    }
+
+    unsafe {
+        let run_loop = CFRunLoopGetCurrent();
+        CFRunLoopRemoveSource(run_loop, installed.source, kCFRunLoopDefaultMode);
+        CFRunLoopSourceInvalidate(installed.source);
+        CGEventTapEnable(installed.tap, false);
+        CFMachPortInvalidate(installed.tap);
+
+        let callback = CALLBACK_PTR.swap(std::ptr::null_mut(), Ordering::SeqCst);
+        if !callback.is_null() {
+            drop(Box::from_raw(callback));
+        }
+
+        CFRelease(installed.source as CFTypeRef);
+        CFRelease(installed.tap as CFTypeRef);
+    }
+
+    Ok(())
+}
+
 /// Install the event tap on the main thread. **Must** be invoked from
 /// the main thread (e.g. inside Tauri's `setup` callback). Returns the
 /// run-loop source so the caller can hand it to the background pumping
@@ -308,6 +361,18 @@ pub fn run_event_loop(
 /// The caller must drop the returned `Tap` (or call [`teardown_on_main_thread`])
 /// after the background thread finishes.
 pub unsafe fn install_on_main_thread(sink: Arc<dyn HookEventSink>) -> Result<InstalledTap> {
+    install_on_run_loop(sink, CFRunLoopGetMain())
+}
+
+/// Install an event tap on the current thread's run loop.
+pub unsafe fn install_on_current_thread(sink: Arc<dyn HookEventSink>) -> Result<InstalledTap> {
+    install_on_run_loop(sink, CFRunLoopGetCurrent())
+}
+
+unsafe fn install_on_run_loop(
+    sink: Arc<dyn HookEventSink>,
+    run_loop: CFRunLoopRef,
+) -> Result<InstalledTap> {
     // kCGEventScrollWheel = 22, kCGEventKeyDown = 10
     let events_of_interest: u64 = (1 << 22) | (1 << 10);
 
@@ -352,8 +417,7 @@ pub unsafe fn install_on_main_thread(sink: Arc<dyn HookEventSink>) -> Result<Ins
 
     unsafe {
         CGEventTapEnable(tap, true);
-        let main_run_loop = CFRunLoopGetMain();
-        CFRunLoopAddSource(main_run_loop, run_loop_source, kCFRunLoopDefaultMode);
+        CFRunLoopAddSource(run_loop, run_loop_source, kCFRunLoopDefaultMode);
     }
 
     Ok(InstalledTap {

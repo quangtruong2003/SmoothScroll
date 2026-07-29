@@ -12,17 +12,15 @@
 use crate::macos::event_tap::HOTKEY_REGISTRY;
 use crate::traits::{Hotkey, HotkeyHandle};
 use crate::types::{Accelerator, PlatformError, Result};
-use std::sync::Mutex;
-
 // ---------------------------------------------------------------------------
 // Modifiers — CGEventFlags bit positions
-// CGEventGetFlags() returns: Shift=0x100, Cmd=0x200, Option=0x400, Control=0x800
+// CGEventGetFlags() returns these high-bit modifier masks.
 // ---------------------------------------------------------------------------
 
-const MOD_SHIFT: u32 = 0x00000100;
-const MOD_CMD: u32 = 0x00000200;
-const MOD_OPTION: u32 = 0x00000400;
-const MOD_CONTROL: u32 = 0x00000800;
+const MOD_SHIFT: u32 = 0x00020000;
+const MOD_CONTROL: u32 = 0x00040000;
+const MOD_OPTION: u32 = 0x00080000;
+const MOD_CMD: u32 = 0x00100000;
 
 // ---------------------------------------------------------------------------
 // Keycode mapping — macOS virtual keycodes (same as Carbon)
@@ -38,10 +36,10 @@ fn parse_key(s: &str) -> Result<u16> {
         "f5" => Ok(96),
         "f6" => Ok(97),
         "f7" => Ok(98),
-        "f8" => Ok(101),
-        "f9" => Ok(109),
-        "f10" => Ok(103),
-        "f11" => Ok(111),
+        "f8" => Ok(100),
+        "f9" => Ok(101),
+        "f10" => Ok(109),
+        "f11" => Ok(103),
         "f12" => Ok(111),
         "f13" => Ok(105),
         "f14" => Ok(107),
@@ -231,5 +229,16 @@ mod tests {
     fn test_parse_key_f12() {
         assert_eq!(parse_key("f12").unwrap(), 111);
         assert_eq!(parse_key("f4").unwrap(), 118);
+        assert_eq!(parse_key("f8").unwrap(), 100);
+        assert_eq!(parse_key("f10").unwrap(), 109);
+        assert_eq!(parse_key("f11").unwrap(), 103);
+    }
+
+    #[test]
+    fn parse_accelerator_uses_quartz_modifier_masks() {
+        assert_eq!(
+            parse_accelerator("Ctrl+Alt+S").unwrap(),
+            (MOD_CONTROL | MOD_OPTION, 1)
+        );
     }
 }

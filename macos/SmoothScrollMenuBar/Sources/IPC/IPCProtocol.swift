@@ -74,8 +74,8 @@ struct SetDirectionSyncParams: Encodable, Sendable {
     let enabled: Bool
 }
 
-struct SaveSettingsParams: Encodable, Sendable {
-    let settings: AppSettingsResponse
+struct SetBoolParams: Encodable, Sendable {
+    let enabled: Bool
 }
 
 // MARK: - Events (Rust → Swift)
@@ -101,7 +101,6 @@ struct AppSettingsResponse: Codable, Sendable {
     let activeProfile: String
     let stepSizePx: Int
     let animationTimeMs: Int
-    let accelerationDeltaMs: Int
     let accelerationMax: Int
     let tailToHeadRatio: Int
     let animationEasing: Bool
@@ -122,7 +121,6 @@ struct AppSettingsResponse: Codable, Sendable {
         case activeProfile = "active_profile"
         case stepSizePx = "step_size_px"
         case animationTimeMs = "animation_time_ms"
-        case accelerationDeltaMs = "acceleration_delta_ms"
         case accelerationMax = "acceleration_max"
         case tailToHeadRatio = "tail_to_head_ratio"
         case animationEasing = "animation_easing"

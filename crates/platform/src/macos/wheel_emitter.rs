@@ -18,14 +18,16 @@ const kCGHIDSystemTap: u32 = 0;
 // for the relevant CGEventField enum cases.
 const kCGScrollWheelEventDeltaAxis1: i64 = 11;
 const kCGScrollWheelEventDeltaAxis2: i64 = 12;
-const kCGScrollWheelEventPointDeltaAxis1: i64 = 126;
-const kCGScrollWheelEventPointDeltaAxis2: i64 = 127;
-// 96 = kCGScrollWheelEventIsContinuous. Apps use this flag to pick the
+const kCGScrollWheelEventPointDeltaAxis1: i64 = 96;
+const kCGScrollWheelEventPointDeltaAxis2: i64 = 97;
+// 88 = kCGScrollWheelEventIsContinuous. Apps use this flag to pick the
 // trackpad-style smooth-scroll code path; without it our synthetic
 // events look like discrete mouse-wheel ticks and break momentum scroll
 // in Safari/Notes/Pages.
-const kCGScrollWheelEventIsContinuous: i64 = 96;
+const kCGScrollWheelEventIsContinuous: i64 = 88;
+const kCGEventSourceUserData: i64 = 42;
 const kCGEventFlagMaskControl: u32 = 0x00040000;
+const SMOOTHSCROLL_EVENT_MARKER: i64 = 0x5353_4352_4F4C_4C;
 
 #[link(name = "CoreGraphics", kind = "framework")]
 extern "C" {
@@ -74,6 +76,7 @@ impl MacosWheelEmitter {
         }
         CGEventSetType(event, kCGEventScrollWheel);
         CGEventSetSource(event, source);
+        CGEventSetIntegerValueField(event, kCGEventSourceUserData, SMOOTHSCROLL_EVENT_MARKER);
 
         // Mark the event as a continuous (trackpad-style) scroll so
         // receiving apps route through their smooth-scroll code path.

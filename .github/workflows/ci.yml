@@ -104,7 +104,6 @@ jobs:
         run: pnpm tauri build -- --no-bundle
 
   build-macos:
-    needs: build-wasm
     strategy:
       fail-fast: false
       matrix:
@@ -129,25 +128,23 @@ jobs:
             src-tauri
           shared-key: ci-macos-${{ matrix.target }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Build standalone Rust engine
+        run: cargo build -p smoothscroll-engine-macos --target ${{ matrix.target }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+      - name: Install XcodeGen
+        run: brew install xcodegen
 
-      - run: pnpm install --frozen-lockfile
-
-      - name: Download WASM artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: wasm-engine
-          path: src/lib/engine-wasm/
-
-      - name: Build Tauri app (no signing)
-        run: pnpm tauri build -- --target ${{ matrix.target }} --no-bundle
+      - name: Build Swift menu bar app
+        run: |
+          cd macos/SmoothScrollMenuBar
+          xcodegen generate
+          xcodebuild \
+            -project SmoothScrollMenuBar.xcodeproj \
+            -scheme SmoothScrollMenuBar \
+            -configuration Debug \
+            -arch ${{ matrix.target == 'x86_64-apple-darwin' && 'x86_64' || 'arm64' }} \
+            CODE_SIGNING_ALLOWED=NO \
+            build
 
   build-linux:
     needs: build-wasm

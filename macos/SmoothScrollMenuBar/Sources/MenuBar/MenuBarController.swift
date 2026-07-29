@@ -68,7 +68,7 @@ final class MenuBarController: NSObject {
         hostingController = NSHostingController(rootView: SmoothScrollPopover())
 
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 280, height: 220)
+        popover.contentSize = NSSize(width: 300, height: 320)
         popover.behavior = .transient
         popover.animates = true
         popover.contentViewController = hostingController

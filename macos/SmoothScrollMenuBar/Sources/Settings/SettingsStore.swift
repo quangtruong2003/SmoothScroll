@@ -8,6 +8,8 @@ final class SettingsStore: ObservableObject, Sendable {
 
     // MARK: - Connection State
     @Published private(set) var connectionState: ConnectionState = .disconnected
+    @Published private(set) var accessibilityGranted = false
+    @Published private(set) var accessibilityPromptRequested = false
     
     enum ConnectionState: Sendable, Equatable {
         case disconnected
@@ -35,15 +37,9 @@ final class SettingsStore: ObservableObject, Sendable {
     // MARK: - Settings
     @Published private(set) var scrollEnabled: Bool = false
     @Published private(set) var speedPreset: ScrollPreset = .balanced
-    @Published var horizontalEnabled: Bool = false {
-        didSet { Task { await saveSettingsSnapshot() } }
-    }
-    @Published var zoomEnabled: Bool = false {
-        didSet { Task { await saveSettingsSnapshot() } }
-    }
+    @Published private(set) var horizontalEnabled: Bool = false
+    @Published private(set) var zoomEnabled: Bool = false
     @Published var directionSyncEnabled: Bool = false
-    
-    @Published private(set) var isMutating: Bool = false
 
     private var lastUpdateSource: UpdateSource = .local
     private enum UpdateSource { case local, remote }
@@ -64,15 +60,34 @@ final class SettingsStore: ObservableObject, Sendable {
                 try await IPCClient.shared.connect()
             }
             
-            connectionState = .connected
-
             let settings: AppSettingsResponse = try await IPCClient.shared.send("get_settings")
             applySettings(settings, source: .remote)
+            accessibilityGranted = try await IPCClient.shared.send("get_accessibility_status")
+            connectionState = .connected
             
             logger.info("Settings loaded successfully")
         } catch {
             logger.error("Failed to load initial state: \(error.localizedDescription)")
             connectionState = .failed(error.localizedDescription)
+        }
+    }
+
+    func requestAccessibilityAccess() async {
+        accessibilityPromptRequested = true
+        do {
+            _ = try await IPCClient.shared.send("request_accessibility_access") as Bool
+            try? await Task.sleep(for: .milliseconds(500))
+            accessibilityGranted = try await IPCClient.shared.send("get_accessibility_status")
+        } catch {
+            logger.error("Accessibility request failed: \(error.localizedDescription)")
+        }
+    }
+
+    func refreshAccessibilityStatus() async {
+        do {
+            accessibilityGranted = try await IPCClient.shared.send("get_accessibility_status")
+        } catch {
+            logger.error("Accessibility status refresh failed: \(error.localizedDescription)")
         }
     }
 
@@ -121,46 +136,33 @@ final class SettingsStore: ObservableObject, Sendable {
         }
     }
 
-    // MARK: - Settings Snapshot
+    func setHorizontalEnabled(_ enabled: Bool) async {
+        let previousValue = horizontalEnabled
+        horizontalEnabled = enabled
 
-    private func saveSettingsSnapshot() async {
-        guard !isMutating else {
-            logger.warning("saveSettingsSnapshot skipped — mutation already in progress")
-            return
-        }
-        
-        isMutating = true
-        defer { isMutating = false }
-        
         do {
-            let current: AppSettingsResponse = try await IPCClient.shared.send("get_settings")
-
-            let updated = AppSettingsResponse(
-                enabled: scrollEnabled,
-                activeProfile: speedPreset.rawValue,
-                stepSizePx: current.stepSizePx,
-                animationTimeMs: current.animationTimeMs,
-                accelerationDeltaMs: current.accelerationDeltaMs,
-                accelerationMax: current.accelerationMax,
-                tailToHeadRatio: current.tailToHeadRatio,
-                animationEasing: current.animationEasing,
-                easingMode: current.easingMode,
-                horizontalSmoothness: horizontalEnabled,
-                horizontalInvert: current.horizontalInvert,
-                reverseWheelDirection: current.reverseWheelDirection,
-                smoothZoom: zoomEnabled,
-                zoomInvert: current.zoomInvert,
-                zoomSensitivity: current.zoomSensitivity,
-                profiles: current.profiles,
-                appProfiles: current.appProfiles,
-                gameModeEnabled: current.gameModeEnabled,
-                directionSyncEnabled: directionSyncEnabled
-            )
-
-            try await IPCClient.shared.send("save_settings", params: SaveSettingsParams(settings: updated)) as Bool
-            logger.info("Settings saved successfully")
+            try await IPCClient.shared.send(
+                "set_horizontal_smoothness",
+                params: SetBoolParams(enabled: enabled)
+            ) as Bool
         } catch {
-            logger.error("saveSettings failed: \(error.localizedDescription)")
+            logger.error("setHorizontalEnabled failed, rolling back: \(error.localizedDescription)")
+            horizontalEnabled = previousValue
+        }
+    }
+
+    func setZoomEnabled(_ enabled: Bool) async {
+        let previousValue = zoomEnabled
+        zoomEnabled = enabled
+
+        do {
+            try await IPCClient.shared.send(
+                "set_smooth_zoom",
+                params: SetBoolParams(enabled: enabled)
+            ) as Bool
+        } catch {
+            logger.error("setZoomEnabled failed, rolling back: \(error.localizedDescription)")
+            zoomEnabled = previousValue
         }
     }
 
