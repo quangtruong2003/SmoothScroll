@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.27.1] - 2026-08-06
+
+### Fixed
+- show all profiles in picker with scrollable popover
 ## [1.27.0] - 2026-07-29
 
 ### Added
