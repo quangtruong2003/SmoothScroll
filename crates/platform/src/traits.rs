@@ -94,6 +94,18 @@ pub trait ProcessQuery: Send + Sync {
     fn is_target_elevated(&self) -> bool {
         false
     }
+
+    /// Returns true if the SmoothScroll process itself runs at High
+    /// (elevated) integrity level. When SmoothScroll is elevated too, UIPI
+    /// permits synthetic input into elevated targets, so `is_target_elevated`
+    /// alone must not cause a bypass.
+    ///
+    /// The default returns `false` (safe — bypass behaviour is unchanged on
+    /// non-Windows platforms). Windows overrides this in
+    /// `WindowsProcessQuery`.
+    fn self_is_elevated(&self) -> bool {
+        false
+    }
 }
 
 pub trait Autostart: Send + Sync {

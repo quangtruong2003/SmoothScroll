@@ -8,6 +8,7 @@ use crate::traits::{ProcessInfo, ProcessQuery};
 use crate::types::IntegrityLevel;
 use parking_lot::Mutex;
 use std::os::raw::c_void;
+use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 use windows_sys::Win32::Foundation::{
     CloseHandle, BOOL, FALSE, HANDLE, LPARAM, MAX_PATH, POINT, TRUE,
@@ -53,6 +54,9 @@ struct IntegrityCache {
 pub struct WindowsProcessQuery {
     cache: Mutex<CacheEntry>,
     integrity_cache: Mutex<IntegrityCache>,
+    /// Whether SmoothScroll itself is elevated. Cached once — a process's
+    /// integrity level never changes during its lifetime.
+    self_elevated: OnceLock<bool>,
 }
 
 impl WindowsProcessQuery {
@@ -60,6 +64,7 @@ impl WindowsProcessQuery {
         Self {
             cache: Mutex::new(CacheEntry::default()),
             integrity_cache: Mutex::new(IntegrityCache::default()),
+            self_elevated: OnceLock::new(),
         }
     }
 }
@@ -172,6 +177,13 @@ impl ProcessQuery for WindowsProcessQuery {
         cache.cached_level = Some(level);
         cache.last_check = Some(now);
         level == IntegrityLevel::High
+    }
+
+    fn self_is_elevated(&self) -> bool {
+        *self.self_elevated.get_or_init(|| {
+            let pid = unsafe { GetCurrentProcessId() };
+            get_process_integrity_level(pid) == IntegrityLevel::High
+        })
     }
 
     /// Returns the topmost user-visible app window's process name, excluding

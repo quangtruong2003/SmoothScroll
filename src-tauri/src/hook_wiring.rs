@@ -92,15 +92,21 @@ impl EngineSink {
     /// Returns `None` if the app under the cursor/foreground is disabled.
     /// Otherwise returns the active `EffectiveSettings` (per-profile or global).
     fn resolve_active(&self) -> Option<Arc<EffectiveSettings>> {
-        // Bypass engine for elevated (admin) target windows unconditionally.
-        // UIPI blocks SendInput/PostMessageW from a medium-IL sender to a
-        // high-IL target, so swallowing the event would silently lose scroll.
-        // Forwarding the raw event preserves native scroll instead.
+        // Bypass the engine only when the target is elevated AND SmoothScroll
+        // itself is not elevated. UIPI blocks SendInput/PostMessageW from a
+        // medium-IL sender to a high-IL target, so swallowing the event would
+        // silently lose scroll there — forwarding the raw event preserves
+        // native scroll instead. But an elevated SmoothScroll can inject into
+        // elevated targets (elevated→elevated is legal under UIPI), so
+        // smoothing must keep working in that case.
+        // Caveat: System-IL windows (0x4000) also fold into High but UIPI
+        // blocks elevated→System injection; they only exist on the secure
+        // desktop (lock screen / UAC consent), which WH_MOUSE_LL never sees.
         // This check must run regardless of excluded_apps / app_profiles config.
         #[cfg(windows)]
-        if self.state.processes.is_target_elevated() {
+        if self.state.processes.is_target_elevated() && !self.state.processes.self_is_elevated() {
             if tracing::enabled!(tracing::Level::DEBUG) {
-                tracing::debug!("bypassing engine for elevated target");
+                tracing::debug!("bypassing engine for elevated target (self not elevated)");
             }
             return None;
         }
@@ -544,6 +550,7 @@ mod tests {
         under_cursor: Option<String>,
         foreground: Option<String>,
         elevated: bool,
+        self_elevated: bool,
     }
     impl ProcessQuery for ElevatedStaticProcessQuery {
         fn process_name_under_cursor(&self) -> Option<String> {
@@ -561,12 +568,16 @@ mod tests {
         fn is_target_elevated(&self) -> bool {
             self.elevated
         }
+        fn self_is_elevated(&self) -> bool {
+            self.self_elevated
+        }
     }
 
     fn make_state_with_elevation(
         settings: AppSettings,
         under_cursor: Option<&str>,
         elevated: bool,
+        self_elevated: bool,
     ) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
@@ -581,6 +592,7 @@ mod tests {
                 under_cursor: under_cursor.map(|s| s.to_string()),
                 foreground: None,
                 elevated,
+                self_elevated,
             }),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
@@ -1207,7 +1219,7 @@ mod tests {
         // scroll from being silently lost when SmoothScroll runs non-elevated
         // and the user scrolls in an elevated (admin) IDE.
         let s = AppSettings::default();
-        let state = make_state_with_elevation(s, Some("Code"), true);
+        let state = make_state_with_elevation(s, Some("Code"), true, false);
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
@@ -1219,7 +1231,21 @@ mod tests {
         // When is_target_elevated() returns false, normal scroll swallowing
         // applies (regression check — behavior must not change for non-elevated).
         let s = AppSettings::default();
-        let state = make_state_with_elevation(s, Some("Code"), false);
+        let state = make_state_with_elevation(s, Some("Code"), false, false);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    #[cfg(windows)]
+    fn elevated_self_processes_normally() {
+        // When SmoothScroll itself is elevated, elevated→elevated injection is
+        // legal under UIPI — the engine must process the event instead of
+        // passing it through. Regression check for the bug where running
+        // SmoothScroll from an elevated session disabled smoothing everywhere.
+        let s = AppSettings::default();
+        let state = make_state_with_elevation(s, Some("Code"), true, true);
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
@@ -1229,7 +1255,7 @@ mod tests {
     #[cfg(windows)]
     fn elevated_horizontal_wheel_passes_through() {
         let s = AppSettings::default();
-        let state = make_state_with_elevation(s, Some("Code"), true);
+        let state = make_state_with_elevation(s, Some("Code"), true, false);
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
