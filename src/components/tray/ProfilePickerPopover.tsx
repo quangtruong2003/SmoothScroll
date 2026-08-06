@@ -28,21 +28,30 @@ export function ProfilePickerPopover({
   const ref = useRef<HTMLDivElement | null>(null);
   const applyingRef = useRef(false);
   const [isApplying, setIsApplying] = useState(false);
-  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const [pos, setPos] = useState<{
+    top: number;
+    right: number;
+    maxHeight: number;
+  } | null>(null);
 
   const profiles = (settings?.profiles ?? [])
     .slice()
     .sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-    )
-    .slice(0, 8);
+    );
 
   // Position popover relative to trigger
   useEffect(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
     const rect = trigger.getBoundingClientRect();
-    setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    setPos({
+      top: rect.bottom + 4,
+      right: window.innerWidth - rect.right,
+      // Cap to the space below the pill so long lists scroll inside the
+      // tray window instead of being clipped at its bottom edge.
+      maxHeight: Math.max(120, window.innerHeight - rect.bottom - 8),
+    });
   }, [triggerRef]);
 
   const apply = useCallback(
@@ -92,7 +101,7 @@ export function ProfilePickerPopover({
       className="tray-profile-popover"
       role="listbox"
       tabIndex={-1}
-      style={pos ? { position: "fixed", top: pos.top, right: pos.right } : undefined}
+      style={pos ? { position: "fixed", top: pos.top, right: pos.right, maxHeight: pos.maxHeight } : undefined}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

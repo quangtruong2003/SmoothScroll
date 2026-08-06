@@ -2,7 +2,7 @@
 import '@testing-library/jest-dom';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ProfilePill } from '../ProfilePill';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -58,6 +58,9 @@ beforeEach(() => {
     },
   } as any);
   mockInvoke.mockResolvedValue(null);
+});
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe('ProfilePill', () => {
@@ -258,5 +261,39 @@ describe('ProfilePill', () => {
     useSettingsStore.setState({ settings: { profiles: [], app_profiles: {} } } as any);
     const { container } = render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
     expect(container.querySelector('.tray-row')).toBeNull();
+  });
+  it('renders every user profile even when more than 8 exist', async () => {
+    const settings = useSettingsStore.getState().settings!;
+    useSettingsStore.setState({
+      settings: {
+        ...settings,
+        profiles: Array.from({ length: 12 }, (_, i) => ({
+          ...settings.profiles[0],
+          id: 'p' + (i + 1),
+          name: 'Profile ' + (i + 1),
+        })),
+      },
+    } as any);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    for (let i = 1; i <= 12; i++) {
+      expect(
+        within(listbox).getByRole('option', { name: 'Profile ' + i }),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it('caps popover height so long profile lists scroll instead of clipping', async () => {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      bottom: 400,
+      right: 0,
+    } as DOMRect);
+    render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    const listbox = await screen.findByRole('listbox');
+    await waitFor(() => {
+      expect(listbox).toHaveStyle({ maxHeight: '360px' });
+    });
   });
 });

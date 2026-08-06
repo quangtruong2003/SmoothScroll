@@ -916,6 +916,10 @@ body[data-platform="linux"] .tray-panel-root [data-state="checked"] {
     0 12px 28px rgba(0, 0, 0, 0.55),
     0 32px 80px rgba(0, 0, 0, 0.7),
     0 64px 160px rgba(0, 0, 0, 0.5);
+  /* Long profile lists scroll inside the popover instead of being
+   * clipped at the bottom edge of the tray window. */
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 body[data-platform="mac"] .tray-profile-popover {
@@ -945,6 +949,10 @@ body[data-platform="linux"] .tray-profile-popover {
     0 12px 28px rgba(0, 0, 0, 0.55),
     0 32px 80px rgba(0, 0, 0, 0.7),
     0 64px 160px rgba(0, 0, 0, 0.5);
+  /* Long profile lists scroll inside the popover instead of being
+   * clipped at the bottom edge of the tray window. */
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .tray-profile-option {
