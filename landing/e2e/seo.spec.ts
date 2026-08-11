@@ -2,9 +2,9 @@ import { expect, test } from '@playwright/test'
 import { getDictionarySync, type Locale } from '../lib/i18n/dict'
 
 const localePages = [
-  { path: '/', lang: 'en', ogLocale: 'en_US', text: 'Mouse wheel scrolling,', answer: 'SmoothScroll is a Windows smooth-scrolling utility.', locale: 'en' as Locale },
-  { path: '/vi/', lang: 'vi', ogLocale: 'vi_VN', text: 'Cuộn chuột', answer: 'SmoothScroll là tiện ích cuộn mượt cho Windows.', locale: 'vi' as Locale },
-  { path: '/zh/', lang: 'zh-Hans', ogLocale: 'zh_CN', text: '滚动', answer: 'SmoothScroll 是 Windows 平滑滚动工具。', locale: 'zh' as Locale },
+  { path: '/', lang: 'en', ogLocale: 'en_US', text: 'Smooth scrolling for Windows,', answer: 'SmoothScroll is free smooth-scrolling software for Windows 10 and 11.', locale: 'en' as Locale },
+  { path: '/vi/', lang: 'vi', ogLocale: 'vi_VN', text: 'Cuộn mượt cho Windows', answer: 'SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11.', locale: 'vi' as Locale },
+  { path: '/zh/', lang: 'zh-Hans', ogLocale: 'zh_CN', text: 'Windows 平滑滚动', answer: 'SmoothScroll 是适用于 Windows 10 和 11 的免费平滑滚动软件。', locale: 'zh' as Locale },
   { path: '/how-it-works/', lang: 'en', ogLocale: 'en_US', text: 'See how SmoothScroll', locale: 'en' as Locale },
   { path: '/vi/how-it-works/', lang: 'vi', ogLocale: 'vi_VN', text: 'Xem cách SmoothScroll', locale: 'vi' as Locale },
   { path: '/zh/how-it-works/', lang: 'zh-Hans', ogLocale: 'zh_CN', text: '看 SmoothScroll', locale: 'zh' as Locale },
@@ -46,6 +46,8 @@ for (const [path, canonical] of canonicalCases) {
 test('homepage publishes complete social preview metadata', async ({ request }) => {
   const html = await (await request.get('/')).text()
 
+  expect(html).toContain('<title>Smooth Scrolling Software for Windows | SmoothScroll</title>')
+  expect(html).toContain('name="description" content="SmoothScroll is free smooth scrolling software for Windows 10 and 11.')
   expect(html).toContain('property="og:title"')
   expect(html).toContain('property="og:description"')
   expect(html).toContain('property="og:url" content="https://smoothscroll.top/"')
@@ -63,15 +65,30 @@ test('localized homepage graphs match their page language and visible FAQ', asyn
 
     expect(match).not.toBeNull()
     const json = JSON.parse(match![1])
-    const graph = json['@graph'] as { '@type': string; url?: string; inLanguage?: string; mainEntity?: unknown[] }[]
+    const graph = json['@graph'] as {
+      '@type': string
+      url?: string
+      inLanguage?: string
+      mainEntity?: unknown[]
+      isAccessibleForFree?: boolean
+      downloadUrl?: string
+      featureList?: string[]
+    }[]
     const types = graph.map((item) => item['@type'])
     const webPage = graph.find((item) => item['@type'] === 'WebPage')
     const webSite = graph.find((item) => item['@type'] === 'WebSite')
+    const software = graph.find((item) => item['@type'] === 'SoftwareApplication')
     const faq = graph.find((item) => item['@type'] === 'FAQPage')
 
     expect(types).toEqual(expect.arrayContaining(['Organization', 'WebSite', 'WebPage', 'SoftwareApplication', 'FAQPage']))
     expect(webPage).toMatchObject({ url: `https://smoothscroll.top${page.path}`, inLanguage: page.lang })
     expect(webSite).toMatchObject({ inLanguage: page.lang })
+    expect(software).toMatchObject({
+      isAccessibleForFree: true,
+      downloadUrl: 'https://github.com/quangtruong2003/SmoothScroll/releases/latest',
+    })
+    const expectedFeature = getDictionarySync(page.locale).features?.items?.[0]?.title
+    expect(software?.featureList).toContain(expectedFeature)
     // Structured answers only earn rich results when the same text is server-rendered.
     const dictionary = getDictionarySync(page.locale)
     const renderedQuestions = (dictionary.faq?.questions ?? []).filter(({ q, a }) => q && a)
@@ -124,7 +141,8 @@ test('localized home pages publish visible citable answers', async ({ request })
     expect(html).toContain(page.answer)
     expect(html).toContain('https://github.com/quangtruong2003/SmoothScroll')
     expect(html).toContain('/how-it-works/')
-    expect(html).toContain('2026-07-19')
+    expect(html).toContain('2026-08-12')
+    expect(html).toContain(getDictionarySync(page.locale).install?.supportNotice)
     expect(html).toMatch(/maintained by|duy trì bởi|由.*维护/i)
   }
 })
@@ -138,7 +156,7 @@ test('raw home HTML exposes locale links and page evidence', async ({ request })
   expect(html).toMatch(/href="\/vi\/?"/)
   expect(html).toMatch(/href="\/zh\/?"/)
   expect(webPage.author).toEqual({ '@id': 'https://smoothscroll.top/#organization' })
-  expect(webPage.dateModified).toBe('2026-07-19')
+  expect(webPage.dateModified).toBe('2026-08-12')
 })
 
 test('sitemap lists every localized canonical page', async ({ request }) => {
@@ -146,8 +164,8 @@ test('sitemap lists every localized canonical page', async ({ request }) => {
   for (const url of canonicalCases.map(([, url]) => url)) {
     expect(xml).toContain(`<loc>${url}</loc>`)
   }
+  expect(xml).toContain('<lastmod>2026-08-12</lastmod>')
   expect(xml).not.toContain('marquee-debug')
-  expect(xml).not.toContain('<lastmod>')
 })
 
 test('publishes optional AI discovery document', async ({ request }) => {

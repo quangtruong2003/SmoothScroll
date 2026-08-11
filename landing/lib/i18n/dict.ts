@@ -93,6 +93,7 @@ export interface Dictionary {
     }
     filename?: string
     note?: { windows?: string; macos?: string; linux?: string }
+    supportNotice?: string
     cta?: string
     ctaMac?: string
     ctaLinux?: string

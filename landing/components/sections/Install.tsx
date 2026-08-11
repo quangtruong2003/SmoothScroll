@@ -78,6 +78,7 @@ export function Install({ dict }: InstallProps) {
     tabs: { windows: { label: '', steps: [] }, macos: { label: '', steps: [] }, linux: { label: '', steps: [] } },
     filename: '',
     note: { windows: '', macos: '', linux: '' },
+    supportNotice: 'SmoothScroll currently supports Windows and Linux. macOS support is coming soon.',
     cta: 'Download for Windows',
     ctaLinux: '',
     ctaMac: '',
@@ -91,15 +92,13 @@ export function Install({ dict }: InstallProps) {
     }
     if (os === 'linux') {
       return (
-        <div className="rounded-md border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
-          Linux support is coming soon.
-        </div>
+        <InstallSteps steps={i.tabs?.linux?.steps ?? []} note={i.note?.linux ?? ''} />
       )
     }
     if (os === 'other') {
       return (
         <div className="rounded-md border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
-          SmoothScroll currently supports Windows. macOS and Linux support is coming soon.
+          {i.supportNotice ?? 'SmoothScroll currently supports Windows and Linux. macOS support is coming soon.'}
         </div>
       )
     }

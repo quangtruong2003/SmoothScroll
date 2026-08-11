@@ -18,6 +18,10 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
   const organizationId = `${BASE_URL}/#organization`
   const websiteId = `${BASE_URL}/#website`
   const softwareId = `${BASE_URL}/#software`
+  const releaseUrl = 'https://github.com/quangtruong2003/SmoothScroll/releases/latest'
+  const featureList = (dictionary.features?.items ?? [])
+    .map((item) => item.title)
+    .filter((title): title is string => Boolean(title))
   const faqQuestions = [
     ...(dictionary.geo?.faqQuestion && dictionary.geo.faqAnswer ? [{
       '@type': 'Question',
@@ -46,9 +50,10 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
       dateModified: CONTENT_UPDATED, inLanguage: htmlLang(locale),
     },
     {
-      '@type': 'SoftwareApplication', '@id': softwareId, name: 'SmoothScroll', operatingSystem: 'Windows',
+      '@type': 'SoftwareApplication', '@id': softwareId, name: 'SmoothScroll', operatingSystem: 'Windows, Linux',
       applicationCategory: 'UtilitiesApplication', description, url: `${BASE_URL}/`, publisher: { '@id': organizationId },
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, softwareVersion: process.env.NEXT_PUBLIC_APP_VERSION || 'latest',
+      isAccessibleForFree: true, downloadUrl: releaseUrl, featureList,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: releaseUrl }, softwareVersion: process.env.NEXT_PUBLIC_APP_VERSION || 'latest',
       screenshot: `${BASE_URL}/assets/screen-poster.webp`, license: 'https://github.com/quangtruong2003/SmoothScroll/blob/master/LICENSE',
     },
     ...(page === 'home' && faqQuestions.length ? [{

@@ -1,24 +1,24 @@
 {
   "nav": { "github": "GitHub", "stars": "sao" },
   "seo": {
-    "title": "SmoothScroll — Cuộn mượt tự nhiên trên Windows",
-    "description": "Tiện ích cuộn mượt Windows source-available với easing 120 Hz có thể cấu hình và điều khiển theo từng ứng dụng."
+    "title": "Phần mềm cuộn mượt cho Windows | SmoothScroll",
+    "description": "SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11. Biến input con lăn thành chuyển động 120 Hz với profile từng app và không telemetry."
   },
   "geo": {
     "title": "SmoothScroll là gì?",
-    "answer": "SmoothScroll là tiện ích cuộn mượt cho Windows. Nó biến input con lăn chuột thành đầu ra cuộn easing 120 Hz và cho phép cấu hình profile cùng ngoại lệ cho từng ứng dụng. Mã nguồn có thể xem theo FSL-1.1, chuyển sang Apache 2.0 sau hai năm từ mỗi bản phát hành, và không có telemetry.",
-    "evidence": "Được duy trì bởi những người đóng góp SmoothScroll · Cập nhật 2026-07-19",
+    "answer": "SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11. Nó biến input con lăn chuột thành đầu ra cuộn easing 120 Hz và cho phép cấu hình profile cùng ngoại lệ cho từng ứng dụng. Mã nguồn có thể xem theo FSL-1.1, chuyển sang Apache 2.0 sau hai năm từ mỗi bản phát hành, và không có telemetry.",
+    "evidence": "Được duy trì bởi những người đóng góp SmoothScroll · Cập nhật 2026-08-12",
     "faqQuestion": "SmoothScroll là gì?",
-    "faqAnswer": "SmoothScroll là tiện ích cuộn mượt cho Windows với easing 120 Hz có thể cấu hình và điều khiển theo từng ứng dụng. Mã nguồn và giấy phép có trên GitHub.",
+    "faqAnswer": "SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11 với easing 120 Hz có thể cấu hình và điều khiển theo từng ứng dụng. Mã nguồn và giấy phép có trên GitHub.",
     "guideLabel":  "Đọc cách SmoothScroll hoạt động",
     "sourceLabel": "Kiểm tra mã nguồn và giấy phép trên GitHub",
     "releaseLabel": "Xem bản phát hành mới nhất"
   },
   "hero": {
     "eyebrow": "Dành cho Windows",
-    "eyebrowLinux": "Linux sắp hỗ trợ",
+    "eyebrowLinux": "Dành cho Linux",
     "eyebrowMac": "macOS sắp hỗ trợ",
-    "title": "Cuộn chuột,",
+    "title": "Cuộn mượt cho Windows,",
     "titleAccent": "cuối cùng đã đúng cách.",
     "subtitle": "Một bộ easing 120 Hz cho mỗi tick lăn chuột, trong mọi ứng dụng. Dành cho người nhận ra sự khác biệt giữa cuộn mượt và cuộn giật.",
     "cta": "Tải về cho Windows",
@@ -83,7 +83,7 @@
   },
   "stats": { "title": "Được tin dùng bởi", "githubStars": "Sao GitHub", "version": "Phiên bản", "fallback": { "stars": "-", "version": "v1.0.0" } },
   "indie": { "title": "Tạo bởi một lập trình viên indie", "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.", "points": ["Giấy phép source-available (FSL-1.1 → Apache 2.0) - tự kiểm tra code", "Không telemetry hay thu thập dữ liệu", "Không quảng cáo, không premium, không upsell", "Xây dựng công khai trên GitHub"], "cta": "Xem trên GitHub" },
-  "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe - không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "linux": { "label": "Linux", "steps": ["Tải AppImage bên dưới", "Cho phép chạy: chmod +x SmoothScroll_*.AppImage", "Chạy file - không cần root hay cài đặt", "Xong. App sẽ xuất hiện trong khay hệ thống."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "linux": "AppImage hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các distro khác", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "cta": "Tải cho Windows", "ctaMac": "Tải bản Beta cho macOS", "ctaLinux": "Tải cho Linux" },
+  "install": { "title": "Bắt đầu trong 60 giây", "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.", "tabs": { "windows": { "label": "Windows", "steps": ["Tải installer bên dưới", "Chạy file .exe - không có wizard, không cần quyền admin", "SmoothScroll khởi động tự động. Xong."] }, "linux": { "label": "Linux", "steps": ["Tải AppImage bên dưới", "Cho phép chạy: chmod +x SmoothScroll_*.AppImage", "Chạy file - không cần root hay cài đặt", "Xong. App sẽ xuất hiện trong khay hệ thống."] }, "macos": { "label": "macOS", "steps": ["Tải file DMG bên dưới", "Kéo SmoothScroll vào Applications", "Cấp quyền Accessibility trong System Settings → Privacy → Accessibility", "Xong."] } }, "filename": "SmoothScrollSetup.exe", "note": { "windows": "Mặc định lưu vào %LOCALAPPDATA%", "linux": "AppImage hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các distro khác", "macos": "Cần quyền Accessibility để nhận input toàn cục" }, "supportNotice": "SmoothScroll hiện hỗ trợ Windows và Linux. Bản macOS đang được phát triển.", "cta": "Tải cho Windows", "ctaMac": "Tải bản Beta cho macOS", "ctaLinux": "Tải cho Linux" },
   "faq": { "title": "Câu hỏi thường gặp", "questions": [
     { "q": "Có hoạt động với mọi ứng dụng không?", "a": "SmoothScroll chặn input wheel từ chuột trước khi đến ứng dụng, nên hoạt động với hầu hết mọi thứ - Chrome, VS Code, File Explorer, Adobe apps." },
     { "q": "Có tốn pin không?", "a": "Không. SmoothScroll gần như không dùng CPU khi rảnh rỗi và chỉ xử lý khi có sự kiện cuộn." },
@@ -92,7 +92,7 @@
     { "q": "Có hoạt động với chuột gaming không?", "a": "Có. SmoothScroll tôn trọng delta thực từ phần cứng và áp dụng làm mượt bên trên." },
     { "q": "Có thể tắt cho ứng dụng cụ thể không?", "a": "Có. Có hồ sơ loại trừ theo ứng dụng. Mở tray panel và thêm ứng dụng vào danh sách loại trừ." },
     { "q": "Hỗ trợ Windows phiên bản nào?", "a": "Windows 10 và Windows 11 được hỗ trợ đầy đủ." },
-    { "q": "Có bản Linux không?", "a": "Có! SmoothScroll cho Linux có sẵn dưới dạng AppImage. Hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các bản phân phối khác. Cài đặt đơn giản như chmod file và chạy." },
+    { "q": "Có bản Linux không?", "a": "Có. SmoothScroll cho Linux có sẵn dưới dạng AppImage. Hoạt động trên Ubuntu, Debian, Fedora, và hầu hết các bản phân phối khác. Chỉ cần cấp quyền chạy cho AppImage rồi khởi động; chi tiết cài đặt có trong repository." },
     { "q": "Gỡ cài đặt như thế nào?", "a": "Chỉ cần xóa file .exe. Không có uninstaller - không có gì khác trên hệ thống." },
     { "q": "SmoothScroll có hoạt động với app UWP / WinUI không?", "a": "Có. App WinUI mặc định bỏ qua synthetic wheel event; SmoothScroll dùng force-enable hook nên scroll thực sự chạy tới. Toggle nằm trong Settings → Scroll." },
     { "q": "Anti-cheat có nhận diện SmoothScroll không?", "a": "SmoothScroll tự nhận diện target nâng cao (admin / UAC prompt) và truyền raw input qua, nên anti-cheat chỉ thấy standard wheel tick. Không cần cấu hình exclusion." },
@@ -114,8 +114,8 @@
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },
   "howItWorks": {
     "seo": {
-      "title": "SmoothScroll hoạt động thế nào - Giải thích từng cài đặt",
-      "description": "Hướng dẫn đầy đủ mọi tính năng, cài đặt và phím tắt của SmoothScroll. Tinh chỉnh cảm giác cuộn cho đọc, code, thiết kế và chơi game."
+      "title": "SmoothScroll hoạt động thế nào: Hướng dẫn cài đặt cuộn Windows",
+      "description": "Tìm hiểu cách SmoothScroll biến input con lăn thành cuộn mượt trên Windows với đường cong easing, profile, phím tắt và loại trừ ứng dụng."
     },
     "hero": {
       "eyebrow": "Hướng dẫn đầy đủ",
