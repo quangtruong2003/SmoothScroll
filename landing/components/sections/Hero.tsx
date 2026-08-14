@@ -20,8 +20,8 @@ export function Hero({ locale, dict }: HeroProps) {
   const eyebrow = isMac ? h.eyebrowMac : isLinux ? h.eyebrowLinux : h.eyebrow
 
   return (
-    <section data-hero-layout="editorial-split" className="relative min-h-[170dvh] px-4">
-      <div className="sticky top-0 flex min-h-[100dvh] items-center overflow-hidden pt-28 pb-24">
+    <section data-hero-layout="editorial-split" className="relative min-h-[100dvh] px-4">
+      <div className="flex min-h-[100dvh] items-center overflow-hidden pt-28 pb-24">
         <HeroBackground3D />
         {/* keeps the copy legible over the ribbons and lands the section on the page background */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_42%,hsl(var(--background)/0.72)_0%,hsl(var(--background)/0.35)_55%,hsl(var(--background)/0)_100%)]" />

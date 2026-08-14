@@ -47,29 +47,31 @@ test('hero copy stays centered on tablet and desktop', async ({ page }) => {
   }
 })
 
-test('hero media remains sticky across its scroll range', async ({ page }) => {
+test('hero scrolls away normally after the scrub video is removed', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
+
+  const initial = await page.locator('[data-hero-layout]').evaluate((hero) => ({
+    heroHeight: hero.getBoundingClientRect().height,
+    viewportHeight: window.innerHeight,
+    heroChildPosition: getComputedStyle(hero.firstElementChild!).position,
+    heroChildTop: hero.firstElementChild!.getBoundingClientRect().top,
+  }))
+
   await page.evaluate(() => window.scrollTo({ top: 250, behavior: 'instant' }))
 
-  const layout = await page.locator('[data-hero-layout]').evaluate((hero) => {
-    const sticky = hero.firstElementChild!.getBoundingClientRect()
-    const tail = hero.querySelector('[data-hero-social-proof]')!.getBoundingClientRect()
-    // The scroll cue now occupies the space under the social proof row, so the
-    // dead-space guard measures from whichever of the two sits lowest.
-    const cue = hero.querySelector('[data-hero-scroll-cue]')?.getBoundingClientRect()
-    const lastContentBottom = Math.max(tail.bottom, cue?.bottom ?? tail.bottom)
-    return {
-      stickyTop: sticky.top,
-      visibleBottomBlank: Math.min(hero.getBoundingClientRect().bottom, window.innerHeight) - lastContentBottom,
-    }
-  })
+  const scrolled = await page.locator('[data-hero-layout]').evaluate((hero) => ({
+    heroTop: hero.getBoundingClientRect().top,
+    heroChildTop: hero.firstElementChild!.getBoundingClientRect().top,
+  }))
 
-  expect(Math.abs(layout.stickyTop)).toBeLessThanOrEqual(1)
-  expect(layout.visibleBottomBlank).toBeLessThanOrEqual(132)
+  expect(initial.heroHeight).toBeLessThanOrEqual(initial.viewportHeight + 1)
+  expect(initial.heroChildPosition).toBe('static')
+  expect(scrolled.heroTop).toBeLessThan(-200)
+  expect(scrolled.heroChildTop).toBeLessThan(-200)
 })
 
-test('hero renders a single WebGL background and keeps its scroll distance', async ({ page }) => {
+test('hero renders a single WebGL background without a video scroll range', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
 
@@ -78,7 +80,7 @@ test('hero renders a single WebGL background and keeps its scroll distance', asy
   // One token-driven canvas replaces the two per-theme scrub videos.
   await expect(canvas).toHaveCount(1)
   await expect(page.locator('video[src*="scrub"]')).toHaveCount(0)
-  await expect.poll(() => page.locator('[data-hero-layout]').evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThan(900)
+  await expect.poll(() => page.locator('[data-hero-layout]').evaluate((element) => element.getBoundingClientRect().height)).toBeLessThanOrEqual(901)
   await expect.poll(() => canvas.evaluate((element) => (element as HTMLCanvasElement).width)).toBeGreaterThan(0)
 })
 
