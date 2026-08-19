@@ -18,7 +18,7 @@ use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
     KEYEVENTF_KEYUP, MOUSEEVENTF_WHEEL, MOUSEINPUT, VK_CONTROL,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    GetAncestor, GetCursorPos, PostMessageW, WindowFromPoint, GA_ROOT, WM_MOUSEWHEEL,
+    GetCursorPos, PostMessageW, WindowFromPoint, WM_MOUSEWHEEL,
 };
 
 const MK_SHIFT: usize = 0x0004;
@@ -37,10 +37,17 @@ fn get_target_window() -> Result<(usize, i32, i32)> {
             return Err(PlatformError::Os("WindowFromPoint returned null".into()));
         }
 
-        let root = GetAncestor(hwnd, GA_ROOT);
-        let target = if !root.is_null() { root } else { hwnd };
-        Ok((target as usize, pt.x, pt.y))
+        Ok((horizontal_post_target(hwnd as usize), pt.x, pt.y))
     }
+}
+
+/// Keep the hit-tested child window as the horizontal wheel target.
+///
+/// `WM_MOUSEWHEEL` propagates from a child to its parents, but a message posted
+/// to the root window cannot propagate back down to the child that owns the
+/// document or content area.
+fn horizontal_post_target(window_under_cursor: usize) -> usize {
+    window_under_cursor
 }
 
 pub struct WindowsWheelEmitter;
@@ -189,6 +196,13 @@ fn emit_zoom_with_ctrl(units: i32) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn horizontal_post_targets_window_under_cursor() {
+        let child_window = 0x1234usize;
+
+        assert_eq!(horizontal_post_target(child_window), child_window);
+    }
 
     #[test]
     fn zero_units_injects_nothing() {
