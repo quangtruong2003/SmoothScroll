@@ -198,6 +198,30 @@ mod tests {
     use super::*;
 
     #[test]
+    fn horizontal_scroll_uses_native_wheel_while_shift_is_held() {
+        assert_eq!(
+            horizontal_injection(120, true),
+            HorizontalInjection::WheelOnly(120)
+        );
+        assert_eq!(
+            horizontal_injection(-40, true),
+            HorizontalInjection::WheelOnly(-40)
+        );
+    }
+
+    #[test]
+    fn horizontal_inertia_wraps_wheel_with_shift_after_release() {
+        assert_eq!(
+            horizontal_injection(120, false),
+            HorizontalInjection::ShiftWrapped(120)
+        );
+        assert_eq!(
+            horizontal_injection(-40, false),
+            HorizontalInjection::ShiftWrapped(-40)
+        );
+    }
+
+    #[test]
     fn horizontal_post_targets_window_under_cursor() {
         let child_window = 0x1234usize;
 
