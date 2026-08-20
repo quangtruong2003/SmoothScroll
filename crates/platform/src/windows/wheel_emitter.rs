@@ -1,54 +1,20 @@
-//! Wheel emitter using `SendInput` for vertical and zoom, and `PostMessageW`
-//! for horizontal. PostMessageW is used for horizontal because apps like
-//! Figma/Pencil listen for WM_MOUSEWHEEL with MK_SHIFT instead of
-//! MOUSEEVENTF_HWHEEL.
+//! Wheel emitter using `SendInput` for vertical, horizontal, and zoom.
+//! Horizontal pulses use the native Shift+Wheel input stream so Office apps
+//! receive the same event as a real Shift-held wheel gesture.
 //!
-//! Zoom uses SendInput rather than PostMessageW: WM_MOUSEWHEEL only bubbles
-//! from child to parent, so posting to GA_ROOT never reaches apps whose
-//! scroll target is a child window (Word's `_WwG` under `OpusApp`).
+//! Zoom uses SendInput so the event reaches the focused application through
+//! the normal Windows input path instead of being posted to a guessed child
+//! window.
 
 #![cfg(windows)]
 
 use crate::traits::{WheelEmitter, ZoomEmitter};
 use crate::types::{PlatformError, Result};
 use std::mem;
-use windows_sys::Win32::Foundation::{GetLastError, POINT};
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
     GetAsyncKeyState, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_MOUSE, KEYBDINPUT,
-    KEYEVENTF_KEYUP, MOUSEEVENTF_WHEEL, MOUSEINPUT, VK_CONTROL,
+    KEYEVENTF_KEYUP, MOUSEEVENTF_WHEEL, MOUSEINPUT, VK_CONTROL, VK_SHIFT,
 };
-use windows_sys::Win32::UI::WindowsAndMessaging::{
-    GetCursorPos, PostMessageW, WindowFromPoint, WM_MOUSEWHEEL,
-};
-
-const MK_SHIFT: usize = 0x0004;
-
-/// Retrieves the target window for PostMessageW injection.
-/// Returns (hwnd, screen_x, screen_y) or error.
-fn get_target_window() -> Result<(usize, i32, i32)> {
-    unsafe {
-        let mut pt = POINT { x: 0, y: 0 };
-        if GetCursorPos(&mut pt) == 0 {
-            return Err(PlatformError::Os("GetCursorPos failed".into()));
-        }
-
-        let hwnd = WindowFromPoint(pt);
-        if hwnd.is_null() {
-            return Err(PlatformError::Os("WindowFromPoint returned null".into()));
-        }
-
-        Ok((horizontal_post_target(hwnd as usize), pt.x, pt.y))
-    }
-}
-
-/// Keep the hit-tested child window as the horizontal wheel target.
-///
-/// `WM_MOUSEWHEEL` propagates from a child to its parents, but a message posted
-/// to the root window cannot propagate back down to the child that owns the
-/// document or content area.
-fn horizontal_post_target(window_under_cursor: usize) -> usize {
-    window_under_cursor
-}
 
 pub struct WindowsWheelEmitter;
 
@@ -99,20 +65,77 @@ fn emit_vertical(units: i32) -> Result<()> {
     Ok(())
 }
 
+/// What to inject for a horizontal pulse represented by Shift+Wheel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum HorizontalInjection {
+    None,
+    WheelOnly(i32),
+    ShiftWrapped(i32),
+}
+
+pub(crate) fn horizontal_injection(units: i32, shift_physically_down: bool) -> HorizontalInjection {
+    if units == 0 {
+        HorizontalInjection::None
+    } else if shift_physically_down {
+        HorizontalInjection::WheelOnly(units)
+    } else {
+        HorizontalInjection::ShiftWrapped(units)
+    }
+}
+
+/// True while either Shift key is physically down. Runs on the engine thread,
+/// never in the `WH_MOUSE_LL` callback.
+fn shift_physically_down() -> bool {
+    (unsafe { GetAsyncKeyState(VK_SHIFT as i32) } as u16 & 0x8000) != 0
+}
+
 fn emit_horizontal(units: i32) -> Result<()> {
-    let (target, x, y) = get_target_window()?;
+    match horizontal_injection(units, shift_physically_down()) {
+        HorizontalInjection::None => Ok(()),
+        HorizontalInjection::WheelOnly(units) => emit_horizontal_wheel(units),
+        HorizontalInjection::ShiftWrapped(units) => emit_horizontal_with_shift(units),
+    }
+}
 
-    unsafe {
-        let mouse_data = ((units as u32) << 16) as usize;
-        let w_param = MK_SHIFT | mouse_data;
-        let l_param = ((y as usize) << 16) | (x as usize & 0xFFFF);
+fn emit_horizontal_wheel(units: i32) -> Result<()> {
+    let cb = mem::size_of::<INPUT>() as i32;
+    let buf = wheel_input(MOUSEEVENTF_WHEEL, units);
+    let sent = unsafe { SendInput(1, &buf, cb) };
+    if sent != 1 {
+        return Err(PlatformError::Os(format!(
+            "SendInput injected {}/1 horizontal events",
+            sent
+        )));
+    }
+    Ok(())
+}
 
-        if PostMessageW(target as _, WM_MOUSEWHEEL, w_param as _, l_param as _) == 0 {
-            return Err(PlatformError::Os(format!(
-                "PostMessageW failed with error {}",
-                GetLastError()
-            )));
-        }
+fn emit_horizontal_with_shift(units: i32) -> Result<()> {
+    let cb = mem::size_of::<INPUT>() as i32;
+    let shift = |flags: u32| INPUT {
+        r#type: INPUT_KEYBOARD,
+        Anonymous: INPUT_0 {
+            ki: KEYBDINPUT {
+                wVk: VK_SHIFT,
+                wScan: 0,
+                dwFlags: flags,
+                time: 0,
+                dwExtraInfo: 0,
+            },
+        },
+    };
+
+    let inputs = [
+        shift(0),
+        wheel_input(MOUSEEVENTF_WHEEL, units),
+        shift(KEYEVENTF_KEYUP),
+    ];
+    let sent = unsafe { SendInput(3, inputs.as_ptr(), cb) };
+    if sent != 3 {
+        return Err(PlatformError::Os(format!(
+            "SendInput injected {}/3 horizontal events",
+            sent
+        )));
     }
     Ok(())
 }
@@ -198,6 +221,12 @@ mod tests {
     use super::*;
 
     #[test]
+    fn zero_horizontal_units_inject_nothing() {
+        assert_eq!(horizontal_injection(0, true), HorizontalInjection::None);
+        assert_eq!(horizontal_injection(0, false), HorizontalInjection::None);
+    }
+
+    #[test]
     fn horizontal_scroll_uses_native_wheel_while_shift_is_held() {
         assert_eq!(
             horizontal_injection(120, true),
@@ -219,13 +248,6 @@ mod tests {
             horizontal_injection(-40, false),
             HorizontalInjection::ShiftWrapped(-40)
         );
-    }
-
-    #[test]
-    fn horizontal_post_targets_window_under_cursor() {
-        let child_window = 0x1234usize;
-
-        assert_eq!(horizontal_post_target(child_window), child_window);
     }
 
     #[test]
