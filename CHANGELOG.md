@@ -7,6 +7,17 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.28.0] - 2026-08-19
+
+### Added
+- strengthen SEO discovery signals
+
+### Fixed
+- use explicit Node test entrypoint
+- make Node test glob portable
+- target horizontal wheel at child window
+- remove stale hero scroll scene
+- keep smooth scrolling for elevated targets when self is elevated
 ## [1.27.1] - 2026-08-06
 
 ### Fixed
