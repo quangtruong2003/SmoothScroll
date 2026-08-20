@@ -306,6 +306,7 @@ impl EngineSink {
             && mods.shift
             && eff.horizontal_smoothness
             && source == smoothscroll_core::input_source::InputSource::Wheel
+            && !self.is_browser_target()
         {
             let h_delta = if eff.horizontal_invert { -delta } else { delta };
             if let Err(error) = self.state.emitter.emit_horizontal_immediate(h_delta) {
@@ -372,6 +373,55 @@ impl EngineSink {
         self.state.engine_signal.signal();
         HookDecision::Swallow
     }
+
+    #[cfg(target_os = "windows")]
+    fn is_browser_target(&self) -> bool {
+        let (under_cursor, foreground) = {
+            let mut cache = self.process_cache.lock();
+            cache.get(|| {
+                (
+                    self.state.processes.process_name_under_cursor(),
+                    self.state.processes.foreground_process_name(),
+                )
+            })
+        };
+
+        under_cursor
+            .as_deref()
+            .map(is_browser_process)
+            .unwrap_or_else(|| foreground.as_deref().is_some_and(is_browser_process))
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn is_browser_process(process_name: &str) -> bool {
+    let file_name = process_name
+        .rsplit(['\\', '/'])
+        .next()
+        .unwrap_or(process_name);
+    let stem = file_name
+        .strip_suffix(".exe")
+        .or_else(|| file_name.strip_suffix(".EXE"))
+        .unwrap_or(file_name)
+        .to_ascii_lowercase();
+
+    matches!(
+        stem.as_str(),
+        "arc"
+            | "brave"
+            | "chrome"
+            | "chromium"
+            | "firefox"
+            | "floorp"
+            | "librewolf"
+            | "msedge"
+            | "opera"
+            | "thorium"
+            | "tor"
+            | "vivaldi"
+            | "waterfox"
+            | "zen"
+    )
 }
 
 impl HookEventSink for EngineSink {
@@ -761,6 +811,81 @@ mod tests {
             !state.engine.lock().has_pending_work(),
             "held Shift must not wait for the animation queue"
         );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn browser_shift_wheel_keeps_engine_smoothing_path() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut state = make_state_with_process(AppSettings::default(), Some("chrome.exe"));
+        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+        let sink = EngineSink::new(state.clone());
+
+        let decision = sink.on_wheel(120, shift_only());
+
+        assert_eq!(decision, HookDecision::Swallow);
+        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(
+            state.engine.lock().has_pending_work(),
+            "browser Shift+Wheel must keep the smooth engine path"
+        );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn office_under_cursor_takes_precedence_over_browser_foreground() {
+        for process_name in ["WINWORD.EXE", "EXCEL.EXE", "explorer.exe"] {
+            let recorder = Arc::new(RecordingEmitter::default());
+            let mut state = make_state_with_processes(
+                AppSettings::default(),
+                Some(process_name),
+                Some("chrome.exe"),
+            );
+            Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+            let sink = EngineSink::new(state.clone());
+
+            let decision = sink.on_wheel(120, shift_only());
+
+            assert_eq!(decision, HookDecision::Swallow, "{process_name}");
+            assert_eq!(
+                *recorder.immediate_calls.lock(),
+                vec![120],
+                "{process_name}"
+            );
+            assert!(!state.engine.lock().has_pending_work(), "{process_name}");
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn browser_foreground_is_used_when_cursor_target_is_unknown() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        let mut state = make_state_with_processes(settings, None, Some("msedge.exe"));
+        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+        let sink = EngineSink::new(state.clone());
+
+        let decision = sink.on_wheel(120, shift_only());
+
+        assert_eq!(decision, HookDecision::Swallow);
+        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn thorium_shift_wheel_keeps_engine_smoothing_path() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut state = make_state_with_process(AppSettings::default(), Some("thorium.exe"));
+        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+        let sink = EngineSink::new(state.clone());
+
+        let decision = sink.on_wheel(120, shift_only());
+
+        assert_eq!(decision, HookDecision::Swallow);
+        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(state.engine.lock().has_pending_work());
     }
 
     #[test]
