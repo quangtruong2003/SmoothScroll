@@ -45,6 +45,13 @@ pub trait MouseHook: Send + Sync {
 /// (use `core::constants::EMIT_UNIT`).
 pub trait WheelEmitter: Send + Sync {
     fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()>;
+
+    /// Dispatch one horizontal wheel notch without waiting for engine inertia.
+    /// Platforms may override this when the native operation must run on a
+    /// dedicated thread. The default preserves the existing emitter behavior.
+    fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
+        self.emit(0, units)
+    }
 }
 
 /// Emits synthetic zoom events (Ctrl+Wheel).

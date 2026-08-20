@@ -5,9 +5,9 @@
 //! `GetMessage` loop and install the hook there.
 //!
 //! The hook callback runs on this thread and dispatches into the
-//! `HookEventSink` provided at install time. Modifier state is read from
-//! a `ModifierSampler` snapshot — never via `GetAsyncKeyState` in the hot
-//! path.
+//! `HookEventSink` provided at install time. Ctrl/Alt come from the
+//! `ModifierSampler`; Shift is refreshed at the wheel boundary so a newly
+//! pressed Shift cannot be missed by the sampler's 16 ms interval.
 
 #![cfg(windows)]
 
@@ -42,6 +42,10 @@ struct MsllHookStruct {
 const LLMHF_INJECTED: u32 = 0x00000001;
 const LLMHF_LOWER_IL_INJECTED: u32 = 0x00000002;
 
+fn should_ignore_injected(flags: u32, extra_info: usize) -> bool {
+    let injected = (flags & (LLMHF_INJECTED | LLMHF_LOWER_IL_INJECTED)) != 0;
+    injected && extra_info == super::SMOOTHSCROLL_INPUT_MARKER
+}
 struct HookContext {
     sink: Arc<dyn HookEventSink>,
     modifiers: Arc<ModifierState>,
@@ -155,18 +159,17 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
         None => return CallNextHookEx(null_mut(), n_code, w_param, l_param),
     };
     let data = &*(l_param as *const MsllHookStruct);
-    if (data.flags & (LLMHF_INJECTED | LLMHF_LOWER_IL_INJECTED)) != 0 {
+    if should_ignore_injected(data.flags, data.dw_extra_info) {
         return CallNextHookEx(null_mut(), n_code, w_param, l_param);
     }
 
     let msg = w_param as u32;
     let raw_delta = ((data.mouse_data >> 16) & 0xFFFF) as i16;
     let delta = raw_delta as i32;
-    let mods = ctx.modifiers.snapshot();
-
     let now_ms = ctx.epoch.elapsed().as_millis() as u64;
     let decision = match msg {
         x if x == WM_MOUSEWHEEL => {
+            let mods = ctx.modifiers.snapshot_for_wheel();
             let source = ctx.classifier_v.lock().classify(delta, now_ms);
             ctx.sink.on_wheel_ext(delta, mods, source)
         }
@@ -187,3 +190,22 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
 // ModifierKeys re-export so the trait crate doesn't pull windows-sys.
 #[allow(dead_code)]
 fn _reexport_check(_m: ModifierKeys) {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ignores_only_smoothscroll_injected_mouse_events() {
+        assert!(should_ignore_injected(
+            LLMHF_INJECTED,
+            super::super::SMOOTHSCROLL_INPUT_MARKER
+        ));
+        assert!(!should_ignore_injected(LLMHF_INJECTED, 0));
+        assert!(!should_ignore_injected(LLMHF_INJECTED, 0x5353_4F46));
+        assert!(!should_ignore_injected(
+            0,
+            super::super::SMOOTHSCROLL_INPUT_MARKER
+        ));
+    }
+}

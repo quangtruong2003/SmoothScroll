@@ -292,9 +292,6 @@ impl EngineSink {
         self.update_last_source(source);
         let now = self.now_ms();
 
-        // ONE lock acquisition per event.
-        let mut engine = self.state.engine.lock();
-
         #[cfg(not(target_os = "macos"))]
         let ctrl_pressed = mods.ctrl;
         #[cfg(target_os = "macos")]
@@ -303,6 +300,24 @@ impl EngineSink {
         if ctrl_pressed && !eff.smooth_zoom {
             return HookDecision::Pass;
         }
+
+        #[cfg(target_os = "windows")]
+        if !ctrl_pressed
+            && mods.shift
+            && eff.horizontal_smoothness
+            && source == smoothscroll_core::input_source::InputSource::Wheel
+        {
+            let h_delta = if eff.horizontal_invert { -delta } else { delta };
+            if let Err(error) = self.state.emitter.emit_horizontal_immediate(h_delta) {
+                tracing::warn!(%error, "failed to queue immediate horizontal scroll");
+                return HookDecision::Pass;
+            }
+            self.state.stats.record_notch();
+            return HookDecision::Swallow;
+        }
+
+        // ONE lock acquisition for events routed through the smooth engine.
+        let mut engine = self.state.engine.lock();
 
         if ctrl_pressed {
             // Ctrl+Wheel → zoom axis
@@ -350,7 +365,6 @@ impl EngineSink {
 
         self.update_last_source(source);
         let now = self.now_ms();
-
         let mut engine = self.state.engine.lock();
         let h_delta = if eff.horizontal_invert { -delta } else { delta };
         engine.on_hwheel_with_source(h_delta, now, source, &eff);
@@ -431,6 +445,32 @@ mod tests {
             Ok(())
         }
     }
+    #[derive(Default)]
+    struct RecordingEmitter {
+        generic_calls: Mutex<Vec<(i32, i32)>>,
+        immediate_calls: Mutex<Vec<i32>>,
+    }
+    impl WheelEmitter for RecordingEmitter {
+        fn emit(&self, vertical: i32, horizontal: i32) -> Result<()> {
+            self.generic_calls.lock().push((vertical, horizontal));
+            Ok(())
+        }
+
+        fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
+            self.immediate_calls.lock().push(units);
+            Ok(())
+        }
+    }
+    struct FailingImmediateEmitter;
+    impl WheelEmitter for FailingImmediateEmitter {
+        fn emit(&self, _vertical: i32, _horizontal: i32) -> Result<()> {
+            Ok(())
+        }
+
+        fn emit_horizontal_immediate(&self, _units: i32) -> Result<()> {
+            Err(PlatformError::Os("immediate queue unavailable".into()))
+        }
+    }
     struct StubProcessQuery;
     impl ProcessQuery for StubProcessQuery {
         fn process_name_under_cursor(&self) -> Option<String> {
@@ -495,6 +535,13 @@ mod tests {
     }
 
     fn make_state(settings: AppSettings) -> Arc<AppState> {
+        make_state_with_emitter(settings, Arc::new(StubEmitter))
+    }
+
+    fn make_state_with_emitter(
+        settings: AppSettings,
+        emitter: Arc<dyn WheelEmitter>,
+    ) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
@@ -502,7 +549,7 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter: Arc::new(StubEmitter),
+            emitter,
             zoom_emitter: Arc::new(StubEmitter),
             processes: Arc::new(StubProcessQuery),
             autostart: Arc::new(StubAutostart),
@@ -700,17 +747,73 @@ mod tests {
     }
 
     #[test]
-    fn shift_wheel_smooths_horizontal() {
-        // Shift+Wheel always routes through engine for smooth horizontal scrolling.
-        let s = AppSettings::default();
-        let state = make_state(s);
+    fn shift_wheel_dispatches_immediately_without_engine_inertia() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let state = make_state_with_emitter(AppSettings::default(), recorder.clone());
         let sink = EngineSink::new(state.clone());
+
         let decision = sink.on_wheel(120, shift_only());
 
         assert_eq!(decision, HookDecision::Swallow);
-        assert!(state.engine.lock().has_pending_work());
-        let (_v, h) = drain_engine(&state);
-        assert!(h != 0, "expected horizontal emission, got 0");
+        assert_eq!(recorder.immediate_calls.lock().as_slice(), &[120]);
+        assert!(recorder.generic_calls.lock().is_empty());
+        assert!(
+            !state.engine.lock().has_pending_work(),
+            "held Shift must not wait for the animation queue"
+        );
+    }
+
+    #[test]
+    fn shift_wheel_passes_through_when_immediate_dispatch_fails() {
+        let state =
+            make_state_with_emitter(AppSettings::default(), Arc::new(FailingImmediateEmitter));
+        let sink = EngineSink::new(state.clone());
+
+        let decision = sink.on_wheel(120, shift_only());
+
+        assert_eq!(decision, HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn high_resolution_shift_wheel_keeps_existing_engine_path() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        let sink = EngineSink::new(state.clone());
+
+        let decision = sink.route_vertical_with_source(
+            40,
+            shift_only(),
+            smoothscroll_core::input_source::InputSource::HighResWheel,
+        );
+
+        assert_eq!(decision, HookDecision::Swallow);
+        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(recorder.generic_calls.lock().is_empty());
+        assert!(
+            state.engine.lock().has_pending_work(),
+            "high-resolution deltas must preserve the existing smoothing path"
+        );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn native_hwheel_preserves_configured_step_size_across_targets() {
+        let mut s = AppSettings::default();
+        s.step_size_px = 40;
+        let office_state = make_state_with_process(s.clone(), Some("EXCEL"));
+        let office_sink = EngineSink::new(office_state.clone());
+        let generic_state = make_state_with_process(s, Some("notepad"));
+        let generic_sink = EngineSink::new(generic_state.clone());
+
+        assert_eq!(office_sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(generic_sink.on_hwheel(120), HookDecision::Swallow);
+        let (office_v, office_h) = drain_engine(&office_state);
+        let (generic_v, generic_h) = drain_engine(&generic_state);
+
+        assert_eq!(office_v, 0);
+        assert_eq!(generic_v, 0);
+        assert_eq!(office_h, generic_h);
     }
 
     #[test]
@@ -730,11 +833,14 @@ mod tests {
     fn horizontal_invert_affects_shift_wheel() {
         let mut s = AppSettings::default();
         s.horizontal_invert = true;
-        let state = make_state(s);
+        let recorder = Arc::new(RecordingEmitter::default());
+        let state = make_state_with_emitter(s, recorder.clone());
         let sink = EngineSink::new(state.clone());
         sink.on_wheel(100, shift_only());
-        let (_v, h) = drain_engine(&state);
-        assert!(h < 0, "horizontal_invert should flip sign");
+
+        assert_eq!(recorder.immediate_calls.lock().as_slice(), &[-100]);
+        assert!(recorder.generic_calls.lock().is_empty());
+        assert!(!state.engine.lock().has_pending_work());
     }
 
     #[test]
@@ -882,7 +988,7 @@ mod tests {
     }
 
     #[test]
-    fn profile_horizontal_batch_drains_with_global_horizontal_smoothing_disabled() {
+    fn profile_enables_immediate_horizontal_when_global_smoothing_is_disabled() {
         let mut settings = AppSettings::default();
         settings.horizontal_smoothness = false;
         let mut profile = ScrollProfile::new("blender", "Blender");
@@ -891,7 +997,9 @@ mod tests {
         settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
 
         let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
-        let state = make_state_with_processes(settings, Some("blender.exe"), None);
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut state = make_state_with_processes(settings, Some("blender.exe"), None);
+        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
         state
             .effective_per_profile
             .write()
@@ -900,19 +1008,11 @@ mod tests {
 
         assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Swallow);
 
-        let global = state.effective.load_full();
-        let mut horizontal = 0;
-        for _ in 0..500 {
-            horizontal += state.engine.lock().step(1000.0 / 120.0, &global).horizontal;
-            if !state.engine.lock().has_pending_work() {
-                break;
-            }
-        }
-
-        assert!(horizontal > 0, "profile horizontal batch should emit scroll");
+        assert_eq!(recorder.immediate_calls.lock().as_slice(), &[120]);
+        assert!(recorder.generic_calls.lock().is_empty());
         assert!(
             !state.engine.lock().has_pending_work(),
-            "profile horizontal batch should drain under global frame settings"
+            "profile horizontal scroll must not wait for global frame settings"
         );
     }
 

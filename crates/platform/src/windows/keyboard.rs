@@ -1,6 +1,8 @@
-//! Background-thread modifier-key sampler. The hook callback is on a hot
-//! path; we don't want to call `GetAsyncKeyState` synchronously there.
-//! This polls at ~60fps and exposes atomics the hook reads cheaply.
+//! Background-thread modifier-key sampler.
+//!
+//! Ctrl and Alt are sampled in the background so the hook callback stays
+//! cheap. Shift is refreshed at the wheel boundary as well: the first wheel
+//! notch after pressing Shift must not wait for the next sampler tick.
 
 #![cfg(windows)]
 
@@ -33,6 +35,26 @@ impl ModifierState {
             cmd: false,
         }
     }
+
+    /// Read the modifier state used to classify a vertical wheel event.
+    ///
+    /// The sampler can be up to one poll interval stale. A stale Shift state
+    /// is especially visible because it routes the first Shift+Wheel notch to
+    /// the vertical axis. Refresh only Shift at this boundary; Ctrl/Alt keep
+    /// their sampled values and therefore do not add more work to the common
+    /// modifier path.
+    pub fn snapshot_for_wheel(&self) -> ModifierKeys {
+        refresh_shift(self.snapshot(), is_shift_down())
+    }
+}
+
+fn is_shift_down() -> bool {
+    unsafe { (GetAsyncKeyState(VK_SHIFT as i32) as u16 & 0x8000) != 0 }
+}
+
+fn refresh_shift(mut modifiers: ModifierKeys, shift_down: bool) -> ModifierKeys {
+    modifiers.shift = shift_down;
+    modifiers
 }
 
 pub struct ModifierSampler {
@@ -91,5 +113,26 @@ impl Drop for ModifierSampler {
         if let Some(h) = self.handle.take() {
             let _ = h.join();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wheel_snapshot_uses_current_shift_without_changing_other_modifiers() {
+        let sampled = ModifierKeys {
+            shift: false,
+            ctrl: true,
+            alt: true,
+            cmd: false,
+        };
+        let refreshed = refresh_shift(sampled, true);
+
+        assert!(refreshed.shift);
+        assert_eq!(refreshed.ctrl, sampled.ctrl);
+        assert_eq!(refreshed.alt, sampled.alt);
+        assert_eq!(refreshed.cmd, sampled.cmd);
     }
 }

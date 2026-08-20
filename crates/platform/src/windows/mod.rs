@@ -6,6 +6,7 @@ mod accessibility;
 mod autostart;
 mod display;
 pub mod fullscreen;
+mod horizontal_scroll;
 mod hotkey;
 mod keyboard;
 mod mouse_hook;
@@ -14,6 +15,10 @@ pub mod text_input_detector;
 mod timer;
 mod wheel_emitter;
 pub mod window_geom;
+
+/// Marks mouse input emitted by SmoothScroll so the low-level hook can ignore
+/// only our own feedback events while still accepting driver-injected wheels.
+const SMOOTHSCROLL_INPUT_MARKER: usize = 0x5353_4352;
 
 use crate::types::Result;
 use crate::Platform;
@@ -32,6 +37,7 @@ pub use wheel_emitter::WindowsWheelEmitter;
 pub use window_geom::WindowsWindowGeometry;
 
 pub fn build() -> Result<Platform> {
+    horizontal_scroll::HorizontalScrollDispatcher::initialize()?;
     let wheel_emitter: Arc<WindowsWheelEmitter> = Arc::new(WindowsWheelEmitter);
     Ok(Platform {
         mouse_hook: Arc::new(WindowsMouseHook::new()),
