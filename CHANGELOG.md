@@ -7,6 +7,11 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.28.1] - 2026-08-20
+
+### Fixed
+- scroll horizontally while holding shift
+- inject native shifted wheel for horizontal scroll
 ## [1.28.0] - 2026-08-19
 
 ### Added
