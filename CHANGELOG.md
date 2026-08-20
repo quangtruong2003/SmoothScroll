@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.28.2] - 2026-08-20
+
+### Fixed
+- preserve browser shift wheel smoothing
 ## [1.28.1] - 2026-08-20
 
 ### Fixed
