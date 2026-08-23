@@ -6,9 +6,11 @@ const POLL_INTERVAL_MS = 2000;
 
 export function useForegroundApp(): {
   ctx: ForegroundAppContext | null;
+  loaded: boolean;
   refresh: () => Promise<void>;
 } {
   const [ctx, setCtx] = useState<ForegroundAppContext | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -16,6 +18,8 @@ export function useForegroundApp(): {
       setCtx(next);
     } catch {
       setCtx(null);
+    } finally {
+      setLoaded(true);
     }
   }, []);
 
@@ -31,5 +35,5 @@ export function useForegroundApp(): {
     };
   }, [refresh]);
 
-  return { ctx, refresh };
+  return { ctx, loaded, refresh };
 }

@@ -9,6 +9,7 @@
 //! The panel is a frameless WebView window rendered via React.
 
 use crate::state::AppState;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tauri::{
     image::Image,
@@ -18,6 +19,15 @@ use tauri::{
 
 const TRAY_ID: &str = "main";
 const PANEL_LABEL: &str = "tray-panel";
+
+/// Set once the frontend has reported the panel's real content size via
+/// `resize_tray_panel`. Until then the window still carries its configured
+/// default size (220x600), which is almost never the content size, so the
+/// first open must not be shown at that size.
+static PANEL_MEASURED: AtomicBool = AtomicBool::new(false);
+/// Set while the panel is shown off-screen waiting for its first content
+/// measurement; `resize_panel` then moves it to the anchor position.
+static PANEL_PENDING_REVEAL: AtomicBool = AtomicBool::new(false);
 
 /// Returns the tray icon image for the given enabled state.
 fn icon_for<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Image<'static> {
@@ -104,14 +114,11 @@ fn cursor_position<R: Runtime>(app: &AppHandle<R>) -> PhysicalPosition<i32> {
     PhysicalPosition::new(960, 540)
 }
 
-/// Position the panel window near the cursor, anchored to the taskbar edge
-/// (the boundary of the primary monitor's work area). Uses the panel's
-/// actual current height (which the frontend resizes to fit content) so
-/// the bottom edge stays glued to the taskbar regardless of content size.
-fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
+/// Compute the anchor position for a panel of the given size: horizontally
+/// centered on the cursor (clamped to the work area), vertically pinned just
+/// above the taskbar edge of the primary monitor's work area.
+fn compute_anchor_position<R: Runtime>(app: &AppHandle<R>, panel_w: i32, panel_h: i32) -> (i32, i32) {
     let cursor = cursor_position(app);
-    let panel_w = win.outer_size().map(|s| s.width as i32).unwrap_or(260);
-    let panel_h = win.outer_size().map(|s| s.height as i32).unwrap_or(480);
     let edge_gap = 2;
 
     let monitor = app.primary_monitor().ok().flatten();
@@ -132,7 +139,6 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
     // on every platform (NSEvent.mouseLocation flipped on macOS, XQueryPointer
     // on Linux, GetCursorPos on Windows). No platform-specific conversion
     // is needed here — see cursor_position() above for the fallback policy.
-    let cursor = cursor;
 
     // Anchor vertically to the bottom edge of the work area (just above taskbar).
     let mut y = work_y + work_h - panel_h - edge_gap;
@@ -149,6 +155,17 @@ fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::Webview
         y = work_y + edge_gap;
     }
 
+    (x, y)
+}
+
+/// Position the panel window near the cursor, anchored to the taskbar edge
+/// (the boundary of the primary monitor's work area). Uses the panel's
+/// actual current height (which the frontend resizes to fit content) so
+/// the bottom edge stays glued to the taskbar regardless of content size.
+fn position_panel_at_cursor<R: Runtime>(app: &AppHandle<R>, win: &tauri::WebviewWindow<R>) {
+    let panel_w = win.outer_size().map(|s| s.width as i32).unwrap_or(260);
+    let panel_h = win.outer_size().map(|s| s.height as i32).unwrap_or(480);
+    let (x, y) = compute_anchor_position(app, panel_w, panel_h);
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition { x, y }));
 }
 
@@ -159,13 +176,9 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, width: u32, height: u32) {
         return;
     };
 
-    // Get current window position first - we'll use it for repositioning
-    let Ok(cur_pos) = win.outer_position() else {
-        return;
-    };
-    let Ok(cur_size) = win.outer_size() else {
-        return;
-    };
+    // Any report from the frontend means the content has been laid out and
+    // measured, so the window size is trustworthy from here on.
+    PANEL_MEASURED.store(true, Ordering::SeqCst);
 
     // Clamp to a sane range so a measurement glitch can't shrink the panel
     // to nothing or push it off-screen.
@@ -178,7 +191,38 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, width: u32, height: u32) {
     let min_h = 120u32;
     let clamped_height = height.clamp(min_h, max_h);
 
-    // Pin the bottom edge: new top = previous bottom - new height.
+    let min_w = 200u32;
+    let max_w = 480u32;
+    let clamped_width = width.clamp(min_w, max_w);
+
+    // First measurement after app start: the panel was parked off-screen so
+    // the WebView could lay out at its real content size. Now that we know
+    // that size, move it to the anchor position and reveal it.
+    if PANEL_PENDING_REVEAL.swap(false, Ordering::SeqCst) {
+        let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+            width: clamped_width,
+            height: clamped_height,
+        }));
+        let (x, y) = compute_anchor_position(app, clamped_width as i32, clamped_height as i32);
+        let _ = win.set_position(tauri::Position::Physical(PhysicalPosition { x, y }));
+        let _ = win.set_focus();
+        return;
+    }
+
+    // Normal path: pin the bottom edge — new top = previous bottom - new height.
+    // Read the current geometry BEFORE resizing so the bottom edge stays put.
+    let Ok(cur_pos) = win.outer_position() else {
+        return;
+    };
+    let Ok(cur_size) = win.outer_size() else {
+        return;
+    };
+
+    let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+        width: clamped_width,
+        height: clamped_height,
+    }));
+
     let bottom = cur_pos.y + cur_size.height as i32;
     let new_y = bottom - clamped_height as i32;
 
@@ -186,14 +230,6 @@ pub fn resize_panel<R: Runtime>(app: &AppHandle<R>, width: u32, height: u32) {
     let work_y = work_area.map(|w| w.position.y).unwrap_or(0);
     let final_y = new_y.max(work_y);
 
-    let min_w = 200u32;
-    let max_w = 480u32;
-    let clamped_width = width.clamp(min_w, max_w);
-
-    let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize {
-        width: clamped_width,
-        height: clamped_height,
-    }));
     let _ = win.set_position(tauri::Position::Physical(PhysicalPosition {
         x: cur_pos.x,
         y: final_y,
@@ -210,16 +246,45 @@ fn show_tray_panel<R: Runtime>(app: &AppHandle<R>) {
         *state.last_foreground_at_tray_open.lock() = name;
     }
 
-    if let Some(win) = app.get_webview_window(PANEL_LABEL) {
+    let Some(win) = app.get_webview_window(PANEL_LABEL) else {
+        return;
+    };
+
+    if PANEL_MEASURED.load(Ordering::SeqCst) {
+        // Fast path: the window already holds the real content size from a
+        // previous measurement, so it can be positioned and shown directly.
         position_panel_at_cursor(app, &win);
         crate::webview_memory::set_backgrounded(&win, false);
         let _ = win.show();
         let _ = win.set_focus();
+        return;
     }
+
+    // Slow path (first open after launch): the window still has its
+    // configured default size, and a hidden WebView never lays out, so the
+    // frontend cannot have measured the content yet. Showing it at that size
+    // would flash the panel at the wrong position before the ResizeObserver
+    // corrects it. Instead, show it off-screen so the WebView can lay out;
+    // the first `resize_tray_panel` call then moves it to the anchor
+    // position and reveals it.
+    PANEL_PENDING_REVEAL.store(true, Ordering::SeqCst);
+    // Park the window far off-screen. Avoid (-32000, -32000): Windows uses
+    // that exact coordinate as the "minimized" sentinel, which would keep
+    // the WebView from laying out and block the measurement we depend on.
+    let _ = win.set_position(tauri::Position::Physical(PhysicalPosition {
+        x: -20000,
+        y: -20000,
+    }));
+    crate::webview_memory::set_backgrounded(&win, false);
+    let _ = win.show();
 }
 
 /// Hide the tray panel window.
 fn hide_tray_panel<R: Runtime>(app: &AppHandle<R>) {
+    // A pending reveal means the panel was shown off-screen waiting for its
+    // first measurement; the user dismissed it before that arrived, so drop
+    // the pending state — the next open retries the slow path.
+    PANEL_PENDING_REVEAL.store(false, Ordering::SeqCst);
     if let Some(win) = app.get_webview_window(PANEL_LABEL) {
         let _ = win.hide();
         crate::webview_memory::set_backgrounded(&win, true);

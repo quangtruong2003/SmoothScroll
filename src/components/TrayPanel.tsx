@@ -59,9 +59,10 @@ function MenuItem({
 
 export function TrayPanel() {
   const { t } = useTranslation();
-  const { ctx, refresh } = useForegroundApp();
+  const { ctx, loaded: fgLoaded, refresh } = useForegroundApp();
 
   const settings = useSettingsStore((s) => s.settings);
+  const settingsLoading = useSettingsStore((s) => s.loading);
   const load = useSettingsStore((s) => s.load);
   const setAll = useSettingsStore((s) => s.setAll);
 
@@ -93,9 +94,18 @@ export function TrayPanel() {
   }, [load, setAll]);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // Only start measuring once the content is final — the foreground-app card
+  // and profile pill render nothing until their async data arrives, so an
+  // earlier measurement would report a too-small height and the panel would
+  // grow (and jump) after it's already visible. Gating here means the first
+  // size we hand to the native side is the real, final size.
+  const contentReady = fgLoaded && !settingsLoading;
+
   useEffect(() => {
+    if (!contentReady) return;
     const el = rootRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
+    if (!el) return;
     let lastSentH = 0;
     let lastSentW = 0;
     const sync = (w: number, h: number) => {
@@ -112,18 +122,24 @@ export function TrayPanel() {
         // ignore
       });
     };
-    const obs = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        sync(entry.contentRect.width, entry.contentRect.height);
-      }
-    });
-    obs.observe(el);
+    // ResizeObserver keeps the panel fitted as content changes; the rAF pass
+    // below guarantees at least one measurement is reported even if the
+    // observer is unavailable, so the native side is never left waiting.
+    let obs: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined') {
+      obs = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          sync(entry.contentRect.width, entry.contentRect.height);
+        }
+      });
+      obs.observe(el);
+    }
     requestAnimationFrame(() => {
       const rect = el.getBoundingClientRect();
       sync(rect.width, rect.height);
     });
-    return () => obs.disconnect();
-  }, []);
+    return () => obs?.disconnect();
+  }, [contentReady]);
 
   useEffect(() => {
     if (settings) applyTheme(settings.theme);
