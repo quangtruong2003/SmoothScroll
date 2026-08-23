@@ -7,6 +7,12 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.28.3] - 2026-08-23
+
+### Fixed
+- canonicalize app_profiles keys to match backend
+- measure tray panel content before first reveal
+- resolve tray profile pill via canonical lookup
 ## [1.28.2] - 2026-08-20
 
 ### Fixed
