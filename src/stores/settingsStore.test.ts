@@ -364,7 +364,8 @@ describe("settingsStore", () => {
         });
 
         expect(mocks.mockAssignAppProfile).toHaveBeenCalledWith("chrome.exe", "profile-1");
-        expect(useSettingsStore.getState().settings?.app_profiles["chrome.exe"]).toBe("profile-1");
+        // Keys are stored canonicalized (lowercase, no .exe), mirroring the backend.
+        expect(useSettingsStore.getState().settings?.app_profiles["chrome"]).toBe("profile-1");
       });
 
       it("removes assignment when profileId is null", async () => {
@@ -378,7 +379,7 @@ describe("settingsStore", () => {
           await useSettingsStore.getState().assignAppProfile("chrome.exe", null);
         });
 
-        expect(useSettingsStore.getState().settings?.app_profiles["chrome.exe"]).toBeUndefined();
+        expect(useSettingsStore.getState().settings?.app_profiles["chrome"]).toBeUndefined();
       });
     });
 
@@ -394,7 +395,7 @@ describe("settingsStore", () => {
           await useSettingsStore.getState().unassignAppProfile("chrome.exe");
         });
 
-        expect(useSettingsStore.getState().settings?.app_profiles["chrome.exe"]).toBeUndefined();
+        expect(useSettingsStore.getState().settings?.app_profiles["chrome"]).toBeUndefined();
       });
     });
   });
@@ -446,10 +447,11 @@ describe("settingsStore", () => {
       const settingsWithStaleEntries = {
         ...mockSettings,
         auto_disable_windows_apps: true,
+        // Keys are canonicalized (as the backend delivers them after load).
         app_profiles: {
-          "Notepad.exe": "__disabled__",
-          "SystemSettings.exe": "__disabled__",
-          "chrome.exe": "profile-1",
+          notepad: "__disabled__",
+          systemsettings: "__disabled__",
+          chrome: "profile-1",
         },
       };
       useSettingsStore.setState({ settings: settingsWithStaleEntries });
@@ -469,9 +471,9 @@ describe("settingsStore", () => {
         await new Promise((r) => setTimeout(r, 0));
       });
       const finalSettings = useSettingsStore.getState().settings;
-      expect(finalSettings?.app_profiles["Notepad.exe"]).toBeUndefined();
-      expect(finalSettings?.app_profiles["SystemSettings.exe"]).toBeUndefined();
-      expect(finalSettings?.app_profiles["chrome.exe"]).toBe("profile-1");
+      expect(finalSettings?.app_profiles["notepad"]).toBeUndefined();
+      expect(finalSettings?.app_profiles["systemsettings"]).toBeUndefined();
+      expect(finalSettings?.app_profiles.chrome).toBe("profile-1");
     });
 
     it("post-cleanup saveNow overwrites stale debounced snapshot", async () => {
@@ -481,7 +483,7 @@ describe("settingsStore", () => {
         app_profiles: {
           "Notepad.exe": "__disabled__",
           "SystemSettings.exe": "__disabled__",
-          "chrome.exe": "profile-1",
+          chrome: "profile-1",
         },
       };
       useSettingsStore.setState({ settings: settingsWithStaleEntries });
@@ -498,9 +500,9 @@ describe("settingsStore", () => {
 
       // After cleanup runs, the in-memory app_profiles must be clean.
       const finalSettings = useSettingsStore.getState().settings;
-      expect(finalSettings?.app_profiles["Notepad.exe"]).toBeUndefined();
-      expect(finalSettings?.app_profiles["SystemSettings.exe"]).toBeUndefined();
-      expect(finalSettings?.app_profiles["chrome.exe"]).toBe("profile-1");
+      expect(finalSettings?.app_profiles["notepad"]).toBeUndefined();
+      expect(finalSettings?.app_profiles["systemsettings"]).toBeUndefined();
+      expect(finalSettings?.app_profiles.chrome).toBe("profile-1");
     });
   });
 });

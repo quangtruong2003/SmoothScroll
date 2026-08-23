@@ -3,6 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 import i18n from "i18next";
 import { tauri, type AppSettings, type ScrollProfile, type ThemeMode } from "@/lib/tauri";
 import { debounce } from "@/lib/debounce";
+import { canonicalizeProcessName } from "@/lib/utils";
 import { applyTheme } from "@/lib/theme";
 import { toast } from "@/components/ui/toast";
 
@@ -170,11 +171,14 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     await tauri.assignAppProfile(processName, profileId);
     const current = get().settings;
     if (current) {
+      // Backend canonicalizes the key (lowercase, no .exe); mirror that here
+      // so optimistic updates land under the same key the backend writes.
+      const canonical = canonicalizeProcessName(processName);
       const app_profiles = { ...current.app_profiles };
       if (profileId === null) {
-        delete app_profiles[processName];
+        delete app_profiles[canonical];
       } else {
-        app_profiles[processName] = profileId;
+        app_profiles[canonical] = profileId;
       }
       set({ settings: { ...current, app_profiles } });
     }
@@ -184,8 +188,9 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     await tauri.unassignAppProfile(processName);
     const current = get().settings;
     if (current) {
+      const canonical = canonicalizeProcessName(processName);
       const app_profiles = { ...current.app_profiles };
-      delete app_profiles[processName];
+      delete app_profiles[canonical];
       set({ settings: { ...current, app_profiles } });
     }
   },
@@ -203,7 +208,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       "msedge.exe",
     ];
     for (const app of NATIVE_SEED) {
-      if (current.app_profiles[app] === "__disabled__") {
+      if (current.app_profiles[canonicalizeProcessName(app)] === "__disabled__") {
         try {
           await get().unassignAppProfile(app);
         } catch (e) {

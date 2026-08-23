@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { canonicalizeProcessName } from "@/lib/utils";
 import { ProfilePickerPopover } from "./ProfilePickerPopover";
 import type { ForegroundAppContext } from "@/lib/tauri";
 
@@ -17,8 +18,14 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
 
   const profiles = settings?.profiles ?? [];
   const processName = ctx?.process_name ?? "";
-  // Backend already resolves this via the canonical (case-insensitive) lookup.
-  const profileId = ctx?.current_profile_id ?? undefined;
+  // Canonical lookup so optimistic store updates show immediately; fall back
+  // to the backend-resolved id (covers keys the frontend canonical form
+  // differs from, e.g. legacy non-canonical entries).
+  const profileId =
+    (processName &&
+      settings?.app_profiles[canonicalizeProcessName(processName)]) ||
+    ctx?.current_profile_id ||
+    undefined;
 
   // Hover: open with delay-close so mouse can reach flyout
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
