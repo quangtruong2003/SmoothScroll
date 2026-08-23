@@ -17,9 +17,8 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
 
   const profiles = settings?.profiles ?? [];
   const processName = ctx?.process_name ?? "";
-  const profileId = processName
-    ? settings?.app_profiles[processName]
-    : undefined;
+  // Backend already resolves this via the canonical (case-insensitive) lookup.
+  const profileId = ctx?.current_profile_id ?? undefined;
 
   // Hover: open with delay-close so mouse can reach flyout
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -826,7 +826,7 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
     let category = classify_app(&name);
     let s = state.settings.read();
     let is_excluded = s.is_excluded(&name);
-    let current_profile_id = s.app_profiles.get(&name).cloned();
+    let current_profile_id = s.app_profiles_lookup(&name).map(String::from);
     let app_icon_base64 = extract_icon_for_foreground(&state, &name);
 
     ForegroundAppContext {
