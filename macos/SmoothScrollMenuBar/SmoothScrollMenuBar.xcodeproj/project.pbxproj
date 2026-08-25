@@ -1,0 +1,399 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		16C57607B13E0F4B0B95267E /* SmoothScrollPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BAAB3D49A40EE5588710BE5 /* SmoothScrollPopover.swift */; };
+		3285E9FA705E46EE53F9C562 /* SocketPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0639EF1D4B89C352245E746 /* SocketPath.swift */; };
+		5FFF4DD54B659E5B354DBEBE /* ScrollPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2048C92BD594B64843E7DD /* ScrollPreset.swift */; };
+		73B289F868A4930E9644F32A /* IPCClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D3D803CAF1E575F16B69F7 /* IPCClient.swift */; };
+		948C5A0F994E9A20E5FC8C21 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8704FFEDC25B16F43E4860 /* main.swift */; };
+		949B3E7347BE05DE6598F96C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA2F14F01EBF5B84962CBA7 /* SettingsStore.swift */; };
+		A88807A6E0B3EB92D8D1A794 /* VisualEffectBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE7E9523133D29A70F53F52 /* VisualEffectBlur.swift */; };
+		AB5ADF1D873B98014E9E66A8 /* IPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0CBA753D7A71710C9752461 /* IPCProtocol.swift */; };
+		AB9237D27688972A0A768FBC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0A864E7D76ABF0482A114 /* AppDelegate.swift */; };
+		C835C0DB30B5BF49E8871C56 /* ReconnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071D2670CFCBF87DBAB8E750 /* ReconnectionManager.swift */; };
+		D81E6EA33E4A378F89E28CCD /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F3BBB15EFA0F34167FBA95 /* MenuBarController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		071D2670CFCBF87DBAB8E750 /* ReconnectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconnectionManager.swift; sourceTree = "<group>"; };
+		17D3D803CAF1E575F16B69F7 /* IPCClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPCClient.swift; sourceTree = "<group>"; };
+		4AE7E9523133D29A70F53F52 /* VisualEffectBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectBlur.swift; sourceTree = "<group>"; };
+		7CCE6DE8033C05CF452D8F7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7EA2F14F01EBF5B84962CBA7 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		84F3BBB15EFA0F34167FBA95 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		8BAAB3D49A40EE5588710BE5 /* SmoothScrollPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothScrollPopover.swift; sourceTree = "<group>"; };
+		8D2048C92BD594B64843E7DD /* ScrollPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollPreset.swift; sourceTree = "<group>"; };
+		B0639EF1D4B89C352245E746 /* SocketPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketPath.swift; sourceTree = "<group>"; };
+		B228AF7288E8FE7F7A4CD527 /* SmoothScrollMenuBar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmoothScrollMenuBar.entitlements; sourceTree = "<group>"; };
+		BA8704FFEDC25B16F43E4860 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		CA3597EDAB7D1B19F7A23619 /* SmoothScrollMenuBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmoothScrollMenuBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0C0A864E7D76ABF0482A114 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E0CBA753D7A71710C9752461 /* IPCProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPCProtocol.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		11A7D2577CD0BFC32D1266DC = {
+			isa = PBXGroup;
+			children = (
+				913E3335DDBC28E3A37C6274 /* Sources */,
+				5BBF0B79C2D8564290BABEA2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2162ABFFBB2EE287B288556E /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D0C0A864E7D76ABF0482A114 /* AppDelegate.swift */,
+				BA8704FFEDC25B16F43E4860 /* main.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		5BBF0B79C2D8564290BABEA2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CA3597EDAB7D1B19F7A23619 /* SmoothScrollMenuBar.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		61DCAE33E4259ED0F51D9FAE /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				8D2048C92BD594B64843E7DD /* ScrollPreset.swift */,
+				7EA2F14F01EBF5B84962CBA7 /* SettingsStore.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		7CF5EAC6FE223188C081F675 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7CCE6DE8033C05CF452D8F7A /* Info.plist */,
+				B228AF7288E8FE7F7A4CD527 /* SmoothScrollMenuBar.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		913E3335DDBC28E3A37C6274 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				2162ABFFBB2EE287B288556E /* App */,
+				95254972C15E6C53EC01DB3D /* IPC */,
+				DA9723866EC3CEF23EDBAAAD /* MenuBar */,
+				7CF5EAC6FE223188C081F675 /* Resources */,
+				61DCAE33E4259ED0F51D9FAE /* Settings */,
+				F0169ED7B639FB366133206B /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		95254972C15E6C53EC01DB3D /* IPC */ = {
+			isa = PBXGroup;
+			children = (
+				17D3D803CAF1E575F16B69F7 /* IPCClient.swift */,
+				E0CBA753D7A71710C9752461 /* IPCProtocol.swift */,
+				071D2670CFCBF87DBAB8E750 /* ReconnectionManager.swift */,
+				B0639EF1D4B89C352245E746 /* SocketPath.swift */,
+			);
+			path = IPC;
+			sourceTree = "<group>";
+		};
+		DA9723866EC3CEF23EDBAAAD /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				84F3BBB15EFA0F34167FBA95 /* MenuBarController.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		F0169ED7B639FB366133206B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8BAAB3D49A40EE5588710BE5 /* SmoothScrollPopover.swift */,
+				4AE7E9523133D29A70F53F52 /* VisualEffectBlur.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CFEE0F4390D07BDADEF025CE /* SmoothScrollMenuBar */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 56291FA3ED31CF3F388CC925 /* Build configuration list for PBXNativeTarget "SmoothScrollMenuBar" */;
+			buildPhases = (
+				107730D10BE0C83B6432D91C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SmoothScrollMenuBar;
+			packageProductDependencies = (
+			);
+			productName = SmoothScrollMenuBar;
+			productReference = CA3597EDAB7D1B19F7A23619 /* SmoothScrollMenuBar.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8E4A624D4E0C81CF5184E0F4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CFEE0F4390D07BDADEF025CE = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 72A469D3720B1CDCD1BF6822 /* Build configuration list for PBXProject "SmoothScrollMenuBar" */;
+			compatibilityVersion = "Xcode 15.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 11A7D2577CD0BFC32D1266DC;
+			minimizedProjectReferenceProxies = 1;
+			productRefGroup = 5BBF0B79C2D8564290BABEA2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CFEE0F4390D07BDADEF025CE /* SmoothScrollMenuBar */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		107730D10BE0C83B6432D91C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB9237D27688972A0A768FBC /* AppDelegate.swift in Sources */,
+				73B289F868A4930E9644F32A /* IPCClient.swift in Sources */,
+				AB5ADF1D873B98014E9E66A8 /* IPCProtocol.swift in Sources */,
+				D81E6EA33E4A378F89E28CCD /* MenuBarController.swift in Sources */,
+				C835C0DB30B5BF49E8871C56 /* ReconnectionManager.swift in Sources */,
+				5FFF4DD54B659E5B354DBEBE /* ScrollPreset.swift in Sources */,
+				949B3E7347BE05DE6598F96C /* SettingsStore.swift in Sources */,
+				16C57607B13E0F4B0B95267E /* SmoothScrollPopover.swift in Sources */,
+				3285E9FA705E46EE53F9C562 /* SocketPath.swift in Sources */,
+				A88807A6E0B3EB92D8D1A794 /* VisualEffectBlur.swift in Sources */,
+				948C5A0F994E9A20E5FC8C21 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5A29A8EBC44CF92E165BD726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/SmoothScrollMenuBar.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.3.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = SmoothScrollMenuBar;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		8E7338A1393C0EECE65821EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/SmoothScrollMenuBar.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SmoothScroll.MenuBar;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9DF72516B718DA3A6EEEC386 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/SmoothScrollMenuBar.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SmoothScroll.MenuBar;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B01974AC18890F61DD88771F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/SmoothScrollMenuBar.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.3.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = SmoothScrollMenuBar;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		56291FA3ED31CF3F388CC925 /* Build configuration list for PBXNativeTarget "SmoothScrollMenuBar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E7338A1393C0EECE65821EB /* Debug */,
+				9DF72516B718DA3A6EEEC386 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		72A469D3720B1CDCD1BF6822 /* Build configuration list for PBXProject "SmoothScrollMenuBar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B01974AC18890F61DD88771F /* Debug */,
+				5A29A8EBC44CF92E165BD726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8E4A624D4E0C81CF5184E0F4 /* Project object */;
+}
