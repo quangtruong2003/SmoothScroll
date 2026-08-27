@@ -7,6 +7,11 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.28.4] - 2026-08-27
+
+### Fixed
+- persist scroll preset immediately
+- revalidate game mode on wheel input
 ## [1.28.3] - 2026-08-23
 
 ### Fixed
