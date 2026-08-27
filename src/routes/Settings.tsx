@@ -17,7 +17,7 @@ import { MonitorProfiles } from "@/components/settings/MonitorProfiles";
 import { BehaviorSection } from "@/components/settings/BehaviorSection";
 import { GameModeSection } from "@/components/settings/GameModeSection";
 import { AboutSection } from "@/components/settings/AboutSection";
-// import { SupportSection } from "@/components/settings/SupportSection";
+import { SupportSection } from "@/components/settings/SupportSection";
 import { BackupSection } from "@/components/settings/BackupSection";
 // import { StatsTab } from "@/components/settings/StatsTab";  // Hidden until analytics feature is ready
 import { TabContent } from "@/components/settings/TabContent";
@@ -206,7 +206,7 @@ export function SettingsPage() {
               scrollable={true}
             >
               <AboutSection />
-              {/* <SupportSection /> */}
+              <SupportSection />
               <BackupSection />
             </TabContent>
           )}

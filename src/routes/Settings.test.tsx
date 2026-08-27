@@ -21,8 +21,11 @@ vi.mock("@/lib/theme", () => ({ applyTheme: vi.fn(), watchSystemTheme: () => () 
 vi.mock("@/lib/tauri", () => ({ tauri: { skipOnboarding: vi.fn() } }));
 vi.mock("@/lib/localStats", () => ({ bumpSession: vi.fn() }));
 vi.mock("@/components/Sidebar", () => ({
-  Sidebar: ({ onChange }: { onChange: (tab: "apps") => void }) => (
-    <button onClick={() => onChange("apps")}>apps</button>
+  Sidebar: ({ onChange }: { onChange: (tab: "apps" | "about") => void }) => (
+    <>
+      <button onClick={() => onChange("apps")}>apps</button>
+      <button onClick={() => onChange("about")}>about</button>
+    </>
   ),
 }));
 vi.mock("@/components/WindowChrome", () => ({ WindowChrome: () => null }));
@@ -36,6 +39,7 @@ vi.mock("@/components/settings/MonitorProfiles", () => ({ MonitorProfiles: () =>
 vi.mock("@/components/settings/BehaviorSection", () => ({ BehaviorSection: () => null }));
 vi.mock("@/components/settings/GameModeSection", () => ({ GameModeSection: () => null }));
 vi.mock("@/components/settings/AboutSection", () => ({ AboutSection: () => null }));
+vi.mock("@/components/settings/SupportSection", () => ({ SupportSection: () => <div>support-section</div> }));
 vi.mock("@/components/settings/BackupSection", () => ({ BackupSection: () => null }));
 vi.mock("@/components/settings/TabContent", () => ({ TabContent: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock("@/components/onboarding/OnboardingWizard", () => ({ OnboardingWizard: () => null }));
@@ -130,5 +134,12 @@ describe("SettingsPage", () => {
     expect(useSettingsStore.getState().settings?.app_profiles).toEqual({ "Chrome.exe": "fast" });
     expect(screen.queryByText("Notepad.exe")).toBeNull();
     expect(screen.getByText("Chrome.exe")).toBeTruthy();
+  });
+
+  it("shows the support section in the About tab", () => {
+    render(<SettingsPage />);
+    fireEvent.click(screen.getByRole("button", { name: "about" }));
+
+    expect(screen.getByText("support-section")).toBeTruthy();
   });
 });
