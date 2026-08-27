@@ -10,7 +10,7 @@ use smoothscroll_platform::traits::{
     ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
 };
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicU8, Ordering};
 use std::sync::Arc;
 
 #[derive(Default)]
@@ -46,7 +46,13 @@ pub struct AppState {
     pub hotkey_handle: Arc<Mutex<Option<HotkeyHandle>>>,
     pub engine_signal: Arc<EngineSignal>,
     pub enabled: Arc<AtomicBool>,
+    /// UI/non-Windows mirror of Game Mode activity. The Windows hook uses the
+    /// packed `game_mode_hook_state` below so active + known-game PID are read
+    /// as one coherent snapshot instead of two independently published atomics.
     pub game_mode_active: Arc<AtomicBool>,
+    /// Packed Windows hook snapshot: bit 32 = active; low 32 bits = known-game
+    /// foreground PID (0 when active only because of fullscreen, or inactive).
+    pub game_mode_hook_state: Arc<AtomicU64>,
     pub fullscreen_detector: Arc<dyn FullscreenDetector>,
     pub window_geom: Arc<dyn WindowGeometry>,
     pub monitor_enum: Arc<dyn MonitorEnumeration>,
@@ -68,7 +74,39 @@ pub struct AppState {
     pub stats: smoothscroll_core::stats::StatsCollector,
 }
 
+const GAME_MODE_ACTIVE_BIT: u64 = 1 << 32;
+const GAME_MODE_PID_MASK: u64 = u32::MAX as u64;
+
 impl AppState {
+    /// Publish one coherent Game Mode snapshot for the Windows hook. The packed
+    /// atomic is authoritative for hook decisions; `game_mode_active` is only a
+    /// status mirror, so no hook logic depends on cross-atomic publication order.
+    pub fn publish_game_mode_state(&self, active: bool, known_game_pid: Option<u32>) {
+        let known_game_pid = if active {
+            known_game_pid.unwrap_or(0)
+        } else {
+            0
+        };
+        let hook_state = if active {
+            GAME_MODE_ACTIVE_BIT | u64::from(known_game_pid)
+        } else {
+            0
+        };
+
+        self.game_mode_hook_state
+            .store(hook_state, Ordering::Release);
+        self.game_mode_active.store(active, Ordering::Release);
+    }
+
+    /// Acquire the coherent Game Mode snapshot published by the poll thread.
+    pub fn game_mode_hook_snapshot(&self) -> (bool, Option<u32>) {
+        let hook_state = self.game_mode_hook_state.load(Ordering::Acquire);
+        let active = hook_state & GAME_MODE_ACTIVE_BIT != 0;
+        let pid = (hook_state & GAME_MODE_PID_MASK) as u32;
+        let known_game_pid = (active && pid != 0).then_some(pid);
+        (active, known_game_pid)
+    }
+
     /// Atomically replace the authoritative settings, rebuild the hot-path
     /// effective snapshot, rebuild the per-profile cache, and queue a debounced
     /// disk write. This is the ONLY path that should mutate settings.

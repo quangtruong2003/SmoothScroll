@@ -679,7 +679,7 @@ pub fn remove_known_game(state: State<'_, Arc<AppState>>, name: String) -> Resul
 
 #[tauri::command]
 pub fn get_game_mode_status(state: State<'_, Arc<AppState>>) -> bool {
-    state.game_mode_active.load(Ordering::Relaxed)
+    state.game_mode_active.load(Ordering::Acquire)
 }
 
 #[tauri::command]

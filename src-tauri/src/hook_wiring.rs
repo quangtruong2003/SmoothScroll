@@ -89,6 +89,36 @@ impl EngineSink {
         self.epoch.elapsed().as_millis() as u64
     }
 
+    /// Game Mode is maintained by a low-frequency poll thread, so its published
+    /// state can be stale for up to one second after leaving fullscreen or
+    /// switching away from a game. On Windows, revalidate only while the packed
+    /// hook snapshot is active so the normal wheel hot path stays unchanged.
+    fn should_bypass_for_game_mode(&self) -> bool {
+        #[cfg(target_os = "windows")]
+        {
+            let (active, known_game_pid) = self.state.game_mode_hook_snapshot();
+            if !active {
+                return false;
+            }
+            if !self.state.settings.read().game_mode_enabled {
+                return false;
+            }
+
+            if let Some(known_game_pid) = known_game_pid {
+                if self.state.processes.foreground_process_id() == Some(known_game_pid) {
+                    return true;
+                }
+            }
+
+            return self.state.fullscreen_detector.is_foreground_fullscreen();
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            self.state.game_mode_active.load(Ordering::Acquire)
+        }
+    }
+
     /// Returns `None` if the app under the cursor/foreground is disabled.
     /// Otherwise returns the active `EffectiveSettings` (per-profile or global).
     fn resolve_active(&self) -> Option<Arc<EffectiveSettings>> {
@@ -262,7 +292,7 @@ impl EngineSink {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-        if self.state.game_mode_active.load(Ordering::Relaxed) {
+        if self.should_bypass_for_game_mode() {
             return HookDecision::Pass;
         }
 
@@ -345,7 +375,7 @@ impl EngineSink {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-        if self.state.game_mode_active.load(Ordering::Relaxed) {
+        if self.should_bypass_for_game_mode() {
             return HookDecision::Pass;
         }
 
@@ -558,6 +588,28 @@ mod tests {
             false
         }
     }
+    #[cfg(target_os = "windows")]
+    struct TrueFullscreen;
+    #[cfg(target_os = "windows")]
+    impl FullscreenDetector for TrueFullscreen {
+        fn is_foreground_fullscreen(&self) -> bool {
+            true
+        }
+    }
+    #[cfg(target_os = "windows")]
+    struct StaticForegroundPid(u32);
+    #[cfg(target_os = "windows")]
+    impl ProcessQuery for StaticForegroundPid {
+        fn process_name_under_cursor(&self) -> Option<String> {
+            None
+        }
+        fn foreground_process_id(&self) -> Option<u32> {
+            Some(self.0)
+        }
+        fn list_visible_processes(&self) -> Vec<ProcessInfo> {
+            Vec::new()
+        }
+    }
     struct StubWindowGeom;
     impl WindowGeometry for StubWindowGeom {
         fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
@@ -608,6 +660,7 @@ mod tests {
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
+            game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             monitor_enum: Arc::new(StubMonitorEnum),
@@ -697,6 +750,7 @@ mod tests {
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
+            game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             monitor_enum: Arc::new(StubMonitorEnum),
@@ -741,6 +795,7 @@ mod tests {
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
+            game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             monitor_enum: Arc::new(StubMonitorEnum),
@@ -1180,15 +1235,75 @@ mod tests {
             "Sink must register the assigned profile easing mode"
         );
     }
+    #[cfg(not(target_os = "windows"))]
     #[test]
     fn game_mode_active_passes_through() {
         let s = AppSettings::default();
         let state = make_state(s);
-        state.game_mode_active.store(true, Ordering::Relaxed);
+        state.game_mode_active.store(true, Ordering::Release);
         let sink = EngineSink::new(state.clone());
         assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
         assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn stale_fullscreen_game_mode_state_resumes_smoothing_immediately() {
+        let s = AppSettings::default();
+        let state = make_state(s);
+        state.publish_game_mode_state(true, None);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert!(
+            state.engine.lock().has_pending_work(),
+            "stale fullscreen Game Mode must not block the first wheel event"
+        );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn current_fullscreen_game_mode_still_passes_through() {
+        let s = AppSettings::default();
+        let mut state = make_state(s);
+        Arc::get_mut(&mut state).unwrap().fullscreen_detector = Arc::new(TrueFullscreen);
+        state.publish_game_mode_state(true, None);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn windowed_known_game_still_passes_through() {
+        const GAME_PID: u32 = 4242;
+        let s = AppSettings::default();
+        let mut state = make_state(s);
+        Arc::get_mut(&mut state).unwrap().processes = Arc::new(StaticForegroundPid(GAME_PID));
+        state.publish_game_mode_state(true, Some(GAME_PID));
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn stale_known_game_state_resumes_after_foreground_switch() {
+        const OLD_GAME_PID: u32 = 4242;
+        const NEW_FOREGROUND_PID: u32 = 9001;
+        let s = AppSettings::default();
+        let mut state = make_state(s);
+        Arc::get_mut(&mut state).unwrap().processes =
+            Arc::new(StaticForegroundPid(NEW_FOREGROUND_PID));
+        state.publish_game_mode_state(true, Some(OLD_GAME_PID));
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
     }
 
     #[test]
@@ -1408,7 +1523,10 @@ mod tests {
             }
         }
 
-        assert!(actual_zoom < 0, "profile zoom_invert should emit negative zoom");
+        assert!(
+            actual_zoom < 0,
+            "profile zoom_invert should emit negative zoom"
+        );
         assert_eq!(actual_zoom, expected_zoom);
         assert!(actual_zoom.abs() > low_sensitivity_zoom.abs());
     }

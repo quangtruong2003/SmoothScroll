@@ -26,7 +26,7 @@ use smoothscroll_platform::icon::IconCache;
 use smoothscroll_platform::traits::HookHandle;
 use state::{AppState, EngineSignal};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 use tauri::Manager;
 
@@ -122,6 +122,7 @@ pub fn run() {
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
         game_mode_active: Arc::new(AtomicBool::new(false)),
+        game_mode_hook_state: Arc::new(AtomicU64::new(0)),
         fullscreen_detector,
         window_geom,
         monitor_enum,
