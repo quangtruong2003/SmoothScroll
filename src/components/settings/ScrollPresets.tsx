@@ -7,6 +7,7 @@ export function ScrollPresets() {
   const { t } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const patch = useSettingsStore((s) => s.patch);
+  const saveNow = useSettingsStore((s) => s.saveNow);
   if (!settings) return null;
 
   const active = activePreset(settings);
@@ -18,7 +19,12 @@ export function ScrollPresets() {
           <button
             key={key}
             type="button"
-            onClick={() => patch(PRESETS[key])}
+            onClick={() => {
+              patch(PRESETS[key]);
+              void saveNow().catch(() => {
+                // saveNow already surfaces the failure via toast.
+              });
+            }}
             className={cn(
               "rounded-md border px-2 py-1 text-xs font-medium transition-colors",
               "outline-none focus-visible:ring-2 focus-visible:ring-ring",
