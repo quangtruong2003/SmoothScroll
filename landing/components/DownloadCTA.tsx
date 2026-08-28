@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { recordDownloadIntent } from '@/lib/downloadAttribution'
 import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import { Download } from 'lucide-react'
 
@@ -58,11 +59,7 @@ export function DownloadCTA({
         href={url}
         rel="noopener noreferrer"
         download={filename || undefined}
-        onClick={() => {
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('smoothscroll:downloaded'))
-          }
-        }}
+        onClick={() => recordDownloadIntent(url)}
       >
         <Download className="h-5 w-5 mr-2" />
         {displayLabel}

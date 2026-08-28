@@ -8,4 +8,12 @@
 - [How SmoothScroll works](https://smoothscroll.top/how-it-works/)
 - [Vietnamese guide](https://smoothscroll.top/vi/how-it-works/)
 - [Chinese guide](https://smoothscroll.top/zh/how-it-works/)
+
+## Windows scrolling guides
+- [Mac-like scrolling on Windows](https://smoothscroll.top/mac-like-scrolling-windows/)
+- [Smooth mouse-wheel scrolling on Windows](https://smoothscroll.top/smooth-mouse-wheel-windows/)
+- [Fix choppy mouse-wheel scrolling on Windows 11](https://smoothscroll.top/fix-choppy-scrolling-windows-11/)
+- [Smooth scrolling in Chrome on Windows](https://smoothscroll.top/smooth-scrolling-chrome-windows/)
+- [Smooth scrolling in VS Code on Windows](https://smoothscroll.top/smooth-scrolling-vscode-windows/)
+
 - [Source, releases, issues, and license](https://github.com/quangtruong2003/SmoothScroll)

@@ -15,6 +15,7 @@ import { Indie } from '@/components/sections/Indie'
 import { Install } from '@/components/sections/Install'
 import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
+import { SearchIntentGuides } from '@/components/sections/SearchIntentGuides'
 import { WhatIsSmoothScroll } from '@/components/sections/WhatIsSmoothScroll'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 
@@ -39,6 +40,7 @@ export function LocalizedHomePage({ locale, dictionary: d }: LocalizedHomePagePr
         <Stats dict={{ stats: d.stats }} />
         <Indie dict={{ indie: d.indie }} />
         <Install dict={{ install: d.install }} />
+        {locale === 'en' && <SearchIntentGuides />}
         <FAQ dict={{ faq: d.faq }} />
         <FinalCTA dict={{ finalCta: d.finalCta }} />
         <WhatIsSmoothScroll locale={locale} geo={d.geo} />

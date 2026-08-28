@@ -12,6 +12,7 @@ import { TrayActions } from '@/components/sections/howItWorks/TrayActions'
 import { Recipes } from '@/components/sections/howItWorks/Recipes'
 import { Privacy } from '@/components/sections/howItWorks/Privacy'
 import { FinalCTA } from '@/components/sections/howItWorks/FinalCTA'
+import { SearchIntentGuides } from '@/components/sections/SearchIntentGuides'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 
 interface LocalizedHowItWorksPageProps {
@@ -36,6 +37,7 @@ export function LocalizedHowItWorksPage({ locale, dictionary: d }: LocalizedHowI
         <TrayActions tray={h.tray} />
         <Recipes recipes={h.recipes} />
         <Privacy privacy={h.privacy} />
+        {locale === 'en' && <SearchIntentGuides />}
         <FinalCTA finalCta={h.finalCta} ctaLinuxLabel={d.hero?.ctaLinux} ctaMacLabel={d.hero?.ctaMac} betaBadge={d.beta?.badge} comingSoonLabel={d.finalCta?.comingSoon ?? 'Coming Soon'} />
       </main>
       <Footer />
