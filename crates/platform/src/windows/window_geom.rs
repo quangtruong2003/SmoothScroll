@@ -9,10 +9,31 @@ use windows_sys::Win32::Graphics::Gdi::{
     MONITOR_DEFAULTTONEAREST,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    GetAncestor, GetCursorPos, GetWindowRect, WindowFromPoint, GA_ROOT,
+    GetAncestor, GetClassNameW, GetCursorPos, GetParent, GetWindowRect, WindowFromPoint, GA_ROOT,
 };
 
 pub struct WindowsWindowGeometry;
+
+/// Window classes whose controls consume wheel input in whole-notch steps:
+/// one physical notch must produce exactly one native wheel message, or the
+/// control skips values (per-message steppers) or ignores the input entirely
+/// (`delta / WHEEL_DELTA` integer division). The engine's sub-notch pulse
+/// train breaks both, so these targets get the raw event passed through.
+const DISCRETE_CONTROL_CLASSES: &[&str] = &[
+    "msctls_updown32",   // spin control
+    "msctls_trackbar32", // slider
+    "combobox",
+    "combolbox", // combo dropdown list
+    "listbox",
+    "syslistview32",
+    "systreeview32",
+];
+
+fn is_discrete_class(class: &str) -> bool {
+    DISCRETE_CONTROL_CLASSES
+        .iter()
+        .any(|c| c.eq_ignore_ascii_case(class))
+}
 
 impl WindowGeometry for WindowsWindowGeometry {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
@@ -64,6 +85,35 @@ impl WindowGeometry for WindowsWindowGeometry {
                     .unwrap_or(info.szDevice.len())],
             );
             Some(name)
+        }
+    }
+
+    fn cursor_over_discrete_control(&self) -> bool {
+        unsafe {
+            let mut pt: POINT = mem::zeroed();
+            if GetCursorPos(&mut pt) == 0 {
+                return false;
+            }
+            // Walk from the hit-tested child toward the root: the deepest
+            // window may be a non-discrete child (e.g. the Edit portion of a
+            // ComboBox) whose parent is the discrete control itself.
+            let mut hwnd = WindowFromPoint(pt);
+            for _ in 0..4 {
+                if hwnd.is_null() {
+                    break;
+                }
+                let mut buf = [0u16; 64];
+                let len = GetClassNameW(hwnd, buf.as_mut_ptr(), buf.len() as i32);
+                if len > 0 {
+                    if let Ok(class) = String::from_utf16(&buf[..len as usize]) {
+                        if is_discrete_class(&class) {
+                            return true;
+                        }
+                    }
+                }
+                hwnd = GetParent(hwnd);
+            }
+            false
         }
     }
 }
@@ -119,5 +169,47 @@ impl MonitorEnumeration for WindowsWindowGeometry {
         }
 
         monitors
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn discrete_classes_are_recognized() {
+        for class in [
+            "msctls_updown32",
+            "msctls_trackbar32",
+            "ComboBox",
+            "ComboLBox",
+            "ListBox",
+            "SysListView32",
+            "SysTreeView32",
+        ] {
+            assert!(is_discrete_class(class), "{class}");
+        }
+    }
+
+    #[test]
+    fn discrete_match_is_case_insensitive() {
+        assert!(is_discrete_class("COMBOBOX"));
+        assert!(is_discrete_class("MSCTLS_UPDOWN32"));
+    }
+
+    #[test]
+    fn continuous_scroll_targets_are_not_discrete() {
+        for class in [
+            "Edit",
+            "RichEdit20W",
+            "RICHEDIT50W",
+            "Chrome_WidgetWin_1",
+            "MozillaWindowClass",
+            "DirectUIHWND",
+            "Windows.UI.Core.CoreWindow",
+            "",
+        ] {
+            assert!(!is_discrete_class(class), "{class}");
+        }
     }
 }

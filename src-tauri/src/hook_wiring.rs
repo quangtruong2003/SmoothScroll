@@ -301,6 +301,14 @@ impl EngineSink {
             None => return HookDecision::Pass,
         };
 
+        // Discrete controls (spinbox, slider, combo box, list) consume wheel
+        // input in whole-notch steps; the engine's sub-notch pulse train makes
+        // them skip values or ignore the input entirely. Pass the raw event
+        // through so one physical notch stays one native wheel message.
+        if self.state.window_geom.cursor_over_discrete_control() {
+            return HookDecision::Pass;
+        }
+
         // Shift+Wheel always routes through engine when smoothness is enabled.
         // Native horizontal wheel (no modifiers) always smooths.
 
@@ -385,6 +393,12 @@ impl EngineSink {
         };
 
         if !eff.horizontal_smoothness {
+            return HookDecision::Pass;
+        }
+
+        // Same whole-notch contract as the vertical path: discrete controls
+        // must receive the raw horizontal wheel event.
+        if self.state.window_geom.cursor_over_discrete_control() {
             return HookDecision::Pass;
         }
 
@@ -614,6 +628,15 @@ mod tests {
     impl WindowGeometry for StubWindowGeom {
         fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
             None
+        }
+    }
+    struct DiscreteControlWindowGeom;
+    impl WindowGeometry for DiscreteControlWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+        fn cursor_over_discrete_control(&self) -> bool {
+            true
         }
     }
     struct StubMonitorEnum;
@@ -1055,6 +1078,41 @@ mod tests {
         let decision = sink.on_hwheel(120);
         assert_eq!(decision, HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn wheel_over_discrete_control_passes_through_raw() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+        assert!(recorder.generic_calls.lock().is_empty());
+        assert!(recorder.immediate_calls.lock().is_empty());
+    }
+
+    #[test]
+    fn shift_wheel_over_discrete_control_passes_through_raw() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+        assert!(recorder.immediate_calls.lock().is_empty());
+    }
+
+    #[test]
+    fn hwheel_over_discrete_control_passes_through_raw() {
+        let mut state = make_state(AppSettings::default());
+        Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 
     #[test]

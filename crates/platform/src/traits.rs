@@ -148,6 +148,17 @@ pub trait WindowGeometry: Send + Sync {
     fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
         None // default — platforms override
     }
+
+    /// Returns true when the cursor sits over a control that consumes wheel
+    /// input in whole-notch steps (spinbox, slider, combo box, list). The
+    /// engine's sub-notch pulse train mis-steps such controls, so the hook
+    /// passes the raw wheel event through instead of swallowing it.
+    ///
+    /// Default `false` keeps existing behaviour on platforms without
+    /// class-level hit testing.
+    fn cursor_over_discrete_control(&self) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
