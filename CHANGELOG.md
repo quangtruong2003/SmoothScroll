@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-08-28
+
+### Added
+- restore donate section
+
+### Fixed
+- pass raw wheel events through over discrete controls
 ## [1.28.4] - 2026-08-27
 
 ### Fixed
