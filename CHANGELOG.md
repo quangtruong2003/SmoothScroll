@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.30.0] - 2026-08-29
+
+### Added
+- add Windows search-intent landing pages
+
+### Fixed
+- make scroll animation opt-in
 ## [1.29.0] - 2026-08-28
 
 ### Added
