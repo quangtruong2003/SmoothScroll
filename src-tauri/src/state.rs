@@ -113,11 +113,12 @@ impl AppState {
     pub fn commit_settings(&self, new: AppSettings) {
         use smoothscroll_core::settings::RespectReduceMotion;
         let os_rm = self.reduce_motion.load(Ordering::Relaxed);
-        let instant = match new.respect_reduce_motion {
+        let reduce_motion_instant = match new.respect_reduce_motion {
             RespectReduceMotion::Always => true,
             RespectReduceMotion::Never => false,
             RespectReduceMotion::Auto => os_rm,
         };
+        let instant = !new.animation_time_enabled || reduce_motion_instant;
 
         let mut new_eff = EffectiveSettings::from_settings(&new);
         new_eff.instant_mode = instant;

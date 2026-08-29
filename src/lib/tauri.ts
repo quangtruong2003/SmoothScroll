@@ -42,6 +42,7 @@ export interface AppSettings {
   enabled: boolean;
   step_size_px: number;
   animation_time_ms: number;
+  animation_time_enabled: boolean;
   max_velocity: number;
   acceleration_max: number;
   tail_to_head_ratio: number;

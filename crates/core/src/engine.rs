@@ -307,10 +307,11 @@ impl SmoothScrollEngine {
         if settings.instant_mode {
             let v = self.v.flush_instant();
             let h = self.h.flush_instant();
+            let z = self.z.flush_instant();
             return EngineOutput {
                 vertical: v,
                 horizontal: h,
-                zoom: 0,
+                zoom: z,
             };
         }
         let v = self.v.step(dt_ms);

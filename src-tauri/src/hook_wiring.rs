@@ -877,7 +877,9 @@ mod tests {
     #[test]
     fn shift_wheel_dispatches_immediately_without_engine_inertia() {
         let recorder = Arc::new(RecordingEmitter::default());
-        let state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let state = make_state_with_emitter(settings, recorder.clone());
         let sink = EngineSink::new(state.clone());
 
         let decision = sink.on_wheel(120, shift_only());
@@ -895,7 +897,9 @@ mod tests {
     #[test]
     fn browser_shift_wheel_keeps_engine_smoothing_path() {
         let recorder = Arc::new(RecordingEmitter::default());
-        let mut state = make_state_with_process(AppSettings::default(), Some("chrome.exe"));
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let mut state = make_state_with_process(settings, Some("chrome.exe"));
         Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
         let sink = EngineSink::new(state.clone());
 
@@ -914,11 +918,10 @@ mod tests {
     fn office_under_cursor_takes_precedence_over_browser_foreground() {
         for process_name in ["WINWORD.EXE", "EXCEL.EXE", "explorer.exe"] {
             let recorder = Arc::new(RecordingEmitter::default());
-            let mut state = make_state_with_processes(
-                AppSettings::default(),
-                Some(process_name),
-                Some("chrome.exe"),
-            );
+            let mut settings = AppSettings::default();
+            settings.horizontal_smoothness = true;
+            let mut state =
+                make_state_with_processes(settings, Some(process_name), Some("chrome.exe"));
             Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
             let sink = EngineSink::new(state.clone());
 
@@ -940,6 +943,7 @@ mod tests {
         let recorder = Arc::new(RecordingEmitter::default());
         let mut settings = AppSettings::default();
         settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = true;
         let mut state = make_state_with_processes(settings, None, Some("msedge.exe"));
         Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
         let sink = EngineSink::new(state.clone());
@@ -955,7 +959,9 @@ mod tests {
     #[test]
     fn thorium_shift_wheel_keeps_engine_smoothing_path() {
         let recorder = Arc::new(RecordingEmitter::default());
-        let mut state = make_state_with_process(AppSettings::default(), Some("thorium.exe"));
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let mut state = make_state_with_process(settings, Some("thorium.exe"));
         Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
         let sink = EngineSink::new(state.clone());
 
@@ -968,8 +974,9 @@ mod tests {
 
     #[test]
     fn shift_wheel_passes_through_when_immediate_dispatch_fails() {
-        let state =
-            make_state_with_emitter(AppSettings::default(), Arc::new(FailingImmediateEmitter));
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let state = make_state_with_emitter(settings, Arc::new(FailingImmediateEmitter));
         let sink = EngineSink::new(state.clone());
 
         let decision = sink.on_wheel(120, shift_only());
@@ -981,7 +988,9 @@ mod tests {
     #[test]
     fn high_resolution_shift_wheel_keeps_existing_engine_path() {
         let recorder = Arc::new(RecordingEmitter::default());
-        let state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let state = make_state_with_emitter(settings, recorder.clone());
         let sink = EngineSink::new(state.clone());
 
         let decision = sink.route_vertical_with_source(
@@ -1004,6 +1013,7 @@ mod tests {
     fn native_hwheel_preserves_configured_step_size_across_targets() {
         let mut s = AppSettings::default();
         s.step_size_px = 40;
+        s.horizontal_smoothness = true;
         let office_state = make_state_with_process(s.clone(), Some("EXCEL"));
         let office_sink = EngineSink::new(office_state.clone());
         let generic_state = make_state_with_process(s, Some("notepad"));
@@ -1035,6 +1045,7 @@ mod tests {
     #[test]
     fn horizontal_invert_affects_shift_wheel() {
         let mut s = AppSettings::default();
+        s.horizontal_smoothness = true;
         s.horizontal_invert = true;
         let recorder = Arc::new(RecordingEmitter::default());
         let state = make_state_with_emitter(s, recorder.clone());
@@ -1049,6 +1060,7 @@ mod tests {
     #[test]
     fn horizontal_invert_affects_native_hwheel() {
         let mut s = AppSettings::default();
+        s.horizontal_smoothness = true;
         s.horizontal_invert = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
@@ -1072,7 +1084,8 @@ mod tests {
 
     #[test]
     fn native_hwheel_with_smoothness_on_swallows() {
-        let s = AppSettings::default();
+        let mut s = AppSettings::default();
+        s.horizontal_smoothness = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let decision = sink.on_hwheel(120);
@@ -1096,7 +1109,9 @@ mod tests {
     #[test]
     fn shift_wheel_over_discrete_control_passes_through_raw() {
         let recorder = Arc::new(RecordingEmitter::default());
-        let mut state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let mut state = make_state_with_emitter(settings, recorder.clone());
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
@@ -1107,7 +1122,9 @@ mod tests {
 
     #[test]
     fn hwheel_over_discrete_control_passes_through_raw() {
-        let mut state = make_state(AppSettings::default());
+        let mut settings = AppSettings::default();
+        settings.horizontal_smoothness = true;
+        let mut state = make_state(settings);
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
@@ -1365,9 +1382,26 @@ mod tests {
     }
 
     #[test]
+    fn commit_settings_animation_time_off_forces_instant_mode() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+        let s: AppSettings = serde_json::from_value(serde_json::json!({
+            "animation_time_enabled": false,
+            "respect_reduce_motion": RespectReduceMotion::Never,
+        }))
+        .unwrap();
+        let state = make_state(s.clone());
+        state.reduce_motion.store(false, Ordering::Relaxed);
+
+        state.commit_settings(s);
+
+        assert!(state.effective.load_full().instant_mode);
+    }
+
+    #[test]
     fn commit_settings_auto_follows_os_reduce_motion() {
         use smoothscroll_core::settings::RespectReduceMotion;
         let mut s = AppSettings::default();
+        s.animation_time_enabled = true;
         s.respect_reduce_motion = RespectReduceMotion::Auto;
         let state = make_state(s.clone());
         // OS RM off → instant_mode false
@@ -1384,6 +1418,7 @@ mod tests {
     fn commit_settings_always_overrides_os_off() {
         use smoothscroll_core::settings::RespectReduceMotion;
         let mut s = AppSettings::default();
+        s.animation_time_enabled = true;
         s.respect_reduce_motion = RespectReduceMotion::Always;
         let state = make_state(s.clone());
         state.reduce_motion.store(false, Ordering::Relaxed);
@@ -1395,6 +1430,7 @@ mod tests {
     fn commit_settings_never_ignores_os_on() {
         use smoothscroll_core::settings::RespectReduceMotion;
         let mut s = AppSettings::default();
+        s.animation_time_enabled = true;
         s.respect_reduce_motion = RespectReduceMotion::Never;
         let state = make_state(s.clone());
         state.reduce_motion.store(true, Ordering::Relaxed);

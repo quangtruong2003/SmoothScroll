@@ -160,7 +160,10 @@ fn registered_horizontal_batch_drains_when_horizontal_smoothness_is_off() {
             break;
         }
     }
-    assert!(total_h.abs() > 0, "registered horizontal batch should drain");
+    assert!(
+        total_h.abs() > 0,
+        "registered horizontal batch should drain"
+    );
     assert!(total_v.abs() > 0, "vertical should still emit");
 }
 

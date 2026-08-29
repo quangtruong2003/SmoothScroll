@@ -266,6 +266,7 @@ export const useDirectionFields = () =>
       const set = s.settings;
       if (!set) return null;
       return {
+        animation_time_enabled: set.animation_time_enabled,
         reverse_wheel_direction: set.reverse_wheel_direction,
         horizontal_smoothness: set.horizontal_smoothness,
         horizontal_invert: set.horizontal_invert,

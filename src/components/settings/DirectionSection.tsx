@@ -30,6 +30,18 @@ function DirectionSectionInner() {
         </SettingRow>
 
         <SettingRow
+          htmlFor="animation-time-enabled"
+          title={t("settings.anim_time.title")}
+          description={t("settings.anim_time.desc")}
+        >
+          <Switch
+            id="animation-time-enabled"
+            checked={fields.animation_time_enabled}
+            onCheckedChange={(v) => patch({ animation_time_enabled: v })}
+          />
+        </SettingRow>
+
+        <SettingRow
           htmlFor="horizontal-smoothness"
           title={t("settings.horizontal_smoothness.title")}
           description={t("settings.horizontal_smoothness.desc")}

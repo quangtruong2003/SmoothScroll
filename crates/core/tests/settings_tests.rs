@@ -391,7 +391,10 @@ fn scroll_profile_clamp_clamps_max_velocity() {
 
 #[test]
 fn canonicalize_process_name_strips_exe() {
-    assert_eq!(AppSettings::canonicalize_process_name("Blender.EXE"), "blender");
+    assert_eq!(
+        AppSettings::canonicalize_process_name("Blender.EXE"),
+        "blender"
+    );
 }
 
 #[test]
@@ -401,12 +404,18 @@ fn canonicalize_process_name_lowercases() {
 
 #[test]
 fn canonicalize_process_name_trims_whitespace() {
-    assert_eq!(AppSettings::canonicalize_process_name(" blender "), "blender");
+    assert_eq!(
+        AppSettings::canonicalize_process_name(" blender "),
+        "blender"
+    );
 }
 
 #[test]
 fn canonicalize_process_name_collapses_whitespace() {
-    assert_eq!(AppSettings::canonicalize_process_name("Foo Bar.exe"), "foo bar");
+    assert_eq!(
+        AppSettings::canonicalize_process_name("Foo Bar.exe"),
+        "foo bar"
+    );
 }
 
 #[test]
@@ -479,8 +488,7 @@ fn assign_profile_wipes_aliases() {
 #[test]
 fn canonicalize_app_profile_keys_renames() {
     let mut s = AppSettings::default();
-    s.app_profiles
-        .insert("Blender.EXE".into(), "fast".into());
+    s.app_profiles.insert("Blender.EXE".into(), "fast".into());
     s.canonicalize_app_profile_keys();
     assert!(s.app_profiles.contains_key("blender"));
     assert!(!s.app_profiles.contains_key("Blender.EXE"));
@@ -490,8 +498,7 @@ fn canonicalize_app_profile_keys_renames() {
 fn canonicalize_app_profile_keys_collision_resolves() {
     let mut s = AppSettings::default();
     s.app_profiles.insert("Blender".into(), "fast".into());
-    s.app_profiles
-        .insert("blender.exe".into(), "slow".into());
+    s.app_profiles.insert("blender.exe".into(), "slow".into());
     s.canonicalize_app_profile_keys();
     assert_eq!(s.app_profiles.len(), 1);
 }

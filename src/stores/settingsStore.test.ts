@@ -59,6 +59,7 @@ const mockSettings: AppSettings = {
   enabled: true,
   step_size_px: 10,
   animation_time_ms: 200,
+  animation_time_enabled: false,
   max_velocity: 20,
   acceleration_max: 5,
   tail_to_head_ratio: 1,

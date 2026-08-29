@@ -16,7 +16,10 @@ impl SettingsPersistor {
                 }
             }
         });
-        Self { tx, _handle: handle }
+        Self {
+            tx,
+            _handle: handle,
+        }
     }
 
     pub fn submit(&self, settings: AppSettings) {

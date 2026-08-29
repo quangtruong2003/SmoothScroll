@@ -117,7 +117,11 @@ fn cursor_position<R: Runtime>(app: &AppHandle<R>) -> PhysicalPosition<i32> {
 /// Compute the anchor position for a panel of the given size: horizontally
 /// centered on the cursor (clamped to the work area), vertically pinned just
 /// above the taskbar edge of the primary monitor's work area.
-fn compute_anchor_position<R: Runtime>(app: &AppHandle<R>, panel_w: i32, panel_h: i32) -> (i32, i32) {
+fn compute_anchor_position<R: Runtime>(
+    app: &AppHandle<R>,
+    panel_w: i32,
+    panel_h: i32,
+) -> (i32, i32) {
     let cursor = cursor_position(app);
     let edge_gap = 2;
 
