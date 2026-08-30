@@ -10,7 +10,7 @@ use smoothscroll_platform::traits::{
     ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
 };
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicIsize, AtomicU64, AtomicU8, Ordering};
 use std::sync::Arc;
 
 #[derive(Default)]
@@ -27,9 +27,32 @@ impl EngineSignal {
     }
 }
 
+#[derive(Default)]
+pub struct AnimationOwner {
+    hwnd: AtomicIsize,
+}
+
+impl AnimationOwner {
+    pub fn get(&self) -> Option<isize> {
+        let hwnd = self.hwnd.load(Ordering::Acquire);
+        (hwnd != 0).then_some(hwnd)
+    }
+
+    pub fn set(&self, hwnd: Option<isize>) {
+        self.hwnd.store(hwnd.unwrap_or(0), Ordering::Release);
+    }
+
+    pub fn clear(&self) {
+        self.set(None);
+    }
+}
+
 #[allow(dead_code)]
 pub struct AppState {
     pub engine: Arc<Mutex<SmoothScrollEngine>>,
+    /// Ephemeral owner of the current Windows animated sequence.
+    /// `None` outside an owned sequence; never persisted.
+    pub animation_owner: Arc<AnimationOwner>,
     /// Authoritative store — written by commands, persisted to disk.
     pub settings: Arc<RwLock<AppSettings>>,
     /// Hot-path snapshot. Updated whenever `settings` changes or active profile changes.
@@ -72,6 +95,23 @@ pub struct AppState {
     /// the tray panel row with a real app icon.
     pub app_icon_cache: Arc<Mutex<IconCache>>,
     pub stats: smoothscroll_core::stats::StatsCollector,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn animation_owner_round_trips_and_clears() {
+        let owner = AnimationOwner::default();
+        assert_eq!(owner.get(), None);
+
+        owner.set(Some(0x1234));
+        assert_eq!(owner.get(), Some(0x1234));
+
+        owner.clear();
+        assert_eq!(owner.get(), None);
+    }
 }
 
 const GAME_MODE_ACTIVE_BIT: u64 = 1 << 32;

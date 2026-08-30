@@ -109,6 +109,7 @@ pub fn run() {
 
     let app_state = Arc::new(AppState {
         engine,
+        animation_owner: Arc::new(crate::state::AnimationOwner::default()),
         settings: settings_arc,
         effective: effective_arc,
         effective_per_profile: effective_per_profile_arc,

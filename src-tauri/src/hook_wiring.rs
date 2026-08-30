@@ -670,6 +670,7 @@ mod tests {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
             settings: Arc::new(RwLock::new(settings.clone())),
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
@@ -755,6 +756,7 @@ mod tests {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
             settings: Arc::new(RwLock::new(settings.clone())),
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
@@ -802,6 +804,7 @@ mod tests {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
             settings: Arc::new(RwLock::new(settings.clone())),
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
