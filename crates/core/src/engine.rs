@@ -78,10 +78,16 @@ impl Axis {
         let pulses = self.unit_accum.trunc() as i32;
         self.unit_accum -= pulses as f64;
 
-        // Instant mode removes the temporal schedule, not accelerated distance.
-        // Keep all whole emit units in this one engine iteration; the Windows
-        // emitter is responsible for synchronously chunking oversized output.
-        pulses.saturating_mul(EMIT_UNIT)
+        #[cfg(windows)]
+        {
+            // The Windows emitter synchronously chunks oversized instant output.
+            pulses.saturating_mul(EMIT_UNIT)
+        }
+        #[cfg(not(windows))]
+        {
+            // Preserve the legacy clamp/drop behavior on other platforms.
+            pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+        }
     }
 
     fn add_pending(&mut self, pixels: f64, easing: EasingSnapshot) {

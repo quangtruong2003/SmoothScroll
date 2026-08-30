@@ -87,6 +87,7 @@ fn rapid_notches_increase_total_distance() {
     );
 }
 
+#[cfg(windows)]
 #[test]
 fn instant_mode_rapid_notches_travel_farther_than_slow_notches() {
     let mut settings = AppSettings::default();
@@ -116,6 +117,7 @@ fn instant_mode_rapid_notches_travel_farther_than_slow_notches() {
     assert!(!slow.has_pending_work());
 }
 
+#[cfg(windows)]
 #[test]
 fn instant_mode_preserves_full_quantized_distance_beyond_legacy_480_limit() {
     let mut settings = AppSettings::default();
@@ -142,12 +144,36 @@ fn instant_mode_preserves_full_quantized_distance_beyond_legacy_480_limit() {
     let animated_total = drain_vertical(&mut animated_engine, &animated);
     let instant_output = instant_engine.step(1000.0 / 120.0, &instant).vertical;
 
-    assert!(animated_total.abs() > 480, "fixture must exceed the legacy clamp");
+    assert!(
+        animated_total.abs() > 480,
+        "fixture must exceed the legacy clamp"
+    );
     assert_eq!(
         instant_output, animated_total,
         "instant mode must emit the same quantized distance without a timed tail"
     );
     assert!(!instant_engine.has_pending_work());
+}
+
+#[cfg(not(windows))]
+#[test]
+fn instant_mode_preserves_legacy_clamp_and_drop() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 500;
+    let mut instant = EffectiveSettings::from_settings(&settings);
+    instant.instant_mode = true;
+    let mut engine = SmoothScrollEngine::new();
+
+    on_wheel(&mut engine, 1_200, 1_000, &instant);
+    let output = engine.step(1000.0 / 120.0, &instant).vertical;
+
+    assert_eq!(output, 480);
+    assert!(!engine.has_pending_work());
+    assert_eq!(
+        engine.step(1000.0 / 120.0, &instant),
+        EngineOutput::default(),
+        "legacy instant overflow must be dropped rather than carried into a tail"
+    );
 }
 
 #[test]
