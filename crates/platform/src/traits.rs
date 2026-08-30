@@ -145,6 +145,10 @@ pub trait FullscreenDetector: Send + Sync {
 pub trait WindowGeometry: Send + Sync {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)>;
 
+    fn root_window_under_cursor(&self) -> Option<isize> {
+        None
+    }
+
     fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
         None // default — platforms override
     }
@@ -187,4 +191,22 @@ pub trait AccessibilitySignals: Send + Sync {
 /// Returns 60 if detection fails (safe fallback).
 pub trait DisplayQuery: Send + Sync {
     fn primary_refresh_rate_hz(&self) -> u32;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct StubWindowGeometry;
+
+    impl WindowGeometry for StubWindowGeometry {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+    }
+
+    #[test]
+    fn window_geometry_default_has_no_root_window() {
+        assert_eq!(StubWindowGeometry.root_window_under_cursor(), None);
+    }
 }
