@@ -605,6 +605,33 @@ fn instant_mode_flushes_mixed_scroll_batches() {
 }
 
 #[test]
+fn reset_sequence_clears_pending_velocity_and_notch_timing() {
+    let settings = eff();
+    let mut engine = SmoothScrollEngine::new();
+
+    on_wheel(&mut engine, 120, 1_000, &settings);
+    on_wheel(&mut engine, 120, 1_050, &settings);
+    on_wheel(&mut engine, 120, 1_100, &settings);
+    assert!(engine.has_pending_work());
+    assert!(engine.last_velocity() > 0.0);
+
+    engine.reset_sequence();
+
+    assert!(!engine.has_pending_work());
+    assert_eq!(engine.last_velocity(), 0.0);
+
+    let mut fresh = SmoothScrollEngine::new();
+    on_wheel(&mut engine, 120, 1_150, &settings);
+    on_wheel(&mut fresh, 120, 1_150, &settings);
+
+    assert_eq!(
+        drain_vertical(&mut engine, &settings),
+        drain_vertical(&mut fresh, &settings),
+        "the first notch after reset must behave like a fresh sequence"
+    );
+}
+
+#[test]
 fn reset_axes_clears_all_pending_batches() {
     let settings = eff();
     let mut engine = SmoothScrollEngine::new();
