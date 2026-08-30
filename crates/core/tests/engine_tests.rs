@@ -88,6 +88,69 @@ fn rapid_notches_increase_total_distance() {
 }
 
 #[test]
+fn instant_mode_rapid_notches_travel_farther_than_slow_notches() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 60;
+    settings.acceleration_max = 10;
+    settings.max_velocity = 20.0;
+    let mut instant = EffectiveSettings::from_settings(&settings);
+    instant.instant_mode = true;
+
+    let mut rapid = SmoothScrollEngine::new();
+    for i in 0..10u64 {
+        rapid.on_wheel_with_source(120, 1_000 + i * 50, InputSource::Wheel, &instant);
+    }
+    let rapid_output = rapid.step(1000.0 / 120.0, &instant).vertical;
+
+    let mut slow = SmoothScrollEngine::new();
+    for i in 0..10u64 {
+        slow.on_wheel_with_source(120, 1_000 + i * 500, InputSource::Wheel, &instant);
+    }
+    let slow_output = slow.step(1000.0 / 120.0, &instant).vertical;
+
+    assert!(
+        rapid_output.abs() > slow_output.abs(),
+        "instant acceleration must preserve distance: rapid={rapid_output}, slow={slow_output}"
+    );
+    assert!(!rapid.has_pending_work());
+    assert!(!slow.has_pending_work());
+}
+
+#[test]
+fn instant_mode_preserves_full_quantized_distance_beyond_legacy_480_limit() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 144;
+    settings.acceleration_max = 10;
+    settings.max_velocity = 20.0;
+    // Keep the animated control below its intentional per-frame clamp so this
+    // fixture isolates the instant-only legacy clamp/drop behavior.
+    settings.animation_time_ms = 500;
+    settings.animation_easing = false;
+
+    let animated = EffectiveSettings::from_settings(&settings);
+    let mut instant = EffectiveSettings::from_settings(&settings);
+    instant.instant_mode = true;
+
+    let mut animated_engine = SmoothScrollEngine::new();
+    let mut instant_engine = SmoothScrollEngine::new();
+    for i in 0..8u64 {
+        let now = 1_000 + i * 40;
+        animated_engine.on_wheel_with_source(120, now, InputSource::Wheel, &animated);
+        instant_engine.on_wheel_with_source(120, now, InputSource::Wheel, &instant);
+    }
+
+    let animated_total = drain_vertical(&mut animated_engine, &animated);
+    let instant_output = instant_engine.step(1000.0 / 120.0, &instant).vertical;
+
+    assert!(animated_total.abs() > 480, "fixture must exceed the legacy clamp");
+    assert_eq!(
+        instant_output, animated_total,
+        "instant mode must emit the same quantized distance without a timed tail"
+    );
+    assert!(!instant_engine.has_pending_work());
+}
+
+#[test]
 fn slow_notches_no_acceleration() {
     let eff = eff();
     let mut engine = SmoothScrollEngine::new();

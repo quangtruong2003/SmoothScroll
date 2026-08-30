@@ -70,10 +70,11 @@ impl Axis {
         self.unit_accum += units;
         let pulses = self.unit_accum.trunc() as i32;
         self.unit_accum -= pulses as f64;
-        // NOTE: instant-mode pulse clamp drops anything beyond PULSE_CLAMP_MAX.
-        // Intentional: instant means "no carry-over" — flushing in one frame is
-        // the contract, even if it caps very large pending momentum.
-        pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+
+        // Instant mode removes the temporal schedule, not accelerated distance.
+        // Keep all whole emit units in this one engine iteration; the Windows
+        // emitter is responsible for synchronously chunking oversized output.
+        pulses.saturating_mul(EMIT_UNIT)
     }
 
     fn add_pending(&mut self, pixels: f64, easing: EasingSnapshot) {
