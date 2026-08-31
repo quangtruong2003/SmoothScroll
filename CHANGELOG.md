@@ -7,6 +7,20 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.31.0] - 2026-08-31
+
+### Added
+- track animation window owner
+- expose root window under cursor
+- add full scroll sequence reset
+
+### Fixed
+- enable animation time by default
+- scope unbounded instant output to Windows
+- cancel stale animation before emission
+- reset animation owner on new window input
+- batch oversized instant wheel output
+- preserve instant accelerated distance
 ## [1.30.0] - 2026-08-29
 
 ### Added
