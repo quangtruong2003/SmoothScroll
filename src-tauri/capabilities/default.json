@@ -12,7 +12,8 @@
       "allow": [
         { "url": "https://github.com/*" },
         { "url": "https://*.github.io/*" },
-        { "url": "https://*.github.com/*" }
+        { "url": "https://*.github.com/*" },
+        { "url": "https://buymeacoffee.com/*" }
       ]
     }
   ]

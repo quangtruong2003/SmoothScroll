@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-shell";
 import { Coffee, QrCode } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,12 +10,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { BANK_QR_URL } from "@/lib/donate";
+import bmcQrUrl from "@/assets/donate/bmc-qr.png";
+import { BANK_QR_URL, BMC_URL } from "@/lib/donate";
+
+type QrDialog = "bmc" | "bank";
 
 export function SupportSection() {
   const { t } = useTranslation();
-  const [zoomOpen, setZoomOpen] = useState(false);
+  const [qrDialog, setQrDialog] = useState<QrDialog | null>(null);
   const [qrFailed, setQrFailed] = useState(false);
+
+  const showQr = (kind: QrDialog) => {
+    setQrFailed(false);
+    setQrDialog(kind);
+  };
+
+  const handleBuyMeACoffee = async () => {
+    try {
+      await open(BMC_URL);
+    } catch {
+      showQr("bmc");
+    }
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      setQrDialog(null);
+      setQrFailed(false);
+    }
+  };
+
+  const qrUrl = qrDialog === "bmc" ? bmcQrUrl : BANK_QR_URL;
 
   return (
     <Card>
@@ -25,15 +51,21 @@ export function SupportSection() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Button
-          className="w-full gap-2"
-          onClick={() => setZoomOpen(true)}
-        >
-          <QrCode className="h-4 w-4" />
-          {t("support.donate_button")}
-        </Button>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button
+            className="gap-2 bg-[#FFDD00] text-black hover:bg-[#FFDD00]/90"
+            onClick={handleBuyMeACoffee}
+          >
+            <Coffee className="h-4 w-4" />
+            Buy Me a Coffee
+          </Button>
+          <Button className="gap-2" onClick={() => showQr("bank")}>
+            <QrCode className="h-4 w-4" />
+            Bank Việt Nam
+          </Button>
+        </div>
 
-        <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
+        <Dialog open={qrDialog !== null} onOpenChange={handleDialogChange}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>{t("support.qr_zoom_title")}</DialogTitle>
@@ -48,7 +80,7 @@ export function SupportSection() {
                 </div>
               ) : (
                 <img
-                  src={BANK_QR_URL}
+                  src={qrUrl}
                   alt={t("support.qr_alt")}
                   width={480}
                   height={480}

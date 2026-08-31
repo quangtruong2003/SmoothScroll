@@ -1,5 +1,4 @@
-export const BMC_URL = "https://buymeacoffee.com/quangtruong2003";
-export const SHOW_BMC = false;
+export const BMC_URL = "https://buymeacoffee.com/smoothscroll";
 export const BANK_CODE = "970454";
 export const BANK_ACCOUNT = "0947890450";
 export const BANK_HOLDER = "NGUYEN QUANG TRUONG";

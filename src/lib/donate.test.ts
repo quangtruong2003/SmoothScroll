@@ -9,8 +9,8 @@ import {
 } from "./donate";
 
 describe("donate constants", () => {
-  it("exposes the BMC profile URL", () => {
-    expect(BMC_URL).toBe("https://buymeacoffee.com/quangtruong2003");
+  it("exposes the SmoothScroll BMC profile URL", () => {
+    expect(BMC_URL).toBe("https://buymeacoffee.com/smoothscroll");
   });
 
   it("uses Timo's VietQR BIN (970454) — shortName BVBank returns non-image", () => {
