@@ -303,7 +303,7 @@ impl Default for AppSettings {
             enabled: true,
             step_size_px: 144,
             animation_time_ms: 220,
-            animation_time_enabled: false,
+            animation_time_enabled: true,
             acceleration_max: 10,
             max_velocity: 20.0,
             tail_to_head_ratio: 5,
