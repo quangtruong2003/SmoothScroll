@@ -58,6 +58,13 @@ struct Axis {
 type ZoomAxis = Axis;
 
 impl Axis {
+    fn reset_sequence(&mut self) {
+        self.pending.clear();
+        self.unit_accum = 0.0;
+        self.last_notch_ms = 0;
+        self.velocity = 0.0;
+    }
+
     fn flush_instant(&mut self) -> i32 {
         let remaining_px: f64 = self.pending.iter().map(|batch| batch.remaining_px).sum();
         self.pending.clear();
@@ -70,10 +77,17 @@ impl Axis {
         self.unit_accum += units;
         let pulses = self.unit_accum.trunc() as i32;
         self.unit_accum -= pulses as f64;
-        // NOTE: instant-mode pulse clamp drops anything beyond PULSE_CLAMP_MAX.
-        // Intentional: instant means "no carry-over" — flushing in one frame is
-        // the contract, even if it caps very large pending momentum.
-        pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+
+        #[cfg(windows)]
+        {
+            // The Windows emitter synchronously chunks oversized instant output.
+            pulses.saturating_mul(EMIT_UNIT)
+        }
+        #[cfg(not(windows))]
+        {
+            // Preserve the legacy clamp/drop behavior on other platforms.
+            pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+        }
     }
 
     fn add_pending(&mut self, pixels: f64, easing: EasingSnapshot) {
@@ -345,6 +359,14 @@ impl SmoothScrollEngine {
         self.h.unit_accum = 0.0;
         self.z.pending.clear();
         self.z.unit_accum = 0.0;
+    }
+
+    /// Cancel a complete animated sequence, including cadence/velocity history.
+    /// Used when window ownership changes so the next window starts fresh.
+    pub fn reset_sequence(&mut self) {
+        self.v.reset_sequence();
+        self.h.reset_sequence();
+        self.z.reset_sequence();
     }
 }
 

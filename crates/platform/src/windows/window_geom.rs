@@ -35,20 +35,30 @@ fn is_discrete_class(class: &str) -> bool {
         .any(|c| c.eq_ignore_ascii_case(class))
 }
 
+fn cursor_root_window() -> Option<(POINT, HWND)> {
+    unsafe {
+        let mut pt: POINT = mem::zeroed();
+        if GetCursorPos(&mut pt) == 0 {
+            return None;
+        }
+        let hwnd = WindowFromPoint(pt);
+        if hwnd.is_null() {
+            return None;
+        }
+        let root = GetAncestor(hwnd, GA_ROOT);
+        if root.is_null() {
+            return None;
+        }
+        Some((pt, root))
+    }
+}
+
 impl WindowGeometry for WindowsWindowGeometry {
     fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
         unsafe {
-            let mut pt: POINT = mem::zeroed();
-            if GetCursorPos(&mut pt) == 0 {
-                return None;
-            }
-            let hwnd: HWND = WindowFromPoint(pt);
-            if hwnd.is_null() {
-                return None;
-            }
-            let top = GetAncestor(hwnd, GA_ROOT);
+            let (pt, root) = cursor_root_window()?;
             let mut rc: RECT = mem::zeroed();
-            if GetWindowRect(top, &mut rc) == 0 {
+            if GetWindowRect(root, &mut rc) == 0 {
                 return None;
             }
             Some((
@@ -61,6 +71,10 @@ impl WindowGeometry for WindowsWindowGeometry {
                 },
             ))
         }
+    }
+
+    fn root_window_under_cursor(&self) -> Option<isize> {
+        cursor_root_window().map(|(_, root)| root as isize)
     }
 
     fn monitor_for_hwnd(&self, hwnd: isize) -> Option<String> {

@@ -12,6 +12,7 @@
 use super::horizontal_scroll::HorizontalScrollDispatcher;
 use crate::traits::{WheelEmitter, ZoomEmitter};
 use crate::types::{PlatformError, Result};
+use smoothscroll_core::constants::{EMIT_UNIT, PULSE_CLAMP_MAX};
 use std::mem;
 use windows_sys::Win32::Foundation::{GetLastError, POINT};
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
@@ -23,6 +24,17 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{
 };
 
 const MK_SHIFT: usize = 0x0004;
+const MAX_WHEEL_CHUNK_UNITS: i32 = PULSE_CLAMP_MAX * EMIT_UNIT;
+
+fn wheel_chunks(mut units: i32) -> Vec<i32> {
+    let mut chunks = Vec::new();
+    while units != 0 {
+        let chunk = units.clamp(-MAX_WHEEL_CHUNK_UNITS, MAX_WHEEL_CHUNK_UNITS);
+        chunks.push(chunk);
+        units -= chunk;
+    }
+    chunks
+}
 
 /// Retrieves the target window for PostMessageW injection.
 /// Returns (hwnd, screen_x, screen_y) or error.
@@ -91,31 +103,44 @@ fn ctrl_physically_down() -> bool {
 }
 
 fn emit_vertical(units: i32) -> Result<()> {
-    let cb = mem::size_of::<INPUT>() as i32;
-    let buf = wheel_input(MOUSEEVENTF_WHEEL, units);
+    let chunks = wheel_chunks(units);
+    if chunks.is_empty() {
+        return Ok(());
+    }
 
-    let sent = unsafe { SendInput(1, &buf, cb) };
-    if sent != 1 {
+    let inputs: Vec<INPUT> = chunks
+        .into_iter()
+        .map(|chunk| wheel_input(MOUSEEVENTF_WHEEL, chunk))
+        .collect();
+    let cb = mem::size_of::<INPUT>() as i32;
+    let expected = inputs.len() as u32;
+    let sent = unsafe { SendInput(expected, inputs.as_ptr(), cb) };
+    if sent != expected {
         return Err(PlatformError::Os(format!(
-            "SendInput injected {}/1 events",
-            sent
+            "SendInput injected {sent}/{expected} wheel events"
         )));
     }
     Ok(())
 }
 
 fn emit_horizontal(units: i32) -> Result<()> {
-    let (target, x, y) = get_target_window()?;
-    unsafe {
-        let mouse_data = ((units as u32) << 16) as usize;
-        let w_param = MK_SHIFT | mouse_data;
-        let l_param = ((y as usize) << 16) | (x as usize & 0xFFFF);
+    let chunks = wheel_chunks(units);
+    if chunks.is_empty() {
+        return Ok(());
+    }
 
-        if PostMessageW(target as _, WM_MOUSEWHEEL, w_param as _, l_param as _) == 0 {
-            return Err(PlatformError::Os(format!(
-                "PostMessageW failed with error {}",
-                GetLastError()
-            )));
+    let (target, x, y) = get_target_window()?;
+    for chunk in chunks {
+        unsafe {
+            let mouse_data = ((chunk as u32) << 16) as usize;
+            let w_param = MK_SHIFT | mouse_data;
+            let l_param = ((y as usize) << 16) | (x as usize & 0xFFFF);
+            if PostMessageW(target as _, WM_MOUSEWHEEL, w_param as _, l_param as _) == 0 {
+                return Err(PlatformError::Os(format!(
+                    "PostMessageW failed with error {}",
+                    GetLastError()
+                )));
+            }
         }
     }
     Ok(())
@@ -166,6 +191,10 @@ pub(crate) fn zoom_injection(units: i32, ctrl_physically_down: bool) -> ZoomInje
 /// real `VK_CONTROL` virtual key — the previous `KEYEVENTF_UNICODE` version
 /// sent the character U+001D and never registered as a modifier.
 fn emit_zoom_with_ctrl(units: i32) -> Result<()> {
+    let chunks = wheel_chunks(units);
+    if chunks.is_empty() {
+        return Ok(());
+    }
     let cb = mem::size_of::<INPUT>() as i32;
 
     let ctrl = |flags: u32| INPUT {
@@ -181,17 +210,20 @@ fn emit_zoom_with_ctrl(units: i32) -> Result<()> {
         },
     };
 
-    let inputs = [
-        ctrl(0),
-        wheel_input(MOUSEEVENTF_WHEEL, units),
-        ctrl(KEYEVENTF_KEYUP),
-    ];
+    let mut inputs = Vec::with_capacity(chunks.len() + 2);
+    inputs.push(ctrl(0));
+    inputs.extend(
+        chunks
+            .into_iter()
+            .map(|chunk| wheel_input(MOUSEEVENTF_WHEEL, chunk)),
+    );
+    inputs.push(ctrl(KEYEVENTF_KEYUP));
 
-    let sent = unsafe { SendInput(3, inputs.as_ptr(), cb) };
-    if sent != 3 {
+    let expected = inputs.len() as u32;
+    let sent = unsafe { SendInput(expected, inputs.as_ptr(), cb) };
+    if sent != expected {
         return Err(PlatformError::Os(format!(
-            "SendInput zoom injected {}/3 events",
-            sent
+            "SendInput zoom injected {sent}/{expected} events"
         )));
     }
     Ok(())
@@ -200,6 +232,19 @@ fn emit_zoom_with_ctrl(units: i32) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn oversized_wheel_units_split_without_losing_distance() {
+        assert_eq!(wheel_chunks(1_440), vec![480, 480, 480]);
+        assert_eq!(wheel_chunks(500), vec![480, 20]);
+        assert_eq!(wheel_chunks(-1_440), vec![-480, -480, -480]);
+        assert_eq!(wheel_chunks(-500), vec![-480, -20]);
+    }
+
+    #[test]
+    fn zero_wheel_units_produce_no_chunks() {
+        assert!(wheel_chunks(0).is_empty());
+    }
 
     #[test]
     fn horizontal_post_targets_window_under_cursor() {

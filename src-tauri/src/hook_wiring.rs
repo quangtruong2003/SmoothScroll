@@ -355,8 +355,27 @@ impl EngineSink {
             return HookDecision::Swallow;
         }
 
+        if !ctrl_pressed && mods.shift && !eff.horizontal_smoothness {
+            return HookDecision::Pass;
+        }
+
+        #[cfg(windows)]
+        let current_root = if eff.instant_mode {
+            None
+        } else {
+            self.state.window_geom.root_window_under_cursor()
+        };
+
         // ONE lock acquisition for events routed through the smooth engine.
         let mut engine = self.state.engine.lock();
+
+        #[cfg(windows)]
+        reconcile_animation_owner(
+            &self.state.animation_owner,
+            &mut engine,
+            eff.instant_mode,
+            current_root,
+        );
 
         if ctrl_pressed {
             // Ctrl+Wheel → zoom axis
@@ -364,8 +383,6 @@ impl EngineSink {
         } else if mods.shift && eff.horizontal_smoothness {
             let h_delta = if eff.horizontal_invert { -delta } else { delta };
             engine.on_hwheel_with_source(h_delta, now, source, &eff);
-        } else if mods.shift {
-            return HookDecision::Pass;
         } else {
             engine.on_wheel_with_source(delta, now, source, &eff);
         }
@@ -410,7 +427,24 @@ impl EngineSink {
 
         self.update_last_source(source);
         let now = self.now_ms();
+
+        #[cfg(windows)]
+        let current_root = if eff.instant_mode {
+            None
+        } else {
+            self.state.window_geom.root_window_under_cursor()
+        };
+
         let mut engine = self.state.engine.lock();
+
+        #[cfg(windows)]
+        reconcile_animation_owner(
+            &self.state.animation_owner,
+            &mut engine,
+            eff.instant_mode,
+            current_root,
+        );
+
         let h_delta = if eff.horizontal_invert { -delta } else { delta };
         engine.on_hwheel_with_source(h_delta, now, source, &eff);
         drop(engine);
@@ -434,6 +468,32 @@ impl EngineSink {
             .as_deref()
             .map(is_browser_process)
             .unwrap_or_else(|| foreground.as_deref().is_some_and(is_browser_process))
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn reconcile_animation_owner(
+    owner: &crate::state::AnimationOwner,
+    engine: &mut smoothscroll_core::engine::SmoothScrollEngine,
+    instant_mode: bool,
+    current_root: Option<isize>,
+) {
+    if instant_mode {
+        owner.clear();
+        return;
+    }
+
+    let Some(current_root) = current_root else {
+        return;
+    };
+
+    match owner.get() {
+        None => owner.set(Some(current_root)),
+        Some(existing) if existing != current_root => {
+            engine.reset_sequence();
+            owner.set(Some(current_root));
+        }
+        Some(_) => {}
     }
 }
 
@@ -511,6 +571,7 @@ mod tests {
     use arc_swap::ArcSwap;
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
+    use smoothscroll_core::input_source::InputSource;
     use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ScrollProfile};
     use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
@@ -521,7 +582,68 @@ mod tests {
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
     use std::sync::atomic::AtomicBool;
+    #[cfg(windows)]
+    use std::sync::atomic::AtomicIsize;
     use std::sync::Arc;
+
+    #[cfg(windows)]
+    #[test]
+    fn animated_owner_establishes_and_same_root_keeps_sequence() {
+        let owner = crate::state::AnimationOwner::default();
+        let mut engine = SmoothScrollEngine::new();
+        let settings = EffectiveSettings::from_settings(&AppSettings::default());
+
+        reconcile_animation_owner(&owner, &mut engine, false, Some(0x1000));
+        assert_eq!(owner.get(), Some(0x1000));
+
+        engine.on_wheel_with_source(120, 1_000, InputSource::Wheel, &settings);
+        reconcile_animation_owner(&owner, &mut engine, false, Some(0x1000));
+
+        assert_eq!(owner.get(), Some(0x1000));
+        assert!(engine.has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn animated_owner_mismatch_resets_old_sequence_before_new_window() {
+        let owner = crate::state::AnimationOwner::default();
+        let mut engine = SmoothScrollEngine::new();
+        let settings = EffectiveSettings::from_settings(&AppSettings::default());
+
+        owner.set(Some(0x1000));
+        engine.on_wheel_with_source(120, 1_000, InputSource::Wheel, &settings);
+        engine.on_wheel_with_source(120, 1_050, InputSource::Wheel, &settings);
+        assert!(engine.last_velocity() > 0.0);
+
+        reconcile_animation_owner(&owner, &mut engine, false, Some(0x2000));
+
+        assert_eq!(owner.get(), Some(0x2000));
+        assert!(!engine.has_pending_work());
+        assert_eq!(engine.last_velocity(), 0.0);
+
+        engine.on_wheel_with_source(120, 1_100, InputSource::Wheel, &settings);
+        assert_eq!(
+            engine.last_velocity(),
+            0.0,
+            "B's first notch must not inherit A's cadence"
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn transient_unknown_root_does_not_cancel_owned_animation() {
+        let owner = crate::state::AnimationOwner::default();
+        let mut engine = SmoothScrollEngine::new();
+        let settings = EffectiveSettings::from_settings(&AppSettings::default());
+
+        owner.set(Some(0x1000));
+        engine.on_wheel_with_source(120, 1_000, InputSource::Wheel, &settings);
+        reconcile_animation_owner(&owner, &mut engine, false, None);
+
+        assert_eq!(owner.get(), Some(0x1000));
+        assert!(engine.has_pending_work());
+    }
+
     struct StubHook;
     impl MouseHook for StubHook {
         fn install(&self, _sink: Arc<dyn HookEventSink>) -> Result<HookHandle> {
@@ -630,6 +752,56 @@ mod tests {
             None
         }
     }
+    #[cfg(windows)]
+    struct CountingRootWindowGeom {
+        root: isize,
+        calls: std::sync::atomic::AtomicUsize,
+    }
+    #[cfg(windows)]
+    impl CountingRootWindowGeom {
+        fn new(root: isize) -> Self {
+            Self {
+                root,
+                calls: std::sync::atomic::AtomicUsize::new(0),
+            }
+        }
+    }
+    #[cfg(windows)]
+    impl WindowGeometry for CountingRootWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+
+        fn root_window_under_cursor(&self) -> Option<isize> {
+            self.calls.fetch_add(1, Ordering::Relaxed);
+            Some(self.root)
+        }
+    }
+    #[cfg(windows)]
+    struct MutableRootWindowGeom {
+        root: AtomicIsize,
+        hit_child: AtomicIsize,
+    }
+    #[cfg(windows)]
+    impl MutableRootWindowGeom {
+        fn new(root: isize, hit_child: isize) -> Self {
+            Self {
+                root: AtomicIsize::new(root),
+                hit_child: AtomicIsize::new(hit_child),
+            }
+        }
+    }
+    #[cfg(windows)]
+    impl WindowGeometry for MutableRootWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+
+        fn root_window_under_cursor(&self) -> Option<isize> {
+            let _ = self.hit_child.load(Ordering::Relaxed);
+            Some(self.root.load(Ordering::Relaxed))
+        }
+    }
     struct DiscreteControlWindowGeom;
     impl WindowGeometry for DiscreteControlWindowGeom {
         fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
@@ -663,6 +835,15 @@ mod tests {
         make_state_with_emitter(settings, Arc::new(StubEmitter))
     }
 
+    fn make_state_with_window_geom(
+        settings: AppSettings,
+        window_geom: Arc<dyn WindowGeometry>,
+    ) -> Arc<AppState> {
+        let mut state = make_state(settings);
+        Arc::get_mut(&mut state).unwrap().window_geom = window_geom;
+        state
+    }
+
     fn make_state_with_emitter(
         settings: AppSettings,
         emitter: Arc<dyn WheelEmitter>,
@@ -670,6 +851,7 @@ mod tests {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
             settings: Arc::new(RwLock::new(settings.clone())),
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
@@ -755,6 +937,7 @@ mod tests {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
             settings: Arc::new(RwLock::new(settings.clone())),
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
@@ -802,6 +985,7 @@ mod tests {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
             engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
             settings: Arc::new(RwLock::new(settings.clone())),
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
@@ -861,6 +1045,139 @@ mod tests {
             }
         }
         (v, h)
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn effective_instant_mode_clears_owner_without_root_lookup() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+
+        let mut settings = AppSettings::default();
+        settings.animation_time_enabled = false;
+        settings.respect_reduce_motion = RespectReduceMotion::Never;
+        settings.auto_disable_windows_apps = false;
+
+        let geom = Arc::new(CountingRootWindowGeom::new(0x2000));
+        let state = make_state_with_window_geom(settings.clone(), geom.clone());
+        state.animation_owner.set(Some(0x1000));
+        state.commit_settings(settings);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
+        assert_eq!(state.animation_owner.get(), None);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn reduce_motion_forced_instant_mode_skips_root_lookup() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+
+        let mut settings = AppSettings::default();
+        settings.animation_time_enabled = true;
+        settings.respect_reduce_motion = RespectReduceMotion::Auto;
+        settings.auto_disable_windows_apps = false;
+
+        let geom = Arc::new(CountingRootWindowGeom::new(0x2000));
+        let state = make_state_with_window_geom(settings.clone(), geom.clone());
+        state.reduce_motion.store(true, Ordering::Relaxed);
+        state.commit_settings(settings);
+        assert!(state.effective.load_full().instant_mode);
+
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
+        assert_eq!(state.animation_owner.get(), None);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn new_root_input_replaces_owner_and_registers_immediately() {
+        const A: isize = 0x1000;
+        const B: isize = 0x2000;
+
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        let geom = Arc::new(MutableRootWindowGeom::new(A, 0x1001));
+        let state = make_state_with_window_geom(settings, geom.clone());
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(state.animation_owner.get(), Some(A));
+
+        geom.root.store(B, Ordering::Relaxed);
+        geom.hit_child.store(0x2001, Ordering::Relaxed);
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+
+        assert_eq!(state.animation_owner.get(), Some(B));
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn child_window_change_keeps_root_owner_and_pending_sequence() {
+        const ROOT: isize = 0x1000;
+
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        let geom = Arc::new(MutableRootWindowGeom::new(ROOT, 0x1001));
+        let state = make_state_with_window_geom(settings, geom.clone());
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(state.animation_owner.get(), Some(ROOT));
+        assert!(state.engine.lock().has_pending_work());
+
+        geom.hit_child.store(0x1002, Ordering::Relaxed);
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+
+        assert_eq!(state.animation_owner.get(), Some(ROOT));
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn instant_native_horizontal_clears_owner_without_root_lookup() {
+        use smoothscroll_core::settings::RespectReduceMotion;
+
+        let mut settings = AppSettings::default();
+        settings.animation_time_enabled = false;
+        settings.respect_reduce_motion = RespectReduceMotion::Never;
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = true;
+
+        let geom = Arc::new(CountingRootWindowGeom::new(0x2000));
+        let state = make_state_with_window_geom(settings.clone(), geom.clone());
+        state.animation_owner.set(Some(0x1000));
+        state.commit_settings(settings);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
+        assert_eq!(state.animation_owner.get(), None);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn native_horizontal_input_replaces_animation_owner() {
+        const A: isize = 0x1000;
+        const B: isize = 0x2000;
+
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = true;
+        let geom = Arc::new(MutableRootWindowGeom::new(A, 0x1001));
+        let state = make_state_with_window_geom(settings, geom.clone());
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(state.animation_owner.get(), Some(A));
+
+        geom.root.store(B, Ordering::Relaxed);
+        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+
+        assert_eq!(state.animation_owner.get(), Some(B));
+        assert!(state.engine.lock().has_pending_work());
     }
 
     #[test]

@@ -87,6 +87,95 @@ fn rapid_notches_increase_total_distance() {
     );
 }
 
+#[cfg(windows)]
+#[test]
+fn instant_mode_rapid_notches_travel_farther_than_slow_notches() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 60;
+    settings.acceleration_max = 10;
+    settings.max_velocity = 20.0;
+    let mut instant = EffectiveSettings::from_settings(&settings);
+    instant.instant_mode = true;
+
+    let mut rapid = SmoothScrollEngine::new();
+    for i in 0..10u64 {
+        rapid.on_wheel_with_source(120, 1_000 + i * 50, InputSource::Wheel, &instant);
+    }
+    let rapid_output = rapid.step(1000.0 / 120.0, &instant).vertical;
+
+    let mut slow = SmoothScrollEngine::new();
+    for i in 0..10u64 {
+        slow.on_wheel_with_source(120, 1_000 + i * 500, InputSource::Wheel, &instant);
+    }
+    let slow_output = slow.step(1000.0 / 120.0, &instant).vertical;
+
+    assert!(
+        rapid_output.abs() > slow_output.abs(),
+        "instant acceleration must preserve distance: rapid={rapid_output}, slow={slow_output}"
+    );
+    assert!(!rapid.has_pending_work());
+    assert!(!slow.has_pending_work());
+}
+
+#[cfg(windows)]
+#[test]
+fn instant_mode_preserves_full_quantized_distance_beyond_legacy_480_limit() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 144;
+    settings.acceleration_max = 10;
+    settings.max_velocity = 20.0;
+    // Keep the animated control below its intentional per-frame clamp so this
+    // fixture isolates the instant-only legacy clamp/drop behavior.
+    settings.animation_time_ms = 500;
+    settings.animation_easing = false;
+
+    let animated = EffectiveSettings::from_settings(&settings);
+    let mut instant = EffectiveSettings::from_settings(&settings);
+    instant.instant_mode = true;
+
+    let mut animated_engine = SmoothScrollEngine::new();
+    let mut instant_engine = SmoothScrollEngine::new();
+    for i in 0..8u64 {
+        let now = 1_000 + i * 40;
+        animated_engine.on_wheel_with_source(120, now, InputSource::Wheel, &animated);
+        instant_engine.on_wheel_with_source(120, now, InputSource::Wheel, &instant);
+    }
+
+    let animated_total = drain_vertical(&mut animated_engine, &animated);
+    let instant_output = instant_engine.step(1000.0 / 120.0, &instant).vertical;
+
+    assert!(
+        animated_total.abs() > 480,
+        "fixture must exceed the legacy clamp"
+    );
+    assert_eq!(
+        instant_output, animated_total,
+        "instant mode must emit the same quantized distance without a timed tail"
+    );
+    assert!(!instant_engine.has_pending_work());
+}
+
+#[cfg(not(windows))]
+#[test]
+fn instant_mode_preserves_legacy_clamp_and_drop() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 500;
+    let mut instant = EffectiveSettings::from_settings(&settings);
+    instant.instant_mode = true;
+    let mut engine = SmoothScrollEngine::new();
+
+    on_wheel(&mut engine, 1_200, 1_000, &instant);
+    let output = engine.step(1000.0 / 120.0, &instant).vertical;
+
+    assert_eq!(output, 480);
+    assert!(!engine.has_pending_work());
+    assert_eq!(
+        engine.step(1000.0 / 120.0, &instant),
+        EngineOutput::default(),
+        "legacy instant overflow must be dropped rather than carried into a tail"
+    );
+}
+
 #[test]
 fn slow_notches_no_acceleration() {
     let eff = eff();
@@ -539,6 +628,33 @@ fn instant_mode_flushes_mixed_scroll_batches() {
     let out = engine.step(1000.0 / 120.0, &instant);
     assert_eq!(out.vertical, 288, "instant mode should flush both batches");
     assert!(!engine.has_pending_work());
+}
+
+#[test]
+fn reset_sequence_clears_pending_velocity_and_notch_timing() {
+    let settings = eff();
+    let mut engine = SmoothScrollEngine::new();
+
+    on_wheel(&mut engine, 120, 1_000, &settings);
+    on_wheel(&mut engine, 120, 1_050, &settings);
+    on_wheel(&mut engine, 120, 1_100, &settings);
+    assert!(engine.has_pending_work());
+    assert!(engine.last_velocity() > 0.0);
+
+    engine.reset_sequence();
+
+    assert!(!engine.has_pending_work());
+    assert_eq!(engine.last_velocity(), 0.0);
+
+    let mut fresh = SmoothScrollEngine::new();
+    on_wheel(&mut engine, 120, 1_150, &settings);
+    on_wheel(&mut fresh, 120, 1_150, &settings);
+
+    assert_eq!(
+        drain_vertical(&mut engine, &settings),
+        drain_vertical(&mut fresh, &settings),
+        "the first notch after reset must behave like a fresh sequence"
+    );
 }
 
 #[test]
