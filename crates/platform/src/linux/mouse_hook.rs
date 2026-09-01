@@ -7,7 +7,7 @@
 //! alongside smooth scroll. Documented known limitation.
 
 use crate::traits::{HookEventSink, HookHandle, MouseHook};
-use crate::types::{PlatformError, Result};
+use crate::types::{PlatformError, Result, WheelAxis, WheelInputEvent, WheelSemantic};
 use parking_lot::Mutex;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -130,19 +130,47 @@ impl MouseHook for LinuxMouseHook {
                         match button {
                             4 => {
                                 let source = classifier_v.lock().classify(120, now_ms);
-                                sink.on_wheel_ext(120, mods, source);
+                                sink.on_wheel_event(WheelInputEvent {
+                                    delta: 120,
+                                    semantic: WheelSemantic {
+                                        axis: WheelAxis::Vertical,
+                                        modifiers: mods,
+                                    },
+                                    source,
+                                });
                             }
                             5 => {
                                 let source = classifier_v.lock().classify(-120, now_ms);
-                                sink.on_wheel_ext(-120, mods, source);
+                                sink.on_wheel_event(WheelInputEvent {
+                                    delta: -120,
+                                    semantic: WheelSemantic {
+                                        axis: WheelAxis::Vertical,
+                                        modifiers: mods,
+                                    },
+                                    source,
+                                });
                             }
                             6 => {
                                 let source = classifier_h.lock().classify(-120, now_ms);
-                                sink.on_hwheel_ext(-120, source);
+                                sink.on_wheel_event(WheelInputEvent {
+                                    delta: -120,
+                                    semantic: WheelSemantic {
+                                        axis: WheelAxis::Horizontal,
+                                        modifiers: mods,
+                                    },
+                                    source,
+                                });
                             }
                             7 => {
                                 let source = classifier_h.lock().classify(120, now_ms);
-                                sink.on_hwheel_ext(120, source);
+                                sink.on_wheel_event(WheelInputEvent {
+                                    delta: 120,
+                                    semantic: WheelSemantic {
+                                        axis: WheelAxis::Horizontal,
+                                        modifiers: mods,
+                                    },
+                                    source,
+                                });
                             }
                             _ => {}
                         }

@@ -1,28 +1,45 @@
 //! Trait definitions for OS-specific subsystems. Implementations live in
 //! `windows/` and `macos/` modules (cfg-gated).
 
-use crate::types::{Accelerator, HookDecision, ModifierKeys, Point, Result, WindowRect};
+use crate::types::{
+    Accelerator, HookDecision, ModifierKeys, Point, Result, WheelAxis, WheelInputEvent,
+    WheelSemantic, WindowRect,
+};
+use smoothscroll_core::input_source::InputSource;
 use std::sync::Arc;
 
 /// Receives parsed hook events. Implementation lives in the app crate.
 pub trait HookEventSink: Send + Sync {
-    fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision;
-    fn on_hwheel(&self, delta: i32) -> HookDecision;
+    fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision;
 
-    fn on_wheel_ext(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        _source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.on_wheel(delta, mods)
+    fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
+        self.on_wheel_ext(delta, mods, InputSource::Wheel)
     }
-    fn on_hwheel_ext(
-        &self,
-        delta: i32,
-        _source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.on_hwheel(delta)
+
+    fn on_hwheel(&self, delta: i32) -> HookDecision {
+        self.on_hwheel_ext(delta, ModifierKeys::default(), InputSource::Wheel)
+    }
+
+    fn on_wheel_ext(&self, delta: i32, mods: ModifierKeys, source: InputSource) -> HookDecision {
+        self.on_wheel_event(WheelInputEvent {
+            delta,
+            semantic: WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers: mods,
+            },
+            source,
+        })
+    }
+
+    fn on_hwheel_ext(&self, delta: i32, mods: ModifierKeys, source: InputSource) -> HookDecision {
+        self.on_wheel_event(WheelInputEvent {
+            delta,
+            semantic: WheelSemantic {
+                axis: WheelAxis::Horizontal,
+                modifiers: mods,
+            },
+            source,
+        })
     }
 }
 
@@ -196,6 +213,19 @@ pub trait DisplayQuery: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    #[derive(Default)]
+    struct RecordingSink {
+        last: Mutex<Option<WheelInputEvent>>,
+    }
+
+    impl HookEventSink for RecordingSink {
+        fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
+            *self.last.lock().unwrap() = Some(event);
+            HookDecision::Pass
+        }
+    }
 
     struct StubWindowGeometry;
 
@@ -203,6 +233,49 @@ mod tests {
         fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
             None
         }
+    }
+
+    #[test]
+    fn horizontal_compatibility_adapter_can_carry_modifiers() {
+        let sink = RecordingSink::default();
+        let mods = ModifierKeys {
+            ctrl: true,
+            alt: true,
+            ..ModifierKeys::default()
+        };
+        sink.on_hwheel_ext(120, mods, InputSource::HighResWheel);
+        assert_eq!(
+            *sink.last.lock().unwrap(),
+            Some(WheelInputEvent {
+                delta: 120,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Horizontal,
+                    modifiers: mods,
+                },
+                source: InputSource::HighResWheel,
+            })
+        );
+    }
+
+    #[test]
+    fn vertical_compatibility_adapter_can_carry_modifiers() {
+        let sink = RecordingSink::default();
+        let mods = ModifierKeys {
+            shift: true,
+            ..ModifierKeys::default()
+        };
+        sink.on_wheel_ext(-120, mods, InputSource::Touchpad);
+        assert_eq!(
+            *sink.last.lock().unwrap(),
+            Some(WheelInputEvent {
+                delta: -120,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers: mods,
+                },
+                source: InputSource::Touchpad,
+            })
+        );
     }
 
     #[test]

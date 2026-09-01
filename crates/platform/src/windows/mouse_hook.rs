@@ -12,9 +12,12 @@
 #![cfg(windows)]
 
 use crate::traits::{HookEventSink, HookHandle, MouseHook};
-use crate::types::{HookDecision, ModifierKeys, PlatformError, Result};
+use crate::types::{
+    HookDecision, ModifierKeys, PlatformError, Result, WheelAxis, WheelInputEvent, WheelSemantic,
+};
 use crate::windows::keyboard::{ModifierSampler, ModifierState};
 use parking_lot::Mutex;
+use smoothscroll_core::input_source::InputSource;
 use std::ptr::null_mut;
 use std::sync::atomic::{AtomicIsize, Ordering};
 use std::sync::Arc;
@@ -46,6 +49,26 @@ fn should_ignore_injected(flags: u32, extra_info: usize) -> bool {
     let injected = (flags & (LLMHF_INJECTED | LLMHF_LOWER_IL_INJECTED)) != 0;
     injected && extra_info == super::SMOOTHSCROLL_INPUT_MARKER
 }
+
+fn wheel_event(
+    message: u32,
+    delta: i32,
+    modifiers: ModifierKeys,
+    source: InputSource,
+) -> WheelInputEvent {
+    let axis = match message {
+        WM_MOUSEWHEEL => WheelAxis::Vertical,
+        WM_MOUSEHWHEEL => WheelAxis::Horizontal,
+        _ => unreachable!("wheel_event only accepts wheel messages"),
+    };
+
+    WheelInputEvent {
+        delta,
+        semantic: WheelSemantic { axis, modifiers },
+        source,
+    }
+}
+
 struct HookContext {
     sink: Arc<dyn HookEventSink>,
     modifiers: Arc<ModifierState>,
@@ -169,13 +192,22 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
     let now_ms = ctx.epoch.elapsed().as_millis() as u64;
     let decision = match msg {
         x if x == WM_MOUSEWHEEL => {
-            let mods = ctx.modifiers.snapshot_for_wheel();
             let source = ctx.classifier_v.lock().classify(delta, now_ms);
-            ctx.sink.on_wheel_ext(delta, mods, source)
+            ctx.sink.on_wheel_event(wheel_event(
+                msg,
+                delta,
+                ctx.modifiers.snapshot_for_wheel(),
+                source,
+            ))
         }
         x if x == WM_MOUSEHWHEEL => {
             let source = ctx.classifier_h.lock().classify(delta, now_ms);
-            ctx.sink.on_hwheel_ext(delta, source)
+            ctx.sink.on_wheel_event(wheel_event(
+                msg,
+                delta,
+                ctx.modifiers.snapshot_for_wheel(),
+                source,
+            ))
         }
         _ => HookDecision::Pass,
     };
@@ -194,9 +226,42 @@ fn _reexport_check(_m: ModifierKeys) {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::{WheelAxis, WheelSemantic};
+    use smoothscroll_core::input_source::InputSource;
 
     #[test]
-    fn ignores_only_smoothscroll_injected_mouse_events() {
+    fn horizontal_hook_event_keeps_modifier_snapshot() {
+        let mods = ModifierKeys {
+            shift: true,
+            alt: true,
+            ..ModifierKeys::default()
+        };
+        assert_eq!(
+            wheel_event(WM_MOUSEHWHEEL, 120, mods, InputSource::Wheel).semantic,
+            WheelSemantic {
+                axis: WheelAxis::Horizontal,
+                modifiers: mods,
+            }
+        );
+    }
+
+    #[test]
+    fn vertical_hook_event_keeps_modifier_snapshot() {
+        let mods = ModifierKeys {
+            ctrl: true,
+            ..ModifierKeys::default()
+        };
+        assert_eq!(
+            wheel_event(WM_MOUSEWHEEL, -120, mods, InputSource::HighResWheel).semantic,
+            WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers: mods,
+            }
+        );
+    }
+
+    #[test]
+    fn smoothscroll_marked_events_are_ignored() {
         assert!(should_ignore_injected(
             LLMHF_INJECTED,
             super::super::SMOOTHSCROLL_INPUT_MARKER

@@ -36,24 +36,31 @@ impl ModifierState {
         }
     }
 
-    /// Read the modifier state used to classify a vertical wheel event.
-    ///
-    /// The sampler can be up to one poll interval stale. A stale Shift state
-    /// is especially visible because it routes the first Shift+Wheel notch to
-    /// the vertical axis. Refresh only Shift at this boundary; Ctrl/Alt keep
-    /// their sampled values and therefore do not add more work to the common
-    /// modifier path.
+    /// Read all modifiers at the wheel event boundary so a captured semantic
+    /// never depends on the sampler's polling interval.
     pub fn snapshot_for_wheel(&self) -> ModifierKeys {
-        refresh_shift(self.snapshot(), is_shift_down())
+        merge_event_boundary_state(
+            self.snapshot(),
+            key_down(VK_SHIFT),
+            key_down(VK_CONTROL),
+            key_down(VK_MENU),
+        )
     }
 }
 
-fn is_shift_down() -> bool {
-    unsafe { (GetAsyncKeyState(VK_SHIFT as i32) as u16 & 0x8000) != 0 }
+fn key_down(key: u16) -> bool {
+    unsafe { (GetAsyncKeyState(key as i32) as u16 & 0x8000) != 0 }
 }
 
-fn refresh_shift(mut modifiers: ModifierKeys, shift_down: bool) -> ModifierKeys {
+fn merge_event_boundary_state(
+    mut modifiers: ModifierKeys,
+    shift_down: bool,
+    ctrl_down: bool,
+    alt_down: bool,
+) -> ModifierKeys {
     modifiers.shift = shift_down;
+    modifiers.ctrl = ctrl_down;
+    modifiers.alt = alt_down;
     modifiers
 }
 
@@ -121,18 +128,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn wheel_snapshot_uses_current_shift_without_changing_other_modifiers() {
-        let sampled = ModifierKeys {
-            shift: false,
-            ctrl: true,
-            alt: true,
-            cmd: false,
-        };
-        let refreshed = refresh_shift(sampled, true);
-
-        assert!(refreshed.shift);
-        assert_eq!(refreshed.ctrl, sampled.ctrl);
-        assert_eq!(refreshed.alt, sampled.alt);
-        assert_eq!(refreshed.cmd, sampled.cmd);
+    fn event_boundary_snapshot_refreshes_shift_ctrl_and_alt() {
+        let sampled = ModifierKeys::default();
+        let refreshed = merge_event_boundary_state(sampled, true, true, true);
+        assert_eq!(
+            refreshed,
+            ModifierKeys {
+                shift: true,
+                ctrl: true,
+                alt: true,
+                cmd: false,
+            }
+        );
     }
 }

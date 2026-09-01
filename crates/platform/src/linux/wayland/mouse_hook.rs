@@ -9,7 +9,7 @@
 
 use crate::linux::wayland::{evdev_scanner, wheel_emitter};
 use crate::traits::{HookEventSink, HookHandle, MouseHook};
-use crate::types::{PlatformError, Result};
+use crate::types::{PlatformError, Result, WheelAxis, WheelInputEvent, WheelSemantic};
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -190,24 +190,45 @@ impl WaylandMouseHook {
             evdev::EventSummary::RelativeAxis(_ev, code, value) => match code {
                 evdev::RelativeAxisCode::REL_WHEEL => {
                     let source = classifier_v.lock().classify(value, now_ms);
-                    sink.on_wheel_ext(value, mods, source);
+                    sink.on_wheel_event(WheelInputEvent {
+                        delta: value,
+                        semantic: WheelSemantic {
+                            axis: WheelAxis::Vertical,
+                            modifiers: mods,
+                        },
+                        source,
+                    });
                 }
                 evdev::RelativeAxisCode::REL_HWHEEL => {
                     let source = classifier_h.lock().classify(value, now_ms);
-                    sink.on_hwheel_ext(value, source);
+                    sink.on_wheel_event(WheelInputEvent {
+                        delta: value,
+                        semantic: WheelSemantic {
+                            axis: WheelAxis::Horizontal,
+                            modifiers: mods,
+                        },
+                        source,
+                    });
                 }
                 evdev::RelativeAxisCode::REL_WHEEL_HI_RES => {
-                    sink.on_wheel_ext(
-                        value,
-                        mods,
-                        smoothscroll_core::input_source::InputSource::HighResWheel,
-                    );
+                    sink.on_wheel_event(WheelInputEvent {
+                        delta: value,
+                        semantic: WheelSemantic {
+                            axis: WheelAxis::Vertical,
+                            modifiers: mods,
+                        },
+                        source: smoothscroll_core::input_source::InputSource::HighResWheel,
+                    });
                 }
                 evdev::RelativeAxisCode::REL_HWHEEL_HI_RES => {
-                    sink.on_hwheel_ext(
-                        value,
-                        smoothscroll_core::input_source::InputSource::HighResWheel,
-                    );
+                    sink.on_wheel_event(WheelInputEvent {
+                        delta: value,
+                        semantic: WheelSemantic {
+                            axis: WheelAxis::Horizontal,
+                            modifiers: mods,
+                        },
+                        source: smoothscroll_core::input_source::InputSource::HighResWheel,
+                    });
                 }
                 _ => {}
             },

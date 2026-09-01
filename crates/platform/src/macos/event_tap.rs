@@ -7,7 +7,9 @@
 #![cfg(target_os = "macos")]
 
 use crate::traits::HookEventSink;
-use crate::types::{HookDecision, ModifierKeys, PlatformError, Result};
+use crate::types::{
+    HookDecision, ModifierKeys, PlatformError, Result, WheelAxis, WheelInputEvent, WheelSemantic,
+};
 use core_foundation::runloop::kCFRunLoopDefaultMode;
 use core_foundation_sys::base::{kCFAllocatorDefault, CFAllocatorRef, CFRelease};
 use core_foundation_sys::runloop::{
@@ -241,12 +243,26 @@ unsafe extern "C" fn event_callback(
                 ScrollInputSource::Mouse => smoothscroll_core::input_source::InputSource::Wheel,
             };
             let v_decision = if v_delta != 0 {
-                cb.sink.on_wheel_ext(v_delta, mods, input_source)
+                cb.sink.on_wheel_event(WheelInputEvent {
+                    delta: v_delta,
+                    semantic: WheelSemantic {
+                        axis: WheelAxis::Vertical,
+                        modifiers: mods,
+                    },
+                    source: input_source,
+                })
             } else {
                 HookDecision::Pass
             };
             let h_decision = if h_delta != 0 {
-                cb.sink.on_hwheel_ext(h_delta, input_source)
+                cb.sink.on_wheel_event(WheelInputEvent {
+                    delta: h_delta,
+                    semantic: WheelSemantic {
+                        axis: WheelAxis::Horizontal,
+                        modifiers: mods,
+                    },
+                    source: input_source,
+                })
             } else {
                 HookDecision::Pass
             };

@@ -11,7 +11,7 @@ use crate::state::AppState;
 use parking_lot::Mutex;
 use smoothscroll_core::settings::EffectiveSettings;
 use smoothscroll_platform::traits::HookEventSink;
-use smoothscroll_platform::types::{HookDecision, ModifierKeys};
+use smoothscroll_platform::types::{HookDecision, ModifierKeys, WheelAxis, WheelInputEvent};
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
@@ -529,36 +529,13 @@ fn is_browser_process(process_name: &str) -> bool {
 }
 
 impl HookEventSink for EngineSink {
-    fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
-        self.route_vertical_with_source(
-            delta,
-            mods,
-            smoothscroll_core::input_source::InputSource::Wheel,
-        )
-    }
-
-    fn on_hwheel(&self, delta: i32) -> HookDecision {
-        self.route_horizontal_with_source(
-            delta,
-            smoothscroll_core::input_source::InputSource::Wheel,
-        )
-    }
-
-    fn on_wheel_ext(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.route_vertical_with_source(delta, mods, source)
-    }
-
-    fn on_hwheel_ext(
-        &self,
-        delta: i32,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.route_horizontal_with_source(delta, source)
+    fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
+        match event.semantic.axis {
+            WheelAxis::Vertical => {
+                self.route_vertical_with_source(event.delta, event.semantic.modifiers, event.source)
+            }
+            WheelAxis::Horizontal => self.route_horizontal_with_source(event.delta, event.source),
+        }
     }
 }
 
