@@ -493,7 +493,7 @@ impl EngineSink {
                     semantic,
                     transport: WheelTransport::Native,
                     strategy: SmoothingStrategy::Continuous,
-                    delta_transform: if eff.smooth_zoom && mods.is_ctrl_only() {
+                    delta_transform: if eff.smooth_zoom && zoom_modifier_isolated(&mods) {
                         DeltaTransform::CtrlZoom {
                             sensitivity: eff.zoom_sensitivity,
                             sign: if eff.zoom_invert { -1 } else { 1 },
@@ -595,6 +595,20 @@ impl EngineSink {
             .as_deref()
             .map(is_browser_process)
             .unwrap_or_else(|| foreground.as_deref().is_some_and(is_browser_process))
+    }
+}
+
+/// True when the wheel semantic carries exactly the platform's zoom modifier
+/// (Ctrl on Windows/Linux, Cmd on macOS) with no other modifier held.
+#[cfg_attr(not(test), allow(dead_code))]
+fn zoom_modifier_isolated(mods: &ModifierKeys) -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        mods.cmd && !mods.ctrl && !mods.shift && !mods.alt
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        mods.is_ctrl_only()
     }
 }
 
