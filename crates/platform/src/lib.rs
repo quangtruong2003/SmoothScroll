@@ -21,6 +21,9 @@ pub struct Platform {
     pub mouse_hook: Arc<dyn MouseHook>,
     pub wheel_emitter: Arc<dyn WheelEmitter>,
     pub zoom_emitter: Arc<dyn ZoomEmitter>,
+    /// Semantic-preserving emitter. Windows implements it natively; other
+    /// platforms provide no-regression adapters in Task 11.
+    pub semantic_emitter: Arc<dyn SemanticWheelEmitter>,
     pub process_query: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,

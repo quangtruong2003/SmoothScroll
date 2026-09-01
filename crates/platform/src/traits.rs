@@ -2,8 +2,8 @@
 //! `windows/` and `macos/` modules (cfg-gated).
 
 use crate::types::{
-    Accelerator, HookDecision, ModifierKeys, Point, Result, WheelAxis, WheelInputEvent,
-    WheelSemantic, WindowRect,
+    Accelerator, HookDecision, ModifierKeys, Point, Result, SemanticPulse, WheelAxis,
+    WheelInputEvent, WheelSemantic, WheelSequence, WindowRect,
 };
 use smoothscroll_core::input_source::InputSource;
 use std::sync::Arc;
@@ -74,6 +74,23 @@ pub trait WheelEmitter: Send + Sync {
 /// Emits synthetic zoom events (Ctrl+Wheel).
 pub trait ZoomEmitter: Send + Sync {
     fn emit_zoom(&self, units: i32) -> Result<()>;
+}
+
+/// Captured identity of the animation that produced a semantic pulse, used to
+/// invalidate queued compatibility work after semantic/root/raw transitions.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EmissionContext {
+    pub root_owner: Option<isize>,
+    pub axis_generation: u64,
+}
+
+/// Emits wheel pulses that preserve the captured semantic identity.
+pub trait SemanticWheelEmitter: Send + Sync {
+    /// Validate that the emitter can reproduce `sequence` before the hook
+    /// swallows the originating physical event. Performs no injection.
+    fn prepare(&self, sequence: WheelSequence) -> Result<()>;
+
+    fn emit_semantic(&self, pulse: SemanticPulse, context: EmissionContext) -> Result<()>;
 }
 
 /// Returned by `list_visible_processes`. Used by the UI picker.
