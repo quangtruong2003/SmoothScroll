@@ -1,16 +1,9 @@
 //! Shared types used across all platform impls.
 
-/// Modifier-key state captured at the moment of a hook event.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct ModifierKeys {
-    pub shift: bool,
-    pub ctrl: bool,
-    pub alt: bool,
-    /// macOS-only: the Command key. Always `false` on Windows. Hot-path
-    /// branches that read this MUST be `#[cfg(target_os = "macos")]` so
-    /// Windows doesn't read a never-set field.
-    pub cmd: bool,
-}
+pub use smoothscroll_core::wheel::{
+    ModifierKeys, SemanticPulse, WheelAxis, WheelInputEvent, WheelSemantic, WheelSequence,
+    WheelTransport,
+};
 
 /// Tells the hook whether to forward the original event or eat it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
