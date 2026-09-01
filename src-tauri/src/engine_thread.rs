@@ -141,11 +141,21 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
 
     let vertical = output.vertical.map_or(0, |pulse| pulse.units);
     let horizontal = output.horizontal.map_or(0, |pulse| pulse.units);
+    let zoom = output
+        .vertical
+        .filter(|pulse| {
+            matches!(
+                pulse.sequence.delta_transform,
+                smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
+            )
+        })
+        .map_or(0, |pulse| pulse.units);
+    let scroll_vertical = if zoom != 0 { 0 } else { vertical };
 
     if vel > 0.0 {
         state.stats.record_velocity(vel);
     }
-    let distance = (vertical.abs() + horizontal.abs()) as f64;
+    let distance = (scroll_vertical.abs() + horizontal.abs() + zoom.abs()) as f64;
     if distance > 0.0 {
         let fg_name = state
             .processes
@@ -154,21 +164,32 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
         state.stats.record_distance(distance, &fg_name);
         state.stats.record_active_time(dt_ms as u64);
     }
-    if vertical != 0 || horizontal != 0 {
-        if let Err(e) = state.emitter.emit(vertical, horizontal) {
+    let mut emitted_any = false;
+    if scroll_vertical != 0 || horizontal != 0 {
+        if let Err(e) = state.emitter.emit(scroll_vertical, horizontal) {
             tracing::warn!(error = %e, "wheel emit failed");
         } else {
-            let mut engine = state.engine.lock();
-            if let Some(pulse) = output.vertical {
-                engine.finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
-            }
-            if let Some(pulse) = output.horizontal {
-                engine.finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
-            }
-            #[cfg(windows)]
-            if !engine.has_pending_work() && state.animation_owner.get() == frame_owner {
-                state.animation_owner.clear();
-            }
+            emitted_any = true;
+        }
+    }
+    if zoom != 0 {
+        if let Err(e) = state.zoom_emitter.emit_zoom(zoom) {
+            tracing::warn!(error = %e, "zoom emit failed");
+        } else {
+            emitted_any = true;
+        }
+    }
+    if emitted_any {
+        let mut engine = state.engine.lock();
+        if let Some(pulse) = output.vertical {
+            engine.finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
+        }
+        if let Some(pulse) = output.horizontal {
+            engine.finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
+        }
+        #[cfg(windows)]
+        if !engine.has_pending_work() && state.animation_owner.get() == frame_owner {
+            state.animation_owner.clear();
         }
     }
 }

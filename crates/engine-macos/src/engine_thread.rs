@@ -76,8 +76,26 @@ fn worker(state: Arc<AppState>, frame_ms: f64, stop: Arc<std::sync::atomic::Atom
 
                 let vertical = output.vertical.map_or(0, |pulse| pulse.units);
                 let horizontal = output.horizontal.map_or(0, |pulse| pulse.units);
-                if vertical != 0 || horizontal != 0 {
-                    let _ = state.emitter.emit(vertical, horizontal);
+                let zoom = output
+                    .vertical
+                    .filter(|pulse| {
+                        matches!(
+                            pulse.sequence.delta_transform,
+                            smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
+                        )
+                    })
+                    .map_or(0, |pulse| pulse.units);
+                let scroll_vertical = if zoom != 0 { 0 } else { vertical };
+                let mut emitted_any = false;
+                if scroll_vertical != 0 || horizontal != 0 {
+                    let _ = state.emitter.emit(scroll_vertical, horizontal);
+                    emitted_any = true;
+                }
+                if zoom != 0 {
+                    let _ = state.zoom_emitter.emit_zoom(zoom);
+                    emitted_any = true;
+                }
+                if emitted_any {
                     if let Some(pulse) = output.vertical {
                         engine.finish_axis_pulse(
                             smoothscroll_core::wheel::WheelAxis::Vertical,

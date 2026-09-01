@@ -391,6 +391,202 @@ fn drain_vertical(e: &mut SmoothScrollEngine, eff: &EffectiveSettings) -> i32 {
     total
 }
 
+fn drain_first_vertical(
+    e: &mut SmoothScrollEngine,
+    eff: &EffectiveSettings,
+) -> smoothscroll_core::wheel::SemanticPulse {
+    for _ in 0..500 {
+        if let Some(pulse) = e.step(1000.0 / 120.0, eff).vertical {
+            return pulse;
+        }
+    }
+    panic!("expected a vertical semantic pulse");
+}
+
+fn register_event(
+    e: &mut SmoothScrollEngine,
+    delta: i32,
+    modifiers: ModifierKeys,
+    source: InputSource,
+    now_ms: u64,
+    eff: &EffectiveSettings,
+    transport: WheelTransport,
+    transform: DeltaTransform,
+) -> WheelSequence {
+    let semantic = WheelSemantic {
+        axis: WheelAxis::Vertical,
+        modifiers,
+    };
+    let sequence = WheelSequence {
+        semantic,
+        transport,
+        strategy: SmoothingStrategy::Continuous,
+        delta_transform: transform,
+    };
+    e.register(
+        WheelInputEvent {
+            delta,
+            semantic,
+            source,
+        },
+        sequence,
+        now_ms,
+        eff,
+    );
+    sequence
+}
+
+#[test]
+fn ctrl_tail_keeps_captured_ctrl_after_registration() {
+    let eff = eff();
+    let mut engine = SmoothScrollEngine::new();
+    let sequence = register_event(
+        &mut engine,
+        120,
+        ModifierKeys {
+            ctrl: true,
+            ..ModifierKeys::default()
+        },
+        InputSource::Wheel,
+        1_000,
+        &eff,
+        WheelTransport::Native,
+        DeltaTransform::CtrlZoom {
+            sensitivity: 1.0,
+            sign: 1,
+        },
+    );
+    let pulse = drain_first_vertical(&mut engine, &eff);
+    assert!(pulse.sequence.semantic.modifiers.ctrl);
+    assert_eq!(pulse.sequence, sequence);
+}
+
+#[test]
+fn semantic_change_resets_tail_and_cadence() {
+    let eff = eff();
+    let mut engine = SmoothScrollEngine::new();
+    register_event(
+        &mut engine,
+        120,
+        ModifierKeys::default(),
+        InputSource::Wheel,
+        1_000,
+        &eff,
+        WheelTransport::Native,
+        DeltaTransform::Generic { sign: 1 },
+    );
+    register_event(
+        &mut engine,
+        120,
+        ModifierKeys::default(),
+        InputSource::Wheel,
+        1_050,
+        &eff,
+        WheelTransport::Native,
+        DeltaTransform::Generic { sign: 1 },
+    );
+    assert!(engine.last_velocity() > 0.0);
+
+    let alt_sequence = register_event(
+        &mut engine,
+        120,
+        ModifierKeys {
+            alt: true,
+            ..ModifierKeys::default()
+        },
+        InputSource::Wheel,
+        1_100,
+        &eff,
+        WheelTransport::Native,
+        DeltaTransform::Generic { sign: 1 },
+    );
+
+    assert_eq!(
+        engine.active_sequence(WheelAxis::Vertical),
+        Some(alt_sequence)
+    );
+    assert_eq!(engine.last_velocity(), 0.0);
+    let mut pulses = Vec::new();
+    for _ in 0..500 {
+        if let Some(pulse) = engine.step(1000.0 / 120.0, &eff).vertical {
+            pulses.push(pulse);
+        }
+        if !engine.has_pending_work() {
+            break;
+        }
+    }
+    assert!(pulses
+        .iter()
+        .all(|pulse| pulse.sequence.semantic.modifiers.alt));
+}
+
+#[test]
+fn same_semantic_retains_acceleration_cadence() {
+    let eff = eff();
+    let mut engine = SmoothScrollEngine::new();
+    for now_ms in [1_000, 1_050] {
+        register_event(
+            &mut engine,
+            120,
+            ModifierKeys {
+                ctrl: true,
+                ..ModifierKeys::default()
+            },
+            InputSource::Wheel,
+            now_ms,
+            &eff,
+            WheelTransport::Native,
+            DeltaTransform::CtrlZoom {
+                sensitivity: 1.0,
+                sign: 1,
+            },
+        );
+    }
+    assert!(engine.last_velocity() > 0.0);
+}
+
+#[test]
+fn engine_semantics_cover_alt_ctrl_alt_high_res_and_compatibility_transport() {
+    let eff = eff();
+    let mut engine = SmoothScrollEngine::new();
+
+    let ctrl_alt = register_event(
+        &mut engine,
+        120,
+        ModifierKeys {
+            ctrl: true,
+            alt: true,
+            ..ModifierKeys::default()
+        },
+        InputSource::HighResWheel,
+        1_000,
+        &eff,
+        WheelTransport::Native,
+        DeltaTransform::Generic { sign: 1 },
+    );
+    assert_eq!(engine.active_sequence(WheelAxis::Vertical), Some(ctrl_alt));
+
+    let compat = register_event(
+        &mut engine,
+        120,
+        ModifierKeys {
+            shift: true,
+            ..ModifierKeys::default()
+        },
+        InputSource::Wheel,
+        1_050,
+        &eff,
+        WheelTransport::CompatibilityHorizontal,
+        DeltaTransform::Generic { sign: -1 },
+    );
+    assert_eq!(
+        engine.active_sequence(WheelAxis::Vertical),
+        Some(compat),
+        "a transport change must reset the previous owner"
+    );
+    assert_eq!(engine.last_velocity(), 0.0);
+}
+
 #[test]
 fn instant_mode_flushes_pending_pixels_in_one_step() {
     let mut s = AppSettings::default();

@@ -56,7 +56,11 @@ impl HookEventSink for EngineSink {
                             semantic: event.semantic,
                             transport: WheelTransport::Native,
                             strategy: SmoothingStrategy::Continuous,
-                            delta_transform: if eff.smooth_zoom && mods.is_ctrl_only() {
+                            delta_transform: if eff.smooth_zoom
+                                && !mods.shift
+                                && !mods.alt
+                                && !mods.ctrl
+                            {
                                 DeltaTransform::CtrlZoom {
                                     sensitivity: eff.zoom_sensitivity,
                                     sign: if eff.zoom_invert { -1 } else { 1 },
