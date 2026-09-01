@@ -69,10 +69,11 @@ fn resolve_wheel_action(
         && settings.shift_wheel_behavior == ShiftWheelBehavior::ConvertToHorizontal
     {
         output.semantic.axis = WheelAxis::Horizontal;
+        let inverted = settings.reverse_wheel_direction ^ settings.horizontal_invert;
         (
             WheelTransport::CompatibilityHorizontal,
             DeltaTransform::Generic {
-                sign: if settings.horizontal_invert { -1 } else { 1 },
+                sign: if inverted { -1 } else { 1 },
             },
         )
     } else if event.semantic.axis == WheelAxis::Horizontal && !settings.horizontal_smoothness {
@@ -1219,6 +1220,8 @@ mod tests {
     fn policy_converts_shift_only_when_explicitly_enabled() {
         let mut settings = eff();
         settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        settings.reverse_wheel_direction = true;
+        settings.horizontal_invert = true;
         let action = resolve_wheel_action(
             vertical(120, shift_only(), InputSource::Wheel),
             &settings,
@@ -1230,6 +1233,10 @@ mod tests {
         assert_eq!(event.semantic.axis, WheelAxis::Horizontal);
         assert!(event.semantic.modifiers.shift);
         assert_eq!(sequence.transport, WheelTransport::CompatibilityHorizontal);
+        assert_eq!(
+            sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
+        );
     }
 
     #[test]
