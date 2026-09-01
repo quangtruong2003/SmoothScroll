@@ -141,21 +141,11 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
 
     let vertical = output.vertical.map_or(0, |pulse| pulse.units);
     let horizontal = output.horizontal.map_or(0, |pulse| pulse.units);
-    let zoom = output
-        .vertical
-        .filter(|pulse| {
-            matches!(
-                pulse.sequence.delta_transform,
-                smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
-            )
-        })
-        .map_or(0, |pulse| pulse.units);
-    let scroll_vertical = if zoom != 0 { 0 } else { vertical };
 
     if vel > 0.0 {
         state.stats.record_velocity(vel);
     }
-    let distance = (scroll_vertical.abs() + horizontal.abs() + zoom.abs()) as f64;
+    let distance = (vertical.abs() + horizontal.abs()) as f64;
     if distance > 0.0 {
         let fg_name = state
             .processes
@@ -164,21 +154,64 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
         state.stats.record_distance(distance, &fg_name);
         state.stats.record_active_time(dt_ms as u64);
     }
+
+    // Windows dispatches through the semantic emitter with per-axis
+    // generation context; other platforms keep the legacy channel split
+    // until Task 11.
     let mut emitted_any = false;
-    if scroll_vertical != 0 || horizontal != 0 {
-        if let Err(e) = state.emitter.emit(scroll_vertical, horizontal) {
-            tracing::warn!(error = %e, "wheel emit failed");
-        } else {
-            emitted_any = true;
+    #[cfg(windows)]
+    {
+        if let Some(pulse) = output.vertical {
+            let context = smoothscroll_platform::traits::EmissionContext {
+                root_owner: frame_owner,
+                axis_generation: state.wheel_generations.get(WheelAxis::Vertical),
+            };
+            if let Err(e) = state.semantic_emitter.emit_semantic(pulse, context) {
+                tracing::warn!(error = %e, axis = ?WheelAxis::Vertical, "semantic emit failed");
+            } else {
+                emitted_any = true;
+            }
+        }
+        if let Some(pulse) = output.horizontal {
+            let context = smoothscroll_platform::traits::EmissionContext {
+                root_owner: frame_owner,
+                axis_generation: state.wheel_generations.get(WheelAxis::Horizontal),
+            };
+            if let Err(e) = state.semantic_emitter.emit_semantic(pulse, context) {
+                tracing::warn!(error = %e, axis = ?WheelAxis::Horizontal, "semantic emit failed");
+            } else {
+                emitted_any = true;
+            }
         }
     }
-    if zoom != 0 {
-        if let Err(e) = state.zoom_emitter.emit_zoom(zoom) {
-            tracing::warn!(error = %e, "zoom emit failed");
-        } else {
-            emitted_any = true;
+    #[cfg(not(windows))]
+    {
+        let zoom = output
+            .vertical
+            .filter(|pulse| {
+                matches!(
+                    pulse.sequence.delta_transform,
+                    smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
+                )
+            })
+            .map_or(0, |pulse| pulse.units);
+        let scroll_vertical = if zoom != 0 { 0 } else { vertical };
+        if scroll_vertical != 0 || horizontal != 0 {
+            if let Err(e) = state.emitter.emit(scroll_vertical, horizontal) {
+                tracing::warn!(error = %e, "wheel emit failed");
+            } else {
+                emitted_any = true;
+            }
+        }
+        if zoom != 0 {
+            if let Err(e) = state.zoom_emitter.emit_zoom(zoom) {
+                tracing::warn!(error = %e, "zoom emit failed");
+            } else {
+                emitted_any = true;
+            }
         }
     }
+
     if emitted_any {
         let mut engine = state.engine.lock();
         if let Some(pulse) = output.vertical {
@@ -231,6 +264,7 @@ mod tests {
     struct RecordingEmitter {
         wheel_calls: Mutex<Vec<(i32, i32)>>,
         zoom_calls: Mutex<Vec<i32>>,
+        semantic_calls: Mutex<Vec<smoothscroll_core::wheel::SemanticPulse>>,
     }
 
     impl WheelEmitter for RecordingEmitter {
@@ -243,6 +277,21 @@ mod tests {
     impl ZoomEmitter for RecordingEmitter {
         fn emit_zoom(&self, units: i32) -> Result<()> {
             self.zoom_calls.lock().push(units);
+            Ok(())
+        }
+    }
+
+    impl smoothscroll_platform::traits::SemanticWheelEmitter for RecordingEmitter {
+        fn prepare(&self, _sequence: smoothscroll_core::wheel::WheelSequence) -> Result<()> {
+            Ok(())
+        }
+
+        fn emit_semantic(
+            &self,
+            pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: smoothscroll_platform::traits::EmissionContext,
+        ) -> Result<()> {
+            self.semantic_calls.lock().push(pulse);
             Ok(())
         }
     }
@@ -376,7 +425,9 @@ mod tests {
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
             emitter: recorder.clone(),
-            zoom_emitter: recorder,
+            zoom_emitter: recorder.clone(),
+            semantic_emitter: recorder,
+            wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(StubProcessQuery),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
@@ -419,7 +470,7 @@ mod tests {
 
         run_frame(&state, 1000.0 / 120.0, &eff);
 
-        assert!(!recorder.wheel_calls.lock().is_empty());
+        assert!(!recorder.semantic_calls.lock().is_empty());
         assert_eq!(state.animation_owner.get(), Some(A));
         assert!(geom.query_count() >= 1);
     }
@@ -435,7 +486,7 @@ mod tests {
 
         run_frame(&state, 1000.0 / 120.0, &eff);
 
-        assert!(recorder.wheel_calls.lock().is_empty());
+        assert!(recorder.semantic_calls.lock().is_empty());
         assert!(recorder.zoom_calls.lock().is_empty());
         assert!(!state.engine.lock().has_pending_work());
         assert_eq!(state.engine.lock().last_velocity(), 0.0);
@@ -463,7 +514,7 @@ mod tests {
 
         run_frame(&state, 1000.0 / 120.0, &eff);
 
-        assert!(recorder.wheel_calls.lock().is_empty());
+        assert!(recorder.semantic_calls.lock().is_empty());
         assert!(recorder.zoom_calls.lock().is_empty());
         assert!(state.engine.lock().has_pending_work());
         assert_eq!(state.animation_owner.get(), Some(B));
@@ -484,7 +535,7 @@ mod tests {
 
         run_frame(&state, 1000.0 / 120.0, &eff);
 
-        assert!(!recorder.wheel_calls.lock().is_empty());
+        assert!(!recorder.semantic_calls.lock().is_empty());
         assert!(state.engine.lock().has_pending_work());
         assert_eq!(state.animation_owner.get(), Some(A));
         assert!(geom.query_count() >= 1);
@@ -501,7 +552,7 @@ mod tests {
 
         run_frame(&state, 1000.0, &eff);
 
-        assert!(!recorder.wheel_calls.lock().is_empty());
+        assert!(!recorder.semantic_calls.lock().is_empty());
         assert!(!state.engine.lock().has_pending_work());
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -518,7 +569,7 @@ mod tests {
 
         run_frame(&state, 1000.0 / 120.0, &eff);
 
-        assert!(!recorder.wheel_calls.lock().is_empty());
+        assert!(!recorder.semantic_calls.lock().is_empty());
         assert!(!state.engine.lock().has_pending_work());
         assert_eq!(state.animation_owner.get(), None);
         assert_eq!(geom.query_count(), 0);

@@ -4,10 +4,11 @@ use arc_swap::ArcSwap;
 use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+use smoothscroll_core::wheel::WheelAxis;
 use smoothscroll_platform::icon::IconCache;
 use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MonitorEnumeration, MouseHook,
-    ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
+    ProcessQuery, SemanticWheelEmitter, WheelEmitter, WindowGeometry, ZoomEmitter,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicIsize, AtomicU64, AtomicU8, Ordering};
@@ -47,6 +48,36 @@ impl AnimationOwner {
     }
 }
 
+/// Per-axis generation tokens for the semantic wheel pipeline. A semantic,
+/// raw, or root transition on one axis invalidates only that axis's queued
+/// work; a root-window change invalidates both axes.
+#[derive(Default)]
+pub struct WheelAxisGenerations {
+    vertical: AtomicU64,
+    horizontal: AtomicU64,
+}
+
+impl WheelAxisGenerations {
+    pub fn get(&self, axis: WheelAxis) -> u64 {
+        match axis {
+            WheelAxis::Vertical => self.vertical.load(Ordering::Acquire),
+            WheelAxis::Horizontal => self.horizontal.load(Ordering::Acquire),
+        }
+    }
+
+    pub fn invalidate(&self, axis: WheelAxis) {
+        match axis {
+            WheelAxis::Vertical => self.vertical.fetch_add(1, Ordering::Release),
+            WheelAxis::Horizontal => self.horizontal.fetch_add(1, Ordering::Release),
+        };
+    }
+
+    pub fn invalidate_all(&self) {
+        self.invalidate(WheelAxis::Vertical);
+        self.invalidate(WheelAxis::Horizontal);
+    }
+}
+
 #[allow(dead_code)]
 pub struct AppState {
     pub engine: Arc<Mutex<SmoothScrollEngine>>,
@@ -63,6 +94,9 @@ pub struct AppState {
     pub mouse_hook: Arc<dyn MouseHook>,
     pub emitter: Arc<dyn WheelEmitter>,
     pub zoom_emitter: Arc<dyn ZoomEmitter>,
+    pub semantic_emitter: Arc<dyn SemanticWheelEmitter>,
+    /// Per-axis semantic generation tokens; see `WheelAxisGenerations`.
+    pub wheel_generations: Arc<WheelAxisGenerations>,
     pub processes: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,
@@ -111,6 +145,36 @@ mod tests {
 
         owner.clear();
         assert_eq!(owner.get(), None);
+    }
+
+    #[test]
+    fn wheel_generations_are_monotonic_and_axis_independent() {
+        let generations = WheelAxisGenerations::default();
+        let v0 = generations.get(WheelAxis::Vertical);
+        let h0 = generations.get(WheelAxis::Horizontal);
+
+        generations.invalidate(WheelAxis::Vertical);
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 1);
+        assert_eq!(generations.get(WheelAxis::Horizontal), h0);
+
+        generations.invalidate(WheelAxis::Vertical);
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 2);
+
+        generations.invalidate(WheelAxis::Horizontal);
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 2);
+        assert_eq!(generations.get(WheelAxis::Horizontal), h0 + 1);
+    }
+
+    #[test]
+    fn wheel_generations_invalidate_all_bumps_both_axes() {
+        let generations = WheelAxisGenerations::default();
+        let v0 = generations.get(WheelAxis::Vertical);
+        let h0 = generations.get(WheelAxis::Horizontal);
+
+        generations.invalidate_all();
+
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 1);
+        assert_eq!(generations.get(WheelAxis::Horizontal), h0 + 1);
     }
 }
 

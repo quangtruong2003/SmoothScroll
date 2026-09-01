@@ -116,6 +116,8 @@ pub fn run() {
         mouse_hook: platform.mouse_hook,
         emitter: platform.wheel_emitter.clone(),
         zoom_emitter: platform.zoom_emitter.clone(),
+        semantic_emitter: platform.semantic_emitter,
+        wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
         processes: platform.process_query,
         autostart: platform.autostart,
         hotkey: platform.hotkey,
