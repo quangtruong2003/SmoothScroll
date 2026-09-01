@@ -1,8 +1,7 @@
 //! Background-thread modifier-key sampler.
 //!
-//! Ctrl and Alt are sampled in the background so the hook callback stays
-//! cheap. Shift is refreshed at the wheel boundary as well: the first wheel
-//! notch after pressing Shift must not wait for the next sampler tick.
+//! The background sampler supports non-wheel consumers. Each wheel event
+//! refreshes Shift, Ctrl, and Alt at its own boundary.
 
 #![cfg(windows)]
 

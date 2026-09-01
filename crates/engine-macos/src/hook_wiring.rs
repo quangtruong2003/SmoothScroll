@@ -26,14 +26,6 @@ impl HookEventSink for EngineSink {
 
         let eff = self.state.effective.load();
         let mods = event.semantic.modifiers;
-        let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
-            || (mods.alt && eff.modifier_alt_passthrough);
-        if precision {
-            if eff.modifier_clear_inertia {
-                self.state.engine.lock().reset_axes();
-            }
-            return HookDecision::Pass;
-        }
 
         let now_ms = std::time::SystemTime::now()
             .duration_since(std::time::SystemTime::UNIX_EPOCH)
@@ -42,6 +34,14 @@ impl HookEventSink for EngineSink {
         let mut engine = self.state.engine.lock();
         match event.semantic.axis {
             WheelAxis::Vertical => {
+                let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
+                    || (mods.alt && eff.modifier_alt_passthrough);
+                if precision {
+                    if eff.modifier_clear_inertia {
+                        engine.reset_axes();
+                    }
+                    return HookDecision::Pass;
+                }
                 if mods.cmd && !eff.smooth_zoom {
                     return HookDecision::Pass;
                 }

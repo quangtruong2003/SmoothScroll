@@ -5,9 +5,9 @@
 //! `GetMessage` loop and install the hook there.
 //!
 //! The hook callback runs on this thread and dispatches into the
-//! `HookEventSink` provided at install time. Ctrl/Alt come from the
-//! `ModifierSampler`; Shift is refreshed at the wheel boundary so a newly
-//! pressed Shift cannot be missed by the sampler's 16 ms interval.
+//! `HookEventSink` provided at install time. The background sampler supports
+//! other consumers, while every wheel event snapshots Shift/Ctrl/Alt at its
+//! event boundary.
 
 #![cfg(windows)]
 
@@ -192,22 +192,16 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
     let now_ms = ctx.epoch.elapsed().as_millis() as u64;
     let decision = match msg {
         x if x == WM_MOUSEWHEEL => {
+            let modifiers = ctx.modifiers.snapshot_for_wheel();
             let source = ctx.classifier_v.lock().classify(delta, now_ms);
-            ctx.sink.on_wheel_event(wheel_event(
-                msg,
-                delta,
-                ctx.modifiers.snapshot_for_wheel(),
-                source,
-            ))
+            ctx.sink
+                .on_wheel_event(wheel_event(msg, delta, modifiers, source))
         }
         x if x == WM_MOUSEHWHEEL => {
+            let modifiers = ctx.modifiers.snapshot_for_wheel();
             let source = ctx.classifier_h.lock().classify(delta, now_ms);
-            ctx.sink.on_wheel_event(wheel_event(
-                msg,
-                delta,
-                ctx.modifiers.snapshot_for_wheel(),
-                source,
-            ))
+            ctx.sink
+                .on_wheel_event(wheel_event(msg, delta, modifiers, source))
         }
         _ => HookDecision::Pass,
     };
