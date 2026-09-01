@@ -1195,6 +1195,69 @@ mod tests {
     }
 
     #[test]
+    fn policy_preserves_plain_ctrl_alt_and_ctrl_alt_vertical_semantics() {
+        for modifiers in [
+            no_mods(),
+            ModifierKeys {
+                ctrl: true,
+                ..ModifierKeys::default()
+            },
+            ModifierKeys {
+                alt: true,
+                ..ModifierKeys::default()
+            },
+            ModifierKeys {
+                ctrl: true,
+                alt: true,
+                ..ModifierKeys::default()
+            },
+        ] {
+            let action =
+                resolve_wheel_action(vertical(120, modifiers, InputSource::Wheel), &eff(), false);
+            let ResolvedWheelAction::Smooth { event, sequence } = action else {
+                panic!("expected smoothing");
+            };
+            assert_eq!(
+                event.semantic,
+                WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers
+                }
+            );
+            assert_eq!(sequence.semantic, event.semantic);
+        }
+    }
+
+    #[test]
+    fn policy_applies_ctrl_zoom_only_to_ctrl_only_vertical() {
+        let mut settings = eff();
+        settings.zoom_invert = true;
+        settings.zoom_sensitivity = 2.5;
+        let action = resolve_wheel_action(
+            vertical(
+                120,
+                ModifierKeys {
+                    ctrl: true,
+                    ..ModifierKeys::default()
+                },
+                InputSource::Wheel,
+            ),
+            &settings,
+            false,
+        );
+        let ResolvedWheelAction::Smooth { sequence, .. } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(
+            sequence.delta_transform,
+            DeltaTransform::CtrlZoom {
+                sensitivity: 2.5,
+                sign: -1,
+            }
+        );
+    }
+
+    #[test]
     fn policy_preserves_native_horizontal_modifiers() {
         let modifiers = ModifierKeys {
             ctrl: true,
@@ -1265,6 +1328,36 @@ mod tests {
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn policy_raw_and_disabled_horizontal_cancel_active_axis() {
+        let mut raw_settings = eff();
+        raw_settings.wheel_output_mode = WheelOutputMode::Raw;
+        assert_eq!(
+            resolve_wheel_action(
+                vertical(120, no_mods(), InputSource::Wheel),
+                &raw_settings,
+                false
+            ),
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Vertical,
+                cancel_active: true,
+            }
+        );
+
+        let disabled_horizontal = resolve_wheel_action(
+            horizontal(120, no_mods(), InputSource::Wheel),
+            &eff(),
+            false,
+        );
+        assert_eq!(
+            disabled_horizontal,
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Horizontal,
+                cancel_active: true,
+            }
+        );
     }
 
     #[test]

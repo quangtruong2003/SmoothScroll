@@ -182,8 +182,7 @@ impl ScrollProfile {
 }
 
 /// Whether to pass wheel events through raw (no smoothing) when a precision
-/// modifier is held. Defaults are ON because Ctrl/Alt+Wheel almost always
-/// drives precision actions like zoom or font-size in modern apps.
+/// modifier is held. Both modifiers default to semantic-preserving smoothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ModifierPassthrough {
