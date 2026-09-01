@@ -125,3 +125,29 @@ impl ZoomEmitter for MacosWheelEmitter {
         unsafe { Self::post_scroll(units as i64, 0, true) }
     }
 }
+
+/// No-regression semantic adapter: until Task 11 lands native macOS semantic
+/// emission, route pulses through the existing channel emitters so current
+/// observable behavior is preserved. `cmd`-captured zoom pulses map to the
+/// existing CGEvent control-flag zoom path; everything else scrolls.
+impl crate::traits::SemanticWheelEmitter for MacosWheelEmitter {
+    fn prepare(&self, _sequence: smoothscroll_core::wheel::WheelSequence) -> Result<()> {
+        Ok(())
+    }
+
+    fn emit_semantic(
+        &self,
+        pulse: smoothscroll_core::wheel::SemanticPulse,
+        _context: crate::traits::EmissionContext,
+    ) -> Result<()> {
+        if pulse.units == 0 {
+            return Ok(());
+        }
+        let cmd_captured = pulse.sequence.semantic.modifiers.cmd;
+        match (pulse.sequence.semantic.axis, cmd_captured) {
+            (smoothscroll_core::wheel::WheelAxis::Vertical, true) => self.emit_zoom(pulse.units),
+            (smoothscroll_core::wheel::WheelAxis::Vertical, false) => self.emit(pulse.units, 0),
+            (smoothscroll_core::wheel::WheelAxis::Horizontal, _) => self.emit(0, pulse.units),
+        }
+    }
+}

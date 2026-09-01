@@ -224,9 +224,7 @@ fn worker_loop(receiver: Receiver<WorkerCommand>) {
                 let live = command.generation.horizontal.load(Ordering::Acquire)
                     == command.axis_generation;
                 let result = if !live {
-                    Err(PlatformError::Os(
-                        "stale horizontal generation; command cancelled".into(),
-                    ))
+                    Err(PlatformError::StaleEmission)
                 } else {
                     scroll_with_backend(
                         &mut backend,

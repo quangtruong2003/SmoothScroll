@@ -81,7 +81,8 @@ fn x11_build() -> Result<Platform> {
     Ok(Platform {
         mouse_hook: Arc::new(LinuxMouseHook::new()?),
         wheel_emitter: wheel_emitter.clone(),
-        zoom_emitter: wheel_emitter,
+        zoom_emitter: wheel_emitter.clone(),
+        semantic_emitter: wheel_emitter, // no-regression adapter until Task 11
         process_query: Arc::new(LinuxProcessQuery::new()?),
         autostart: Arc::new(LinuxAutostart),
         hotkey: Arc::new(LinuxHotkey),

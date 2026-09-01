@@ -211,7 +211,15 @@ impl ZoomEmitter for WindowsWheelEmitter {
 impl SemanticWheelEmitter for WindowsWheelEmitter {
     fn prepare(&self, sequence: WheelSequence) -> Result<()> {
         match sequence.transport {
-            WheelTransport::Native | WheelTransport::CompatibilityHorizontal => Ok(()),
+            WheelTransport::Native => Ok(()),
+            WheelTransport::CompatibilityHorizontal => {
+                if sequence.semantic.axis != WheelAxis::Horizontal {
+                    return Err(PlatformError::Os(
+                        "compatibility transport requires horizontal output".into(),
+                    ));
+                }
+                Ok(())
+            }
         }
     }
 
@@ -572,6 +580,39 @@ mod tests {
     }
 
     #[test]
+    fn prepare_rejects_compatibility_transport_with_vertical_axis() {
+        let mismatch = WheelSequence {
+            semantic: WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers: ModifierKeys::default(),
+            },
+            transport: WheelTransport::CompatibilityHorizontal,
+            strategy: SmoothingStrategy::Continuous,
+            delta_transform: DeltaTransform::Generic { sign: 1 },
+        };
+        assert!(<WindowsWheelEmitter as SemanticWheelEmitter>::prepare(
+            &WindowsWheelEmitter,
+            mismatch
+        )
+        .is_err());
+
+        let compatible = WheelSequence {
+            semantic: WheelSemantic {
+                axis: WheelAxis::Horizontal,
+                modifiers: ModifierKeys::default(),
+            },
+            transport: WheelTransport::CompatibilityHorizontal,
+            strategy: SmoothingStrategy::Continuous,
+            delta_transform: DeltaTransform::Generic { sign: 1 },
+        };
+        assert!(<WindowsWheelEmitter as SemanticWheelEmitter>::prepare(
+            &WindowsWheelEmitter,
+            compatible
+        )
+        .is_ok());
+    }
+
+    #[test]
     fn extra_physical_modifier_cancels_tail() {
         let result = plan_native_inputs(
             &pulse(vertical_ctrl(), 120),
@@ -747,5 +788,35 @@ mod tests {
         assert_eq!(wheel_chunks(500), vec![480, 20]);
         assert_eq!(wheel_chunks(-1_440), vec![-480, -480, -480]);
         assert_eq!(wheel_chunks(-500), vec![-480, -20]);
+    }
+
+    #[test]
+    fn zero_wheel_units_produce_no_chunks() {
+        assert!(wheel_chunks(0).is_empty());
+    }
+
+    #[test]
+    fn horizontal_post_targets_window_under_cursor() {
+        let child_window = 0x1234usize;
+
+        assert_eq!(horizontal_post_target(child_window), child_window);
+    }
+
+    #[test]
+    fn zero_units_injects_nothing() {
+        assert_eq!(zoom_injection(0, true), ZoomInjection::None);
+        assert_eq!(zoom_injection(0, false), ZoomInjection::None);
+    }
+
+    #[test]
+    fn ctrl_held_sends_bare_wheel_pulse() {
+        assert_eq!(zoom_injection(120, true), ZoomInjection::WheelOnly(120));
+        assert_eq!(zoom_injection(-40, true), ZoomInjection::WheelOnly(-40));
+    }
+
+    #[test]
+    fn ctrl_released_wraps_pulse_so_inertia_tail_still_zooms() {
+        assert_eq!(zoom_injection(120, false), ZoomInjection::CtrlWrapped(120));
+        assert_eq!(zoom_injection(-40, false), ZoomInjection::CtrlWrapped(-40));
     }
 }

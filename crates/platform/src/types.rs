@@ -35,6 +35,12 @@ pub enum PlatformError {
     PermissionDenied,
     #[error("not supported on this platform")]
     Unsupported,
+    /// A queued semantic emission was invalidated by a newer semantic, raw, or
+    /// root transition before it reached the platform. Distinct from a genuine
+    /// injection failure so the caller can distinguish "cancelled" from
+    /// "broken" when deciding which axis sequence to reset.
+    #[error("stale semantic emission; command cancelled")]
+    StaleEmission,
 }
 
 pub type Result<T> = std::result::Result<T, PlatformError>;

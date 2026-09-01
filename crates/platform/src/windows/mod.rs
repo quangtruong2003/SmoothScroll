@@ -20,7 +20,6 @@ pub mod window_geom;
 /// only our own feedback events while still accepting driver-injected wheels.
 const SMOOTHSCROLL_INPUT_MARKER: usize = 0x5353_4352;
 
-use crate::traits::SemanticWheelEmitter;
 use crate::types::Result;
 use crate::Platform;
 use std::sync::Arc;
@@ -51,11 +50,4 @@ pub fn build() -> Result<Platform> {
         accessibility: Arc::new(WindowsAccessibilitySignals),
         display: Arc::new(WindowsDisplayQuery),
     })
-}
-
-/// Windows keeps a legacy two-channel emitter alongside the semantic emitter
-/// until Task 11 removes the modifier-blind channels. Both point at the same
-/// underlying emitter so behavior stays single-sourced.
-pub fn semantic_emitter() -> Arc<dyn SemanticWheelEmitter> {
-    Arc::new(WindowsWheelEmitter)
 }

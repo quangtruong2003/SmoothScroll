@@ -26,7 +26,8 @@ pub fn build() -> Result<crate::Platform> {
     Ok(crate::Platform {
         mouse_hook: Arc::new(mouse_hook::WaylandMouseHook::new()?),
         wheel_emitter: wheel_emitter.clone(),
-        zoom_emitter: wheel_emitter,
+        zoom_emitter: wheel_emitter.clone(),
+        semantic_emitter: wheel_emitter, // no-regression adapter until Task 11
         process_query: Arc::new(process_query::WaylandProcessQuery::new()),
         autostart: Arc::new(crate::linux::LinuxAutostart),
         hotkey: Arc::new(hotkey::WaylandHotkey),

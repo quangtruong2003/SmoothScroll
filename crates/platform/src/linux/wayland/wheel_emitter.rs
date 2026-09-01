@@ -282,3 +282,29 @@ impl Drop for WaylandWheelEmitter {
         }
     }
 }
+
+/// No-regression semantic adapter: until Task 11 lands native Wayland semantic
+/// emission, route pulses through the existing channel emitters so current
+/// observable behavior is preserved. Ctrl-captured vertical pulses map to the
+/// existing Ctrl-wrapped zoom path; everything else scrolls.
+impl crate::traits::SemanticWheelEmitter for WaylandWheelEmitter {
+    fn prepare(&self, _sequence: smoothscroll_core::wheel::WheelSequence) -> Result<()> {
+        Ok(())
+    }
+
+    fn emit_semantic(
+        &self,
+        pulse: smoothscroll_core::wheel::SemanticPulse,
+        _context: crate::traits::EmissionContext,
+    ) -> Result<()> {
+        if pulse.units == 0 {
+            return Ok(());
+        }
+        let ctrl_captured = pulse.sequence.semantic.modifiers.ctrl;
+        match (pulse.sequence.semantic.axis, ctrl_captured) {
+            (smoothscroll_core::wheel::WheelAxis::Vertical, true) => self.emit_zoom(pulse.units),
+            (smoothscroll_core::wheel::WheelAxis::Vertical, false) => self.emit(pulse.units, 0),
+            (smoothscroll_core::wheel::WheelAxis::Horizontal, _) => self.emit(0, pulse.units),
+        }
+    }
+}
