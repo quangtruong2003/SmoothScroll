@@ -5,6 +5,11 @@
 use crate::state::AppState;
 use smoothscroll_core::constants::WHEEL_DELTA;
 use smoothscroll_core::edge_scroll::compute_velocity;
+use smoothscroll_core::input_source::InputSource;
+use smoothscroll_core::wheel::{
+    DeltaTransform, ModifierKeys, SmoothingStrategy, WheelAxis, WheelInputEvent, WheelSemantic,
+    WheelSequence, WheelTransport,
+};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::thread;
@@ -56,10 +61,25 @@ fn run(state: Arc<AppState>) {
             let delta = notches * WHEEL_DELTA;
             let now_ms = epoch.elapsed().as_millis() as u64;
             let eff = state.effective.load_full();
-            state.engine.lock().on_wheel_with_source(
-                delta,
+            let semantic = WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers: ModifierKeys::default(),
+            };
+            state.engine.lock().register(
+                WheelInputEvent {
+                    delta,
+                    semantic,
+                    source: InputSource::Wheel,
+                },
+                WheelSequence {
+                    semantic,
+                    transport: WheelTransport::Native,
+                    strategy: SmoothingStrategy::Continuous,
+                    delta_transform: DeltaTransform::Generic {
+                        sign: if eff.reverse_wheel_direction { -1 } else { 1 },
+                    },
+                },
                 now_ms,
-                smoothscroll_core::input_source::InputSource::Wheel,
                 &eff,
             );
             state.engine_signal.signal();

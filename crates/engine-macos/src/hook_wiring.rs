@@ -1,4 +1,5 @@
 use crate::state::AppState;
+use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
 use smoothscroll_platform::traits::HookEventSink;
 use smoothscroll_platform::types::{HookDecision, WheelAxis, WheelInputEvent};
 use std::sync::Arc;
@@ -49,7 +50,26 @@ impl HookEventSink for EngineSink {
                     return HookDecision::Pass;
                 }
                 if mods.cmd {
-                    engine.on_wheel_zoom(event.delta, now_ms, event.source, &eff);
+                    engine.register(
+                        event,
+                        WheelSequence {
+                            semantic: event.semantic,
+                            transport: WheelTransport::Native,
+                            strategy: SmoothingStrategy::Continuous,
+                            delta_transform: if eff.smooth_zoom && mods.is_ctrl_only() {
+                                DeltaTransform::CtrlZoom {
+                                    sensitivity: eff.zoom_sensitivity,
+                                    sign: if eff.zoom_invert { -1 } else { 1 },
+                                }
+                            } else {
+                                DeltaTransform::Generic {
+                                    sign: if eff.reverse_wheel_direction { -1 } else { 1 },
+                                }
+                            },
+                        },
+                        now_ms,
+                        &eff,
+                    );
                 } else if mods.shift {
                     let delta = if eff.horizontal_invert {
                         -event.delta

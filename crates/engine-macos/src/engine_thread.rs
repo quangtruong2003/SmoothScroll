@@ -74,12 +74,22 @@ fn worker(state: Arc<AppState>, frame_ms: f64, stop: Arc<std::sync::atomic::Atom
                 let mut engine = state.engine.lock();
                 let output = engine.step(elapsed, &eff);
 
-                // Route output to platform wheel emitter
-                if output.vertical != 0 || output.horizontal != 0 {
-                    let _ = state.emitter.emit(output.vertical, output.horizontal);
-                }
-                if output.zoom != 0 {
-                    let _ = state.zoom_emitter.emit_zoom(output.zoom);
+                let vertical = output.vertical.map_or(0, |pulse| pulse.units);
+                let horizontal = output.horizontal.map_or(0, |pulse| pulse.units);
+                if vertical != 0 || horizontal != 0 {
+                    let _ = state.emitter.emit(vertical, horizontal);
+                    if let Some(pulse) = output.vertical {
+                        engine.finish_axis_pulse(
+                            smoothscroll_core::wheel::WheelAxis::Vertical,
+                            pulse.sequence,
+                        );
+                    }
+                    if let Some(pulse) = output.horizontal {
+                        engine.finish_axis_pulse(
+                            smoothscroll_core::wheel::WheelAxis::Horizontal,
+                            pulse.sequence,
+                        );
+                    }
                 }
 
                 engine.has_pending_work()

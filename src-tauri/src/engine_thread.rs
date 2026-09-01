@@ -2,6 +2,7 @@
 //! woken whenever the hook registers a new notch.
 
 use crate::state::AppState;
+use smoothscroll_core::wheel::WheelAxis;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::thread::{self, JoinHandle};
@@ -116,14 +117,6 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
         let output = engine.step(dt_ms, eff);
         let vel = engine.last_velocity();
 
-        #[cfg(windows)]
-        if !eff.instant_mode
-            && !engine.has_pending_work()
-            && state.animation_owner.get() == frame_owner
-        {
-            state.animation_owner.clear();
-        }
-
         (output, vel, frame_owner)
     };
 
@@ -146,28 +139,36 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
         }
     }
 
+    let vertical = output.vertical.map_or(0, |pulse| pulse.units);
+    let horizontal = output.horizontal.map_or(0, |pulse| pulse.units);
+
     if vel > 0.0 {
         state.stats.record_velocity(vel);
     }
-    if output.vertical != 0 || output.horizontal != 0 || output.zoom != 0 {
-        let distance = (output.vertical.abs() + output.horizontal.abs()) as f64;
-        if distance > 0.0 {
-            let fg_name = state
-                .processes
-                .foreground_process_name()
-                .unwrap_or_default();
-            state.stats.record_distance(distance, &fg_name);
-            state.stats.record_active_time(dt_ms as u64);
-        }
+    let distance = (vertical.abs() + horizontal.abs()) as f64;
+    if distance > 0.0 {
+        let fg_name = state
+            .processes
+            .foreground_process_name()
+            .unwrap_or_default();
+        state.stats.record_distance(distance, &fg_name);
+        state.stats.record_active_time(dt_ms as u64);
     }
-    if output.vertical != 0 || output.horizontal != 0 {
-        if let Err(e) = state.emitter.emit(output.vertical, output.horizontal) {
+    if vertical != 0 || horizontal != 0 {
+        if let Err(e) = state.emitter.emit(vertical, horizontal) {
             tracing::warn!(error = %e, "wheel emit failed");
-        }
-    }
-    if output.zoom != 0 {
-        if let Err(e) = state.zoom_emitter.emit_zoom(output.zoom) {
-            tracing::warn!(error = %e, "zoom emit failed");
+        } else {
+            let mut engine = state.engine.lock();
+            if let Some(pulse) = output.vertical {
+                engine.finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
+            }
+            if let Some(pulse) = output.horizontal {
+                engine.finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
+            }
+            #[cfg(windows)]
+            if !engine.has_pending_work() && state.animation_owner.get() == frame_owner {
+                state.animation_owner.clear();
+            }
         }
     }
 }

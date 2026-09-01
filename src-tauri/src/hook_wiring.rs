@@ -11,9 +11,9 @@ use crate::state::AppState;
 use parking_lot::Mutex;
 use smoothscroll_core::input_source::InputSource;
 use smoothscroll_core::settings::{EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
-#[cfg(test)]
-use smoothscroll_core::wheel::WheelSemantic;
-use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
+use smoothscroll_core::wheel::{
+    DeltaTransform, SmoothingStrategy, WheelSemantic, WheelSequence, WheelTransport,
+};
 use smoothscroll_platform::traits::HookEventSink;
 use smoothscroll_platform::types::{HookDecision, ModifierKeys, WheelAxis, WheelInputEvent};
 use std::sync::atomic::Ordering;
@@ -479,8 +479,34 @@ impl EngineSink {
         );
 
         if ctrl_pressed {
-            // Ctrl+Wheel → zoom axis
-            engine.on_wheel_zoom(delta, now, source, &eff);
+            let semantic = WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers: mods,
+            };
+            engine.register(
+                WheelInputEvent {
+                    delta,
+                    semantic,
+                    source,
+                },
+                WheelSequence {
+                    semantic,
+                    transport: WheelTransport::Native,
+                    strategy: SmoothingStrategy::Continuous,
+                    delta_transform: if eff.smooth_zoom && mods.is_ctrl_only() {
+                        DeltaTransform::CtrlZoom {
+                            sensitivity: eff.zoom_sensitivity,
+                            sign: if eff.zoom_invert { -1 } else { 1 },
+                        }
+                    } else {
+                        DeltaTransform::Generic {
+                            sign: if eff.reverse_wheel_direction { -1 } else { 1 },
+                        }
+                    },
+                },
+                now,
+                &eff,
+            );
         } else if mods.shift && eff.horizontal_smoothness {
             let h_delta = if eff.horizontal_invert { -delta } else { delta };
             engine.on_hwheel_with_source(h_delta, now, source, &eff);
@@ -1383,8 +1409,20 @@ mod tests {
         let mut h = 0;
         for _ in 0..500 {
             let out = state.engine.lock().step(1000.0 / 120.0, &eff);
-            v += out.vertical;
-            h += out.horizontal;
+            if let Some(pulse) = out.vertical {
+                v += pulse.units;
+                state
+                    .engine
+                    .lock()
+                    .finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
+            }
+            if let Some(pulse) = out.horizontal {
+                h += pulse.units;
+                state
+                    .engine
+                    .lock()
+                    .finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
+            }
             if !state.engine.lock().has_pending_work() {
                 break;
             }
@@ -2117,62 +2155,56 @@ mod tests {
     }
 
     #[test]
-    fn ctrl_wheel_smooths_when_passthrough_disabled() {
+    fn ctrl_wheel_smooths_with_captured_ctrl_semantic() {
         let mut s = AppSettings::default();
         s.modifier_passthrough.ctrl = false;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: false,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            ..ModifierKeys::default()
         };
         assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
 
-        // Drain engine and verify zoom output (not vertical)
         let eff = state.effective.load_full();
-        let mut zoom_total = 0i32;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
-            zoom_total += out.zoom;
-            if !state.engine.lock().has_pending_work() {
-                break;
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
+                break pulse;
             }
-        }
-        assert!(zoom_total != 0, "expected zoom emission, got 0");
-        assert_eq!(
-            state.engine.lock().step(1000.0 / 120.0, &eff).vertical,
-            0,
-            "zoom should not produce vertical output"
-        );
+        };
+        assert!(pulse.sequence.semantic.modifiers.ctrl);
+        state
+            .engine
+            .lock()
+            .reset_axis_if_sequence(WheelAxis::Vertical, pulse.sequence);
     }
 
     #[test]
-    fn ctrl_shift_wheel_zoom_inverts_when_setting_on() {
+    fn ctrl_shift_wheel_uses_generic_vertical_semantic() {
         let mut s = AppSettings::default();
         s.modifier_passthrough.ctrl = false;
         s.zoom_invert = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: true,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            shift: true,
+            ..ModifierKeys::default()
         };
-        sink.on_wheel(120, mods);
+        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
 
         let eff = state.effective.load_full();
-        let mut zoom_total = 0i32;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
-            zoom_total += out.zoom;
-            if !state.engine.lock().has_pending_work() {
-                break;
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
+                break pulse;
             }
-        }
-        assert!(zoom_total < 0, "zoom_invert=true should make zoom negative");
+        };
+        assert_eq!(
+            pulse.sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
+        );
+        assert!(pulse.sequence.semantic.modifiers.ctrl);
+        assert!(pulse.sequence.semantic.modifiers.shift);
     }
 
     #[test]
@@ -2196,10 +2228,8 @@ mod tests {
             .insert(profile.id, Arc::new(profile_eff));
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: false,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            ..ModifierKeys::default()
         };
 
         assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
@@ -2216,7 +2246,7 @@ mod tests {
     }
 
     #[test]
-    fn active_profile_enables_and_scales_zoom_when_global_zoom_is_disabled() {
+    fn active_profile_enables_and_scales_ctrl_semantic() {
         let mut settings = AppSettings::default();
         settings.smooth_zoom = false;
         settings.zoom_invert = false;
@@ -2229,7 +2259,6 @@ mod tests {
         settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
 
         let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
-        let global_eff = EffectiveSettings::from_settings(&settings);
         let state = make_state_with_processes(settings, Some("blender.exe"), None);
         state
             .effective_per_profile
@@ -2237,54 +2266,24 @@ mod tests {
             .insert(profile.id, Arc::new(profile_eff));
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: false,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            ..ModifierKeys::default()
         };
 
         assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
-
-        let mut expected = SmoothScrollEngine::new();
-        expected.on_wheel_zoom(
-            120,
-            0,
-            smoothscroll_core::input_source::InputSource::Wheel,
-            &profile_eff,
-        );
-        let mut low_sensitivity = profile_eff;
-        low_sensitivity.zoom_sensitivity = 0.5;
-        let mut low_sensitivity_engine = SmoothScrollEngine::new();
-        low_sensitivity_engine.on_wheel_zoom(
-            120,
-            0,
-            smoothscroll_core::input_source::InputSource::Wheel,
-            &low_sensitivity,
-        );
-
-        let mut actual_zoom = 0;
-        let mut expected_zoom = 0;
-        let mut low_sensitivity_zoom = 0;
-        for _ in 0..500 {
-            actual_zoom += state.engine.lock().step(1000.0 / 120.0, &global_eff).zoom;
-            expected_zoom += expected.step(1000.0 / 120.0, &global_eff).zoom;
-            low_sensitivity_zoom += low_sensitivity_engine
-                .step(1000.0 / 120.0, &global_eff)
-                .zoom;
-            if !state.engine.lock().has_pending_work()
-                && !expected.has_pending_work()
-                && !low_sensitivity_engine.has_pending_work()
-            {
-                break;
+        let eff = state.effective.load_full();
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
+                break pulse;
             }
-        }
-
-        assert!(
-            actual_zoom < 0,
-            "profile zoom_invert should emit negative zoom"
+        };
+        assert_eq!(
+            pulse.sequence.delta_transform,
+            DeltaTransform::CtrlZoom {
+                sensitivity: 2.0,
+                sign: -1,
+            }
         );
-        assert_eq!(actual_zoom, expected_zoom);
-        assert!(actual_zoom.abs() > low_sensitivity_zoom.abs());
     }
 
     #[test]

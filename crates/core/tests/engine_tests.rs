@@ -3,6 +3,10 @@
 use smoothscroll_core::engine::{EngineOutput, SmoothScrollEngine};
 use smoothscroll_core::input_source::InputSource;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+use smoothscroll_core::wheel::{
+    DeltaTransform, ModifierKeys, SmoothingStrategy, WheelAxis, WheelInputEvent, WheelSemantic,
+    WheelSequence, WheelTransport,
+};
 
 fn eff() -> EffectiveSettings {
     EffectiveSettings::from_settings(&AppSettings::default())
@@ -27,6 +31,40 @@ fn on_wheel(e: &mut SmoothScrollEngine, delta: i32, now_ms: u64, eff: &Effective
 
 fn on_hwheel(e: &mut SmoothScrollEngine, delta: i32, now_ms: u64, eff: &EffectiveSettings) {
     e.on_hwheel_with_source(delta, now_ms, InputSource::Wheel, eff);
+}
+
+fn vertical_units(output: EngineOutput) -> i32 {
+    output.vertical.map_or(0, |pulse| pulse.units)
+}
+
+fn horizontal_units(output: EngineOutput) -> i32 {
+    output.horizontal.map_or(0, |pulse| pulse.units)
+}
+
+fn zoom_sequence(settings: &EffectiveSettings) -> (WheelInputEvent, WheelSequence) {
+    let semantic = WheelSemantic {
+        axis: WheelAxis::Vertical,
+        modifiers: ModifierKeys {
+            ctrl: true,
+            ..ModifierKeys::default()
+        },
+    };
+    (
+        WheelInputEvent {
+            delta: 120,
+            semantic,
+            source: InputSource::Wheel,
+        },
+        WheelSequence {
+            semantic,
+            transport: WheelTransport::Native,
+            strategy: SmoothingStrategy::Continuous,
+            delta_transform: DeltaTransform::CtrlZoom {
+                sensitivity: settings.zoom_sensitivity,
+                sign: if settings.zoom_invert { -1 } else { 1 },
+            },
+        },
+    )
 }
 
 #[test]
@@ -58,7 +96,7 @@ fn reverse_direction_inverts_pending_sign() {
     on_wheel(&mut e, 120, 0, &eff_rev);
     let out = e.step(360.0, &eff_rev);
     assert!(
-        out.vertical < 0,
+        vertical_units(out) < 0,
         "reversed direction should produce negative output"
     );
 }
@@ -101,13 +139,19 @@ fn instant_mode_rapid_notches_travel_farther_than_slow_notches() {
     for i in 0..10u64 {
         rapid.on_wheel_with_source(120, 1_000 + i * 50, InputSource::Wheel, &instant);
     }
-    let rapid_output = rapid.step(1000.0 / 120.0, &instant).vertical;
+    let rapid_output = rapid
+        .step(1000.0 / 120.0, &instant)
+        .vertical
+        .map_or(0, |pulse| pulse.units);
 
     let mut slow = SmoothScrollEngine::new();
     for i in 0..10u64 {
         slow.on_wheel_with_source(120, 1_000 + i * 500, InputSource::Wheel, &instant);
     }
-    let slow_output = slow.step(1000.0 / 120.0, &instant).vertical;
+    let slow_output = slow
+        .step(1000.0 / 120.0, &instant)
+        .vertical
+        .map_or(0, |pulse| pulse.units);
 
     assert!(
         rapid_output.abs() > slow_output.abs(),
@@ -142,7 +186,10 @@ fn instant_mode_preserves_full_quantized_distance_beyond_legacy_480_limit() {
     }
 
     let animated_total = drain_vertical(&mut animated_engine, &animated);
-    let instant_output = instant_engine.step(1000.0 / 120.0, &instant).vertical;
+    let instant_output = instant_engine
+        .step(1000.0 / 120.0, &instant)
+        .vertical
+        .map_or(0, |pulse| pulse.units);
 
     assert!(
         animated_total.abs() > 480,
@@ -165,7 +212,10 @@ fn instant_mode_preserves_legacy_clamp_and_drop() {
     let mut engine = SmoothScrollEngine::new();
 
     on_wheel(&mut engine, 1_200, 1_000, &instant);
-    let output = engine.step(1000.0 / 120.0, &instant).vertical;
+    let output = engine
+        .step(1000.0 / 120.0, &instant)
+        .vertical
+        .map_or(0, |pulse| pulse.units);
 
     assert_eq!(output, 480);
     assert!(!engine.has_pending_work());
@@ -206,9 +256,9 @@ fn step_clamps_pulse_count_per_frame() {
     }
     let out = e.step(1000.0, &eff);
     assert!(
-        out.vertical.abs() <= 480,
+        vertical_units(out).abs() <= 480,
         "expected pulse clamp <= 480, got {}",
-        out.vertical
+        vertical_units(out)
     );
 }
 
@@ -243,8 +293,8 @@ fn registered_horizontal_batch_drains_when_horizontal_smoothness_is_off() {
     let mut total_v = 0;
     for _ in 0..500 {
         let out = e.step(1000.0 / 120.0, &eff);
-        total_v += out.vertical;
-        total_h += out.horizontal;
+        total_v += vertical_units(out);
+        total_h += horizontal_units(out);
         if !e.has_pending_work() && out == EngineOutput::default() {
             break;
         }
@@ -269,8 +319,8 @@ fn reverse_direction_inverts_both_axes() {
     let mut total_h = 0;
     for _ in 0..500 {
         let out = e.step(1000.0 / 120.0, &eff);
-        total_v += out.vertical;
-        total_h += out.horizontal;
+        total_v += vertical_units(out);
+        total_h += horizontal_units(out);
         if !e.has_pending_work() && out == EngineOutput::default() {
             break;
         }
@@ -296,7 +346,7 @@ fn touchpad_input_skips_acceleration() {
     let mut total = 0;
     for _ in 0..200 {
         let out = e.step(8.33, &eff);
-        total += out.vertical;
+        total += vertical_units(out);
         if !e.has_pending_work() {
             break;
         }
@@ -315,7 +365,7 @@ fn touchpad_pixel_multiplier_scales_output() {
     }
     let mut total = 0;
     for _ in 0..200 {
-        total += e.step(8.33, &eff).vertical;
+        total += e.step(8.33, &eff).vertical.map_or(0, |pulse| pulse.units);
         if !e.has_pending_work() {
             break;
         }
@@ -333,8 +383,8 @@ fn drain_vertical(e: &mut SmoothScrollEngine, eff: &EffectiveSettings) -> i32 {
     let mut total = 0;
     for _ in 0..500 {
         let out = e.step(1000.0 / 120.0, eff);
-        total += out.vertical;
-        if !e.has_pending_work() && out.vertical == 0 {
+        total += vertical_units(out);
+        if !e.has_pending_work() && vertical_units(out) == 0 {
             break;
         }
     }
@@ -356,7 +406,7 @@ fn instant_mode_flushes_pending_pixels_in_one_step() {
     // Switch to instant — one step should drain everything.
     eff.instant_mode = true;
     let out = engine.step(1000.0 / 120.0, &eff);
-    assert!(out.vertical != 0, "expected pulses on instant flush");
+    assert!(vertical_units(out) != 0, "expected pulses on instant flush");
     assert!(
         !engine.has_pending_work(),
         "expected no remaining work after instant step"
@@ -370,8 +420,8 @@ fn instant_mode_no_pending_returns_zero() {
     eff.instant_mode = true;
     let mut engine = SmoothScrollEngine::new();
     let out = engine.step(8.0, &eff);
-    assert_eq!(out.vertical, 0);
-    assert_eq!(out.horizontal, 0);
+    assert_eq!(vertical_units(out), 0);
+    assert_eq!(horizontal_units(out), 0);
 }
 
 /// Deterministic fixture so the WASM build can be cross-checked against
@@ -387,7 +437,7 @@ fn deterministic_fixture_output() {
             e.on_wheel_with_source(120, tick * 8, InputSource::Wheel, &eff);
         }
         let out = e.step(8.0, &eff);
-        total_v += out.vertical;
+        total_v += vertical_units(out);
     }
     assert!(total_v != 0, "no output produced from 10 wheel notches");
     assert!(
@@ -482,9 +532,24 @@ fn captured_easing_mode_survives_global_step_settings() {
     let mut global_schedule = Vec::new();
     let mut actual = Vec::new();
     for _ in 0..8 {
-        expected.push(control.step(1000.0 / 120.0, &profile).vertical);
-        global_schedule.push(global_control.step(1000.0 / 120.0, &global).vertical);
-        actual.push(profile_registered.step(1000.0 / 120.0, &global).vertical);
+        expected.push(
+            control
+                .step(1000.0 / 120.0, &profile)
+                .vertical
+                .map_or(0, |pulse| pulse.units),
+        );
+        global_schedule.push(
+            global_control
+                .step(1000.0 / 120.0, &global)
+                .vertical
+                .map_or(0, |pulse| pulse.units),
+        );
+        actual.push(
+            profile_registered
+                .step(1000.0 / 120.0, &global)
+                .vertical
+                .map_or(0, |pulse| pulse.units),
+        );
     }
     assert_ne!(
         expected, global_schedule,
@@ -517,7 +582,10 @@ fn mixed_profile_batches_keep_their_own_easing() {
     on_wheel(&mut engine, 120, 1_100, &slow);
 
     let first = engine.step(50.0, &global);
-    assert!(first.vertical >= 120, "fast batch should drain first");
+    assert!(
+        vertical_units(first) >= 120,
+        "fast batch should drain first"
+    );
     assert!(
         engine.has_pending_work(),
         "slow batch should remain pending"
@@ -561,18 +629,35 @@ fn zoom_batch_keeps_captured_easing() {
     let mut global_drained = SmoothScrollEngine::new();
     let mut global_registered = SmoothScrollEngine::new();
 
-    profile_drained.on_wheel_zoom(120, 1_000, InputSource::Wheel, &profile);
-    global_drained.on_wheel_zoom(120, 1_000, InputSource::Wheel, &profile);
-    global_registered.on_wheel_zoom(120, 1_000, InputSource::Wheel, &global);
+    let (profile_event, profile_sequence) = zoom_sequence(&profile);
+    profile_drained.register(profile_event, profile_sequence, 1_000, &profile);
+    global_drained.register(profile_event, profile_sequence, 1_000, &profile);
+    let (global_event, global_sequence) = zoom_sequence(&global);
+    global_registered.register(global_event, global_sequence, 1_000, &global);
 
     let profile_output: Vec<_> = (0..8)
-        .map(|_| profile_drained.step(1000.0 / 120.0, &profile).zoom)
+        .map(|_| {
+            profile_drained
+                .step(1000.0 / 120.0, &profile)
+                .vertical
+                .map_or(0, |pulse| pulse.units)
+        })
         .collect();
     let global_output: Vec<_> = (0..8)
-        .map(|_| global_drained.step(1000.0 / 120.0, &global).zoom)
+        .map(|_| {
+            global_drained
+                .step(1000.0 / 120.0, &global)
+                .vertical
+                .map_or(0, |pulse| pulse.units)
+        })
         .collect();
     let control: Vec<_> = (0..8)
-        .map(|_| global_registered.step(1000.0 / 120.0, &global).zoom)
+        .map(|_| {
+            global_registered
+                .step(1000.0 / 120.0, &global)
+                .vertical
+                .map_or(0, |pulse| pulse.units)
+        })
         .collect();
 
     assert_eq!(profile_output, global_output);
@@ -592,18 +677,37 @@ fn touchpad_zoom_batch_keeps_captured_easing() {
     let mut global_drained = SmoothScrollEngine::new();
     let mut global_registered = SmoothScrollEngine::new();
 
-    profile_drained.on_wheel_zoom(120, 1_000, InputSource::Touchpad, &profile);
-    global_drained.on_wheel_zoom(120, 1_000, InputSource::Touchpad, &profile);
-    global_registered.on_wheel_zoom(120, 1_000, InputSource::Touchpad, &global);
+    let (mut profile_event, profile_sequence) = zoom_sequence(&profile);
+    profile_event.source = InputSource::Touchpad;
+    profile_drained.register(profile_event, profile_sequence, 1_000, &profile);
+    global_drained.register(profile_event, profile_sequence, 1_000, &profile);
+    let (mut global_event, global_sequence) = zoom_sequence(&global);
+    global_event.source = InputSource::Touchpad;
+    global_registered.register(global_event, global_sequence, 1_000, &global);
 
     let profile_output: Vec<_> = (0..8)
-        .map(|_| profile_drained.step(1000.0 / 120.0, &profile).zoom)
+        .map(|_| {
+            profile_drained
+                .step(1000.0 / 120.0, &profile)
+                .vertical
+                .map_or(0, |pulse| pulse.units)
+        })
         .collect();
     let global_output: Vec<_> = (0..8)
-        .map(|_| global_drained.step(1000.0 / 120.0, &global).zoom)
+        .map(|_| {
+            global_drained
+                .step(1000.0 / 120.0, &global)
+                .vertical
+                .map_or(0, |pulse| pulse.units)
+        })
         .collect();
     let control: Vec<_> = (0..8)
-        .map(|_| global_registered.step(1000.0 / 120.0, &global).zoom)
+        .map(|_| {
+            global_registered
+                .step(1000.0 / 120.0, &global)
+                .vertical
+                .map_or(0, |pulse| pulse.units)
+        })
         .collect();
 
     assert_eq!(profile_output, global_output);
@@ -626,7 +730,11 @@ fn instant_mode_flushes_mixed_scroll_batches() {
 
     instant.instant_mode = true;
     let out = engine.step(1000.0 / 120.0, &instant);
-    assert_eq!(out.vertical, 288, "instant mode should flush both batches");
+    assert_eq!(
+        vertical_units(out),
+        288,
+        "instant mode should flush both batches"
+    );
     assert!(!engine.has_pending_work());
 }
 
@@ -663,7 +771,8 @@ fn reset_axes_clears_all_pending_batches() {
     let mut engine = SmoothScrollEngine::new();
     on_wheel(&mut engine, 120, 0, &settings);
     on_hwheel(&mut engine, 120, 0, &settings);
-    engine.on_wheel_zoom(120, 0, InputSource::Wheel, &settings);
+    let (event, sequence) = zoom_sequence(&settings);
+    engine.register(event, sequence, 0, &settings);
     assert!(engine.has_pending_work());
 
     engine.reset_axes();
