@@ -9,7 +9,11 @@
 
 use crate::state::AppState;
 use parking_lot::Mutex;
-use smoothscroll_core::settings::EffectiveSettings;
+use smoothscroll_core::input_source::InputSource;
+use smoothscroll_core::settings::{EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
+#[cfg(test)]
+use smoothscroll_core::wheel::WheelSemantic;
+use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
 use smoothscroll_platform::traits::HookEventSink;
 use smoothscroll_platform::types::{HookDecision, ModifierKeys, WheelAxis, WheelInputEvent};
 use std::sync::atomic::Ordering;
@@ -22,6 +26,102 @@ use std::time::{Duration, Instant};
 type InputSourceEmitter = Box<dyn Fn(&'static str) + Send + Sync>;
 
 const PROCESS_CACHE_TTL: Duration = Duration::from_millis(50);
+
+#[cfg_attr(not(test), allow(dead_code))]
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum ResolvedWheelAction {
+    RawPass {
+        axis: WheelAxis,
+        cancel_active: bool,
+    },
+    Smooth {
+        event: WheelInputEvent,
+        sequence: WheelSequence,
+    },
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn resolve_wheel_action(
+    event: WheelInputEvent,
+    settings: &EffectiveSettings,
+    detected_discrete: bool,
+) -> ResolvedWheelAction {
+    let raw = |cancel_active| ResolvedWheelAction::RawPass {
+        axis: event.semantic.axis,
+        cancel_active,
+    };
+
+    if (event.semantic.modifiers.ctrl && settings.modifier_ctrl_passthrough)
+        || (event.semantic.modifiers.alt && settings.modifier_alt_passthrough)
+    {
+        return raw(true);
+    }
+    if event.source == InputSource::Touchpad && !settings.touchpad_smoothing_enabled {
+        return raw(true);
+    }
+    if settings.wheel_output_mode == WheelOutputMode::Raw || detected_discrete {
+        return raw(true);
+    }
+
+    let mut output = event;
+    let (transport, delta_transform) = if event.semantic.axis == WheelAxis::Vertical
+        && event.semantic.modifiers.shift
+        && settings.shift_wheel_behavior == ShiftWheelBehavior::ConvertToHorizontal
+    {
+        output.semantic.axis = WheelAxis::Horizontal;
+        (
+            WheelTransport::CompatibilityHorizontal,
+            DeltaTransform::Generic {
+                sign: if settings.horizontal_invert { -1 } else { 1 },
+            },
+        )
+    } else if event.semantic.axis == WheelAxis::Horizontal && !settings.horizontal_smoothness {
+        return raw(true);
+    } else if event.semantic.axis == WheelAxis::Vertical
+        && event.semantic.modifiers.is_ctrl_only()
+        && settings.smooth_zoom
+    {
+        (
+            WheelTransport::Native,
+            DeltaTransform::CtrlZoom {
+                sensitivity: settings.zoom_sensitivity,
+                sign: if settings.zoom_invert { -1 } else { 1 },
+            },
+        )
+    } else {
+        let horizontal = output.semantic.axis == WheelAxis::Horizontal;
+        let inverted =
+            settings.reverse_wheel_direction ^ (horizontal && settings.horizontal_invert);
+        (
+            WheelTransport::Native,
+            DeltaTransform::Generic {
+                sign: if inverted { -1 } else { 1 },
+            },
+        )
+    };
+
+    let strategy = match settings.wheel_output_mode {
+        WheelOutputMode::PreserveWholeNotches
+            if matches!(event.source, InputSource::Wheel | InputSource::HighResWheel) =>
+        {
+            // The safe scheduler does not land until Task 10. Until then the
+            // persisted mode is intentionally a raw escape hatch.
+            return raw(true);
+        }
+        WheelOutputMode::PreserveWholeNotches => return raw(true),
+        WheelOutputMode::SmoothPulses | WheelOutputMode::Raw => SmoothingStrategy::Continuous,
+    };
+
+    ResolvedWheelAction::Smooth {
+        event: output,
+        sequence: WheelSequence {
+            semantic: output.semantic,
+            transport,
+            strategy,
+            delta_transform,
+        },
+    }
+}
 
 /// Throttled process-name cache — caps Win32 syscall rate at ~20 Hz.
 struct ProcessNameCache {
@@ -1007,6 +1107,174 @@ mod tests {
 
     fn no_mods() -> ModifierKeys {
         ModifierKeys::default()
+    }
+
+    fn ctrl_shift() -> ModifierKeys {
+        ModifierKeys {
+            ctrl: true,
+            shift: true,
+            ..ModifierKeys::default()
+        }
+    }
+
+    fn vertical(delta: i32, modifiers: ModifierKeys, source: InputSource) -> WheelInputEvent {
+        WheelInputEvent {
+            delta,
+            semantic: WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers,
+            },
+            source,
+        }
+    }
+
+    fn horizontal(delta: i32, modifiers: ModifierKeys, source: InputSource) -> WheelInputEvent {
+        WheelInputEvent {
+            delta,
+            semantic: WheelSemantic {
+                axis: WheelAxis::Horizontal,
+                modifiers,
+            },
+            source,
+        }
+    }
+
+    fn eff() -> EffectiveSettings {
+        EffectiveSettings::from_settings(&AppSettings::default())
+    }
+
+    #[test]
+    fn default_policy_preserves_shift_vertical() {
+        let action = resolve_wheel_action(
+            vertical(120, shift_only(), InputSource::Wheel),
+            &eff(),
+            false,
+        );
+        let ResolvedWheelAction::Smooth { event, sequence } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(event.semantic.axis, WheelAxis::Vertical);
+        assert!(event.semantic.modifiers.shift);
+        assert_eq!(sequence.transport, WheelTransport::Native);
+    }
+
+    #[test]
+    fn ctrl_shift_is_not_ctrl_only_zoom() {
+        let action = resolve_wheel_action(
+            vertical(120, ctrl_shift(), InputSource::Wheel),
+            &eff(),
+            false,
+        );
+        let ResolvedWheelAction::Smooth { sequence, .. } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(
+            sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
+        );
+        assert!(sequence.semantic.modifiers.ctrl);
+        assert!(sequence.semantic.modifiers.shift);
+    }
+
+    #[test]
+    fn touchpad_off_passes_original_event() {
+        let mut settings = eff();
+        settings.touchpad_smoothing_enabled = false;
+        assert_eq!(
+            resolve_wheel_action(
+                vertical(10, no_mods(), InputSource::Touchpad),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Vertical,
+                cancel_active: true,
+            }
+        );
+    }
+
+    #[test]
+    fn policy_preserves_native_horizontal_modifiers() {
+        let modifiers = ModifierKeys {
+            ctrl: true,
+            alt: true,
+            ..ModifierKeys::default()
+        };
+        let mut settings = eff();
+        settings.horizontal_smoothness = true;
+        let action = resolve_wheel_action(
+            horizontal(120, modifiers, InputSource::Wheel),
+            &settings,
+            false,
+        );
+        let ResolvedWheelAction::Smooth { event, sequence } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(event.semantic.axis, WheelAxis::Horizontal);
+        assert_eq!(event.semantic.modifiers, modifiers);
+        assert_eq!(sequence.transport, WheelTransport::Native);
+    }
+
+    #[test]
+    fn policy_converts_shift_only_when_explicitly_enabled() {
+        let mut settings = eff();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        let action = resolve_wheel_action(
+            vertical(120, shift_only(), InputSource::Wheel),
+            &settings,
+            false,
+        );
+        let ResolvedWheelAction::Smooth { event, sequence } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(event.semantic.axis, WheelAxis::Horizontal);
+        assert!(event.semantic.modifiers.shift);
+        assert_eq!(sequence.transport, WheelTransport::CompatibilityHorizontal);
+    }
+
+    #[test]
+    fn policy_raw_passes_for_passthrough_and_discrete_targets() {
+        let mut settings = eff();
+        settings.modifier_alt_passthrough = true;
+        let alt_event = vertical(
+            120,
+            ModifierKeys {
+                alt: true,
+                ..ModifierKeys::default()
+            },
+            InputSource::Wheel,
+        );
+        assert!(matches!(
+            resolve_wheel_action(alt_event, &settings, false),
+            ResolvedWheelAction::RawPass {
+                cancel_active: true,
+                ..
+            }
+        ));
+        assert!(matches!(
+            resolve_wheel_action(vertical(120, no_mods(), InputSource::Wheel), &eff(), true),
+            ResolvedWheelAction::RawPass {
+                cancel_active: true,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn policy_stages_whole_notches_as_raw_until_scheduler_exists() {
+        let mut settings = eff();
+        settings.wheel_output_mode = WheelOutputMode::PreserveWholeNotches;
+        assert!(matches!(
+            resolve_wheel_action(
+                vertical(120, no_mods(), InputSource::Wheel),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::RawPass {
+                cancel_active: true,
+                ..
+            }
+        ));
     }
 
     fn drain_engine(state: &Arc<AppState>) -> (i32, i32) {

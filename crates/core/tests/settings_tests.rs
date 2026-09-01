@@ -1,7 +1,20 @@
 #![allow(clippy::field_reassign_with_default)]
 
 use smoothscroll_core::easing::EasingMode;
-use smoothscroll_core::settings::AppSettings;
+use smoothscroll_core::settings::{AppSettings, ShiftWheelBehavior, WheelOutputMode};
+
+#[test]
+fn semantic_policy_defaults_preserve_input_meaning() {
+    let settings = AppSettings::default();
+    assert_eq!(settings.shift_wheel_behavior, ShiftWheelBehavior::Preserve);
+    assert_eq!(settings.wheel_output_mode, WheelOutputMode::SmoothPulses);
+    assert!(!settings.modifier_passthrough.ctrl);
+    assert!(!settings.modifier_passthrough.alt);
+
+    let profile = ScrollProfile::new("new", "New");
+    assert_eq!(profile.shift_wheel_behavior, ShiftWheelBehavior::Preserve);
+    assert_eq!(profile.wheel_output_mode, WheelOutputMode::SmoothPulses);
+}
 
 #[test]
 fn defaults_are_unchanged_after_clamp() {
@@ -211,6 +224,8 @@ fn effective_settings_from_settings_copies_all_fields() {
     s.easing_mode = EasingMode::CubicOut;
     s.reverse_wheel_direction = true;
     s.horizontal_smoothness = false;
+    s.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+    s.wheel_output_mode = WheelOutputMode::Raw;
     s.touchpad_smoothing_enabled = false;
     s.touchpad_pixel_multiplier = 1.5;
     s.touchpad_acceleration_factor = 2.0;
@@ -226,6 +241,11 @@ fn effective_settings_from_settings_copies_all_fields() {
     assert_eq!(eff.easing_mode, EasingMode::CubicOut);
     assert!(eff.reverse_wheel_direction);
     assert!(!eff.horizontal_smoothness);
+    assert_eq!(
+        eff.shift_wheel_behavior,
+        ShiftWheelBehavior::ConvertToHorizontal
+    );
+    assert_eq!(eff.wheel_output_mode, WheelOutputMode::Raw);
     assert!(!eff.touchpad_smoothing_enabled);
     assert_eq!(eff.touchpad_pixel_multiplier, 1.5);
     assert_eq!(eff.touchpad_acceleration_factor, 2.0);
@@ -238,12 +258,19 @@ fn effective_settings_with_profile_uses_profile_overrides() {
     profile.step_size_px = 300;
     profile.animation_time_ms = 800;
     profile.easing_mode = EasingMode::Linear;
+    profile.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+    profile.wheel_output_mode = WheelOutputMode::PreserveWholeNotches;
 
     let eff = EffectiveSettings::with_profile(&s, &profile);
 
     assert_eq!(eff.step_size_px, 300);
     assert_eq!(eff.animation_time_ms, 800);
     assert_eq!(eff.easing_mode, EasingMode::Linear);
+    assert_eq!(
+        eff.shift_wheel_behavior,
+        ShiftWheelBehavior::ConvertToHorizontal
+    );
+    assert_eq!(eff.wheel_output_mode, WheelOutputMode::PreserveWholeNotches);
     assert_eq!(eff.touchpad_smoothing_enabled, s.touchpad_smoothing_enabled);
 }
 

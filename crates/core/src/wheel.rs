@@ -134,4 +134,61 @@ mod tests {
         }
         .is_ctrl_only());
     }
+
+    #[test]
+    fn sequence_identity_uses_all_semantic_policy_fields() {
+        let base = WheelSequence {
+            semantic: WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers: ModifierKeys::default(),
+            },
+            transport: WheelTransport::Native,
+            strategy: SmoothingStrategy::Continuous,
+            delta_transform: DeltaTransform::Generic { sign: 1 },
+        };
+        assert_ne!(
+            base,
+            WheelSequence {
+                semantic: WheelSemantic {
+                    modifiers: ModifierKeys {
+                        alt: true,
+                        ..ModifierKeys::default()
+                    },
+                    ..base.semantic
+                },
+                ..base
+            }
+        );
+        assert_ne!(
+            base,
+            WheelSequence {
+                transport: WheelTransport::CompatibilityHorizontal,
+                ..base
+            }
+        );
+        assert_ne!(
+            base,
+            WheelSequence {
+                strategy: SmoothingStrategy::DiscreteNotchPreserving,
+                ..base
+            }
+        );
+        assert_ne!(
+            base,
+            WheelSequence {
+                delta_transform: DeltaTransform::Generic { sign: -1 },
+                ..base
+            }
+        );
+    }
+
+    #[test]
+    fn zoom_sensitivity_identity_is_bitwise() {
+        let zoom = |sensitivity| DeltaTransform::CtrlZoom {
+            sensitivity,
+            sign: 1,
+        };
+        assert_eq!(zoom(1.0), zoom(1.0));
+        assert_ne!(zoom(0.0), zoom(-0.0));
+    }
 }

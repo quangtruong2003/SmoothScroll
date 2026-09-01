@@ -27,6 +27,21 @@ pub enum RespectReduceMotion {
     Never,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum ShiftWheelBehavior {
+    #[default]
+    Preserve,
+    ConvertToHorizontal,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum WheelOutputMode {
+    #[default]
+    SmoothPulses,
+    PreserveWholeNotches,
+    Raw,
+}
+
 fn default_games_list() -> Vec<String> {
     [
         "LeagueOfLegends.exe",
@@ -77,6 +92,10 @@ pub struct ScrollProfile {
     pub easing_mode: EasingMode,
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
+    #[serde(default)]
+    pub shift_wheel_behavior: ShiftWheelBehavior,
+    #[serde(default)]
+    pub wheel_output_mode: WheelOutputMode,
     #[serde(default = "default_max_velocity")]
     pub max_velocity: i32,
     #[serde(default = "default_true")]
@@ -142,6 +161,8 @@ impl ScrollProfile {
             easing_mode: EasingMode::QuinticOut,
             reverse_wheel_direction: false,
             horizontal_smoothness: true,
+            shift_wheel_behavior: ShiftWheelBehavior::Preserve,
+            wheel_output_mode: WheelOutputMode::SmoothPulses,
             max_velocity: default_max_velocity(),
             smooth_zoom: true,
             zoom_invert: false,
@@ -168,7 +189,7 @@ impl ScrollProfile {
 pub struct ModifierPassthrough {
     #[serde(default = "default_false")]
     pub ctrl: bool,
-    #[serde(default = "default_true")]
+    #[serde(default = "default_false")]
     pub alt: bool,
     #[serde(default = "default_true")]
     pub clear_inertia_on_press: bool,
@@ -186,7 +207,7 @@ impl Default for ModifierPassthrough {
     fn default() -> Self {
         Self {
             ctrl: false,
-            alt: true,
+            alt: false,
             clear_inertia_on_press: true,
         }
     }
@@ -231,6 +252,8 @@ pub struct AppSettings {
 
     // Direction & horizontal
     pub horizontal_smoothness: bool,
+    pub shift_wheel_behavior: ShiftWheelBehavior,
+    pub wheel_output_mode: WheelOutputMode,
     pub horizontal_invert: bool,
     pub reverse_wheel_direction: bool,
     pub direction_sync_enabled: bool,
@@ -310,6 +333,8 @@ impl Default for AppSettings {
             animation_easing: true,
             easing_mode: EasingMode::QuinticOut,
             horizontal_smoothness: false,
+            shift_wheel_behavior: ShiftWheelBehavior::Preserve,
+            wheel_output_mode: WheelOutputMode::SmoothPulses,
             horizontal_invert: false,
             reverse_wheel_direction: false,
             direction_sync_enabled: false,
@@ -621,6 +646,8 @@ pub struct EffectiveSettings {
     pub easing_mode: EasingMode,
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
+    pub shift_wheel_behavior: ShiftWheelBehavior,
+    pub wheel_output_mode: WheelOutputMode,
     pub horizontal_invert: bool,
     pub direction_sync_enabled: bool,
     pub touchpad_smoothing_enabled: bool,
@@ -648,6 +675,8 @@ impl EffectiveSettings {
             easing_mode: s.easing_mode,
             reverse_wheel_direction: s.reverse_wheel_direction,
             horizontal_smoothness: s.horizontal_smoothness,
+            shift_wheel_behavior: s.shift_wheel_behavior,
+            wheel_output_mode: s.wheel_output_mode,
             horizontal_invert: s.horizontal_invert,
             direction_sync_enabled: s.direction_sync_enabled,
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
@@ -675,6 +704,8 @@ impl EffectiveSettings {
             easing_mode: profile.easing_mode,
             reverse_wheel_direction: profile.reverse_wheel_direction,
             horizontal_smoothness: profile.horizontal_smoothness,
+            shift_wheel_behavior: profile.shift_wheel_behavior,
+            wheel_output_mode: profile.wheel_output_mode,
             horizontal_invert: base.horizontal_invert,
             direction_sync_enabled: base.direction_sync_enabled,
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
