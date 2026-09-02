@@ -3,10 +3,10 @@ use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
 use smoothscroll_platform::traits::{
-    Autostart, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, WheelEmitter, ZoomEmitter,
+    Autostart, HookHandle, Hotkey, HotkeyHandle, MouseHook, ProcessQuery, SemanticWheelEmitter,
 };
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 
 #[derive(Default)]
@@ -29,8 +29,8 @@ pub struct AppState {
     pub effective: Arc<ArcSwap<EffectiveSettings>>,
     pub effective_per_profile: Arc<RwLock<HashMap<String, Arc<EffectiveSettings>>>>,
     pub mouse_hook: Arc<dyn MouseHook>,
-    pub emitter: Arc<dyn WheelEmitter>,
-    pub zoom_emitter: Arc<dyn ZoomEmitter>,
+    pub semantic_emitter: Arc<dyn SemanticWheelEmitter>,
+    pub emission_generation: Arc<AtomicU64>,
     pub processes: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,

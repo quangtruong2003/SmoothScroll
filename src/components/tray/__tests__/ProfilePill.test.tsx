@@ -52,6 +52,8 @@ beforeEach(() => {
           easing_mode: 'ExponentialOut',
           reverse_wheel_direction: false,
           horizontal_smoothness: false,
+          shift_wheel_behavior: 'Preserve',
+          wheel_output_mode: 'SmoothPulses',
         },
       ],
       app_profiles: { 'Notepad.exe': 'p1' },

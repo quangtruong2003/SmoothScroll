@@ -226,8 +226,23 @@
       "desc": "Đảo hướng cuộn (kiểu tự nhiên)"
     },
     "horizontal_smoothness": {
-      "title": "Cuộn ngang mượt",
-      "desc": "Áp dụng smoothing cho cuộn nghiêng và Shift+cuộn"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "Đảo chiều cuộn ngang",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "Cuộn touchpad mượt",
-        "desc": "Áp dụng easing cho input touchpad độ phân giải cao"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "Hệ số pixel",

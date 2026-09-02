@@ -56,6 +56,7 @@ vi.mock("@/components/ui/toast", () => ({
 }));
 
 const mockSettings: AppSettings = {
+  settings_schema_version: 1,
   enabled: true,
   step_size_px: 10,
   animation_time_ms: 200,
@@ -66,6 +67,8 @@ const mockSettings: AppSettings = {
   animation_easing: true,
   easing_mode: "CubicOut",
   horizontal_smoothness: true,
+  shift_wheel_behavior: "Preserve",
+  wheel_output_mode: "SmoothPulses",
   horizontal_invert: false,
   reverse_wheel_direction: false,
   direction_sync_enabled: false,
@@ -116,6 +119,8 @@ const mockProfile: ScrollProfile = {
   easing_mode: "QuinticOut",
   reverse_wheel_direction: false,
   horizontal_smoothness: true,
+  shift_wheel_behavior: "Preserve",
+  wheel_output_mode: "SmoothPulses",
   max_velocity: 20,
   smooth_zoom: true,
   zoom_invert: false,

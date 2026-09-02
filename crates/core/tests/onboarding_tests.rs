@@ -1,5 +1,5 @@
 use smoothscroll_core::onboarding::{apply_preset, Feel, UseCase};
-use smoothscroll_core::settings::AppSettings;
+use smoothscroll_core::settings::{AppSettings, ShiftWheelBehavior, WheelOutputMode};
 
 #[test]
 fn coder_balanced_keeps_modifier_passthrough_on() {
@@ -33,6 +33,18 @@ fn general_balanced_matches_default_baseline() {
     assert_eq!(s.step_size_px, 144);
     assert_eq!(s.animation_time_ms, 220);
     assert_eq!(s.acceleration_max, 10);
+}
+
+#[test]
+fn onboarding_preset_restores_semantic_wheel_defaults() {
+    let mut s = AppSettings::default();
+    s.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+    s.wheel_output_mode = WheelOutputMode::Raw;
+
+    apply_preset(&mut s, UseCase::General, Feel::Balanced);
+
+    assert_eq!(s.shift_wheel_behavior, ShiftWheelBehavior::Preserve);
+    assert_eq!(s.wheel_output_mode, WheelOutputMode::SmoothPulses);
 }
 
 #[test]

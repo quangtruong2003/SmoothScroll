@@ -4,7 +4,7 @@ use crate::easing::EasingMode;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 #[cfg(not(target_arch = "wasm32"))]
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// User-selectable theme mode for the settings UI.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -26,6 +26,23 @@ pub enum RespectReduceMotion {
     /// Always smooth, ignore OS.
     Never,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum ShiftWheelBehavior {
+    #[default]
+    Preserve,
+    ConvertToHorizontal,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum WheelOutputMode {
+    #[default]
+    SmoothPulses,
+    PreserveWholeNotches,
+    Raw,
+}
+
+pub const CURRENT_SETTINGS_SCHEMA_VERSION: u32 = 1;
 
 fn default_games_list() -> Vec<String> {
     [
@@ -77,6 +94,10 @@ pub struct ScrollProfile {
     pub easing_mode: EasingMode,
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
+    #[serde(default)]
+    pub shift_wheel_behavior: ShiftWheelBehavior,
+    #[serde(default)]
+    pub wheel_output_mode: WheelOutputMode,
     #[serde(default = "default_max_velocity")]
     pub max_velocity: i32,
     #[serde(default = "default_true")]
@@ -142,6 +163,8 @@ impl ScrollProfile {
             easing_mode: EasingMode::QuinticOut,
             reverse_wheel_direction: false,
             horizontal_smoothness: true,
+            shift_wheel_behavior: ShiftWheelBehavior::Preserve,
+            wheel_output_mode: WheelOutputMode::SmoothPulses,
             max_velocity: default_max_velocity(),
             smooth_zoom: true,
             zoom_invert: false,
@@ -161,14 +184,13 @@ impl ScrollProfile {
 }
 
 /// Whether to pass wheel events through raw (no smoothing) when a precision
-/// modifier is held. Defaults are ON because Ctrl/Alt+Wheel almost always
-/// drives precision actions like zoom or font-size in modern apps.
+/// modifier is held. Both modifiers default to semantic-preserving smoothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ModifierPassthrough {
     #[serde(default = "default_false")]
     pub ctrl: bool,
-    #[serde(default = "default_true")]
+    #[serde(default = "default_false")]
     pub alt: bool,
     #[serde(default = "default_true")]
     pub clear_inertia_on_press: bool,
@@ -186,7 +208,7 @@ impl Default for ModifierPassthrough {
     fn default() -> Self {
         Self {
             ctrl: false,
-            alt: true,
+            alt: false,
             clear_inertia_on_press: true,
         }
     }
@@ -217,6 +239,7 @@ impl Default for MonitorProfile {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AppSettings {
+    pub settings_schema_version: u32,
     pub enabled: bool,
 
     // Scroll
@@ -231,6 +254,8 @@ pub struct AppSettings {
 
     // Direction & horizontal
     pub horizontal_smoothness: bool,
+    pub shift_wheel_behavior: ShiftWheelBehavior,
+    pub wheel_output_mode: WheelOutputMode,
     pub horizontal_invert: bool,
     pub reverse_wheel_direction: bool,
     pub direction_sync_enabled: bool,
@@ -300,6 +325,7 @@ pub struct AppSettings {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
+            settings_schema_version: CURRENT_SETTINGS_SCHEMA_VERSION,
             enabled: true,
             step_size_px: 144,
             animation_time_ms: 220,
@@ -310,6 +336,8 @@ impl Default for AppSettings {
             animation_easing: true,
             easing_mode: EasingMode::QuinticOut,
             horizontal_smoothness: false,
+            shift_wheel_behavior: ShiftWheelBehavior::Preserve,
+            wheel_output_mode: WheelOutputMode::SmoothPulses,
             horizontal_invert: false,
             reverse_wheel_direction: false,
             direction_sync_enabled: false,
@@ -621,6 +649,8 @@ pub struct EffectiveSettings {
     pub easing_mode: EasingMode,
     pub reverse_wheel_direction: bool,
     pub horizontal_smoothness: bool,
+    pub shift_wheel_behavior: ShiftWheelBehavior,
+    pub wheel_output_mode: WheelOutputMode,
     pub horizontal_invert: bool,
     pub direction_sync_enabled: bool,
     pub touchpad_smoothing_enabled: bool,
@@ -648,6 +678,8 @@ impl EffectiveSettings {
             easing_mode: s.easing_mode,
             reverse_wheel_direction: s.reverse_wheel_direction,
             horizontal_smoothness: s.horizontal_smoothness,
+            shift_wheel_behavior: s.shift_wheel_behavior,
+            wheel_output_mode: s.wheel_output_mode,
             horizontal_invert: s.horizontal_invert,
             direction_sync_enabled: s.direction_sync_enabled,
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
@@ -675,6 +707,8 @@ impl EffectiveSettings {
             easing_mode: profile.easing_mode,
             reverse_wheel_direction: profile.reverse_wheel_direction,
             horizontal_smoothness: profile.horizontal_smoothness,
+            shift_wheel_behavior: profile.shift_wheel_behavior,
+            wheel_output_mode: profile.wheel_output_mode,
             horizontal_invert: base.horizontal_invert,
             direction_sync_enabled: base.direction_sync_enabled,
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
@@ -741,10 +775,93 @@ fn is_valid_key_token(token: &str) -> bool {
 pub enum SettingsError {
     #[error("config directory unavailable")]
     NoConfigDir,
+    #[error("unsupported settings schema {found}; current schema is {current}")]
+    UnsupportedSchema { found: u32, current: u32 },
+    #[error("settings JSON root must be an object")]
+    InvalidRoot,
     #[error("io: {0}")]
     Io(#[from] std::io::Error),
     #[error("json: {0}")]
     Json(#[from] serde_json::Error),
+}
+
+/// Migrate raw persisted settings while historical field presence is still visible.
+/// Schema 0 is the implicit format used before semantic wheel policies were versioned.
+pub fn migrate_raw_settings(
+    mut raw: serde_json::Value,
+) -> Result<(AppSettings, bool), SettingsError> {
+    let version = raw
+        .get("settings_schema_version")
+        .map(|value| serde_json::from_value::<u32>(value.clone()))
+        .transpose()?
+        .unwrap_or(0);
+
+    if version > CURRENT_SETTINGS_SCHEMA_VERSION {
+        return Err(SettingsError::UnsupportedSchema {
+            found: version,
+            current: CURRENT_SETTINGS_SCHEMA_VERSION,
+        });
+    }
+
+    let mut migrated = false;
+    if version == 0 {
+        let root = raw.as_object_mut().ok_or(SettingsError::InvalidRoot)?;
+
+        root.entry("shift_wheel_behavior".to_string())
+            .or_insert_with(|| serde_json::json!("Preserve"));
+        root.entry("wheel_output_mode".to_string())
+            .or_insert_with(|| serde_json::json!("SmoothPulses"));
+
+        if let Some(profiles) = root
+            .get_mut("profiles")
+            .and_then(serde_json::Value::as_array_mut)
+        {
+            for profile in profiles {
+                if let Some(profile) = profile.as_object_mut() {
+                    profile
+                        .entry("shift_wheel_behavior".to_string())
+                        .or_insert_with(|| serde_json::json!("Preserve"));
+                    profile
+                        .entry("wheel_output_mode".to_string())
+                        .or_insert_with(|| serde_json::json!("SmoothPulses"));
+                }
+            }
+        }
+
+        if !root.contains_key("modifier_passthrough") {
+            root.insert(
+                "modifier_passthrough".to_string(),
+                serde_json::Value::Object(serde_json::Map::new()),
+            );
+        }
+        if let Some(modifiers) = root
+            .get_mut("modifier_passthrough")
+            .and_then(serde_json::Value::as_object_mut)
+        {
+            modifiers
+                .entry("ctrl".to_string())
+                .or_insert_with(|| serde_json::json!(false));
+            modifiers
+                .entry("alt".to_string())
+                .or_insert_with(|| serde_json::json!(false));
+        }
+
+        root.insert(
+            "settings_schema_version".to_string(),
+            serde_json::json!(CURRENT_SETTINGS_SCHEMA_VERSION),
+        );
+        migrated = true;
+    }
+
+    let mut settings: AppSettings = serde_json::from_value(raw.clone())?;
+    settings.migrate_missing_profile_zoom_settings(&raw);
+    settings.migrate_from_v1();
+    settings.canonicalize_app_profile_keys_on_load();
+    settings.seed_native_smooth_excludes();
+    settings.clamp();
+    settings.settings_schema_version = CURRENT_SETTINGS_SCHEMA_VERSION;
+
+    Ok((settings, migrated))
 }
 
 /// Resolve the v1 settings file path.
@@ -791,15 +908,31 @@ fn try_load() -> Result<AppSettings, SettingsError> {
             return Ok(AppSettings::default());
         }
     }
-    let bytes = std::fs::read(&path)?;
-    let raw: serde_json::Value = serde_json::from_slice(&bytes)?;
-    let mut settings: AppSettings = serde_json::from_value(raw.clone())?;
-    settings.clamp();
-    settings.migrate_missing_profile_zoom_settings(&raw);
-    settings.migrate_from_v1();
-    settings.canonicalize_app_profile_keys_on_load();
-    settings.seed_native_smooth_excludes();
+    let (settings, _) = try_load_from(&path)?;
     Ok(settings)
+}
+
+/// Load and migrate one explicit settings path. Successful schema migrations
+/// are persisted synchronously once; ordinary schema-current loads do not write.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn try_load_from(path: &Path) -> Result<(AppSettings, bool), SettingsError> {
+    if !path.exists() {
+        return Ok((AppSettings::default(), false));
+    }
+
+    let bytes = std::fs::read(path)?;
+    let raw: serde_json::Value = serde_json::from_slice(&bytes)?;
+    let (settings, migrated) = migrate_raw_settings(raw)?;
+    if migrated {
+        if let Err(error) = save_to(path, &settings) {
+            tracing::warn!(
+                error = %error,
+                path = %path.display(),
+                "settings migration succeeded in memory but could not be persisted"
+            );
+        }
+    }
+    Ok((settings, migrated))
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -813,9 +946,18 @@ fn legacy_settings_path() -> Result<PathBuf, SettingsError> {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save(settings: &AppSettings) -> Result<(), SettingsError> {
     let path = settings_path()?;
+    save_to(&path, settings)
+}
+
+/// Save settings atomically to an explicit path.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_to(path: &Path, settings: &AppSettings) -> Result<(), SettingsError> {
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     let tmp = path.with_extension("json.tmp");
     let json = serde_json::to_vec_pretty(settings)?;
     std::fs::write(&tmp, &json)?;
-    std::fs::rename(&tmp, &path)?;
+    std::fs::rename(&tmp, path)?;
     Ok(())
 }

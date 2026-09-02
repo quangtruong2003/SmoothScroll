@@ -226,8 +226,23 @@
       "desc": "反转滚动方向（自然滚动）"
     },
     "horizontal_smoothness": {
-      "title": "平滑水平滚动",
-      "desc": "为倾斜滚轮和 Shift+滚轮应用平滑效果"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "反转水平滚动方向",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "平滑触控板滚动",
-        "desc": "对高分辨率触控板输入应用缓动"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "像素倍率",

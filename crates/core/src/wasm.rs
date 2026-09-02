@@ -7,6 +7,10 @@
 use crate::engine::{EngineOutput, SmoothScrollEngine};
 use crate::input_source::InputSource;
 use crate::settings::{AppSettings, EffectiveSettings};
+use crate::wheel::{
+    DeltaTransform, ModifierKeys, SmoothingStrategy, WheelAxis, WheelInputEvent, WheelSemantic,
+    WheelSequence, WheelTransport,
+};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -39,13 +43,11 @@ impl WasmEngine {
 
     /// Inject a wheel event. `now_ms` is a JS-supplied monotonic timestamp.
     pub fn on_wheel(&mut self, delta: i32, now_ms: f64) {
-        self.engine
-            .on_wheel_with_source(delta, now_ms as u64, InputSource::Wheel, &self.eff);
+        self.register(delta, WheelAxis::Vertical, now_ms);
     }
 
     pub fn on_hwheel(&mut self, delta: i32, now_ms: f64) {
-        self.engine
-            .on_hwheel_with_source(delta, now_ms as u64, InputSource::Wheel, &self.eff);
+        self.register(delta, WheelAxis::Horizontal, now_ms);
     }
 
     /// Step the engine. Returns `[vertical, horizontal]` pulses.
@@ -53,8 +55,17 @@ impl WasmEngine {
         let EngineOutput {
             vertical,
             horizontal,
-            zoom: _,
         } = self.engine.step(dt_ms, &self.eff);
+        let vertical = vertical.map_or(0, |pulse| {
+            self.engine
+                .finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
+            pulse.units
+        });
+        let horizontal = horizontal.map_or(0, |pulse| {
+            self.engine
+                .finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
+            pulse.units
+        });
         Box::new([vertical, horizontal])
     }
 
@@ -64,5 +75,33 @@ impl WasmEngine {
 
     pub fn reset(&mut self) {
         self.engine.reset_axes();
+    }
+
+    fn register(&mut self, delta: i32, axis: WheelAxis, now_ms: f64) {
+        let semantic = WheelSemantic {
+            axis,
+            modifiers: ModifierKeys::default(),
+        };
+        self.engine.register(
+            WheelInputEvent {
+                delta,
+                semantic,
+                source: InputSource::Wheel,
+            },
+            WheelSequence {
+                semantic,
+                transport: WheelTransport::Native,
+                strategy: SmoothingStrategy::Continuous,
+                delta_transform: DeltaTransform::Generic {
+                    sign: if self.eff.reverse_wheel_direction {
+                        -1
+                    } else {
+                        1
+                    },
+                },
+            },
+            now_ms as u64,
+            &self.eff,
+        );
     }
 }

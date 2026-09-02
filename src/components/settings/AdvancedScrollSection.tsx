@@ -2,7 +2,15 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSettingsStore, useScrollFields, useDefaults } from "@/stores/settingsStore";
+import type { WheelOutputMode } from "@/lib/tauri";
 import { animationTimeFeel, stepSizeFeel, accelMaxFeel } from "@/lib/feelHints";
 import { SettingRow } from "./SettingRow";
 import { ResetButton } from "./ResetButton";
@@ -133,6 +141,26 @@ function AdvancedScrollSectionInner() {
               disabled={fields.tail_to_head_ratio === defaults.tail_to_head_ratio}
             />
           )}
+        </SettingRow>
+
+        <SettingRow
+          htmlFor="wheel-output-mode"
+          title={t("settings.wheel_output_mode.title")}
+          description={t("settings.wheel_output_mode.desc")}
+        >
+          <Select
+            value={fields.wheel_output_mode}
+            onValueChange={(v) => patch({ wheel_output_mode: v as WheelOutputMode })}
+          >
+            <SelectTrigger id="wheel-output-mode" className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SmoothPulses">{t("settings.wheel_output_mode.smooth")}</SelectItem>
+              <SelectItem value="PreserveWholeNotches">{t("settings.wheel_output_mode.notches")}</SelectItem>
+              <SelectItem value="Raw">{t("settings.wheel_output_mode.raw")}</SelectItem>
+            </SelectContent>
+          </Select>
         </SettingRow>
       </CardContent>
     </Card>

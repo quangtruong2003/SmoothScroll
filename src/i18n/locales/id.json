@@ -226,8 +226,23 @@
       "desc": "Balikkan arah scroll (gaya alami)"
     },
     "horizontal_smoothness": {
-      "title": "Scroll horizontal halus",
-      "desc": "Terapkan penghalusan pada tilt-wheel dan Shift+wheel"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "Balik arah horizontal",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "Smooth scrolling touchpad",
-        "desc": "Terapkan easing pada input touchpad resolusi tinggi"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "Pengganda piksel",

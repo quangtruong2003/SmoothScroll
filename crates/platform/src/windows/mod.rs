@@ -41,8 +41,7 @@ pub fn build() -> Result<Platform> {
     let wheel_emitter: Arc<WindowsWheelEmitter> = Arc::new(WindowsWheelEmitter);
     Ok(Platform {
         mouse_hook: Arc::new(WindowsMouseHook::new()),
-        wheel_emitter: wheel_emitter.clone(),
-        zoom_emitter: wheel_emitter.clone(),
+        semantic_emitter: wheel_emitter,
         process_query: Arc::new(WindowsProcessQuery::new()),
         autostart: Arc::new(WindowsAutostart),
         hotkey: Arc::new(WindowsHotkey),

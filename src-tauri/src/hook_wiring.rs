@@ -9,9 +9,15 @@
 
 use crate::state::AppState;
 use parking_lot::Mutex;
-use smoothscroll_core::settings::EffectiveSettings;
+use smoothscroll_core::input_source::InputSource;
+use smoothscroll_core::settings::{EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
+#[cfg(any(not(windows), test))]
+use smoothscroll_core::wheel::WheelSemantic;
+use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
 use smoothscroll_platform::traits::HookEventSink;
-use smoothscroll_platform::types::{HookDecision, ModifierKeys};
+#[cfg(any(not(windows), test))]
+use smoothscroll_platform::types::ModifierKeys;
+use smoothscroll_platform::types::{HookDecision, WheelAxis, WheelInputEvent};
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
@@ -22,6 +28,101 @@ use std::time::{Duration, Instant};
 type InputSourceEmitter = Box<dyn Fn(&'static str) + Send + Sync>;
 
 const PROCESS_CACHE_TTL: Duration = Duration::from_millis(50);
+
+#[cfg_attr(not(test), allow(dead_code))]
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum ResolvedWheelAction {
+    RawPass {
+        axis: WheelAxis,
+        cancel_active: bool,
+    },
+    Smooth {
+        event: WheelInputEvent,
+        sequence: WheelSequence,
+    },
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn resolve_wheel_action(
+    event: WheelInputEvent,
+    settings: &EffectiveSettings,
+    detected_discrete: bool,
+) -> ResolvedWheelAction {
+    let raw = |cancel_active| ResolvedWheelAction::RawPass {
+        axis: event.semantic.axis,
+        cancel_active,
+    };
+
+    if (event.semantic.modifiers.ctrl && settings.modifier_ctrl_passthrough)
+        || (event.semantic.modifiers.alt && settings.modifier_alt_passthrough)
+    {
+        return raw(true);
+    }
+    if event.source == InputSource::Touchpad && !settings.touchpad_smoothing_enabled {
+        return raw(true);
+    }
+    if settings.wheel_output_mode == WheelOutputMode::Raw || detected_discrete {
+        return raw(true);
+    }
+
+    let mut output = event;
+    let (transport, delta_transform) = if event.semantic.axis == WheelAxis::Vertical
+        && event.semantic.modifiers.shift
+        && settings.shift_wheel_behavior == ShiftWheelBehavior::ConvertToHorizontal
+    {
+        output.semantic.axis = WheelAxis::Horizontal;
+        let inverted = settings.reverse_wheel_direction ^ settings.horizontal_invert;
+        (
+            WheelTransport::CompatibilityHorizontal,
+            DeltaTransform::Generic {
+                sign: if inverted { -1 } else { 1 },
+            },
+        )
+    } else if event.semantic.axis == WheelAxis::Horizontal && !settings.horizontal_smoothness {
+        return raw(true);
+    } else if event.semantic.axis == WheelAxis::Vertical
+        && event.semantic.modifiers.is_ctrl_only()
+        && settings.smooth_zoom
+    {
+        (
+            WheelTransport::Native,
+            DeltaTransform::CtrlZoom {
+                sensitivity: settings.zoom_sensitivity,
+                sign: if settings.zoom_invert { -1 } else { 1 },
+            },
+        )
+    } else {
+        let horizontal = output.semantic.axis == WheelAxis::Horizontal;
+        let inverted =
+            settings.reverse_wheel_direction ^ (horizontal && settings.horizontal_invert);
+        (
+            WheelTransport::Native,
+            DeltaTransform::Generic {
+                sign: if inverted { -1 } else { 1 },
+            },
+        )
+    };
+
+    let strategy = match settings.wheel_output_mode {
+        WheelOutputMode::PreserveWholeNotches
+            if matches!(event.source, InputSource::Wheel | InputSource::HighResWheel) =>
+        {
+            SmoothingStrategy::DiscreteNotchPreserving
+        }
+        WheelOutputMode::PreserveWholeNotches => return raw(true),
+        WheelOutputMode::SmoothPulses | WheelOutputMode::Raw => SmoothingStrategy::Continuous,
+    };
+
+    ResolvedWheelAction::Smooth {
+        event: output,
+        sequence: WheelSequence {
+            semantic: output.semantic,
+            transport,
+            strategy,
+            delta_transform,
+        },
+    }
+}
 
 /// Throttled process-name cache — caps Win32 syscall rate at ~20 Hz.
 struct ProcessNameCache {
@@ -259,6 +360,20 @@ impl EngineSink {
         Some(self.state.effective.load_full())
     }
 
+    #[cfg(windows)]
+    fn decision_log_process(&self) -> Option<String> {
+        let (under_cursor, foreground) = {
+            let mut cache = self.process_cache.lock();
+            cache.get(|| {
+                (
+                    self.state.processes.process_name_under_cursor(),
+                    self.state.processes.foreground_process_name(),
+                )
+            })
+        };
+        under_cursor.or(foreground)
+    }
+
     fn update_last_source(&self, source: smoothscroll_core::input_source::InputSource) {
         use smoothscroll_core::input_source::InputSource;
         let code: u8 = match source {
@@ -279,12 +394,10 @@ impl EngineSink {
         }
     }
 
-    fn route_vertical_with_source(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
+    /// Non-Windows semantic route. It preserves the existing per-axis policy
+    /// while accepting only the final `WheelInputEvent` API from the hook.
+    #[cfg(not(windows))]
+    fn route_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
@@ -296,174 +409,276 @@ impl EngineSink {
             Some(e) => e,
             None => return HookDecision::Pass,
         };
+        let delta = event.delta;
+        let mods = event.semantic.modifiers;
+        let source = event.source;
 
-        // Discrete controls (spinbox, slider, combo box, list) consume wheel
-        // input in whole-notch steps; the engine's sub-notch pulse train makes
-        // them skip values or ignore the input entirely. Pass the raw event
-        // through so one physical notch stays one native wheel message.
-        if self.state.window_geom.cursor_over_discrete_control() {
-            return HookDecision::Pass;
-        }
+        match event.semantic.axis {
+            WheelAxis::Horizontal => {
+                if !eff.horizontal_smoothness {
+                    return HookDecision::Pass;
+                }
+                if self.state.window_geom.cursor_over_discrete_control() {
+                    return HookDecision::Pass;
+                }
 
-        // Shift+Wheel always routes through engine when smoothness is enabled.
-        // Native horizontal wheel (no modifiers) always smooths.
-
-        // Precision-modifier passthrough (Ctrl/Alt+Wheel for zoom etc.)
-        #[cfg(target_os = "macos")]
-        let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
-            || (mods.alt && eff.modifier_alt_passthrough);
-        #[cfg(not(target_os = "macos"))]
-        let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
-            || (mods.alt && eff.modifier_alt_passthrough);
-
-        if precision {
-            if eff.modifier_clear_inertia {
-                self.state.engine.lock().reset_axes();
+                self.update_last_source(source);
+                let now = self.now_ms();
+                let h_delta = if eff.horizontal_invert { -delta } else { delta };
+                self.state
+                    .engine
+                    .lock()
+                    .on_hwheel_with_source(h_delta, now, source, &eff);
+                self.state.engine_signal.signal();
+                HookDecision::Swallow
             }
+            WheelAxis::Vertical => {
+                if self.state.window_geom.cursor_over_discrete_control() {
+                    return HookDecision::Pass;
+                }
+
+                #[cfg(target_os = "macos")]
+                let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
+                    || (mods.alt && eff.modifier_alt_passthrough);
+                #[cfg(not(target_os = "macos"))]
+                let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
+                    || (mods.alt && eff.modifier_alt_passthrough);
+
+                if precision {
+                    if eff.modifier_clear_inertia {
+                        self.state.engine.lock().reset_axes();
+                    }
+                    return HookDecision::Pass;
+                }
+
+                self.update_last_source(source);
+                let now = self.now_ms();
+
+                #[cfg(not(target_os = "macos"))]
+                let ctrl_pressed = mods.ctrl;
+                #[cfg(target_os = "macos")]
+                let ctrl_pressed = mods.cmd;
+
+                if ctrl_pressed && !eff.smooth_zoom {
+                    return HookDecision::Pass;
+                }
+                if !ctrl_pressed && mods.shift && !eff.horizontal_smoothness {
+                    return HookDecision::Pass;
+                }
+
+                let mut engine = self.state.engine.lock();
+                if ctrl_pressed {
+                    let semantic = WheelSemantic {
+                        axis: WheelAxis::Vertical,
+                        modifiers: mods,
+                    };
+                    engine.register(
+                        WheelInputEvent {
+                            delta,
+                            semantic,
+                            source,
+                        },
+                        WheelSequence {
+                            semantic,
+                            transport: WheelTransport::Native,
+                            strategy: SmoothingStrategy::Continuous,
+                            delta_transform: if eff.smooth_zoom && zoom_modifier_isolated(&mods) {
+                                DeltaTransform::CtrlZoom {
+                                    sensitivity: eff.zoom_sensitivity,
+                                    sign: if eff.zoom_invert { -1 } else { 1 },
+                                }
+                            } else {
+                                DeltaTransform::Generic {
+                                    sign: if eff.reverse_wheel_direction { -1 } else { 1 },
+                                }
+                            },
+                        },
+                        now,
+                        &eff,
+                    );
+                } else if mods.shift && eff.horizontal_smoothness {
+                    let h_delta = if eff.horizontal_invert { -delta } else { delta };
+                    engine.on_hwheel_with_source(h_delta, now, source, &eff);
+                } else {
+                    engine.on_wheel_with_source(delta, now, source, &eff);
+                }
+                drop(engine);
+                self.state.stats.record_notch();
+                self.state.engine_signal.signal();
+                HookDecision::Swallow
+            }
+        }
+    }
+
+    /// Unified Windows semantic route. Both physical axes flow through the
+    /// same policy resolution, preparation, ownership, and registration in
+    /// the exact order the spec requires.
+    #[cfg(windows)]
+    fn route_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
+        // 1. enabled
+        if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
         }
-
-        self.update_last_source(source);
-        let now = self.now_ms();
-
-        #[cfg(not(target_os = "macos"))]
-        let ctrl_pressed = mods.ctrl;
-        #[cfg(target_os = "macos")]
-        let ctrl_pressed = mods.cmd;
-
-        if ctrl_pressed && !eff.smooth_zoom {
+        // 2. Game Mode
+        if self.should_bypass_for_game_mode() {
             return HookDecision::Pass;
         }
+        // 3. effective settings (global/app/monitor) — includes
+        // elevation/exclusion/auto-disable (resolve_active returns None).
+        let eff = match self.resolve_active() {
+            Some(e) => e,
+            None => return HookDecision::Pass,
+        };
+        // 5. one bounded discrete-target check.
+        let detected_discrete = self.state.window_geom.cursor_over_discrete_control();
+        // 6. pure policy resolution.
+        let action = resolve_wheel_action(event, &eff, detected_discrete);
 
-        #[cfg(target_os = "windows")]
-        if !ctrl_pressed
-            && mods.shift
-            && eff.horizontal_smoothness
-            && source == smoothscroll_core::input_source::InputSource::Wheel
-            && !self.is_browser_target()
-        {
-            let h_delta = if eff.horizontal_invert { -delta } else { delta };
-            if let Err(error) = self.state.emitter.emit_horizontal_immediate(h_delta) {
-                tracing::warn!(%error, "failed to queue immediate horizontal scroll");
+        // 7. RawPass: cancel the affected axis's smoothed tail so raw and
+        // smoothed output cannot coexist, then forward the original event.
+        let (sequence, output_event) = match action {
+            ResolvedWheelAction::RawPass {
+                axis,
+                cancel_active,
+            } => {
+                if cancel_active {
+                    self.state.wheel_generations.invalidate(axis);
+                    self.state.engine.lock().reset_axis(axis);
+                }
+                if tracing::enabled!(tracing::Level::DEBUG) {
+                    let process = self.decision_log_process();
+                    tracing::debug!(
+                        process = ?process.as_deref(),
+                        input_axis = ?event.semantic.axis,
+                        shift = event.semantic.modifiers.shift,
+                        ctrl = event.semantic.modifiers.ctrl,
+                        alt = event.semantic.modifiers.alt,
+                        source = ?event.source,
+                        decision = "pass",
+                        "raw wheel passthrough"
+                    );
+                }
                 return HookDecision::Pass;
             }
-            self.state.stats.record_notch();
-            return HookDecision::Swallow;
-        }
+            ResolvedWheelAction::Smooth { event, sequence } => (sequence, event),
+        };
 
-        if !ctrl_pressed && mods.shift && !eff.horizontal_smoothness {
+        // 8. prepare before swallowing; failure forwards the original event.
+        if let Err(error) = self.state.semantic_emitter.prepare(sequence) {
+            tracing::warn!(%error, "semantic emitter cannot prepare sequence; passing raw");
             return HookDecision::Pass;
         }
 
+        self.update_last_source(event.source);
+
+        // 9. root ownership applies only to animated (non-instant) work; an
+        // unknown root forwards the raw event because ownership cannot be
+        // established before swallow.
         #[cfg(windows)]
         let current_root = if eff.instant_mode {
             None
         } else {
-            self.state.window_geom.root_window_under_cursor()
+            match self.state.window_geom.root_window_under_cursor() {
+                Some(root) => Some(root),
+                None => return HookDecision::Pass,
+            }
         };
 
-        // ONE lock acquisition for events routed through the smooth engine.
-        let mut engine = self.state.engine.lock();
-
-        #[cfg(windows)]
-        reconcile_animation_owner(
-            &self.state.animation_owner,
-            &mut engine,
-            eff.instant_mode,
-            current_root,
-        );
-
-        if ctrl_pressed {
-            // Ctrl+Wheel → zoom axis
-            engine.on_wheel_zoom(delta, now, source, &eff);
-        } else if mods.shift && eff.horizontal_smoothness {
-            let h_delta = if eff.horizontal_invert { -delta } else { delta };
-            engine.on_hwheel_with_source(h_delta, now, source, &eff);
-        } else {
-            engine.on_wheel_with_source(delta, now, source, &eff);
-        }
-        drop(engine);
-        self.state.stats.record_notch();
-        self.state.engine_signal.signal();
-        HookDecision::Swallow
-    }
-
-    fn route_horizontal_with_source(
-        &self,
-        delta: i32,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        if !self.state.enabled.load(Ordering::Relaxed) {
-            return HookDecision::Pass;
-        }
-        if self.should_bypass_for_game_mode() {
-            return HookDecision::Pass;
-        }
-
-        let eff = match self.resolve_active() {
-            Some(e) => e,
-            None => return HookDecision::Pass,
-        };
-
-        if !eff.horizontal_smoothness {
-            return HookDecision::Pass;
-        }
-
-        // Same whole-notch contract as the vertical path: discrete controls
-        // must receive the raw horizontal wheel event.
-        if self.state.window_geom.cursor_over_discrete_control() {
-            return HookDecision::Pass;
-        }
-
-        // Precision-modifier passthrough — note: native horizontal wheel
-        // events don't carry modifier state through this path on Windows
-        // (the hook signature has no `mods`); on macOS we'd need to extend
-        // the trait. For now we leave this path as-is; passthrough applies
-        // to the vertical path which is where Ctrl/Alt+Wheel actually fire.
-
-        self.update_last_source(source);
         let now = self.now_ms();
 
-        #[cfg(windows)]
-        let current_root = if eff.instant_mode {
-            None
-        } else {
-            self.state.window_geom.root_window_under_cursor()
-        };
-
+        // ONE engine lock for owner reconciliation and registration; no
+        // process/root lookup happens while it is held.
         let mut engine = self.state.engine.lock();
 
+        // 10. reconcile the root owner; a root change invalidates both axes
+        // before the existing all-axis reset.
         #[cfg(windows)]
-        reconcile_animation_owner(
-            &self.state.animation_owner,
-            &mut engine,
-            eff.instant_mode,
-            current_root,
-        );
+        {
+            let previous_root = self.state.animation_owner.get();
+            if previous_root.is_some_and(|existing| Some(existing) != current_root) {
+                self.state.wheel_generations.invalidate_all();
+            }
+            reconcile_animation_owner(
+                &self.state.animation_owner,
+                &mut engine,
+                eff.instant_mode,
+                current_root,
+            );
+        }
 
-        let h_delta = if eff.horizontal_invert { -delta } else { delta };
-        engine.on_hwheel_with_source(h_delta, now, source, &eff);
+        // 11. A physical vertical stream can be transformed onto the horizontal
+        // axis. When that mapping changes, cancel the superseded axis before
+        // registering the new sequence so two tails cannot run diagonally.
+        let input_axis = event.semantic.axis;
+        let axis = output_event.semantic.axis;
+        if input_axis != axis {
+            if engine.active_sequence(input_axis).is_some() {
+                self.state.wheel_generations.invalidate(input_axis);
+                engine.reset_axis(input_axis);
+            }
+        } else if input_axis == WheelAxis::Vertical
+            && engine
+                .active_sequence(WheelAxis::Horizontal)
+                .is_some_and(|live| live.transport == WheelTransport::CompatibilityHorizontal)
+        {
+            self.state
+                .wheel_generations
+                .invalidate(WheelAxis::Horizontal);
+            engine.reset_axis(WheelAxis::Horizontal);
+        }
+
+        // A changed sequence on the selected output axis invalidates that axis
+        // generation, then register lets the engine reset any prior sequence.
+        if engine
+            .active_sequence(axis)
+            .is_some_and(|live| live != sequence)
+        {
+            self.state.wheel_generations.invalidate(axis);
+        }
+        engine.register(output_event, sequence, now, &eff);
         drop(engine);
+
+        // 12. signal the engine thread.
+        self.state.stats.record_notch();
         self.state.engine_signal.signal();
+
+        // 13. lazy decision logging — booleans as fields, no modifier string.
+        if tracing::enabled!(tracing::Level::DEBUG) {
+            let process = self.decision_log_process();
+            tracing::debug!(
+                process = ?process.as_deref(),
+                input_axis = ?event.semantic.axis,
+                output_axis = ?output_event.semantic.axis,
+                shift = output_event.semantic.modifiers.shift,
+                ctrl = output_event.semantic.modifiers.ctrl,
+                alt = output_event.semantic.modifiers.alt,
+                source = ?event.source,
+                strategy = ?sequence.strategy,
+                transform = ?sequence.delta_transform,
+                transport = ?sequence.transport,
+                owner_hwnd = ?current_root,
+                decision = "swallow",
+                "semantic wheel accepted"
+            );
+        }
+
+        // 14. swallow only after preparation and registration succeeded.
         HookDecision::Swallow
     }
+}
 
-    #[cfg(target_os = "windows")]
-    fn is_browser_target(&self) -> bool {
-        let (under_cursor, foreground) = {
-            let mut cache = self.process_cache.lock();
-            cache.get(|| {
-                (
-                    self.state.processes.process_name_under_cursor(),
-                    self.state.processes.foreground_process_name(),
-                )
-            })
-        };
-
-        under_cursor
-            .as_deref()
-            .map(is_browser_process)
-            .unwrap_or_else(|| foreground.as_deref().is_some_and(is_browser_process))
+/// True when the wheel semantic carries exactly the platform's zoom modifier
+/// (Ctrl on Linux, Cmd on macOS) with no other modifier held. The non-Windows
+/// route uses this to choose the semantic zoom transform before registration.
+#[cfg(not(windows))]
+fn zoom_modifier_isolated(mods: &ModifierKeys) -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        mods.cmd && !mods.ctrl && !mods.shift && !mods.alt
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        mods.is_ctrl_only()
     }
 }
 
@@ -493,68 +708,26 @@ fn reconcile_animation_owner(
     }
 }
 
-#[cfg(target_os = "windows")]
-fn is_browser_process(process_name: &str) -> bool {
-    let file_name = process_name
-        .rsplit(['\\', '/'])
-        .next()
-        .unwrap_or(process_name);
-    let stem = file_name
-        .strip_suffix(".exe")
-        .or_else(|| file_name.strip_suffix(".EXE"))
-        .unwrap_or(file_name)
-        .to_ascii_lowercase();
-
-    matches!(
-        stem.as_str(),
-        "arc"
-            | "brave"
-            | "chrome"
-            | "chromium"
-            | "firefox"
-            | "floorp"
-            | "librewolf"
-            | "msedge"
-            | "opera"
-            | "thorium"
-            | "tor"
-            | "vivaldi"
-            | "waterfox"
-            | "zen"
-    )
-}
-
 impl HookEventSink for EngineSink {
-    fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
-        self.route_vertical_with_source(
-            delta,
-            mods,
-            smoothscroll_core::input_source::InputSource::Wheel,
-        )
-    }
-
-    fn on_hwheel(&self, delta: i32) -> HookDecision {
-        self.route_horizontal_with_source(
-            delta,
-            smoothscroll_core::input_source::InputSource::Wheel,
-        )
-    }
-
-    fn on_wheel_ext(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.route_vertical_with_source(delta, mods, source)
-    }
-
-    fn on_hwheel_ext(
-        &self,
-        delta: i32,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.route_horizontal_with_source(delta, source)
+    fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
+        #[cfg(windows)]
+        {
+            // One semantic route for both physical axes on Windows.
+            self.route_wheel_event(event)
+        }
+        #[cfg(not(windows))]
+        {
+            match event.semantic.axis {
+                WheelAxis::Vertical => self.route_vertical_with_source(
+                    event.delta,
+                    event.semantic.modifiers,
+                    event.source,
+                ),
+                WheelAxis::Horizontal => {
+                    self.route_horizontal_with_source(event.delta, event.source)
+                }
+            }
+        }
     }
 }
 
@@ -568,12 +741,14 @@ mod tests {
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::input_source::InputSource;
-    use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ScrollProfile};
+    use smoothscroll_core::settings::{
+        AppSettings, EffectiveSettings, MonitorProfile, ScrollProfile,
+    };
     use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
-        Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey, HotkeyHandle,
-        MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter, WindowGeometry,
-        ZoomEmitter,
+        Autostart, EmissionContext, FullscreenDetector, HookEventSink, HookHandle, Hotkey,
+        HotkeyHandle, MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery,
+        SemanticWheelEmitter, WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
@@ -647,40 +822,50 @@ mod tests {
         }
     }
     struct StubEmitter;
-    impl WheelEmitter for StubEmitter {
-        fn emit(&self, _v: i32, _h: i32) -> Result<()> {
+    impl SemanticWheelEmitter for StubEmitter {
+        fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
+            Ok(())
+        }
+
+        fn emit_semantic(
+            &self,
+            _pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: EmissionContext,
+        ) -> Result<()> {
             Ok(())
         }
     }
-    impl ZoomEmitter for StubEmitter {
-        fn emit_zoom(&self, _units: i32) -> Result<()> {
+    /// Always fails `prepare` so the route must Pass before swallowing.
+    struct FailingPrepareEmitter;
+    impl SemanticWheelEmitter for FailingPrepareEmitter {
+        fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
+            Err(PlatformError::Os("prepare unavailable".into()))
+        }
+
+        fn emit_semantic(
+            &self,
+            _pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: EmissionContext,
+        ) -> Result<()> {
             Ok(())
         }
     }
     #[derive(Default)]
     struct RecordingEmitter {
-        generic_calls: Mutex<Vec<(i32, i32)>>,
-        immediate_calls: Mutex<Vec<i32>>,
+        semantic_calls: Mutex<Vec<smoothscroll_core::wheel::SemanticPulse>>,
     }
-    impl WheelEmitter for RecordingEmitter {
-        fn emit(&self, vertical: i32, horizontal: i32) -> Result<()> {
-            self.generic_calls.lock().push((vertical, horizontal));
+    impl SemanticWheelEmitter for RecordingEmitter {
+        fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
             Ok(())
         }
 
-        fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
-            self.immediate_calls.lock().push(units);
+        fn emit_semantic(
+            &self,
+            pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: EmissionContext,
+        ) -> Result<()> {
+            self.semantic_calls.lock().push(pulse);
             Ok(())
-        }
-    }
-    struct FailingImmediateEmitter;
-    impl WheelEmitter for FailingImmediateEmitter {
-        fn emit(&self, _vertical: i32, _horizontal: i32) -> Result<()> {
-            Ok(())
-        }
-
-        fn emit_horizontal_immediate(&self, _units: i32) -> Result<()> {
-            Err(PlatformError::Os("immediate queue unavailable".into()))
         }
     }
     struct StubProcessQuery;
@@ -746,6 +931,37 @@ mod tests {
     impl WindowGeometry for StubWindowGeom {
         fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
             None
+        }
+
+        fn root_window_under_cursor(&self) -> Option<isize> {
+            // The unified Windows route resolves root ownership for animated
+            // work before swallowing, so tests default to an owned root.
+            #[cfg(windows)]
+            {
+                Some(0x1000)
+            }
+            #[cfg(not(windows))]
+            {
+                None
+            }
+        }
+    }
+    #[cfg(windows)]
+    struct MonitorProfileWindowGeom {
+        monitor_name: &'static str,
+    }
+    #[cfg(windows)]
+    impl WindowGeometry for MonitorProfileWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+
+        fn root_window_under_cursor(&self) -> Option<isize> {
+            Some(0x1000)
+        }
+
+        fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
+            Some(self.monitor_name.to_string())
         }
     }
     #[cfg(windows)]
@@ -842,7 +1058,7 @@ mod tests {
 
     fn make_state_with_emitter(
         settings: AppSettings,
-        emitter: Arc<dyn WheelEmitter>,
+        semantic_emitter: Arc<dyn SemanticWheelEmitter>,
     ) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
@@ -852,8 +1068,8 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter,
-            zoom_emitter: Arc::new(StubEmitter),
+            semantic_emitter,
+            wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(StubProcessQuery),
             autostart: Arc::new(StubAutostart),
             hotkey: Arc::new(StubHotkey),
@@ -876,6 +1092,17 @@ mod tests {
                 std::env::temp_dir().join("test-stats.json"),
             ),
         })
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn preparation_failure_passes_before_swallow() {
+        let state =
+            make_state_with_emitter(AppSettings::default(), Arc::new(FailingPrepareEmitter));
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 
     struct StaticProcessQuery {
@@ -938,8 +1165,8 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter: Arc::new(StubEmitter),
-            zoom_emitter: Arc::new(StubEmitter),
+            semantic_emitter: Arc::new(StubEmitter),
+            wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(ElevatedStaticProcessQuery {
                 under_cursor: under_cursor.map(|s| s.to_string()),
                 foreground: None,
@@ -986,8 +1213,8 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter: Arc::new(StubEmitter),
-            zoom_emitter: Arc::new(StubEmitter),
+            semantic_emitter: Arc::new(StubEmitter),
+            wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(StaticProcessQuery {
                 under_cursor: under_cursor.map(|s| s.to_string()),
                 foreground: foreground.map(|s| s.to_string()),
@@ -1028,14 +1255,329 @@ mod tests {
         ModifierKeys::default()
     }
 
+    fn ctrl_shift() -> ModifierKeys {
+        ModifierKeys {
+            ctrl: true,
+            shift: true,
+            ..ModifierKeys::default()
+        }
+    }
+
+    fn vertical(delta: i32, modifiers: ModifierKeys, source: InputSource) -> WheelInputEvent {
+        WheelInputEvent {
+            delta,
+            semantic: WheelSemantic {
+                axis: WheelAxis::Vertical,
+                modifiers,
+            },
+            source,
+        }
+    }
+
+    fn horizontal(delta: i32, modifiers: ModifierKeys, source: InputSource) -> WheelInputEvent {
+        WheelInputEvent {
+            delta,
+            semantic: WheelSemantic {
+                axis: WheelAxis::Horizontal,
+                modifiers,
+            },
+            source,
+        }
+    }
+
+    fn wheel(sink: &EngineSink, delta: i32, modifiers: ModifierKeys) -> HookDecision {
+        sink.on_wheel_event(vertical(delta, modifiers, InputSource::Wheel))
+    }
+
+    fn hwheel(sink: &EngineSink, delta: i32) -> HookDecision {
+        sink.on_wheel_event(horizontal(delta, no_mods(), InputSource::Wheel))
+    }
+
+    fn eff() -> EffectiveSettings {
+        EffectiveSettings::from_settings(&AppSettings::default())
+    }
+
+    #[test]
+    fn default_policy_preserves_shift_vertical() {
+        let action = resolve_wheel_action(
+            vertical(120, shift_only(), InputSource::Wheel),
+            &eff(),
+            false,
+        );
+        let ResolvedWheelAction::Smooth { event, sequence } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(event.semantic.axis, WheelAxis::Vertical);
+        assert!(event.semantic.modifiers.shift);
+        assert_eq!(sequence.transport, WheelTransport::Native);
+    }
+
+    #[test]
+    fn ctrl_shift_is_not_ctrl_only_zoom() {
+        let action = resolve_wheel_action(
+            vertical(120, ctrl_shift(), InputSource::Wheel),
+            &eff(),
+            false,
+        );
+        let ResolvedWheelAction::Smooth { sequence, .. } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(
+            sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
+        );
+        assert!(sequence.semantic.modifiers.ctrl);
+        assert!(sequence.semantic.modifiers.shift);
+    }
+
+    #[test]
+    fn touchpad_off_passes_original_event() {
+        let mut settings = eff();
+        settings.touchpad_smoothing_enabled = false;
+        assert_eq!(
+            resolve_wheel_action(
+                vertical(10, no_mods(), InputSource::Touchpad),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Vertical,
+                cancel_active: true,
+            }
+        );
+    }
+
+    #[test]
+    fn policy_preserves_plain_ctrl_alt_and_ctrl_alt_vertical_semantics() {
+        for modifiers in [
+            no_mods(),
+            ModifierKeys {
+                ctrl: true,
+                ..ModifierKeys::default()
+            },
+            ModifierKeys {
+                alt: true,
+                ..ModifierKeys::default()
+            },
+            ModifierKeys {
+                ctrl: true,
+                alt: true,
+                ..ModifierKeys::default()
+            },
+        ] {
+            let action =
+                resolve_wheel_action(vertical(120, modifiers, InputSource::Wheel), &eff(), false);
+            let ResolvedWheelAction::Smooth { event, sequence } = action else {
+                panic!("expected smoothing");
+            };
+            assert_eq!(
+                event.semantic,
+                WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers
+                }
+            );
+            assert_eq!(sequence.semantic, event.semantic);
+        }
+    }
+
+    #[test]
+    fn policy_applies_ctrl_zoom_only_to_ctrl_only_vertical() {
+        let mut settings = eff();
+        settings.zoom_invert = true;
+        settings.zoom_sensitivity = 2.5;
+        let action = resolve_wheel_action(
+            vertical(
+                120,
+                ModifierKeys {
+                    ctrl: true,
+                    ..ModifierKeys::default()
+                },
+                InputSource::Wheel,
+            ),
+            &settings,
+            false,
+        );
+        let ResolvedWheelAction::Smooth { sequence, .. } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(
+            sequence.delta_transform,
+            DeltaTransform::CtrlZoom {
+                sensitivity: 2.5,
+                sign: -1,
+            }
+        );
+    }
+
+    #[test]
+    fn policy_preserves_native_horizontal_modifiers() {
+        let modifiers = ModifierKeys {
+            ctrl: true,
+            alt: true,
+            ..ModifierKeys::default()
+        };
+        let mut settings = eff();
+        settings.horizontal_smoothness = true;
+        let action = resolve_wheel_action(
+            horizontal(120, modifiers, InputSource::Wheel),
+            &settings,
+            false,
+        );
+        let ResolvedWheelAction::Smooth { event, sequence } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(event.semantic.axis, WheelAxis::Horizontal);
+        assert_eq!(event.semantic.modifiers, modifiers);
+        assert_eq!(sequence.transport, WheelTransport::Native);
+    }
+
+    #[test]
+    fn policy_converts_shift_only_when_explicitly_enabled() {
+        let mut settings = eff();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        settings.reverse_wheel_direction = true;
+        settings.horizontal_invert = true;
+        let action = resolve_wheel_action(
+            vertical(120, shift_only(), InputSource::Wheel),
+            &settings,
+            false,
+        );
+        let ResolvedWheelAction::Smooth { event, sequence } = action else {
+            panic!("expected smoothing");
+        };
+        assert_eq!(event.semantic.axis, WheelAxis::Horizontal);
+        assert!(event.semantic.modifiers.shift);
+        assert_eq!(sequence.transport, WheelTransport::CompatibilityHorizontal);
+        assert_eq!(
+            sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
+        );
+    }
+
+    #[test]
+    fn policy_raw_passes_for_passthrough_and_discrete_targets() {
+        let mut settings = eff();
+        settings.modifier_alt_passthrough = true;
+        let alt_event = vertical(
+            120,
+            ModifierKeys {
+                alt: true,
+                ..ModifierKeys::default()
+            },
+            InputSource::Wheel,
+        );
+        assert!(matches!(
+            resolve_wheel_action(alt_event, &settings, false),
+            ResolvedWheelAction::RawPass {
+                cancel_active: true,
+                ..
+            }
+        ));
+        assert!(matches!(
+            resolve_wheel_action(vertical(120, no_mods(), InputSource::Wheel), &eff(), true),
+            ResolvedWheelAction::RawPass {
+                cancel_active: true,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn policy_raw_and_disabled_horizontal_cancel_active_axis() {
+        let mut raw_settings = eff();
+        raw_settings.wheel_output_mode = WheelOutputMode::Raw;
+        assert_eq!(
+            resolve_wheel_action(
+                vertical(120, no_mods(), InputSource::Wheel),
+                &raw_settings,
+                false
+            ),
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Vertical,
+                cancel_active: true,
+            }
+        );
+
+        let disabled_horizontal = resolve_wheel_action(
+            horizontal(120, no_mods(), InputSource::Wheel),
+            &eff(),
+            false,
+        );
+        assert_eq!(
+            disabled_horizontal,
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Horizontal,
+                cancel_active: true,
+            }
+        );
+    }
+
+    #[test]
+    fn policy_whole_notches_uses_discrete_scheduler_for_wheels() {
+        let mut settings = eff();
+        settings.wheel_output_mode = WheelOutputMode::PreserveWholeNotches;
+        assert!(matches!(
+            resolve_wheel_action(
+                vertical(120, no_mods(), InputSource::Wheel),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::Smooth {
+                sequence: WheelSequence {
+                    strategy: SmoothingStrategy::DiscreteNotchPreserving,
+                    ..
+                },
+                ..
+            }
+        ));
+        assert!(matches!(
+            resolve_wheel_action(
+                vertical(40, no_mods(), InputSource::HighResWheel),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::Smooth {
+                sequence: WheelSequence {
+                    strategy: SmoothingStrategy::DiscreteNotchPreserving,
+                    ..
+                },
+                ..
+            }
+        ));
+        assert!(matches!(
+            resolve_wheel_action(
+                vertical(40, no_mods(), InputSource::Touchpad),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::RawPass {
+                cancel_active: true,
+                ..
+            }
+        ));
+    }
+
     fn drain_engine(state: &Arc<AppState>) -> (i32, i32) {
         let eff = state.effective.load_full();
         let mut v = 0;
         let mut h = 0;
         for _ in 0..500 {
             let out = state.engine.lock().step(1000.0 / 120.0, &eff);
-            v += out.vertical;
-            h += out.horizontal;
+            if let Some(pulse) = out.vertical {
+                v += pulse.units;
+                state
+                    .engine
+                    .lock()
+                    .finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
+            }
+            if let Some(pulse) = out.horizontal {
+                h += pulse.units;
+                state
+                    .engine
+                    .lock()
+                    .finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
+            }
             if !state.engine.lock().has_pending_work() {
                 break;
             }
@@ -1059,7 +1601,7 @@ mod tests {
         state.commit_settings(settings);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -1081,7 +1623,7 @@ mod tests {
         assert!(state.effective.load_full().instant_mode);
 
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -1098,12 +1640,12 @@ mod tests {
         let state = make_state_with_window_geom(settings, geom.clone());
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(state.animation_owner.get(), Some(A));
 
         geom.root.store(B, Ordering::Relaxed);
         geom.hit_child.store(0x2001, Ordering::Relaxed);
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         assert_eq!(state.animation_owner.get(), Some(B));
         assert!(state.engine.lock().has_pending_work());
@@ -1120,12 +1662,12 @@ mod tests {
         let state = make_state_with_window_geom(settings, geom.clone());
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(state.animation_owner.get(), Some(ROOT));
         assert!(state.engine.lock().has_pending_work());
 
         geom.hit_child.store(0x1002, Ordering::Relaxed);
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         assert_eq!(state.animation_owner.get(), Some(ROOT));
         assert!(state.engine.lock().has_pending_work());
@@ -1148,7 +1690,7 @@ mod tests {
         state.commit_settings(settings);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
         assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -1166,11 +1708,11 @@ mod tests {
         let state = make_state_with_window_geom(settings, geom.clone());
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
         assert_eq!(state.animation_owner.get(), Some(A));
 
         geom.root.store(B, Ordering::Relaxed);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
 
         assert_eq!(state.animation_owner.get(), Some(B));
         assert!(state.engine.lock().has_pending_work());
@@ -1182,142 +1724,316 @@ mod tests {
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         state.enabled.store(false, Ordering::Relaxed);
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
-        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Pass);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
     }
 
+    #[cfg(windows)]
     #[test]
-    fn shift_wheel_dispatches_immediately_without_engine_inertia() {
-        let recorder = Arc::new(RecordingEmitter::default());
-        let mut settings = AppSettings::default();
-        settings.horizontal_smoothness = true;
-        let state = make_state_with_emitter(settings, recorder.clone());
+    fn shift_vertical_defaults_to_smoothed_shift_vertical() {
+        let state = make_state(AppSettings::default());
         let sink = EngineSink::new(state.clone());
 
-        let decision = sink.on_wheel(120, shift_only());
+        assert_eq!(
+            sink.on_wheel_event(WheelInputEvent {
+                delta: 120,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers: shift_only(),
+                },
+                source: InputSource::Wheel,
+            }),
+            HookDecision::Swallow
+        );
+        assert!(state.engine.lock().has_pending_work());
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff()).vertical {
+                break pulse;
+            }
+        };
+        assert!(pulse.sequence.semantic.modifiers.shift);
+        assert_eq!(pulse.sequence.semantic.axis, WheelAxis::Vertical);
+        assert!(state
+            .engine
+            .lock()
+            .active_sequence(WheelAxis::Horizontal)
+            .is_none());
+    }
 
-        assert_eq!(decision, HookDecision::Swallow);
-        assert_eq!(recorder.immediate_calls.lock().as_slice(), &[120]);
-        assert!(recorder.generic_calls.lock().is_empty());
-        assert!(
-            !state.engine.lock().has_pending_work(),
-            "held Shift must not wait for the animation queue"
+    #[cfg(windows)]
+    #[test]
+    fn smooth_zoom_off_still_smooths_ctrl_semantic() {
+        let mut settings = AppSettings::default();
+        settings.smooth_zoom = false;
+        let state = make_state(settings);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(
+            sink.on_wheel_event(WheelInputEvent {
+                delta: 120,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers: ModifierKeys {
+                        ctrl: true,
+                        ..ModifierKeys::default()
+                    },
+                },
+                source: InputSource::Wheel,
+            }),
+            HookDecision::Swallow
+        );
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff()).vertical {
+                break pulse;
+            }
+        };
+        assert!(pulse.sequence.semantic.modifiers.ctrl);
+        assert_eq!(
+            pulse.sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
         );
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(windows)]
     #[test]
-    fn browser_shift_wheel_keeps_engine_smoothing_path() {
-        let recorder = Arc::new(RecordingEmitter::default());
+    fn explicit_shift_conversion_uses_compatibility_transport() {
         let mut settings = AppSettings::default();
-        settings.horizontal_smoothness = true;
-        let mut state = make_state_with_process(settings, Some("chrome.exe"));
-        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        let state = make_state(settings);
         let sink = EngineSink::new(state.clone());
-
-        let decision = sink.on_wheel(120, shift_only());
-
-        assert_eq!(decision, HookDecision::Swallow);
-        assert!(recorder.immediate_calls.lock().is_empty());
-        assert!(
-            state.engine.lock().has_pending_work(),
-            "browser Shift+Wheel must keep the smooth engine path"
+        assert_eq!(
+            sink.on_wheel_event(WheelInputEvent {
+                delta: 120,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers: shift_only(),
+                },
+                source: InputSource::Wheel,
+            }),
+            HookDecision::Swallow
+        );
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.transport),
+            Some(WheelTransport::CompatibilityHorizontal)
         );
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(windows)]
     #[test]
-    fn office_under_cursor_takes_precedence_over_browser_foreground() {
-        for process_name in ["WINWORD.EXE", "EXCEL.EXE", "explorer.exe"] {
-            let recorder = Arc::new(RecordingEmitter::default());
-            let mut settings = AppSettings::default();
-            settings.horizontal_smoothness = true;
-            let mut state =
-                make_state_with_processes(settings, Some(process_name), Some("chrome.exe"));
-            Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
-            let sink = EngineSink::new(state.clone());
+    fn releasing_shift_after_horizontal_conversion_cancels_converted_tail() {
+        let mut settings = AppSettings::default();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        let state = make_state(settings);
+        let sink = EngineSink::new(state.clone());
 
-            let decision = sink.on_wheel(120, shift_only());
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Swallow);
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.transport),
+            Some(WheelTransport::CompatibilityHorizontal)
+        );
 
-            assert_eq!(decision, HookDecision::Swallow, "{process_name}");
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        let engine = state.engine.lock();
+        assert!(engine.active_sequence(WheelAxis::Vertical).is_some());
+        assert!(
+            engine.active_sequence(WheelAxis::Horizontal).is_none(),
+            "plain vertical input must cancel the Shift-converted horizontal tail"
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn starting_shift_conversion_cancels_plain_vertical_tail() {
+        let mut settings = AppSettings::default();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        let state = make_state(settings);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        assert!(state
+            .engine
+            .lock()
+            .active_sequence(WheelAxis::Vertical)
+            .is_some());
+
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Swallow);
+        let engine = state.engine.lock();
+        assert!(engine.active_sequence(WheelAxis::Vertical).is_none());
+        assert_eq!(
+            engine
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.transport),
+            Some(WheelTransport::CompatibilityHorizontal)
+        );
+    }
+
+    #[test]
+    fn alt_and_ctrl_alt_wheel_preserve_semantics() {
+        let state = make_state(AppSettings::default());
+        let sink = EngineSink::new(state.clone());
+        for modifiers in [
+            ModifierKeys {
+                alt: true,
+                ..ModifierKeys::default()
+            },
+            ModifierKeys {
+                ctrl: true,
+                alt: true,
+                ..ModifierKeys::default()
+            },
+        ] {
             assert_eq!(
-                *recorder.immediate_calls.lock(),
-                vec![120],
-                "{process_name}"
+                sink.on_wheel_event(WheelInputEvent {
+                    delta: 120,
+                    semantic: WheelSemantic {
+                        axis: WheelAxis::Vertical,
+                        modifiers,
+                    },
+                    source: InputSource::Wheel,
+                }),
+                HookDecision::Swallow
             );
-            assert!(!state.engine.lock().has_pending_work(), "{process_name}");
+            let pulse = loop {
+                if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff()).vertical {
+                    break pulse;
+                }
+            };
+            assert_eq!(pulse.sequence.semantic.modifiers, modifiers);
         }
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(windows)]
     #[test]
-    fn browser_foreground_is_used_when_cursor_target_is_unknown() {
-        let recorder = Arc::new(RecordingEmitter::default());
-        let mut settings = AppSettings::default();
-        settings.auto_disable_windows_apps = false;
-        settings.horizontal_smoothness = true;
-        let mut state = make_state_with_processes(settings, None, Some("msedge.exe"));
-        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
-        let sink = EngineSink::new(state.clone());
-
-        let decision = sink.on_wheel(120, shift_only());
-
-        assert_eq!(decision, HookDecision::Swallow);
-        assert!(recorder.immediate_calls.lock().is_empty());
-        assert!(state.engine.lock().has_pending_work());
-    }
-
-    #[cfg(target_os = "windows")]
-    #[test]
-    fn thorium_shift_wheel_keeps_engine_smoothing_path() {
-        let recorder = Arc::new(RecordingEmitter::default());
+    fn native_horizontal_modifiers_are_smoothed_as_horizontal() {
         let mut settings = AppSettings::default();
         settings.horizontal_smoothness = true;
-        let mut state = make_state_with_process(settings, Some("thorium.exe"));
-        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+        let state = make_state(settings);
         let sink = EngineSink::new(state.clone());
-
-        let decision = sink.on_wheel(120, shift_only());
-
-        assert_eq!(decision, HookDecision::Swallow);
-        assert!(recorder.immediate_calls.lock().is_empty());
-        assert!(state.engine.lock().has_pending_work());
-    }
-
-    #[test]
-    fn shift_wheel_passes_through_when_immediate_dispatch_fails() {
-        let mut settings = AppSettings::default();
-        settings.horizontal_smoothness = true;
-        let state = make_state_with_emitter(settings, Arc::new(FailingImmediateEmitter));
-        let sink = EngineSink::new(state.clone());
-
-        let decision = sink.on_wheel(120, shift_only());
-
-        assert_eq!(decision, HookDecision::Pass);
-        assert!(!state.engine.lock().has_pending_work());
-    }
-
-    #[test]
-    fn high_resolution_shift_wheel_keeps_existing_engine_path() {
-        let recorder = Arc::new(RecordingEmitter::default());
-        let mut settings = AppSettings::default();
-        settings.horizontal_smoothness = true;
-        let state = make_state_with_emitter(settings, recorder.clone());
-        let sink = EngineSink::new(state.clone());
-
-        let decision = sink.route_vertical_with_source(
-            40,
-            shift_only(),
-            smoothscroll_core::input_source::InputSource::HighResWheel,
+        let modifiers = ModifierKeys {
+            ctrl: true,
+            ..ModifierKeys::default()
+        };
+        assert_eq!(
+            sink.on_wheel_event(WheelInputEvent {
+                delta: 120,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Horizontal,
+                    modifiers,
+                },
+                source: InputSource::Wheel,
+            }),
+            HookDecision::Swallow
         );
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.semantic),
+            Some(WheelSemantic {
+                axis: WheelAxis::Horizontal,
+                modifiers,
+            })
+        );
+    }
+
+    #[test]
+    fn high_resolution_input_retains_semantic() {
+        let state = make_state(AppSettings::default());
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(
+            sink.on_wheel_event(WheelInputEvent {
+                delta: 40,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers: ModifierKeys::default(),
+                },
+                source: InputSource::HighResWheel,
+            }),
+            HookDecision::Swallow
+        );
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn shift_vertical_high_resolution_smoothing_matches_plain_when_conversion_off() {
+        // Shift+HighRes stays on the vertical semantic (no implicit
+        // conversion), same engine path as plain wheel.
+        let state = make_state(AppSettings::default());
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(
+            sink.on_wheel_event(WheelInputEvent {
+                delta: 40,
+                semantic: WheelSemantic {
+                    axis: WheelAxis::Vertical,
+                    modifiers: shift_only(),
+                },
+                source: InputSource::HighResWheel,
+            }),
+            HookDecision::Swallow
+        );
+        assert!(state.engine.lock().has_pending_work());
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Vertical)
+                .map(|sequence| sequence.semantic.axis),
+            Some(WheelAxis::Vertical)
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn horizontal_invert_affects_shift_wheel() {
+        // Under the unified route, default Shift+Wheel is preserved vertical;
+        // horizontal_invert only applies to horizontal semantics.
+        let mut s = AppSettings::default();
+        s.horizontal_smoothness = true;
+        s.horizontal_invert = true;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 100, shift_only()), HookDecision::Swallow);
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Vertical)
+                .map(|sequence| sequence.semantic.axis),
+            Some(WheelAxis::Vertical)
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn shift_wheel_passes_through_when_smoothness_disabled_and_conversion_off() {
+        // Under the unified route, default Shift+Wheel with horizontal
+        // smoothing off is still smoothed as Shift+vertical — semantic
+        // preservation no longer depends on horizontal_smoothness.
+        let mut s = AppSettings::default();
+        s.horizontal_smoothness = false;
+        let state = make_state(s);
+        let sink = EngineSink::new(state.clone());
+        let decision = wheel(&sink, 120, shift_only());
 
         assert_eq!(decision, HookDecision::Swallow);
-        assert!(recorder.immediate_calls.lock().is_empty());
-        assert!(recorder.generic_calls.lock().is_empty());
-        assert!(
-            state.engine.lock().has_pending_work(),
-            "high-resolution deltas must preserve the existing smoothing path"
+        assert!(state.engine.lock().has_pending_work());
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Vertical)
+                .map(|sequence| sequence.semantic.modifiers.shift),
+            Some(true)
         );
     }
 
@@ -1332,8 +2048,8 @@ mod tests {
         let generic_state = make_state_with_process(s, Some("notepad"));
         let generic_sink = EngineSink::new(generic_state.clone());
 
-        assert_eq!(office_sink.on_hwheel(120), HookDecision::Swallow);
-        assert_eq!(generic_sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&office_sink, 120), HookDecision::Swallow);
+        assert_eq!(hwheel(&generic_sink, 120), HookDecision::Swallow);
         let (office_v, office_h) = drain_engine(&office_state);
         let (generic_v, generic_h) = drain_engine(&generic_state);
 
@@ -1343,41 +2059,13 @@ mod tests {
     }
 
     #[test]
-    fn shift_wheel_passes_through_when_smoothness_disabled() {
-        // When horizontal_smoothness is OFF, shift+wheel passes through.
-        let mut s = AppSettings::default();
-        s.horizontal_smoothness = false;
-        let state = make_state(s);
-        let sink = EngineSink::new(state.clone());
-        let decision = sink.on_wheel(120, shift_only());
-
-        assert_eq!(decision, HookDecision::Pass);
-        assert!(!state.engine.lock().has_pending_work());
-    }
-
-    #[test]
-    fn horizontal_invert_affects_shift_wheel() {
-        let mut s = AppSettings::default();
-        s.horizontal_smoothness = true;
-        s.horizontal_invert = true;
-        let recorder = Arc::new(RecordingEmitter::default());
-        let state = make_state_with_emitter(s, recorder.clone());
-        let sink = EngineSink::new(state.clone());
-        sink.on_wheel(100, shift_only());
-
-        assert_eq!(recorder.immediate_calls.lock().as_slice(), &[-100]);
-        assert!(recorder.generic_calls.lock().is_empty());
-        assert!(!state.engine.lock().has_pending_work());
-    }
-
-    #[test]
     fn horizontal_invert_affects_native_hwheel() {
         let mut s = AppSettings::default();
         s.horizontal_smoothness = true;
         s.horizontal_invert = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        sink.on_hwheel(100);
+        hwheel(&sink, 100);
         let (_v, h) = drain_engine(&state);
         assert!(
             h < 0,
@@ -1391,7 +2079,7 @@ mod tests {
         s.horizontal_smoothness = false;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        let decision = sink.on_hwheel(120);
+        let decision = hwheel(&sink, 120);
         assert_eq!(decision, HookDecision::Pass);
     }
 
@@ -1401,7 +2089,7 @@ mod tests {
         s.horizontal_smoothness = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        let decision = sink.on_hwheel(120);
+        let decision = hwheel(&sink, 120);
         assert_eq!(decision, HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
@@ -1413,10 +2101,9 @@ mod tests {
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
-        assert!(recorder.generic_calls.lock().is_empty());
-        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(recorder.semantic_calls.lock().is_empty());
     }
 
     #[test]
@@ -1428,9 +2115,9 @@ mod tests {
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
-        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(recorder.semantic_calls.lock().is_empty());
     }
 
     #[test]
@@ -1441,7 +2128,7 @@ mod tests {
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1451,7 +2138,7 @@ mod tests {
         s.reverse_wheel_direction = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        sink.on_wheel(120, no_mods());
+        wheel(&sink, 120, no_mods());
         let (v, _h) = drain_engine(&state);
         assert!(v < 0, "reverse direction should flip sign");
     }
@@ -1462,7 +2149,7 @@ mod tests {
         s.excluded_apps.push("notepad".to_string());
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1472,7 +2159,7 @@ mod tests {
         s.excluded_apps.push("Notepad".to_string());
         let state = make_state_with_process(s, Some("NOTEPAD"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
     }
 
     #[test]
@@ -1481,7 +2168,7 @@ mod tests {
         s.excluded_apps.push("excel".to_string());
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
     }
 
     #[test]
@@ -1489,7 +2176,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_process(s, Some("Notepad.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1498,7 +2185,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_processes(s, Some("Code.exe"), Some("SystemSettings.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1508,7 +2195,7 @@ mod tests {
         s.auto_disable_windows_apps = false;
         let state = make_state_with_processes(s, Some("Notepad.exe"), Some("SystemSettings.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -1522,7 +2209,7 @@ mod tests {
         );
         let state = make_state_with_process(s, Some("Notepad.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1544,7 +2231,7 @@ mod tests {
             .write()
             .insert(profile.id, Arc::new(profile_eff.clone()));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         let global = state.effective.load_full();
         let mut frames = 0;
@@ -1555,8 +2242,46 @@ mod tests {
         assert!(frames < 45, "captured 50ms profile took {frames} frames");
     }
 
+    #[cfg(windows)]
     #[test]
-    fn profile_enables_immediate_horizontal_when_global_smoothing_is_disabled() {
+    fn monitor_profile_routes_native_horizontal_with_profile_settings() {
+        const MONITOR: &str = r"\\.\DISPLAY_TEST";
+
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut profile = ScrollProfile::new("monitor", "Monitor");
+        profile.horizontal_smoothness = true;
+        settings.profiles.push(profile.clone());
+        settings.monitor_profiles.push(MonitorProfile {
+            device_name: MONITOR.to_string(),
+            friendly_name: "Test monitor".to_string(),
+            profile_id: profile.id.clone(),
+        });
+
+        let state = make_state_with_window_geom(
+            settings,
+            Arc::new(MonitorProfileWindowGeom {
+                monitor_name: MONITOR,
+            }),
+        );
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.semantic.axis),
+            Some(WheelAxis::Horizontal)
+        );
+    }
+
+    #[test]
+    fn profile_horizontal_smoothness_overrides_global_default() {
+        // A profile that enables horizontal smoothing keeps native horizontal
+        // input smoothable even when the global default is off.
         let mut settings = AppSettings::default();
         settings.horizontal_smoothness = false;
         let mut profile = ScrollProfile::new("blender", "Blender");
@@ -1565,23 +2290,15 @@ mod tests {
         settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
 
         let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
-        let recorder = Arc::new(RecordingEmitter::default());
-        let mut state = make_state_with_processes(settings, Some("blender.exe"), None);
-        Arc::get_mut(&mut state).unwrap().emitter = recorder.clone();
+        let state = make_state_with_processes(settings, Some("blender.exe"), None);
         state
             .effective_per_profile
             .write()
             .insert(profile.id, Arc::new(profile_eff));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Swallow);
-
-        assert_eq!(recorder.immediate_calls.lock().as_slice(), &[120]);
-        assert!(recorder.generic_calls.lock().is_empty());
-        assert!(
-            !state.engine.lock().has_pending_work(),
-            "profile horizontal scroll must not wait for global frame settings"
-        );
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
     }
 
     #[test]
@@ -1610,7 +2327,7 @@ mod tests {
             smoothscroll_core::input_source::InputSource::Wheel,
             &profile_eff,
         );
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         let mut expected = Vec::new();
         let mut actual = Vec::new();
@@ -1630,8 +2347,8 @@ mod tests {
         let state = make_state(s);
         state.game_mode_active.store(true, Ordering::Release);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1643,7 +2360,7 @@ mod tests {
         state.publish_game_mode_state(true, None);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(
             state.engine.lock().has_pending_work(),
             "stale fullscreen Game Mode must not block the first wheel event"
@@ -1662,7 +2379,7 @@ mod tests {
             let sink = EngineSink::new(state.clone());
 
             assert_eq!(
-                sink.on_wheel(120, no_mods()),
+                wheel(&sink, 120, no_mods()),
                 HookDecision::Swallow,
                 "fullscreen {browser} must keep smoothing enabled"
             );
@@ -1683,7 +2400,7 @@ mod tests {
         state.publish_game_mode_state(true, Some(GAME_PID));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1699,7 +2416,7 @@ mod tests {
         state.publish_game_mode_state(true, Some(OLD_GAME_PID));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -1772,69 +2489,64 @@ mod tests {
             alt: false,
             cmd: false,
         };
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
     #[test]
-    fn ctrl_wheel_smooths_when_passthrough_disabled() {
+    fn ctrl_wheel_smooths_with_captured_ctrl_semantic() {
         let mut s = AppSettings::default();
         s.modifier_passthrough.ctrl = false;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: false,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            ..ModifierKeys::default()
         };
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
 
-        // Drain engine and verify zoom output (not vertical)
         let eff = state.effective.load_full();
-        let mut zoom_total = 0i32;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
-            zoom_total += out.zoom;
-            if !state.engine.lock().has_pending_work() {
-                break;
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
+                break pulse;
             }
-        }
-        assert!(zoom_total != 0, "expected zoom emission, got 0");
-        assert_eq!(
-            state.engine.lock().step(1000.0 / 120.0, &eff).vertical,
-            0,
-            "zoom should not produce vertical output"
-        );
+        };
+        assert!(pulse.sequence.semantic.modifiers.ctrl);
+        state
+            .engine
+            .lock()
+            .reset_axis_if_sequence(WheelAxis::Vertical, pulse.sequence);
     }
 
     #[test]
-    fn ctrl_shift_wheel_zoom_inverts_when_setting_on() {
+    fn ctrl_shift_wheel_uses_generic_vertical_semantic() {
         let mut s = AppSettings::default();
         s.modifier_passthrough.ctrl = false;
         s.zoom_invert = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: true,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            shift: true,
+            ..ModifierKeys::default()
         };
-        sink.on_wheel(120, mods);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
 
         let eff = state.effective.load_full();
-        let mut zoom_total = 0i32;
-        for _ in 0..500 {
-            let out = state.engine.lock().step(1000.0 / 120.0, &eff);
-            zoom_total += out.zoom;
-            if !state.engine.lock().has_pending_work() {
-                break;
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
+                break pulse;
             }
-        }
-        assert!(zoom_total < 0, "zoom_invert=true should make zoom negative");
+        };
+        assert_eq!(
+            pulse.sequence.delta_transform,
+            DeltaTransform::Generic { sign: 1 }
+        );
+        assert!(pulse.sequence.semantic.modifiers.ctrl);
+        assert!(pulse.sequence.semantic.modifiers.shift);
     }
 
+    #[cfg(windows)]
     #[test]
     fn per_app_profile_zoom_settings_override_global_settings() {
         let mut settings = AppSettings::default();
@@ -1856,13 +2568,11 @@ mod tests {
             .insert(profile.id, Arc::new(profile_eff));
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: false,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            ..ModifierKeys::default()
         };
 
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
         let profile_eff = state
             .effective_per_profile
             .read()
@@ -1872,11 +2582,13 @@ mod tests {
             .clone();
         assert!(profile_eff.zoom_invert);
         assert_eq!(profile_eff.zoom_sensitivity, 2.5);
-        assert!(!state.engine.lock().has_pending_work());
+        // Under the unified route, profile smooth_zoom=false falls back to
+        // generic semantic-preserving smoothing instead of raw passthrough.
+        assert!(state.engine.lock().has_pending_work());
     }
 
     #[test]
-    fn active_profile_enables_and_scales_zoom_when_global_zoom_is_disabled() {
+    fn active_profile_enables_and_scales_ctrl_semantic() {
         let mut settings = AppSettings::default();
         settings.smooth_zoom = false;
         settings.zoom_invert = false;
@@ -1889,7 +2601,6 @@ mod tests {
         settings.assign_profile("blender.exe".to_string(), Some(profile.id.clone()));
 
         let profile_eff = EffectiveSettings::with_profile(&settings, &profile);
-        let global_eff = EffectiveSettings::from_settings(&settings);
         let state = make_state_with_processes(settings, Some("blender.exe"), None);
         state
             .effective_per_profile
@@ -1897,54 +2608,24 @@ mod tests {
             .insert(profile.id, Arc::new(profile_eff));
         let sink = EngineSink::new(state.clone());
         let mods = ModifierKeys {
-            shift: false,
             ctrl: true,
-            alt: false,
-            cmd: false,
+            ..ModifierKeys::default()
         };
 
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
-
-        let mut expected = SmoothScrollEngine::new();
-        expected.on_wheel_zoom(
-            120,
-            0,
-            smoothscroll_core::input_source::InputSource::Wheel,
-            &profile_eff,
-        );
-        let mut low_sensitivity = profile_eff;
-        low_sensitivity.zoom_sensitivity = 0.5;
-        let mut low_sensitivity_engine = SmoothScrollEngine::new();
-        low_sensitivity_engine.on_wheel_zoom(
-            120,
-            0,
-            smoothscroll_core::input_source::InputSource::Wheel,
-            &low_sensitivity,
-        );
-
-        let mut actual_zoom = 0;
-        let mut expected_zoom = 0;
-        let mut low_sensitivity_zoom = 0;
-        for _ in 0..500 {
-            actual_zoom += state.engine.lock().step(1000.0 / 120.0, &global_eff).zoom;
-            expected_zoom += expected.step(1000.0 / 120.0, &global_eff).zoom;
-            low_sensitivity_zoom += low_sensitivity_engine
-                .step(1000.0 / 120.0, &global_eff)
-                .zoom;
-            if !state.engine.lock().has_pending_work()
-                && !expected.has_pending_work()
-                && !low_sensitivity_engine.has_pending_work()
-            {
-                break;
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
+        let eff = state.effective.load_full();
+        let pulse = loop {
+            if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
+                break pulse;
             }
-        }
-
-        assert!(
-            actual_zoom < 0,
-            "profile zoom_invert should emit negative zoom"
+        };
+        assert_eq!(
+            pulse.sequence.delta_transform,
+            DeltaTransform::CtrlZoom {
+                sensitivity: 2.0,
+                sign: -1,
+            }
         );
-        assert_eq!(actual_zoom, expected_zoom);
-        assert!(actual_zoom.abs() > low_sensitivity_zoom.abs());
     }
 
     #[test]
@@ -1955,7 +2636,7 @@ mod tests {
         s.modifier_passthrough.ctrl = true; // enable passthrough
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        sink.on_wheel(120, no_mods());
+        wheel(&sink, 120, no_mods());
         assert!(state.engine.lock().has_pending_work());
         let mods = ModifierKeys {
             shift: false,
@@ -1963,7 +2644,7 @@ mod tests {
             alt: false,
             cmd: false,
         };
-        let _ = sink.on_wheel(120, mods);
+        let _ = wheel(&sink, 120, mods);
         assert!(
             !state.engine.lock().has_pending_work(),
             "inertia should clear on ctrl press when passthrough enabled"
@@ -1980,7 +2661,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true, false);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1992,7 +2673,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), false, false);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2006,7 +2687,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true, true);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2016,7 +2697,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true, false);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 }

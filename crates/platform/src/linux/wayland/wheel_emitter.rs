@@ -4,11 +4,11 @@
 //! into the kernel input layer. Events are visible to all
 //! Wayland compositors.
 //!
-//! CRITICAL: WheelEmitter sets suppression flag before injecting
-//! to prevent feedback loops. MouseHook checks and skips events
-//! while suppressed.
+//! CRITICAL: the semantic emitter sets the suppression flag before
+//! injecting to prevent feedback loops. MouseHook checks and skips
+//! events while suppressed.
 
-use crate::traits::{WheelEmitter, ZoomEmitter};
+use crate::traits::SemanticWheelEmitter;
 use crate::types::{PlatformError, Result};
 use nix::ioctl_write_int;
 use std::fs::File;
@@ -207,8 +207,8 @@ impl WaylandWheelEmitter {
     }
 }
 
-impl WheelEmitter for WaylandWheelEmitter {
-    fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()> {
+impl WaylandWheelEmitter {
+    fn emit_scroll(&self, vertical_units: i32, horizontal_units: i32) -> Result<()> {
         if vertical_units == 0 && horizontal_units == 0 {
             return Ok(());
         }
@@ -247,7 +247,7 @@ impl WheelEmitter for WaylandWheelEmitter {
     }
 }
 
-impl ZoomEmitter for WaylandWheelEmitter {
+impl WaylandWheelEmitter {
     fn emit_zoom(&self, units: i32) -> Result<()> {
         if units == 0 {
             return Ok(());
@@ -279,6 +279,34 @@ impl Drop for WaylandWheelEmitter {
     fn drop(&mut self) {
         unsafe {
             let _ = ui_dev_destroy(self.fd.as_raw_fd(), 0);
+        }
+    }
+}
+
+/// Final semantic emission entry point. The transport-specific helpers preserve
+/// the existing Wayland/uinput behavior while the caller supplies the captured
+/// axis/modifier/transform identity.
+impl SemanticWheelEmitter for WaylandWheelEmitter {
+    fn prepare(&self, _sequence: smoothscroll_core::wheel::WheelSequence) -> Result<()> {
+        Ok(())
+    }
+
+    fn emit_semantic(
+        &self,
+        pulse: smoothscroll_core::wheel::SemanticPulse,
+        _context: crate::traits::EmissionContext,
+    ) -> Result<()> {
+        if pulse.units == 0 {
+            return Ok(());
+        }
+        let zoom = matches!(
+            pulse.sequence.delta_transform,
+            smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
+        );
+        match pulse.sequence.semantic.axis {
+            smoothscroll_core::wheel::WheelAxis::Vertical if zoom => self.emit_zoom(pulse.units),
+            smoothscroll_core::wheel::WheelAxis::Vertical => self.emit_scroll(pulse.units, 0),
+            smoothscroll_core::wheel::WheelAxis::Horizontal => self.emit_scroll(0, pulse.units),
         }
     }
 }

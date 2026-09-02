@@ -54,6 +54,20 @@ function DirectionSectionInner() {
         </SettingRow>
 
         <SettingRow
+          htmlFor="shift-wheel-conversion"
+          title={t("settings.shift_wheel_conversion.title")}
+          description={t("settings.shift_wheel_conversion.desc")}
+        >
+          <Switch
+            id="shift-wheel-conversion"
+            checked={fields.shift_wheel_behavior === "ConvertToHorizontal"}
+            onCheckedChange={(v) => patch({
+              shift_wheel_behavior: v ? "ConvertToHorizontal" : "Preserve",
+            })}
+          />
+        </SettingRow>
+
+        <SettingRow
           htmlFor="horizontal-invert"
           title={t("settings.horizontal_invert.title")}
           description={t("settings.horizontal_invert.desc")}

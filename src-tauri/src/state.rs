@@ -4,10 +4,11 @@ use arc_swap::ArcSwap;
 use parking_lot::{Condvar, Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+use smoothscroll_core::wheel::WheelAxis;
 use smoothscroll_platform::icon::IconCache;
 use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MonitorEnumeration, MouseHook,
-    ProcessQuery, WheelEmitter, WindowGeometry, ZoomEmitter,
+    ProcessQuery, SemanticWheelEmitter, WindowGeometry,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicIsize, AtomicU64, AtomicU8, Ordering};
@@ -47,6 +48,41 @@ impl AnimationOwner {
     }
 }
 
+/// Per-axis generation tokens for the semantic wheel pipeline. A semantic,
+/// raw, or root transition on one axis invalidates only that axis's queued
+/// work; a root-window change invalidates both axes. The `Arc<AtomicU64>`
+/// handles are shared with the platform emitters via `EmissionContext` so
+/// queued work validates against the exact counter it was planned under.
+#[derive(Debug, Default)]
+pub struct WheelAxisGenerations {
+    vertical: Arc<AtomicU64>,
+    horizontal: Arc<AtomicU64>,
+}
+
+impl WheelAxisGenerations {
+    pub fn get(&self, axis: WheelAxis) -> u64 {
+        self.token(axis).load(Ordering::Acquire)
+    }
+
+    pub fn invalidate(&self, axis: WheelAxis) {
+        self.token(axis).fetch_add(1, Ordering::Release);
+    }
+
+    pub fn invalidate_all(&self) {
+        self.invalidate(WheelAxis::Vertical);
+        self.invalidate(WheelAxis::Horizontal);
+    }
+
+    /// The shared token for one axis; passed to the emitter in
+    /// `EmissionContext` so the platform validates against this store.
+    pub fn token(&self, axis: WheelAxis) -> Arc<AtomicU64> {
+        match axis {
+            WheelAxis::Vertical => self.vertical.clone(),
+            WheelAxis::Horizontal => self.horizontal.clone(),
+        }
+    }
+}
+
 #[allow(dead_code)]
 pub struct AppState {
     pub engine: Arc<Mutex<SmoothScrollEngine>>,
@@ -61,8 +97,9 @@ pub struct AppState {
     /// Pre-built EffectiveSettings per profile ID. Rebuilt on profile CRUD.
     pub effective_per_profile: Arc<RwLock<HashMap<String, Arc<EffectiveSettings>>>>,
     pub mouse_hook: Arc<dyn MouseHook>,
-    pub emitter: Arc<dyn WheelEmitter>,
-    pub zoom_emitter: Arc<dyn ZoomEmitter>,
+    pub semantic_emitter: Arc<dyn SemanticWheelEmitter>,
+    /// Per-axis semantic generation tokens; see `WheelAxisGenerations`.
+    pub wheel_generations: Arc<WheelAxisGenerations>,
     pub processes: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,
@@ -112,6 +149,36 @@ mod tests {
         owner.clear();
         assert_eq!(owner.get(), None);
     }
+
+    #[test]
+    fn wheel_generations_are_monotonic_and_axis_independent() {
+        let generations = WheelAxisGenerations::default();
+        let v0 = generations.get(WheelAxis::Vertical);
+        let h0 = generations.get(WheelAxis::Horizontal);
+
+        generations.invalidate(WheelAxis::Vertical);
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 1);
+        assert_eq!(generations.get(WheelAxis::Horizontal), h0);
+
+        generations.invalidate(WheelAxis::Vertical);
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 2);
+
+        generations.invalidate(WheelAxis::Horizontal);
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 2);
+        assert_eq!(generations.get(WheelAxis::Horizontal), h0 + 1);
+    }
+
+    #[test]
+    fn wheel_generations_invalidate_all_bumps_both_axes() {
+        let generations = WheelAxisGenerations::default();
+        let v0 = generations.get(WheelAxis::Vertical);
+        let h0 = generations.get(WheelAxis::Horizontal);
+
+        generations.invalidate_all();
+
+        assert_eq!(generations.get(WheelAxis::Vertical), v0 + 1);
+        assert_eq!(generations.get(WheelAxis::Horizontal), h0 + 1);
+    }
 }
 
 const GAME_MODE_ACTIVE_BIT: u64 = 1 << 32;
@@ -147,10 +214,10 @@ impl AppState {
         (active, known_game_pid)
     }
 
-    /// Atomically replace the authoritative settings, rebuild the hot-path
-    /// effective snapshot, rebuild the per-profile cache, and queue a debounced
-    /// disk write. This is the ONLY path that should mutate settings.
-    pub fn commit_settings(&self, new: AppSettings) {
+    /// Apply one settings snapshot and rebuild all hot-path views. Startup loads
+    /// use `persist = false` because path-aware schema migration has already
+    /// persisted when necessary; user mutations use `commit_settings`.
+    fn apply_settings(&self, new: AppSettings, persist: bool) {
         use smoothscroll_core::settings::RespectReduceMotion;
         let os_rm = self.reduce_motion.load(Ordering::Relaxed);
         let reduce_motion_instant = match new.respect_reduce_motion {
@@ -178,6 +245,19 @@ impl AppState {
         }
         self.effective.store(Arc::new(new_eff));
         *self.effective_per_profile.write() = new_per_profile;
-        self.persistor.submit(new);
+        if persist {
+            self.persistor.submit(new);
+        }
+    }
+
+    /// Apply settings loaded from disk without scheduling an unconditional
+    /// startup rewrite.
+    pub fn apply_loaded_settings(&self, new: AppSettings) {
+        self.apply_settings(new, false);
+    }
+
+    /// Commit a runtime/user settings change and queue the debounced disk write.
+    pub fn commit_settings(&self, new: AppSettings) {
+        self.apply_settings(new, true);
     }
 }

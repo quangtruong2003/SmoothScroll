@@ -226,8 +226,23 @@
       "desc": "Inverser le sens du défilement (style naturel)"
     },
     "horizontal_smoothness": {
-      "title": "Défilement horizontal lissé",
-      "desc": "Appliquer le lissage à la molette inclinée et à Maj+molette"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "Inverser la direction horizontale",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "Défilement lissé du pavé tactile",
-        "desc": "Appliquer l'easing à l'entrée haute résolution du pavé tactile"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "Multiplicateur de pixels",

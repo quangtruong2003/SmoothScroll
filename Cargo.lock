@@ -4737,6 +4737,7 @@ dependencies = [
  "objc2-foundation",
  "parking_lot",
  "serde",
+ "smallvec",
  "smoothscroll_core",
  "thiserror 1.0.69",
  "tracing",

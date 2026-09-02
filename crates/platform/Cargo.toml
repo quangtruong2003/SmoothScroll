@@ -16,6 +16,7 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+smallvec = "1"
 windows-sys = { version = "0.59", features = [
     "Win32_Foundation",
     "Win32_UI_WindowsAndMessaging",

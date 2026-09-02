@@ -9,6 +9,8 @@ export type EasingMode =
 export type ThemeMode = "Light" | "Dark" | "System";
 
 export type RespectReduceMotion = "Auto" | "Always" | "Never";
+export type ShiftWheelBehavior = "Preserve" | "ConvertToHorizontal";
+export type WheelOutputMode = "SmoothPulses" | "PreserveWholeNotches" | "Raw";
 
 export interface ModifierPassthrough {
   ctrl: boolean;
@@ -32,6 +34,8 @@ export interface ScrollProfile {
   easing_mode: EasingMode;
   reverse_wheel_direction: boolean;
   horizontal_smoothness: boolean;
+  shift_wheel_behavior: ShiftWheelBehavior;
+  wheel_output_mode: WheelOutputMode;
   max_velocity: number;
   smooth_zoom: boolean;
   zoom_invert: boolean;
@@ -39,6 +43,7 @@ export interface ScrollProfile {
 }
 
 export interface AppSettings {
+  settings_schema_version: number;
   enabled: boolean;
   step_size_px: number;
   animation_time_ms: number;
@@ -49,6 +54,8 @@ export interface AppSettings {
   animation_easing: boolean;
   easing_mode: EasingMode;
   horizontal_smoothness: boolean;
+  shift_wheel_behavior: ShiftWheelBehavior;
+  wheel_output_mode: WheelOutputMode;
   horizontal_invert: boolean;
   reverse_wheel_direction: boolean;
   direction_sync_enabled: boolean;

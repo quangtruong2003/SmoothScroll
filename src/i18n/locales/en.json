@@ -226,8 +226,23 @@
       "desc": "Invert the scroll direction (natural-style)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal scrolling",
-      "desc": "Apply smoothing to tilt-wheel and Shift+wheel scrolls"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "Invert horizontal direction",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "Smooth touchpad scrolling",
-        "desc": "Apply easing to high-resolution touchpad input"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "Pixel multiplier",

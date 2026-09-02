@@ -80,8 +80,7 @@ fn x11_build() -> Result<Platform> {
     let wheel_emitter: Arc<LinuxWheelEmitter> = Arc::new(LinuxWheelEmitter::new()?);
     Ok(Platform {
         mouse_hook: Arc::new(LinuxMouseHook::new()?),
-        wheel_emitter: wheel_emitter.clone(),
-        zoom_emitter: wheel_emitter,
+        semantic_emitter: wheel_emitter,
         process_query: Arc::new(LinuxProcessQuery::new()?),
         autostart: Arc::new(LinuxAutostart),
         hotkey: Arc::new(LinuxHotkey),

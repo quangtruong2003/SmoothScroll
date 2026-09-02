@@ -19,8 +19,7 @@ use std::sync::Arc;
 /// Bundle of platform implementations for the current OS.
 pub struct Platform {
     pub mouse_hook: Arc<dyn MouseHook>,
-    pub wheel_emitter: Arc<dyn WheelEmitter>,
-    pub zoom_emitter: Arc<dyn ZoomEmitter>,
+    pub semantic_emitter: Arc<dyn SemanticWheelEmitter>,
     pub process_query: Arc<dyn ProcessQuery>,
     pub autostart: Arc<dyn Autostart>,
     pub hotkey: Arc<dyn Hotkey>,

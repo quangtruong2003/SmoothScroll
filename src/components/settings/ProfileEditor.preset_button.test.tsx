@@ -34,6 +34,8 @@ const profile: ScrollProfile = {
   easing_mode: "Linear",
   reverse_wheel_direction: true,
   horizontal_smoothness: false,
+  shift_wheel_behavior: "Preserve",
+  wheel_output_mode: "SmoothPulses",
   smooth_zoom: true,
   zoom_invert: false,
   zoom_sensitivity: 1,
@@ -48,6 +50,7 @@ beforeAll(() => {
   HTMLElement.prototype.hasPointerCapture ??= () => false;
   HTMLElement.prototype.setPointerCapture ??= () => undefined;
   HTMLElement.prototype.releasePointerCapture ??= () => undefined;
+  HTMLElement.prototype.scrollIntoView ??= () => undefined;
 });
 
 beforeEach(() => {
@@ -112,6 +115,29 @@ describe("ProfileEditor preset popover", () => {
       smooth_zoom: false,
       zoom_invert: true,
       zoom_sensitivity: 4,
+    });
+  });
+
+  it("saves explicit Shift conversion and whole-notch compatibility", async () => {
+    const user = userEvent.setup();
+    render(<ProfileEditor profile={profile} onClose={vi.fn()} />);
+
+    await user.click(screen.getByRole("switch", {
+      name: "settings.shift_wheel_conversion.title",
+    }));
+    await user.click(screen.getByRole("combobox", {
+      name: "settings.wheel_output_mode.title",
+    }));
+    await user.click(screen.getByRole("option", {
+      name: "settings.wheel_output_mode.notches",
+    }));
+    await user.click(screen.getByRole("button", { name: "common.save" }));
+
+    await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledTimes(1));
+    expect(mocks.updateProfile).toHaveBeenCalledWith({
+      ...profile,
+      shift_wheel_behavior: "ConvertToHorizontal",
+      wheel_output_mode: "PreserveWholeNotches",
     });
   });
 });

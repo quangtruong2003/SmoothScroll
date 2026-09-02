@@ -226,8 +226,23 @@
       "desc": "Invertir el sentido del desplazamiento (estilo natural)"
     },
     "horizontal_smoothness": {
-      "title": "Desplazamiento horizontal suave",
-      "desc": "Aplicar suavizado a la rueda inclinable y a Mayús+rueda"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "Invertir dirección horizontal",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "Desplazamiento suave del touchpad",
-        "desc": "Aplicar easing a la entrada de touchpad de alta resolución"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "Multiplicador de píxeles",

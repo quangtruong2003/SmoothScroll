@@ -34,8 +34,7 @@ pub fn build() -> Result<Platform> {
     let wheel_emitter = Arc::new(MacosWheelEmitter::new());
     Ok(Platform {
         mouse_hook: Arc::new(MacosMouseHook::new()),
-        wheel_emitter: wheel_emitter.clone(),
-        zoom_emitter: wheel_emitter, // MacosWheelEmitter implements ZoomEmitter too
+        semantic_emitter: wheel_emitter,
         process_query: Arc::new(MacosProcessQuery::new()),
         autostart: Arc::new(MacosAutostart),
         hotkey: Arc::new(MacosHotkey),

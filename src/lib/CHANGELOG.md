@@ -7,6 +7,76 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+- add explicit Shift + Wheel conversion and wheel compatibility modes
+
+### Changed
+- preserve Ctrl, Shift, Alt, and physical horizontal wheel semantics while smoothing
+- use native touchpad behavior when touchpad smoothing is disabled
+
+## [1.31.0] - 2026-08-31
+
+### Added
+- track animation window owner
+- expose root window under cursor
+- add full scroll sequence reset
+
+### Fixed
+- enable animation time by default
+- scope unbounded instant output to Windows
+- cancel stale animation before emission
+- reset animation owner on new window input
+- batch oversized instant wheel output
+- preserve instant accelerated distance
+## [1.30.0] - 2026-08-29
+
+### Added
+- add Windows search-intent landing pages
+
+### Fixed
+- make scroll animation opt-in
+## [1.29.0] - 2026-08-28
+
+### Added
+- restore donate section
+
+### Fixed
+- pass raw wheel events through over discrete controls
+## [1.28.4] - 2026-08-27
+
+### Fixed
+- persist scroll preset immediately
+- revalidate game mode on wheel input
+## [1.28.3] - 2026-08-23
+
+### Fixed
+- canonicalize app_profiles keys to match backend
+- measure tray panel content before first reveal
+- resolve tray profile pill via canonical lookup
+## [1.28.2] - 2026-08-20
+
+### Fixed
+- preserve browser shift wheel smoothing
+## [1.28.1] - 2026-08-20
+
+### Fixed
+- scroll horizontally while holding shift
+- inject native shifted wheel for horizontal scroll
+## [1.28.0] - 2026-08-19
+
+### Added
+- strengthen SEO discovery signals
+
+### Fixed
+- use explicit Node test entrypoint
+- make Node test glob portable
+- target horizontal wheel at child window
+- remove stale hero scroll scene
+- keep smooth scrolling for elevated targets when self is elevated
+## [1.27.1] - 2026-08-06
+
+### Fixed
+- show all profiles in picker with scrollable popover
 ## [1.27.0] - 2026-07-29
 
 ### Added

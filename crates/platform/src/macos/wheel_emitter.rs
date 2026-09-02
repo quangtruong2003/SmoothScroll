@@ -9,7 +9,7 @@ use crate::types::{PlatformError, Result};
 use core_foundation_sys::base::{kCFAllocatorDefault, CFAllocatorRef, CFRelease};
 use std::sync::OnceLock;
 
-use crate::traits::{WheelEmitter, ZoomEmitter};
+use crate::traits::SemanticWheelEmitter;
 
 const kCGEventScrollWheel: u32 = 22;
 const kCGHIDSystemTap: u32 = 0;
@@ -114,14 +114,30 @@ impl Default for MacosWheelEmitter {
     }
 }
 
-impl WheelEmitter for MacosWheelEmitter {
-    fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()> {
-        unsafe { Self::post_scroll(vertical_units as i64, horizontal_units as i64, false) }
+impl SemanticWheelEmitter for MacosWheelEmitter {
+    fn prepare(&self, _sequence: smoothscroll_core::wheel::WheelSequence) -> Result<()> {
+        Ok(())
     }
-}
 
-impl ZoomEmitter for MacosWheelEmitter {
-    fn emit_zoom(&self, units: i32) -> Result<()> {
-        unsafe { Self::post_scroll(units as i64, 0, true) }
+    fn emit_semantic(
+        &self,
+        pulse: smoothscroll_core::wheel::SemanticPulse,
+        _context: crate::traits::EmissionContext,
+    ) -> Result<()> {
+        if pulse.units == 0 {
+            return Ok(());
+        }
+        let zoom = matches!(
+            pulse.sequence.delta_transform,
+            smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
+        );
+        match pulse.sequence.semantic.axis {
+            smoothscroll_core::wheel::WheelAxis::Vertical => unsafe {
+                Self::post_scroll(pulse.units as i64, 0, zoom)
+            },
+            smoothscroll_core::wheel::WheelAxis::Horizontal => unsafe {
+                Self::post_scroll(0, pulse.units as i64, false)
+            },
+        }
     }
 }

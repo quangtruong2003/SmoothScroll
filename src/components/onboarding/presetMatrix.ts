@@ -10,7 +10,11 @@ export function applyPresetUI(
   useCase: OnboardingUseCase,
   feel: OnboardingFeel,
 ): AppSettings {
-  const s: AppSettings = { ...base };
+  const s: AppSettings = {
+    ...base,
+    shift_wheel_behavior: "Preserve",
+    wheel_output_mode: "SmoothPulses",
+  };
   const macLike = () => {
     s.step_size_px = 100;
     s.animation_time_ms = 500;

@@ -1,29 +1,16 @@
 //! Trait definitions for OS-specific subsystems. Implementations live in
 //! `windows/` and `macos/` modules (cfg-gated).
 
-use crate::types::{Accelerator, HookDecision, ModifierKeys, Point, Result, WindowRect};
+use crate::types::{
+    Accelerator, HookDecision, Point, Result, SemanticPulse, WheelInputEvent, WheelSequence,
+    WindowRect,
+};
+use std::sync::atomic::AtomicU64;
 use std::sync::Arc;
 
-/// Receives parsed hook events. Implementation lives in the app crate.
+/// Receives parsed wheel events with their complete semantic identity.
 pub trait HookEventSink: Send + Sync {
-    fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision;
-    fn on_hwheel(&self, delta: i32) -> HookDecision;
-
-    fn on_wheel_ext(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        _source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.on_wheel(delta, mods)
-    }
-    fn on_hwheel_ext(
-        &self,
-        delta: i32,
-        _source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        self.on_hwheel(delta)
-    }
+    fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision;
 }
 
 /// Opaque RAII handle. Dropping uninstalls the hook.
@@ -41,22 +28,33 @@ pub trait MouseHook: Send + Sync {
     fn install(&self, sink: Arc<dyn HookEventSink>) -> Result<HookHandle>;
 }
 
-/// Emits synthetic wheel events. Pre-multiplied integer pulses
-/// (use `core::constants::EMIT_UNIT`).
-pub trait WheelEmitter: Send + Sync {
-    fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()>;
+/// Captured identity of the animation that produced a semantic pulse, used to
+/// invalidate queued compatibility work after semantic/root/raw transitions.
+///
+/// The generation token is backed by the caller's shared `Arc<AtomicU64>` so
+/// the routing layer and the platform worker validate against the exact same
+/// counter the pulse was planned under.
+#[derive(Debug, Clone)]
+pub struct EmissionContext {
+    pub root_owner: Option<isize>,
+    pub axis_generation: u64,
+    pub generation: Arc<AtomicU64>,
+}
 
-    /// Dispatch one horizontal wheel notch without waiting for engine inertia.
-    /// Platforms may override this when the native operation must run on a
-    /// dedicated thread. The default preserves the existing emitter behavior.
-    fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
-        self.emit(0, units)
+impl EmissionContext {
+    /// True when the axis generation is still current at validation time.
+    pub fn is_current(&self) -> bool {
+        self.generation.load(std::sync::atomic::Ordering::Acquire) == self.axis_generation
     }
 }
 
-/// Emits synthetic zoom events (Ctrl+Wheel).
-pub trait ZoomEmitter: Send + Sync {
-    fn emit_zoom(&self, units: i32) -> Result<()>;
+/// Emits wheel pulses that preserve the captured semantic identity.
+pub trait SemanticWheelEmitter: Send + Sync {
+    /// Validate that the emitter can reproduce `sequence` before the hook
+    /// swallows the originating physical event. Performs no injection.
+    fn prepare(&self, sequence: WheelSequence) -> Result<()>;
+
+    fn emit_semantic(&self, pulse: SemanticPulse, context: EmissionContext) -> Result<()>;
 }
 
 /// Returned by `list_visible_processes`. Used by the UI picker.

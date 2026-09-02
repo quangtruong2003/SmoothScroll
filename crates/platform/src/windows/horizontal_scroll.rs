@@ -1,8 +1,10 @@
 #![cfg(windows)]
 
+use crate::traits::EmissionContext;
 use crate::types::{PlatformError, Result};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender, TrySendError};
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 use std::thread;
 use windows::core::Interface;
 use windows::Win32::Foundation::POINT as AutomationPoint;
@@ -25,8 +27,29 @@ const MAX_UIA_ANCESTORS: usize = 16;
 const NATIVE_SCROLL_TIMEOUT_MS: u32 = 100;
 const WHEEL_DELTA: u32 = 120;
 
-static WORKER: OnceLock<std::result::Result<SyncSender<HorizontalCommand>, String>> =
-    OnceLock::new();
+struct WorkerHandle {
+    sender: SyncSender<WorkerCommand>,
+}
+
+enum WorkerCommand {
+    Semantic(SemanticHorizontalCommand),
+}
+
+#[derive(Debug)]
+struct SemanticHorizontalCommand {
+    point: ScreenPoint,
+    units: i32,
+    #[cfg_attr(not(test), allow(dead_code))]
+    root_owner: Option<isize>,
+    axis_generation: u64,
+    #[allow(dead_code)]
+    done: std::sync::mpsc::Sender<Result<()>>,
+    /// Shared with the routing layer via `EmissionContext`; the worker
+    /// re-checks it immediately before platform dispatch.
+    generation: Arc<AtomicU64>,
+}
+
+static WORKER: OnceLock<std::result::Result<WorkerHandle, String>> = OnceLock::new();
 
 pub struct HorizontalScrollDispatcher;
 
@@ -41,7 +64,11 @@ impl HorizontalScrollDispatcher {
             })
     }
 
-    pub fn dispatch(units: i32) -> Result<()> {
+    /// Queue a semantic compatibility-horizontal command and wait for the
+    /// worker's one-shot completion result. Runs on the engine thread only —
+    /// never the low-level hook. A stale generation cancels with a distinct
+    /// error so the caller can reset only the affected axis.
+    pub fn dispatch_semantic(units: i32, context: EmissionContext) -> Result<()> {
         if units == 0 {
             return Ok(());
         }
@@ -51,38 +78,84 @@ impl HorizontalScrollDispatcher {
             return Err(PlatformError::Os("GetCursorPos failed".into()));
         }
 
-        let sender = WORKER.get_or_init(spawn_worker).as_ref().map_err(|error| {
-            PlatformError::Os(format!("horizontal scroll worker unavailable: {error}"))
-        })?;
-        let command = HorizontalCommand {
+        let sender = WORKER
+            .get_or_init(spawn_worker)
+            .as_ref()
+            .map_err(|error| {
+                PlatformError::Os(format!("horizontal scroll worker unavailable: {error}"))
+            })?
+            .sender
+            .clone();
+
+        let (done_tx, done_rx) = std::sync::mpsc::channel::<Result<()>>();
+        let command = SemanticHorizontalCommand {
             point: ScreenPoint {
                 x: point.x,
                 y: point.y,
             },
             units,
+            root_owner: context.root_owner,
+            axis_generation: context.axis_generation,
+            generation: context.generation,
+            done: done_tx,
         };
 
-        sender.try_send(command).map_err(|error| match error {
-            TrySendError::Full(_) => {
-                PlatformError::Os("horizontal scroll worker queue is full".into())
-            }
-            TrySendError::Disconnected(_) => {
-                PlatformError::Os("horizontal scroll worker disconnected".into())
-            }
-        })
+        sender.try_send(WorkerCommand::Semantic(command)).map_err(
+            |error: TrySendError<WorkerCommand>| match error {
+                TrySendError::Full(_) => {
+                    PlatformError::Os("horizontal scroll worker queue is full".into())
+                }
+                TrySendError::Disconnected(_) => {
+                    PlatformError::Os("horizontal scroll worker disconnected".into())
+                }
+            },
+        )?;
+
+        done_rx
+            .recv()
+            .map_err(|_| PlatformError::Os("horizontal worker exited".into()))?
     }
 }
 
-fn spawn_worker() -> std::result::Result<SyncSender<HorizontalCommand>, String> {
+fn current_root_under_cursor() -> Option<isize> {
+    let mut point = POINT { x: 0, y: 0 };
+    if unsafe { GetCursorPos(&mut point) } == 0 {
+        return None;
+    }
+    let hit = unsafe { WindowFromPoint(point) };
+    if hit.is_null() {
+        return None;
+    }
+    let root = unsafe { GetAncestor(hit, GA_ROOT) };
+    if root.is_null() {
+        None
+    } else {
+        Some(root as isize)
+    }
+}
+
+fn compatibility_dispatch_is_current(
+    expected_root: Option<isize>,
+    current_root: Option<isize>,
+    generation_current: bool,
+) -> bool {
+    generation_current
+        && match (expected_root, current_root) {
+            (Some(expected), Some(current)) => expected == current,
+            _ => true,
+        }
+}
+
+fn spawn_worker() -> std::result::Result<WorkerHandle, String> {
     let (sender, receiver) = sync_channel(WORKER_QUEUE_CAPACITY);
     thread::Builder::new()
         .name("horizontal-scroll".into())
         .spawn(move || worker_loop(receiver))
         .map_err(|error| error.to_string())?;
-    Ok(sender)
+    Ok(WorkerHandle { sender })
 }
 
-fn worker_loop(receiver: Receiver<HorizontalCommand>) {
+fn worker_loop(receiver: Receiver<WorkerCommand>) {
     // SAFETY: this dedicated worker owns a fresh thread and initializes its
     // COM apartment exactly once before creating or using any COM interface.
     let com_initialized = unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) }.is_ok();
@@ -96,8 +169,37 @@ fn worker_loop(receiver: Receiver<HorizontalCommand>) {
     let mut backend = WindowsHorizontalBackend { automation };
 
     for command in receiver {
-        if let Err(error) = scroll_with_backend(&mut backend, command) {
-            tracing::warn!(%error, "immediate horizontal scroll failed");
+        match command {
+            WorkerCommand::Semantic(command) => {
+                // Re-check both sequence generation and the live root immediately
+                // before dispatch. A transient root lookup failure degrades open,
+                // matching the engine-thread validation contract.
+                let generation_current =
+                    command.generation.load(Ordering::Acquire) == command.axis_generation;
+                let current_root = if command.root_owner.is_some() {
+                    current_root_under_cursor()
+                } else {
+                    None
+                };
+                let live = compatibility_dispatch_is_current(
+                    command.root_owner,
+                    current_root,
+                    generation_current,
+                );
+                let result = if !live {
+                    Err(PlatformError::StaleEmission)
+                } else {
+                    scroll_with_backend(
+                        &mut backend,
+                        HorizontalCommand {
+                            point: command.point,
+                            units: command.units,
+                        },
+                    )
+                    .map(|_| ())
+                };
+                let _ = command.done.send(result);
+            }
         }
     }
 
@@ -610,6 +712,26 @@ mod tests {
         ];
 
         assert_eq!(select_horizontal_scrollbar(&candidates, point), Some(30));
+    }
+
+    #[test]
+    fn compatibility_dispatch_rejects_changed_root_before_worker_emission() {
+        assert!(!compatibility_dispatch_is_current(
+            Some(0x1000),
+            Some(0x2000),
+            true,
+        ));
+        assert!(compatibility_dispatch_is_current(
+            Some(0x1000),
+            Some(0x1000),
+            true,
+        ));
+        assert!(compatibility_dispatch_is_current(Some(0x1000), None, true));
+        assert!(!compatibility_dispatch_is_current(
+            Some(0x1000),
+            Some(0x1000),
+            false,
+        ));
     }
 
     #[test]
