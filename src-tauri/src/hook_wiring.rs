@@ -364,6 +364,20 @@ impl EngineSink {
         Some(self.state.effective.load_full())
     }
 
+    #[cfg(windows)]
+    fn decision_log_process(&self) -> Option<String> {
+        let (under_cursor, foreground) = {
+            let mut cache = self.process_cache.lock();
+            cache.get(|| {
+                (
+                    self.state.processes.process_name_under_cursor(),
+                    self.state.processes.foreground_process_name(),
+                )
+            })
+        };
+        under_cursor.or(foreground)
+    }
+
     fn update_last_source(&self, source: smoothscroll_core::input_source::InputSource) {
         use smoothscroll_core::input_source::InputSource;
         let code: u8 = match source {
@@ -536,7 +550,9 @@ impl EngineSink {
                     self.state.engine.lock().reset_axis(axis);
                 }
                 if tracing::enabled!(tracing::Level::DEBUG) {
+                    let process = self.decision_log_process();
                     tracing::debug!(
+                        process = ?process.as_deref(),
                         input_axis = ?event.semantic.axis,
                         shift = event.semantic.modifiers.shift,
                         ctrl = event.semantic.modifiers.ctrl,
@@ -594,9 +610,29 @@ impl EngineSink {
             );
         }
 
-        // 11. a changed sequence invalidates the affected axis generation,
-        // then registers with the engine (which resets any old owner).
+        // 11. A physical vertical stream can be transformed onto the horizontal
+        // axis. When that mapping changes, cancel the superseded axis before
+        // registering the new sequence so two tails cannot run diagonally.
+        let input_axis = event.semantic.axis;
         let axis = output_event.semantic.axis;
+        if input_axis != axis {
+            if engine.active_sequence(input_axis).is_some() {
+                self.state.wheel_generations.invalidate(input_axis);
+                engine.reset_axis(input_axis);
+            }
+        } else if input_axis == WheelAxis::Vertical
+            && engine
+                .active_sequence(WheelAxis::Horizontal)
+                .is_some_and(|live| live.transport == WheelTransport::CompatibilityHorizontal)
+        {
+            self.state
+                .wheel_generations
+                .invalidate(WheelAxis::Horizontal);
+            engine.reset_axis(WheelAxis::Horizontal);
+        }
+
+        // A changed sequence on the selected output axis invalidates that axis
+        // generation, then register lets the engine reset any prior sequence.
         if engine
             .active_sequence(axis)
             .is_some_and(|live| live != sequence)
@@ -612,7 +648,9 @@ impl EngineSink {
 
         // 13. lazy decision logging — booleans as fields, no modifier string.
         if tracing::enabled!(tracing::Level::DEBUG) {
+            let process = self.decision_log_process();
             tracing::debug!(
+                process = ?process.as_deref(),
                 input_axis = ?event.semantic.axis,
                 output_axis = ?output_event.semantic.axis,
                 shift = output_event.semantic.modifiers.shift,
@@ -707,7 +745,9 @@ mod tests {
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::input_source::InputSource;
-    use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ScrollProfile};
+    use smoothscroll_core::settings::{
+        AppSettings, EffectiveSettings, MonitorProfile, ScrollProfile,
+    };
     use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
         Autostart, EmissionContext, FullscreenDetector, HookEventSink, HookHandle, Hotkey,
@@ -908,6 +948,24 @@ mod tests {
             {
                 None
             }
+        }
+    }
+    #[cfg(windows)]
+    struct MonitorProfileWindowGeom {
+        monitor_name: &'static str,
+    }
+    #[cfg(windows)]
+    impl WindowGeometry for MonitorProfileWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+
+        fn root_window_under_cursor(&self) -> Option<isize> {
+            Some(0x1000)
+        }
+
+        fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
+            Some(self.monitor_name.to_string())
         }
     }
     #[cfg(windows)]
@@ -1768,6 +1826,59 @@ mod tests {
         );
     }
 
+    #[cfg(windows)]
+    #[test]
+    fn releasing_shift_after_horizontal_conversion_cancels_converted_tail() {
+        let mut settings = AppSettings::default();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        let state = make_state(settings);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Swallow);
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.transport),
+            Some(WheelTransport::CompatibilityHorizontal)
+        );
+
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        let engine = state.engine.lock();
+        assert!(engine.active_sequence(WheelAxis::Vertical).is_some());
+        assert!(
+            engine.active_sequence(WheelAxis::Horizontal).is_none(),
+            "plain vertical input must cancel the Shift-converted horizontal tail"
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn starting_shift_conversion_cancels_plain_vertical_tail() {
+        let mut settings = AppSettings::default();
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        let state = make_state(settings);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        assert!(state
+            .engine
+            .lock()
+            .active_sequence(WheelAxis::Vertical)
+            .is_some());
+
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Swallow);
+        let engine = state.engine.lock();
+        assert!(engine.active_sequence(WheelAxis::Vertical).is_none());
+        assert_eq!(
+            engine
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.transport),
+            Some(WheelTransport::CompatibilityHorizontal)
+        );
+    }
+
     #[test]
     fn alt_and_ctrl_alt_wheel_preserve_semantics() {
         let state = make_state(AppSettings::default());
@@ -2133,6 +2244,42 @@ mod tests {
             frames += 1;
         }
         assert!(frames < 45, "captured 50ms profile took {frames} frames");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn monitor_profile_routes_native_horizontal_with_profile_settings() {
+        const MONITOR: &str = r"\\.\DISPLAY_TEST";
+
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut profile = ScrollProfile::new("monitor", "Monitor");
+        profile.horizontal_smoothness = true;
+        settings.profiles.push(profile.clone());
+        settings.monitor_profiles.push(MonitorProfile {
+            device_name: MONITOR.to_string(),
+            friendly_name: "Test monitor".to_string(),
+            profile_id: profile.id.clone(),
+        });
+
+        let state = make_state_with_window_geom(
+            settings,
+            Arc::new(MonitorProfileWindowGeom {
+                monitor_name: MONITOR,
+            }),
+        );
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
+        assert_eq!(
+            state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Horizontal)
+                .map(|sequence| sequence.semantic.axis),
+            Some(WheelAxis::Horizontal)
+        );
     }
 
     #[test]

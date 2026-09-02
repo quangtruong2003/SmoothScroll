@@ -14,6 +14,7 @@ use crate::traits::{EmissionContext, SemanticWheelEmitter};
 use crate::types::{
     PlatformError, Result, SemanticPulse, WheelAxis, WheelSequence, WheelTransport,
 };
+use smallvec::SmallVec;
 use smoothscroll_core::constants::{EMIT_UNIT, PULSE_CLAMP_MAX, WHEEL_DELTA};
 use smoothscroll_core::wheel::{ModifierKeys, SmoothingStrategy};
 use std::mem;
@@ -25,14 +26,16 @@ use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
 
 const MAX_WHEEL_CHUNK_UNITS: i32 = PULSE_CLAMP_MAX * EMIT_UNIT;
 
-fn wheel_chunks(mut units: i32) -> Vec<i32> {
-    let mut chunks = Vec::new();
-    while units != 0 {
-        let chunk = units.clamp(-MAX_WHEEL_CHUNK_UNITS, MAX_WHEEL_CHUNK_UNITS);
-        chunks.push(chunk);
-        units -= chunk;
-    }
-    chunks
+fn wheel_chunks(units: i32) -> impl Iterator<Item = i32> {
+    let mut remaining = units;
+    std::iter::from_fn(move || {
+        if remaining == 0 {
+            return None;
+        }
+        let chunk = remaining.clamp(-MAX_WHEEL_CHUNK_UNITS, MAX_WHEEL_CHUNK_UNITS);
+        remaining -= chunk;
+        Some(chunk)
+    })
 }
 
 pub struct WindowsWheelEmitter;
@@ -60,6 +63,7 @@ pub enum PlannedInput {
 }
 
 const MAX_PLAN_LEN: usize = 3 + 1 + 3;
+type PlannedInputs = SmallVec<[PlannedInput; MAX_PLAN_LEN]>;
 
 fn key_down(key: u16) -> PlannedInput {
     PlannedInput::KeyDown(key)
@@ -78,9 +82,9 @@ fn key_up(key: u16) -> PlannedInput {
 pub(crate) fn plan_native_inputs(
     pulse: &SemanticPulse,
     physical: ModifierKeys,
-) -> std::result::Result<Vec<PlannedInput>, PlanError> {
+) -> std::result::Result<PlannedInputs, PlanError> {
     if pulse.units == 0 {
-        return Ok(Vec::new());
+        return Ok(SmallVec::new());
     }
     let captured = pulse.sequence.semantic.modifiers.without_cmd();
     let extra = ModifierKeys {
@@ -98,18 +102,11 @@ pub(crate) fn plan_native_inputs(
         WheelAxis::Horizontal => MOUSEEVENTF_HWHEEL,
     };
 
-    let wheel_records: Vec<i32> = match pulse.sequence.strategy {
-        SmoothingStrategy::DiscreteNotchPreserving => {
-            if pulse.units % WHEEL_DELTA != 0 {
-                return Err(PlanError::NotchRemainder);
-            }
-            let notches = pulse.units / WHEEL_DELTA;
-            (0..notches.unsigned_abs())
-                .map(|_| notches.signum() * WHEEL_DELTA)
-                .collect()
-        }
-        SmoothingStrategy::Continuous => wheel_chunks(pulse.units),
-    };
+    if pulse.sequence.strategy == SmoothingStrategy::DiscreteNotchPreserving
+        && pulse.units % WHEEL_DELTA != 0
+    {
+        return Err(PlanError::NotchRemainder);
+    }
 
     // Key-downs in a fixed order so the atomic batch is deterministic; the
     // key-ups mirror it in reverse so nesting never interleaves wrongly.
@@ -117,7 +114,10 @@ pub(crate) fn plan_native_inputs(
     let missing_shift = captured.shift && !physical.shift;
     let missing_alt = captured.alt && !physical.alt;
 
-    let mut plan = Vec::with_capacity(wheel_records.len() + 3);
+    // Seven records cover the worst common animated frame: three synthesized
+    // modifier downs, one wheel record, then three matching key ups. SmallVec
+    // keeps that path entirely inline and spills only when a pulse expands.
+    let mut plan = PlannedInputs::new();
     if missing_ctrl {
         plan.push(key_down(VK_CONTROL));
     }
@@ -127,12 +127,26 @@ pub(crate) fn plan_native_inputs(
     if missing_alt {
         plan.push(key_down(VK_MENU));
     }
-    for units in wheel_records {
-        plan.push(PlannedInput::Wheel {
-            flags,
-            units,
-            marker: super::SMOOTHSCROLL_INPUT_MARKER,
-        });
+    match pulse.sequence.strategy {
+        SmoothingStrategy::DiscreteNotchPreserving => {
+            let notches = pulse.units / WHEEL_DELTA;
+            for _ in 0..notches.unsigned_abs() {
+                plan.push(PlannedInput::Wheel {
+                    flags,
+                    units: notches.signum() * WHEEL_DELTA,
+                    marker: super::SMOOTHSCROLL_INPUT_MARKER,
+                });
+            }
+        }
+        SmoothingStrategy::Continuous => {
+            for units in wheel_chunks(pulse.units) {
+                plan.push(PlannedInput::Wheel {
+                    flags,
+                    units,
+                    marker: super::SMOOTHSCROLL_INPUT_MARKER,
+                });
+            }
+        }
     }
     if missing_alt {
         plan.push(key_up(VK_MENU));
@@ -333,13 +347,45 @@ mod tests {
         )
     }
 
+    fn storage_points_inside_value<T>(value: &T, data: *const PlannedInput) -> bool {
+        let start = value as *const T as usize;
+        let end = start + std::mem::size_of_val(value);
+        let data = data as usize;
+        data >= start && data < end
+    }
+
+    #[test]
+    fn common_semantic_plan_keeps_records_inline() {
+        let plan =
+            plan_native_inputs(&pulse(horizontal_none(), 120), ModifierKeys::default()).unwrap();
+        assert_eq!(plan.len(), 1);
+        assert!(
+            storage_points_inside_value(&plan, plan.as_ptr()),
+            "a one-record animated plan must keep its storage inside the stack value"
+        );
+    }
+
+    fn value_needs_drop<T>(_: &T) -> bool {
+        std::mem::needs_drop::<T>()
+    }
+
+    #[test]
+    fn common_wheel_chunking_does_not_own_heap_storage() {
+        let chunks = wheel_chunks(120);
+        assert!(
+            !value_needs_drop(&chunks),
+            "common wheel chunking must be represented by non-owning iterator state"
+        );
+        assert_eq!(chunks.into_iter().collect::<Vec<_>>(), vec![120]);
+    }
+
     #[test]
     fn released_ctrl_is_wrapped_atomically() {
         let plan =
             plan_native_inputs(&pulse(vertical_ctrl(), 120), ModifierKeys::default()).unwrap();
         assert_eq!(
-            plan,
-            vec![
+            plan.as_slice(),
+            &[
                 PlannedInput::KeyDown(VK_CONTROL),
                 PlannedInput::Wheel {
                     flags: MOUSEEVENTF_WHEEL,
@@ -442,8 +488,8 @@ mod tests {
         let sequence = sequence(WheelAxis::Vertical, captured, SmoothingStrategy::Continuous);
         let plan = plan_native_inputs(&pulse(sequence, 120), ModifierKeys::default()).unwrap();
         assert_eq!(
-            plan,
-            vec![
+            plan.as_slice(),
+            &[
                 PlannedInput::KeyDown(VK_SHIFT),
                 PlannedInput::KeyDown(VK_MENU),
                 PlannedInput::Wheel {
@@ -505,8 +551,8 @@ mod tests {
         );
         let plan = plan_native_inputs(&pulse(discrete, 360), ModifierKeys::default()).unwrap();
         assert_eq!(
-            plan,
-            vec![
+            plan.as_slice(),
+            &[
                 PlannedInput::Wheel {
                     flags: MOUSEEVENTF_WHEEL,
                     units: 120,
@@ -591,14 +637,17 @@ mod tests {
 
     #[test]
     fn wheel_chunks_split_without_losing_distance() {
-        assert_eq!(wheel_chunks(1_440), vec![480, 480, 480]);
-        assert_eq!(wheel_chunks(500), vec![480, 20]);
-        assert_eq!(wheel_chunks(-1_440), vec![-480, -480, -480]);
-        assert_eq!(wheel_chunks(-500), vec![-480, -20]);
+        assert_eq!(wheel_chunks(1_440).collect::<Vec<_>>(), vec![480, 480, 480]);
+        assert_eq!(wheel_chunks(500).collect::<Vec<_>>(), vec![480, 20]);
+        assert_eq!(
+            wheel_chunks(-1_440).collect::<Vec<_>>(),
+            vec![-480, -480, -480]
+        );
+        assert_eq!(wheel_chunks(-500).collect::<Vec<_>>(), vec![-480, -20]);
     }
 
     #[test]
     fn zero_wheel_units_produce_no_chunks() {
-        assert!(wheel_chunks(0).is_empty());
+        assert_eq!(wheel_chunks(0).next(), None);
     }
 }
