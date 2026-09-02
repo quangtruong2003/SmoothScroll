@@ -34,7 +34,7 @@ beforeEach(() => {
 });
 
 describe("DirectionSection animation toggle", () => {
-  it("shows Animation time off by default and enables it through the settings patch", async () => {
+  it("reflects Animation time state and enables it through the settings patch", async () => {
     const user = userEvent.setup();
     render(<DirectionSection />);
 
