@@ -57,6 +57,7 @@ struct Axis {
     last_notch_ms: u64,
     velocity: f64,
     unit_accum: f64,
+    clamp_carry_pulses: i32,
     sequence: Option<WheelSequence>,
     discrete_notches: VecDeque<i8>,
     discrete_remainder: i32,
@@ -75,27 +76,34 @@ impl Axis {
         self.last_notch_ms = 0;
         self.velocity = 0.0;
         self.unit_accum = 0.0;
+        self.clamp_carry_pulses = 0;
         self.sequence = None;
         self.discrete_notches.clear();
         self.discrete_remainder = 0;
     }
 
     fn has_pending(&self) -> bool {
-        !self.pending.is_empty() || !self.discrete_notches.is_empty()
+        !self.pending.is_empty()
+            || self.clamp_carry_pulses != 0
+            || !self.discrete_notches.is_empty()
     }
 
     fn flush_instant(&mut self) -> i32 {
         let remaining_px: f64 = self.pending.iter().map(|batch| batch.remaining_px).sum();
         self.pending.clear();
+        let mut pulses = self.clamp_carry_pulses;
+        self.clamp_carry_pulses = 0;
+
         if remaining_px.abs() < 0.1 {
             self.unit_accum = 0.0;
-            return 0;
+        } else {
+            let wheel_units = (remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+            let units = wheel_units / EMIT_UNIT as f64;
+            self.unit_accum += units;
+            let fresh_pulses = self.unit_accum.trunc() as i32;
+            self.unit_accum -= fresh_pulses as f64;
+            pulses = pulses.saturating_add(fresh_pulses);
         }
-        let wheel_units = (remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
-        let units = wheel_units / EMIT_UNIT as f64;
-        self.unit_accum += units;
-        let pulses = self.unit_accum.trunc() as i32;
-        self.unit_accum -= pulses as f64;
 
         #[cfg(windows)]
         {
@@ -233,15 +241,19 @@ impl Axis {
         let wheel_units = (emitted_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
         self.unit_accum += wheel_units / EMIT_UNIT as f64;
 
-        let mut pulses = 0;
+        let mut pulses = self.clamp_carry_pulses;
+        self.clamp_carry_pulses = 0;
         if self.unit_accum.abs() >= 1.0 {
-            pulses = self.unit_accum.trunc() as i32;
-            self.unit_accum -= pulses as f64;
+            let fresh_pulses = self.unit_accum.trunc() as i32;
+            self.unit_accum -= fresh_pulses as f64;
+            pulses = pulses.saturating_add(fresh_pulses);
         }
         if pulses == 0 {
             return 0;
         }
-        pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+        let emitted = pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX);
+        self.clamp_carry_pulses = pulses.saturating_sub(emitted);
+        emitted * EMIT_UNIT
     }
 }
 

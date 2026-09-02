@@ -33,7 +33,9 @@ pub use mouse_hook::WindowsMouseHook;
 pub use process_query::WindowsProcessQuery;
 pub use text_input_detector::is_focus_in_text_input;
 pub use timer::HighResTimerGuard;
-pub use wheel_emitter::WindowsWheelEmitter;
+pub use wheel_emitter::{
+    diagnose_native_plan, NativePlanDiagnostics, PlanError, WindowsWheelEmitter,
+};
 pub use window_geom::WindowsWindowGeometry;
 
 pub fn build() -> Result<Platform> {

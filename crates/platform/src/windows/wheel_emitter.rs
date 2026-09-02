@@ -50,6 +50,106 @@ pub enum PlanError {
     NotchRemainder,
 }
 
+/// Pure planner counters for deterministic performance/regression diagnostics.
+/// Calling this helper is opt-in; production emission does not record counters.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct NativePlanDiagnostics {
+    pub send_input_batches: usize,
+    pub input_records: usize,
+    pub wheel_records: usize,
+    pub keyboard_modifier_records: usize,
+    pub ctrl_syntheses: usize,
+    pub shift_syntheses: usize,
+    pub alt_syntheses: usize,
+    pub heap_allocations: usize,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct NativePlanShape {
+    missing_ctrl: bool,
+    missing_shift: bool,
+    missing_alt: bool,
+    wheel_records: usize,
+    total_records: usize,
+}
+
+fn native_plan_shape(
+    pulse: &SemanticPulse,
+    physical: ModifierKeys,
+) -> std::result::Result<NativePlanShape, PlanError> {
+    if pulse.units == 0 {
+        return Ok(NativePlanShape {
+            missing_ctrl: false,
+            missing_shift: false,
+            missing_alt: false,
+            wheel_records: 0,
+            total_records: 0,
+        });
+    }
+
+    let captured = pulse.sequence.semantic.modifiers.without_cmd();
+    let extra = ModifierKeys {
+        shift: physical.shift && !captured.shift,
+        ctrl: physical.ctrl && !captured.ctrl,
+        alt: physical.alt && !captured.alt,
+        cmd: false,
+    };
+    if extra.shift || extra.ctrl || extra.alt {
+        return Err(PlanError::ExtraPhysicalModifiers);
+    }
+    if pulse.sequence.strategy == SmoothingStrategy::DiscreteNotchPreserving
+        && pulse.units % WHEEL_DELTA != 0
+    {
+        return Err(PlanError::NotchRemainder);
+    }
+
+    let missing_ctrl = captured.ctrl && !physical.ctrl;
+    let missing_shift = captured.shift && !physical.shift;
+    let missing_alt = captured.alt && !physical.alt;
+    let missing_modifier_count =
+        usize::from(missing_ctrl) + usize::from(missing_shift) + usize::from(missing_alt);
+    let wheel_records = match pulse.sequence.strategy {
+        SmoothingStrategy::DiscreteNotchPreserving => {
+            (pulse.units / WHEEL_DELTA).unsigned_abs() as usize
+        }
+        SmoothingStrategy::Continuous => pulse
+            .units
+            .unsigned_abs()
+            .div_ceil(MAX_WHEEL_CHUNK_UNITS as u32)
+            as usize,
+    };
+    let total_records = missing_modifier_count
+        .saturating_mul(2)
+        .saturating_add(wheel_records);
+
+    Ok(NativePlanShape {
+        missing_ctrl,
+        missing_shift,
+        missing_alt,
+        wheel_records,
+        total_records,
+    })
+}
+
+/// Returns deterministic work counters for the exact native planner shape.
+/// This is intended for tests/benchmarks and performs no OS calls.
+pub fn diagnose_native_plan(
+    pulse: &SemanticPulse,
+    physical: ModifierKeys,
+) -> std::result::Result<NativePlanDiagnostics, PlanError> {
+    let shape = native_plan_shape(pulse, physical)?;
+    Ok(NativePlanDiagnostics {
+        send_input_batches: usize::from(shape.total_records > 0),
+        input_records: shape.total_records,
+        wheel_records: shape.wheel_records,
+        keyboard_modifier_records: shape.total_records.saturating_sub(shape.wheel_records),
+        ctrl_syntheses: usize::from(shape.missing_ctrl),
+        shift_syntheses: usize::from(shape.missing_shift),
+        alt_syntheses: usize::from(shape.missing_alt),
+        heap_allocations: usize::from(shape.total_records > MAX_PLAN_LEN),
+    })
+}
+
 /// Test-observable record of one planned `SendInput` operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlannedInput {
@@ -63,7 +163,69 @@ pub enum PlannedInput {
 }
 
 const MAX_PLAN_LEN: usize = 3 + 1 + 3;
-type PlannedInputs = SmallVec<[PlannedInput; MAX_PLAN_LEN]>;
+type InlinePlannedInputs = SmallVec<[PlannedInput; MAX_PLAN_LEN]>;
+
+pub(crate) enum PlannedInputs {
+    Inline(InlinePlannedInputs),
+    Heap(Vec<INPUT>),
+}
+
+impl PlannedInputs {
+    fn with_exact_len(len: usize) -> Self {
+        if len <= MAX_PLAN_LEN {
+            Self::Inline(InlinePlannedInputs::new())
+        } else {
+            Self::Heap(Vec::with_capacity(len))
+        }
+    }
+
+    fn push(&mut self, planned: PlannedInput) {
+        match self {
+            Self::Inline(inputs) => inputs.push(planned),
+            Self::Heap(inputs) => inputs.push(planned_input_to_input(&planned)),
+        }
+    }
+
+    fn len(&self) -> usize {
+        match self {
+            Self::Inline(inputs) => inputs.len(),
+            Self::Heap(inputs) => inputs.len(),
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    #[cfg(test)]
+    fn heap_allocation_count(&self) -> usize {
+        usize::from(matches!(self, Self::Heap(_)))
+    }
+
+    #[cfg(test)]
+    fn heap_capacity(&self) -> Option<usize> {
+        match self {
+            Self::Inline(_) => None,
+            Self::Heap(inputs) => Some(inputs.capacity()),
+        }
+    }
+
+    #[cfg(test)]
+    fn planned_ptr(&self) -> *const PlannedInput {
+        match self {
+            Self::Inline(inputs) => inputs.as_ptr(),
+            Self::Heap(_) => std::ptr::null(),
+        }
+    }
+
+    #[cfg(test)]
+    fn planned_ops(&self) -> Vec<PlannedInput> {
+        match self {
+            Self::Inline(inputs) => inputs.to_vec(),
+            Self::Heap(inputs) => inputs.iter().map(input_to_planned).collect(),
+        }
+    }
+}
 
 fn key_down(key: u16) -> PlannedInput {
     PlannedInput::KeyDown(key)
@@ -83,18 +245,9 @@ pub(crate) fn plan_native_inputs(
     pulse: &SemanticPulse,
     physical: ModifierKeys,
 ) -> std::result::Result<PlannedInputs, PlanError> {
-    if pulse.units == 0 {
-        return Ok(SmallVec::new());
-    }
-    let captured = pulse.sequence.semantic.modifiers.without_cmd();
-    let extra = ModifierKeys {
-        shift: physical.shift && !captured.shift,
-        ctrl: physical.ctrl && !captured.ctrl,
-        alt: physical.alt && !captured.alt,
-        cmd: false,
-    };
-    if extra.shift || extra.ctrl || extra.alt {
-        return Err(PlanError::ExtraPhysicalModifiers);
+    let shape = native_plan_shape(pulse, physical)?;
+    if shape.total_records == 0 {
+        return Ok(PlannedInputs::with_exact_len(0));
     }
 
     let flags = match pulse.sequence.semantic.axis {
@@ -102,29 +255,20 @@ pub(crate) fn plan_native_inputs(
         WheelAxis::Horizontal => MOUSEEVENTF_HWHEEL,
     };
 
-    if pulse.sequence.strategy == SmoothingStrategy::DiscreteNotchPreserving
-        && pulse.units % WHEEL_DELTA != 0
-    {
-        return Err(PlanError::NotchRemainder);
-    }
-
     // Key-downs in a fixed order so the atomic batch is deterministic; the
     // key-ups mirror it in reverse so nesting never interleaves wrongly.
-    let missing_ctrl = captured.ctrl && !physical.ctrl;
-    let missing_shift = captured.shift && !physical.shift;
-    let missing_alt = captured.alt && !physical.alt;
-
     // Seven records cover the worst common animated frame: three synthesized
-    // modifier downs, one wheel record, then three matching key ups. SmallVec
-    // keeps that path entirely inline and spills only when a pulse expands.
-    let mut plan = PlannedInputs::new();
-    if missing_ctrl {
+    // modifier downs, one wheel record, then three matching key ups. Common
+    // plans stay inline. Oversized plans allocate one exact-capacity INPUT Vec
+    // and are filled directly, avoiding an intermediate heap PlannedInput list.
+    let mut plan = PlannedInputs::with_exact_len(shape.total_records);
+    if shape.missing_ctrl {
         plan.push(key_down(VK_CONTROL));
     }
-    if missing_shift {
+    if shape.missing_shift {
         plan.push(key_down(VK_SHIFT));
     }
-    if missing_alt {
+    if shape.missing_alt {
         plan.push(key_down(VK_MENU));
     }
     match pulse.sequence.strategy {
@@ -148,13 +292,13 @@ pub(crate) fn plan_native_inputs(
             }
         }
     }
-    if missing_alt {
+    if shape.missing_alt {
         plan.push(key_up(VK_MENU));
     }
-    if missing_shift {
+    if shape.missing_shift {
         plan.push(key_up(VK_SHIFT));
     }
-    if missing_ctrl {
+    if shape.missing_ctrl {
         plan.push(key_up(VK_CONTROL));
     }
     Ok(plan)
@@ -216,14 +360,14 @@ fn key_is_down(key: u16) -> bool {
 
 /// Convert a planned batch into one `SendInput` call. A partial send is an
 /// error; never retry and never fall back to a bare wheel event.
-fn send_planned_inputs(plan: &[PlannedInput]) -> Result<()> {
+fn send_planned_inputs(plan: &PlannedInputs) -> Result<()> {
     if plan.is_empty() {
         return Ok(());
     }
 
-    // The common animated case fits a stack buffer (three key-downs, one wheel
-    // record, three key-ups). Oversized instant/discrete output builds one
-    // exact-capacity Vec on the engine thread — outside the low-level hook.
+    // The common animated case is converted into a fixed stack INPUT buffer.
+    // Oversized plans were already constructed directly as exact-capacity
+    // INPUT storage, so this function never allocates a second heap buffer.
     let zero_mouse = INPUT {
         r#type: INPUT_MOUSE,
         Anonymous: INPUT_0 {
@@ -238,15 +382,14 @@ fn send_planned_inputs(plan: &[PlannedInput]) -> Result<()> {
         },
     };
     let mut stack: [INPUT; MAX_PLAN_LEN] = [zero_mouse; MAX_PLAN_LEN];
-    let heap;
-    let inputs: &[INPUT] = if plan.len() <= MAX_PLAN_LEN {
-        for (slot, planned) in stack.iter_mut().zip(plan) {
-            *slot = planned_input_to_input(planned);
+    let inputs: &[INPUT] = match plan {
+        PlannedInputs::Inline(planned) => {
+            for (slot, item) in stack.iter_mut().zip(planned) {
+                *slot = planned_input_to_input(item);
+            }
+            &stack[..planned.len()]
         }
-        &stack[..plan.len()]
-    } else {
-        heap = plan.iter().map(planned_input_to_input).collect::<Vec<_>>();
-        &heap
+        PlannedInputs::Heap(inputs) => inputs.as_slice(),
     };
 
     let cb = mem::size_of::<INPUT>() as i32;
@@ -307,6 +450,31 @@ fn planned_input_to_input(planned: &PlannedInput) -> INPUT {
 }
 
 #[cfg(test)]
+fn input_to_planned(input: &INPUT) -> PlannedInput {
+    unsafe {
+        match input.r#type {
+            INPUT_KEYBOARD => {
+                let key = input.Anonymous.ki;
+                if key.dwFlags & KEYEVENTF_KEYUP != 0 {
+                    PlannedInput::KeyUp(key.wVk)
+                } else {
+                    PlannedInput::KeyDown(key.wVk)
+                }
+            }
+            INPUT_MOUSE => {
+                let mouse = input.Anonymous.mi;
+                PlannedInput::Wheel {
+                    flags: mouse.dwFlags,
+                    units: mouse.mouseData as i32,
+                    marker: mouse.dwExtraInfo,
+                }
+            }
+            _ => unreachable!("semantic plan only contains keyboard or mouse INPUT records"),
+        }
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use smoothscroll_core::wheel::{DeltaTransform, WheelAxis, WheelSemantic, WheelSequence};
@@ -359,10 +527,51 @@ mod tests {
         let plan =
             plan_native_inputs(&pulse(horizontal_none(), 120), ModifierKeys::default()).unwrap();
         assert_eq!(plan.len(), 1);
+        assert_eq!(plan.heap_allocation_count(), 0);
         assert!(
-            storage_points_inside_value(&plan, plan.as_ptr()),
+            storage_points_inside_value(&plan, plan.planned_ptr()),
             "a one-record animated plan must keep its storage inside the stack value"
         );
+    }
+
+    #[test]
+    fn diagnostics_only_synthesize_captured_modifier_after_physical_release() {
+        let held = diagnose_native_plan(
+            &pulse(vertical_ctrl(), 120),
+            ModifierKeys {
+                ctrl: true,
+                ..ModifierKeys::default()
+            },
+        )
+        .unwrap();
+        assert_eq!(held.ctrl_syntheses, 0);
+        assert_eq!(held.keyboard_modifier_records, 0);
+
+        let released =
+            diagnose_native_plan(&pulse(vertical_ctrl(), 120), ModifierKeys::default()).unwrap();
+        assert_eq!(released.ctrl_syntheses, 1);
+        assert_eq!(released.keyboard_modifier_records, 2);
+        assert_eq!(released.wheel_records, 1);
+        assert_eq!(released.send_input_batches, 1);
+    }
+
+    #[test]
+    fn oversized_plan_uses_one_exact_capacity_heap_buffer() {
+        let sequence = sequence(
+            WheelAxis::Vertical,
+            ModifierKeys {
+                ctrl: true,
+                shift: true,
+                alt: true,
+                ..ModifierKeys::default()
+            },
+            SmoothingStrategy::Continuous,
+        );
+        let plan = plan_native_inputs(&pulse(sequence, 4_800), ModifierKeys::default()).unwrap();
+
+        assert!(plan.len() > MAX_PLAN_LEN);
+        assert_eq!(plan.heap_allocation_count(), 1);
+        assert_eq!(plan.heap_capacity(), Some(plan.len()));
     }
 
     fn value_needs_drop<T>(_: &T) -> bool {
@@ -384,7 +593,7 @@ mod tests {
         let plan =
             plan_native_inputs(&pulse(vertical_ctrl(), 120), ModifierKeys::default()).unwrap();
         assert_eq!(
-            plan.as_slice(),
+            plan.planned_ops().as_slice(),
             &[
                 PlannedInput::KeyDown(VK_CONTROL),
                 PlannedInput::Wheel {
@@ -410,23 +619,25 @@ mod tests {
         };
         let sequence = sequence(WheelAxis::Vertical, captured, SmoothingStrategy::Continuous);
         let plan = plan_native_inputs(&pulse(sequence, 120), physical).unwrap();
-        assert_eq!(plan.first(), Some(&PlannedInput::KeyDown(VK_MENU)));
-        assert_eq!(plan.last(), Some(&PlannedInput::KeyUp(VK_MENU)));
-        assert!(!plan.contains(&PlannedInput::KeyUp(VK_CONTROL)));
+        let ops = plan.planned_ops();
+        assert_eq!(ops.first(), Some(&PlannedInput::KeyDown(VK_MENU)));
+        assert_eq!(ops.last(), Some(&PlannedInput::KeyUp(VK_MENU)));
+        assert!(!ops.contains(&PlannedInput::KeyUp(VK_CONTROL)));
     }
 
     #[test]
     fn native_horizontal_uses_hwheel_without_shift_translation() {
         let plan =
             plan_native_inputs(&pulse(horizontal_none(), 120), ModifierKeys::default()).unwrap();
-        assert!(plan.iter().any(|op| matches!(
+        let ops = plan.planned_ops();
+        assert!(ops.iter().any(|op| matches!(
             op,
             PlannedInput::Wheel {
                 flags: MOUSEEVENTF_HWHEEL,
                 ..
             }
         )));
-        assert!(!plan.iter().any(|op| matches!(
+        assert!(!ops.iter().any(|op| matches!(
             op,
             PlannedInput::KeyDown(VK_SHIFT) | PlannedInput::KeyUp(VK_SHIFT)
         )));
@@ -475,7 +686,7 @@ mod tests {
                 ..ModifierKeys::default()
             },
         );
-        assert_eq!(result, Err(PlanError::ExtraPhysicalModifiers));
+        assert!(matches!(result, Err(PlanError::ExtraPhysicalModifiers)));
     }
 
     #[test]
@@ -488,7 +699,7 @@ mod tests {
         let sequence = sequence(WheelAxis::Vertical, captured, SmoothingStrategy::Continuous);
         let plan = plan_native_inputs(&pulse(sequence, 120), ModifierKeys::default()).unwrap();
         assert_eq!(
-            plan.as_slice(),
+            plan.planned_ops().as_slice(),
             &[
                 PlannedInput::KeyDown(VK_SHIFT),
                 PlannedInput::KeyDown(VK_MENU),
@@ -519,6 +730,7 @@ mod tests {
         );
         let plan = plan_native_inputs(&pulse(sequence, 120), physical_all).unwrap();
         assert!(plan
+            .planned_ops()
             .iter()
             .all(|op| matches!(op, PlannedInput::Wheel { .. })));
     }
@@ -532,6 +744,7 @@ mod tests {
         );
         let plan = plan_native_inputs(&pulse(sequence, 1_440), ModifierKeys::default()).unwrap();
         let total: i32 = plan
+            .planned_ops()
             .iter()
             .map(|op| match op {
                 PlannedInput::Wheel { units, .. } => *units,
@@ -551,7 +764,7 @@ mod tests {
         );
         let plan = plan_native_inputs(&pulse(discrete, 360), ModifierKeys::default()).unwrap();
         assert_eq!(
-            plan.as_slice(),
+            plan.planned_ops().as_slice(),
             &[
                 PlannedInput::Wheel {
                     flags: MOUSEEVENTF_WHEEL,
@@ -573,6 +786,7 @@ mod tests {
 
         let negative = plan_native_inputs(&pulse(discrete, -240), ModifierKeys::default()).unwrap();
         assert!(negative
+            .planned_ops()
             .iter()
             .all(|op| matches!(op, PlannedInput::Wheel { units: -120, .. })));
     }
@@ -584,10 +798,10 @@ mod tests {
             ModifierKeys::default(),
             SmoothingStrategy::DiscreteNotchPreserving,
         );
-        assert_eq!(
+        assert!(matches!(
             plan_native_inputs(&pulse(discrete, 130), ModifierKeys::default()),
             Err(PlanError::NotchRemainder)
-        );
+        ));
     }
 
     #[test]
@@ -599,7 +813,7 @@ mod tests {
         };
         let sequence = sequence(WheelAxis::Vertical, captured, SmoothingStrategy::Continuous);
         let plan = plan_native_inputs(&pulse(sequence, 1_000), ModifierKeys::default()).unwrap();
-        assert!(plan.iter().all(|op| match op {
+        assert!(plan.planned_ops().iter().all(|op| match op {
             PlannedInput::Wheel { marker, .. } =>
                 *marker == super::super::SMOOTHSCROLL_INPUT_MARKER,
             PlannedInput::KeyDown(_) | PlannedInput::KeyUp(_) => true,
@@ -622,6 +836,7 @@ mod tests {
         let sequence = sequence(WheelAxis::Vertical, captured, SmoothingStrategy::Continuous);
         let plan = plan_native_inputs(&pulse(sequence, 120), physical).unwrap();
         assert!(plan
+            .planned_ops()
             .iter()
             .all(|op| matches!(op, PlannedInput::Wheel { .. })));
     }

@@ -2,7 +2,9 @@
 //! woken whenever the hook registers a new notch.
 
 use crate::state::AppState;
-use smoothscroll_core::wheel::WheelAxis;
+use smoothscroll_core::wheel::{DeltaTransform, SemanticPulse, WheelAxis};
+#[cfg(test)]
+use std::cell::Cell;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::thread::{self, JoinHandle};
@@ -11,6 +13,21 @@ use std::time::{Duration, Instant};
 const IDLE_TIMEOUT: Duration = Duration::from_secs(2);
 const IDLE_FRAME_MS: f64 = 1000.0 / 60.0;
 const WAIT_TIMEOUT: Duration = Duration::from_millis(100);
+
+#[cfg(test)]
+thread_local! {
+    static DISPATCH_FINAL_ENGINE_LOCKS: Cell<usize> = const { Cell::new(0) };
+}
+
+#[cfg(test)]
+pub(crate) fn reset_dispatch_diagnostics() {
+    DISPATCH_FINAL_ENGINE_LOCKS.with(|count| count.set(0));
+}
+
+#[cfg(test)]
+pub(crate) fn dispatch_final_engine_lock_count() -> usize {
+    DISPATCH_FINAL_ENGINE_LOCKS.with(Cell::get)
+}
 
 pub struct EngineThread {
     handle: Option<JoinHandle<()>>,
@@ -140,9 +157,20 @@ fn step_frame(
     }
 }
 
-fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::EffectiveSettings) {
+pub(crate) fn run_frame(
+    state: &AppState,
+    dt_ms: f64,
+    eff: &smoothscroll_core::settings::EffectiveSettings,
+) {
     let frame = step_frame(state, dt_ms, eff);
     dispatch_frame(state, frame, eff);
+}
+
+fn counts_as_normal_scroll(pulse: SemanticPulse) -> bool {
+    !matches!(
+        pulse.sequence.delta_transform,
+        DeltaTransform::CtrlZoom { .. }
+    )
 }
 
 fn dispatch_frame(
@@ -220,13 +248,19 @@ fn dispatch_frame(
         }
     }
 
-    if frame.velocity > 0.0 {
+    let vertical_normal_scroll_emitted = frame
+        .output
+        .vertical
+        .is_some_and(|pulse| emitted_axes[0] && counts_as_normal_scroll(pulse));
+    if vertical_normal_scroll_emitted && frame.velocity > 0.0 {
         state.stats.record_velocity(frame.velocity);
     }
     let distance = [frame.output.vertical, frame.output.horizontal]
         .into_iter()
         .enumerate()
-        .filter_map(|(index, pulse)| pulse.filter(|_| emitted_axes[index]))
+        .filter_map(|(index, pulse)| {
+            pulse.filter(|pulse| emitted_axes[index] && counts_as_normal_scroll(*pulse))
+        })
         .map(|pulse| pulse.units.abs() as f64)
         .sum::<f64>();
     if distance > 0.0 {
@@ -238,6 +272,19 @@ fn dispatch_frame(
         state.stats.record_active_time(frame.dt_ms as u64);
     }
 
+    // A no-output frame with pending work cannot complete an emitted pulse or
+    // clear ownership. Avoid a second engine lock; `step_frame` already took
+    // the one lock required to advance the animation. If both axes completed
+    // without output, keep the locked cleanup below to remain race-safe against
+    // a new hook registration between stepping and dispatch.
+    if frame.output == smoothscroll_core::engine::EngineOutput::default()
+        && (!frame.vertical_complete || !frame.horizontal_complete)
+    {
+        return;
+    }
+
+    #[cfg(test)]
+    DISPATCH_FINAL_ENGINE_LOCKS.with(|count| count.set(count.get() + 1));
     let mut engine = state.engine.lock();
     if emitted_axes[0] && frame.vertical_complete {
         if let Some(pulse) = frame.output.vertical {
@@ -380,6 +427,33 @@ mod tests {
         }
         fn list_visible_processes(&self) -> Vec<ProcessInfo> {
             Vec::new()
+        }
+    }
+
+    #[derive(Default)]
+    struct CountingProcessQuery {
+        foreground_name_calls: AtomicUsize,
+    }
+
+    impl CountingProcessQuery {
+        fn foreground_name_calls(&self) -> usize {
+            self.foreground_name_calls.load(Ordering::Relaxed)
+        }
+    }
+
+    impl ProcessQuery for CountingProcessQuery {
+        fn process_name_under_cursor(&self) -> Option<String> {
+            None
+        }
+        fn foreground_process_id(&self) -> Option<u32> {
+            None
+        }
+        fn list_visible_processes(&self) -> Vec<ProcessInfo> {
+            Vec::new()
+        }
+        fn foreground_process_name(&self) -> Option<String> {
+            self.foreground_name_calls.fetch_add(1, Ordering::Relaxed);
+            Some("test-app".to_string())
         }
     }
 
@@ -733,10 +807,17 @@ mod tests {
         state.animation_owner.set(Some(A));
         queue_wheel(&state, &eff);
 
-        run_frame(&state, 1000.0, &eff);
+        let mut frames = 0;
+        while state.engine.lock().has_pending_work() && frames < 64 {
+            run_frame(&state, 1000.0, &eff);
+            frames += 1;
+        }
 
         assert!(!recorder.semantic_calls.lock().is_empty());
-        assert!(!state.engine.lock().has_pending_work());
+        assert!(
+            !state.engine.lock().has_pending_work(),
+            "completed animated sequence did not drain within {frames} frames"
+        );
         assert_eq!(state.animation_owner.get(), None);
     }
 
@@ -756,5 +837,91 @@ mod tests {
         assert!(!state.engine.lock().has_pending_work());
         assert_eq!(state.animation_owner.get(), None);
         assert_eq!(geom.query_count(), 0);
+    }
+
+    #[test]
+    fn plain_wheel_updates_normal_scroll_stats_and_process_lookup() {
+        let (settings, eff) = animated_settings();
+        let recorder = Arc::new(RecordingEmitter::default());
+        let geom = Arc::new(RootWindowGeom::new(Some(A)));
+        let mut state = make_state(settings, eff, recorder, geom);
+        let processes = Arc::new(CountingProcessQuery::default());
+        state.processes = processes.clone();
+        state.animation_owner.set(Some(A));
+        queue_plain_wheel(&state, &eff, 120);
+
+        run_frame(&state, 1_000.0, &eff);
+
+        let stats = state.stats.snapshot();
+        assert!(stats.total_scroll_distance_px > 0.0);
+        assert!(stats.active_time_ms > 0);
+        assert!(processes.foreground_name_calls() > 0);
+    }
+
+    #[test]
+    fn ctrl_zoom_does_not_update_normal_scroll_stats_or_process_lookup() {
+        let (settings, eff) = animated_settings();
+        let recorder = Arc::new(RecordingEmitter::default());
+        let geom = Arc::new(RootWindowGeom::new(Some(A)));
+        let mut state = make_state(settings, eff, recorder, geom);
+        let processes = Arc::new(CountingProcessQuery::default());
+        state.processes = processes.clone();
+        state.animation_owner.set(Some(A));
+        queue_ctrl_wheel(&state, &eff, 120);
+
+        run_frame(&state, 1_000.0, &eff);
+
+        let stats = state.stats.snapshot();
+        assert_eq!(stats.total_scroll_distance_px, 0.0);
+        assert_eq!(stats.active_time_ms, 0);
+        assert_eq!(stats.peak_velocity, 0.0);
+        assert_eq!(processes.foreground_name_calls(), 0);
+    }
+
+    #[test]
+    fn shift_and_native_hwheel_remain_normal_scroll_stats() {
+        let (settings, eff) = animated_settings();
+        let recorder = Arc::new(RecordingEmitter::default());
+        let geom = Arc::new(RootWindowGeom::new(Some(A)));
+        let mut state = make_state(settings, eff, recorder, geom);
+        let processes = Arc::new(CountingProcessQuery::default());
+        state.processes = processes.clone();
+        state.animation_owner.set(Some(A));
+
+        let shift_semantic = smoothscroll_core::wheel::WheelSemantic {
+            axis: WheelAxis::Vertical,
+            modifiers: smoothscroll_core::wheel::ModifierKeys {
+                shift: true,
+                ..Default::default()
+            },
+        };
+        let shift_sequence = smoothscroll_core::wheel::WheelSequence {
+            semantic: shift_semantic,
+            transport: smoothscroll_core::wheel::WheelTransport::Native,
+            strategy: smoothscroll_core::wheel::SmoothingStrategy::Continuous,
+            delta_transform: smoothscroll_core::wheel::DeltaTransform::Generic { sign: 1 },
+        };
+        state.engine.lock().register(
+            smoothscroll_core::wheel::WheelInputEvent {
+                delta: 120,
+                semantic: shift_semantic,
+                source: InputSource::Wheel,
+            },
+            shift_sequence,
+            1_000,
+            &eff,
+        );
+        run_frame(&state, 1_000.0, &eff);
+        let after_shift = state.stats.snapshot();
+        assert!(after_shift.total_scroll_distance_px > 0.0);
+
+        queue_horizontal(&state, &eff, 120);
+        run_frame(&state, 1_000.0, &eff);
+        let after_hwheel = state.stats.snapshot();
+        assert!(
+            after_hwheel.total_scroll_distance_px > after_shift.total_scroll_distance_px,
+            "native HWHEEL must continue contributing to normal scroll stats"
+        );
+        assert!(processes.foreground_name_calls() >= 2);
     }
 }

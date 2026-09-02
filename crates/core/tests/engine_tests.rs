@@ -262,6 +262,82 @@ fn step_clamps_pulse_count_per_frame() {
     );
 }
 
+#[cfg(windows)]
+#[test]
+fn animated_clamp_carries_overflow_without_losing_total_distance() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 500;
+    settings.acceleration_max = 20;
+    settings.max_velocity = 20.0;
+    settings.animation_time_ms = 1;
+    settings.animation_easing = false;
+
+    let animated = EffectiveSettings::from_settings(&settings);
+    let mut instant = animated.clone();
+    instant.instant_mode = true;
+
+    let mut animated_engine = SmoothScrollEngine::new();
+    let mut instant_engine = SmoothScrollEngine::new();
+    for i in 0..10u64 {
+        let now = 1_000 + i * 10;
+        animated_engine.on_wheel_with_source(120, now, InputSource::Wheel, &animated);
+        instant_engine.on_wheel_with_source(120, now, InputSource::Wheel, &instant);
+    }
+
+    let instant_total = instant_engine
+        .step(1000.0 / 120.0, &instant)
+        .vertical
+        .map_or(0, |pulse| pulse.units);
+    let animated_total = drain_vertical(&mut animated_engine, &animated);
+
+    assert!(
+        instant_total.abs() > 480,
+        "fixture must exercise animated clamp"
+    );
+    assert_eq!(
+        animated_total, instant_total,
+        "animated per-frame clamp must defer overflow instead of dropping distance"
+    );
+}
+
+#[cfg(windows)]
+#[test]
+fn switching_to_instant_mode_drains_existing_clamp_carry() {
+    let mut settings = AppSettings::default();
+    settings.step_size_px = 500;
+    settings.acceleration_max = 20;
+    settings.max_velocity = 20.0;
+    settings.animation_time_ms = 1;
+    settings.animation_easing = false;
+
+    let animated = EffectiveSettings::from_settings(&settings);
+    let mut instant = animated.clone();
+    instant.instant_mode = true;
+    let mut engine = SmoothScrollEngine::new();
+
+    for i in 0..10u64 {
+        engine.on_wheel_with_source(120, 1_000 + i * 10, InputSource::Wheel, &animated);
+    }
+
+    let first = vertical_units(engine.step(1_000.0, &animated));
+    assert_eq!(
+        first.abs(),
+        480,
+        "fixture must leave clamped overflow pending"
+    );
+    assert!(engine.has_pending_work());
+
+    let carried = vertical_units(engine.step(1_000.0 / 120.0, &instant));
+    assert_ne!(
+        carried, 0,
+        "instant mode must flush carry even when pixel batches are empty"
+    );
+    assert!(
+        !engine.has_pending_work(),
+        "instant transition must not leave an immortal carry tail"
+    );
+}
+
 #[test]
 fn engine_finishes_within_reasonable_time() {
     let eff = eff();

@@ -515,6 +515,11 @@ impl EngineSink {
     /// the exact order the spec requires.
     #[cfg(windows)]
     fn route_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
+        self.route_wheel_event_at(event, self.now_ms())
+    }
+
+    #[cfg(windows)]
+    fn route_wheel_event_at(&self, event: WheelInputEvent, now: u64) -> HookDecision {
         // 1. enabled
         if !self.state.enabled.load(Ordering::Relaxed) {
             return HookDecision::Pass;
@@ -583,8 +588,6 @@ impl EngineSink {
                 None => return HookDecision::Pass,
             }
         };
-
-        let now = self.now_ms();
 
         // ONE engine lock for owner reconciliation and registration; no
         // process/root lookup happens while it is held.
@@ -752,9 +755,9 @@ mod tests {
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
-    use std::sync::atomic::AtomicBool;
     #[cfg(windows)]
     use std::sync::atomic::AtomicIsize;
+    use std::sync::atomic::{AtomicBool, AtomicUsize};
     use std::sync::Arc;
 
     #[cfg(windows)]
@@ -868,6 +871,78 @@ mod tests {
             Ok(())
         }
     }
+
+    #[cfg(windows)]
+    #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+    struct DiagnosticEmissionCounters {
+        semantic_pulses: usize,
+        semantic_units: i64,
+        send_input_batches: usize,
+        input_records: usize,
+        wheel_records: usize,
+        keyboard_modifier_records: usize,
+        ctrl_syntheses: usize,
+        shift_syntheses: usize,
+        alt_syntheses: usize,
+        planner_heap_allocations: usize,
+        compatibility_pulses: usize,
+    }
+
+    #[cfg(windows)]
+    struct DiagnosticEmitter {
+        physical_modifiers: ModifierKeys,
+        counters: Mutex<DiagnosticEmissionCounters>,
+    }
+
+    #[cfg(windows)]
+    impl DiagnosticEmitter {
+        fn new(physical_modifiers: ModifierKeys) -> Self {
+            Self {
+                physical_modifiers,
+                counters: Mutex::new(DiagnosticEmissionCounters::default()),
+            }
+        }
+
+        fn snapshot(&self) -> DiagnosticEmissionCounters {
+            *self.counters.lock()
+        }
+    }
+
+    #[cfg(windows)]
+    impl SemanticWheelEmitter for DiagnosticEmitter {
+        fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
+            Ok(())
+        }
+
+        fn emit_semantic(
+            &self,
+            pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: EmissionContext,
+        ) -> Result<()> {
+            let mut counters = self.counters.lock();
+            counters.semantic_pulses += 1;
+            counters.semantic_units += pulse.units as i64;
+            match pulse.sequence.transport {
+                WheelTransport::Native => {
+                    let plan = smoothscroll_platform::windows::diagnose_native_plan(
+                        &pulse,
+                        self.physical_modifiers,
+                    )
+                    .map_err(|error| PlatformError::Os(format!("diagnostic plan: {error:?}")))?;
+                    counters.send_input_batches += plan.send_input_batches;
+                    counters.input_records += plan.input_records;
+                    counters.wheel_records += plan.wheel_records;
+                    counters.keyboard_modifier_records += plan.keyboard_modifier_records;
+                    counters.ctrl_syntheses += plan.ctrl_syntheses;
+                    counters.shift_syntheses += plan.shift_syntheses;
+                    counters.alt_syntheses += plan.alt_syntheses;
+                    counters.planner_heap_allocations += plan.heap_allocations;
+                }
+                WheelTransport::CompatibilityHorizontal => counters.compatibility_pulses += 1,
+            }
+            Ok(())
+        }
+    }
     struct StubProcessQuery;
     impl ProcessQuery for StubProcessQuery {
         fn process_name_under_cursor(&self) -> Option<String> {
@@ -878,6 +953,44 @@ mod tests {
         }
         fn list_visible_processes(&self) -> Vec<ProcessInfo> {
             Vec::new()
+        }
+    }
+
+    #[cfg(windows)]
+    #[derive(Default)]
+    struct DiagnosticProcessQuery {
+        under_cursor_name_calls: AtomicUsize,
+        foreground_name_calls: AtomicUsize,
+        foreground_pid_calls: AtomicUsize,
+    }
+
+    #[cfg(windows)]
+    impl DiagnosticProcessQuery {
+        fn total_name_calls(&self) -> usize {
+            self.under_cursor_name_calls.load(Ordering::Relaxed)
+                + self.foreground_name_calls.load(Ordering::Relaxed)
+        }
+    }
+
+    #[cfg(windows)]
+    impl ProcessQuery for DiagnosticProcessQuery {
+        fn process_name_under_cursor(&self) -> Option<String> {
+            self.under_cursor_name_calls.fetch_add(1, Ordering::Relaxed);
+            None
+        }
+
+        fn foreground_process_id(&self) -> Option<u32> {
+            self.foreground_pid_calls.fetch_add(1, Ordering::Relaxed);
+            None
+        }
+
+        fn list_visible_processes(&self) -> Vec<ProcessInfo> {
+            Vec::new()
+        }
+
+        fn foreground_process_name(&self) -> Option<String> {
+            self.foreground_name_calls.fetch_add(1, Ordering::Relaxed);
+            Some("diagnostic-app".to_string())
         }
     }
     struct StubAutostart;
@@ -964,6 +1077,43 @@ mod tests {
             Some(self.monitor_name.to_string())
         }
     }
+    #[cfg(windows)]
+    struct DiagnosticWindowGeom {
+        root: isize,
+        root_calls: AtomicUsize,
+        discrete_checks: AtomicUsize,
+        detected_discrete: bool,
+    }
+
+    #[cfg(windows)]
+    impl DiagnosticWindowGeom {
+        fn new(root: isize) -> Self {
+            Self {
+                root,
+                root_calls: AtomicUsize::new(0),
+                discrete_checks: AtomicUsize::new(0),
+                detected_discrete: false,
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    impl WindowGeometry for DiagnosticWindowGeom {
+        fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
+            None
+        }
+
+        fn root_window_under_cursor(&self) -> Option<isize> {
+            self.root_calls.fetch_add(1, Ordering::Relaxed);
+            Some(self.root)
+        }
+
+        fn cursor_over_discrete_control(&self) -> bool {
+            self.discrete_checks.fetch_add(1, Ordering::Relaxed);
+            self.detected_discrete
+        }
+    }
+
     #[cfg(windows)]
     struct CountingRootWindowGeom {
         root: isize,
@@ -1295,6 +1445,325 @@ mod tests {
 
     fn eff() -> EffectiveSettings {
         EffectiveSettings::from_settings(&AppSettings::default())
+    }
+
+    #[cfg(windows)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum DiagnosticPath {
+        PlainWheel,
+        CtrlZoom,
+        ShiftPreserve,
+        ShiftConvert,
+        NativeHWheel,
+    }
+
+    #[cfg(windows)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum DiagnosticRate {
+        Slow,
+        Fast,
+        Extreme,
+    }
+
+    #[cfg(windows)]
+    impl DiagnosticRate {
+        fn fixture(self) -> (usize, u64) {
+            match self {
+                Self::Slow => (4, 120),
+                Self::Fast => (12, 10),
+                Self::Extreme => (64, 1),
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+    struct SemanticPathCounters {
+        physical_inputs: usize,
+        registrations: usize,
+        engine_frames: usize,
+        emitted_frames: usize,
+        zero_output_frames: usize,
+        post_input_tail_frames: usize,
+        semantic_pulses: usize,
+        semantic_units: i64,
+        send_input_batches: usize,
+        input_records: usize,
+        wheel_records: usize,
+        keyboard_modifier_records: usize,
+        ctrl_syntheses: usize,
+        shift_syntheses: usize,
+        alt_syntheses: usize,
+        planner_heap_allocations: usize,
+        compatibility_pulses: usize,
+        process_name_lookups: usize,
+        root_lookups: usize,
+        discrete_checks: usize,
+        dispatch_final_engine_locks: usize,
+    }
+
+    #[cfg(windows)]
+    fn diagnostic_settings(path: DiagnosticPath, animation_on: bool) -> AppSettings {
+        let mut settings = AppSettings::default();
+        settings.animation_time_enabled = animation_on;
+        settings.auto_disable_windows_apps = false;
+        settings.excluded_apps.clear();
+        settings.app_profiles.clear();
+        settings.monitor_profiles.clear();
+        settings.force_enable_all_apps = false;
+        settings.game_mode_enabled = false;
+        settings.wheel_output_mode = WheelOutputMode::SmoothPulses;
+        settings.horizontal_smoothness = matches!(
+            path,
+            DiagnosticPath::ShiftConvert | DiagnosticPath::NativeHWheel
+        );
+        settings.shift_wheel_behavior = match path {
+            DiagnosticPath::ShiftConvert => ShiftWheelBehavior::ConvertToHorizontal,
+            _ => ShiftWheelBehavior::Preserve,
+        };
+        settings.smooth_zoom = true;
+        settings
+    }
+
+    #[cfg(windows)]
+    fn diagnostic_modifiers(path: DiagnosticPath) -> ModifierKeys {
+        match path {
+            DiagnosticPath::CtrlZoom => ModifierKeys {
+                ctrl: true,
+                ..ModifierKeys::default()
+            },
+            DiagnosticPath::ShiftPreserve | DiagnosticPath::ShiftConvert => ModifierKeys {
+                shift: true,
+                ..ModifierKeys::default()
+            },
+            DiagnosticPath::PlainWheel | DiagnosticPath::NativeHWheel => ModifierKeys::default(),
+        }
+    }
+
+    #[cfg(windows)]
+    fn diagnostic_event(path: DiagnosticPath) -> WheelInputEvent {
+        let modifiers = diagnostic_modifiers(path);
+        match path {
+            DiagnosticPath::NativeHWheel => horizontal(120, modifiers, InputSource::Wheel),
+            _ => vertical(120, modifiers, InputSource::Wheel),
+        }
+    }
+
+    #[cfg(windows)]
+    fn run_diagnostic_case(
+        path: DiagnosticPath,
+        rate: DiagnosticRate,
+        animation_on: bool,
+    ) -> SemanticPathCounters {
+        const FRAME_DT_MS: f64 = 1_000.0 / 120.0;
+        const FRAME_CAP: usize = 8_192;
+
+        crate::engine_thread::reset_dispatch_diagnostics();
+        let settings = diagnostic_settings(path, animation_on);
+        let physical_modifiers = diagnostic_modifiers(path);
+        let emitter = Arc::new(DiagnosticEmitter::new(physical_modifiers));
+        let processes = Arc::new(DiagnosticProcessQuery::default());
+        let window_geom = Arc::new(DiagnosticWindowGeom::new(0x1000));
+
+        let mut state = make_state_with_emitter(settings.clone(), emitter.clone());
+        {
+            let state_mut =
+                Arc::get_mut(&mut state).expect("diagnostic AppState must be uniquely owned");
+            state_mut.processes = processes.clone();
+            state_mut.window_geom = window_geom.clone();
+        }
+        state.apply_loaded_settings(settings);
+        let sink = EngineSink::new(state.clone());
+        let eff = state.effective.load_full();
+
+        let (input_count, input_interval_ms) = rate.fixture();
+        let mut counters = SemanticPathCounters::default();
+        let mut next_frame_ms = FRAME_DT_MS;
+
+        let run_one_frame = |counters: &mut SemanticPathCounters| {
+            let before = emitter.snapshot().semantic_pulses;
+            crate::engine_thread::run_frame(&state, FRAME_DT_MS, &eff);
+            let after = emitter.snapshot().semantic_pulses;
+            counters.engine_frames += 1;
+            if after > before {
+                counters.emitted_frames += 1;
+            } else {
+                counters.zero_output_frames += 1;
+            }
+        };
+
+        for index in 0..input_count {
+            let input_ms = index as u64 * input_interval_ms;
+            while next_frame_ms <= input_ms as f64 && state.engine.lock().has_pending_work() {
+                run_one_frame(&mut counters);
+                next_frame_ms += FRAME_DT_MS;
+                assert!(
+                    counters.engine_frames < FRAME_CAP,
+                    "diagnostic frame queue did not drain"
+                );
+            }
+
+            counters.physical_inputs += 1;
+            let decision = sink.route_wheel_event_at(diagnostic_event(path), input_ms);
+            if decision == HookDecision::Swallow {
+                counters.registrations += 1;
+            }
+        }
+
+        while state.engine.lock().has_pending_work() {
+            run_one_frame(&mut counters);
+            counters.post_input_tail_frames += 1;
+            assert!(
+                counters.engine_frames < FRAME_CAP,
+                "post-input animation backlog is unbounded"
+            );
+        }
+
+        let emitted = emitter.snapshot();
+        counters.semantic_pulses = emitted.semantic_pulses;
+        counters.semantic_units = emitted.semantic_units;
+        counters.send_input_batches = emitted.send_input_batches;
+        counters.input_records = emitted.input_records;
+        counters.wheel_records = emitted.wheel_records;
+        counters.keyboard_modifier_records = emitted.keyboard_modifier_records;
+        counters.ctrl_syntheses = emitted.ctrl_syntheses;
+        counters.shift_syntheses = emitted.shift_syntheses;
+        counters.alt_syntheses = emitted.alt_syntheses;
+        counters.planner_heap_allocations = emitted.planner_heap_allocations;
+        counters.compatibility_pulses = emitted.compatibility_pulses;
+        counters.process_name_lookups = processes.total_name_calls();
+        counters.root_lookups = window_geom.root_calls.load(Ordering::Relaxed);
+        counters.discrete_checks = window_geom.discrete_checks.load(Ordering::Relaxed);
+        counters.dispatch_final_engine_locks =
+            crate::engine_thread::dispatch_final_engine_lock_count();
+        counters
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn production_like_semantic_path_diagnostics_are_bounded_and_semantic_aware() {
+        let paths = [
+            DiagnosticPath::PlainWheel,
+            DiagnosticPath::CtrlZoom,
+            DiagnosticPath::ShiftPreserve,
+            DiagnosticPath::ShiftConvert,
+            DiagnosticPath::NativeHWheel,
+        ];
+        let rates = [
+            DiagnosticRate::Slow,
+            DiagnosticRate::Fast,
+            DiagnosticRate::Extreme,
+        ];
+
+        for path in paths {
+            for rate in rates {
+                for animation_on in [false, true] {
+                    let counters = run_diagnostic_case(path, rate, animation_on);
+                    println!(
+                        "SEMANTIC_DIAG path={path:?} rate={rate:?} animation={} physical={} registrations={} engine_frames={} emitted_frames={} pulses={} units={} send_input={} input_records={} wheel_records={} keyboard_records={} ctrl_synth={} shift_synth={} alt_synth={} heap_allocs={} compat_pulses={} tail_frames={} process_lookups={} root_lookups={} discrete_checks={} zero_frames={} final_dispatch_locks={}",
+                        if animation_on { "On" } else { "Off" },
+                        counters.physical_inputs,
+                        counters.registrations,
+                        counters.engine_frames,
+                        counters.emitted_frames,
+                        counters.semantic_pulses,
+                        counters.semantic_units,
+                        counters.send_input_batches,
+                        counters.input_records,
+                        counters.wheel_records,
+                        counters.keyboard_modifier_records,
+                        counters.ctrl_syntheses,
+                        counters.shift_syntheses,
+                        counters.alt_syntheses,
+                        counters.planner_heap_allocations,
+                        counters.compatibility_pulses,
+                        counters.post_input_tail_frames,
+                        counters.process_name_lookups,
+                        counters.root_lookups,
+                        counters.discrete_checks,
+                        counters.zero_output_frames,
+                        counters.dispatch_final_engine_locks,
+                    );
+
+                    assert_eq!(counters.registrations, counters.physical_inputs);
+                    assert_eq!(counters.discrete_checks, counters.physical_inputs);
+                    assert_eq!(counters.semantic_pulses, counters.emitted_frames);
+                    assert!(counters.engine_frames < 8_192);
+
+                    if path == DiagnosticPath::CtrlZoom {
+                        assert_eq!(counters.process_name_lookups, 0);
+                        assert_eq!(counters.ctrl_syntheses, 0);
+                        assert_eq!(counters.keyboard_modifier_records, 0);
+                    } else {
+                        assert_eq!(counters.process_name_lookups, counters.emitted_frames);
+                    }
+
+                    if animation_on {
+                        assert_eq!(
+                            counters.root_lookups,
+                            counters.physical_inputs + counters.emitted_frames,
+                            "no-output frames must not trigger root lookups"
+                        );
+                    } else {
+                        assert_eq!(counters.root_lookups, 0);
+                    }
+                    assert!(
+                        counters.dispatch_final_engine_locks <= counters.emitted_frames + 1,
+                        "pending no-output frames must not take the dispatch cleanup lock"
+                    );
+
+                    if path == DiagnosticPath::ShiftConvert {
+                        assert_eq!(counters.send_input_batches, 0);
+                        assert_eq!(counters.wheel_records, 0);
+                        assert_eq!(counters.compatibility_pulses, counters.semantic_pulses);
+                    } else {
+                        assert_eq!(counters.send_input_batches, counters.semantic_pulses);
+                        assert!(counters.wheel_records >= counters.semantic_pulses);
+                    }
+                }
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn extreme_instant_ctrl_zoom_coalesces_without_backlog_or_modifier_synthesis() {
+        let counters =
+            run_diagnostic_case(DiagnosticPath::CtrlZoom, DiagnosticRate::Extreme, false);
+        assert_eq!(counters.physical_inputs, 64);
+        assert_eq!(counters.registrations, 64);
+        assert!(counters.send_input_batches < counters.physical_inputs);
+        assert!(counters.wheel_records > counters.send_input_batches);
+        assert_eq!(counters.post_input_tail_frames, 1);
+        assert_eq!(counters.ctrl_syntheses, 0);
+        assert_eq!(counters.process_name_lookups, 0);
+        assert_eq!(counters.root_lookups, 0);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn fast_animated_ctrl_zoom_tail_is_bounded_without_zero_frame_hot_work() {
+        let counters = run_diagnostic_case(DiagnosticPath::CtrlZoom, DiagnosticRate::Fast, true);
+        assert_eq!(counters.physical_inputs, 12);
+        assert_eq!(counters.registrations, counters.physical_inputs);
+        assert!(counters.post_input_tail_frames > 0);
+        assert!(
+            counters.post_input_tail_frames <= 120,
+            "fast animated zoom tail exceeded a one-second 120fps budget: {} frames",
+            counters.post_input_tail_frames
+        );
+        assert!(counters.semantic_pulses > 0);
+        assert_eq!(counters.process_name_lookups, 0);
+        assert_eq!(counters.ctrl_syntheses, 0);
+        assert_eq!(
+            counters.root_lookups,
+            counters.physical_inputs + counters.emitted_frames,
+            "zero-output frames must not perform root lookup"
+        );
+        assert!(
+            counters.dispatch_final_engine_locks <= counters.emitted_frames + 1,
+            "pending zero-output frames must not take the final dispatch lock"
+        );
     }
 
     #[test]
@@ -2130,6 +2599,25 @@ mod tests {
 
         assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn high_res_and_multi_notch_wheel_over_discrete_control_stay_raw() {
+        let recorder = Arc::new(RecordingEmitter::default());
+        let mut state = make_state_with_emitter(AppSettings::default(), recorder.clone());
+        Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(
+            sink.on_wheel_event(vertical(60, no_mods(), InputSource::HighResWheel)),
+            HookDecision::Pass
+        );
+        assert_eq!(
+            sink.on_wheel_event(vertical(360, no_mods(), InputSource::Wheel)),
+            HookDecision::Pass
+        );
+        assert!(!state.engine.lock().has_pending_work());
+        assert!(recorder.semantic_calls.lock().is_empty());
     }
 
     #[test]
