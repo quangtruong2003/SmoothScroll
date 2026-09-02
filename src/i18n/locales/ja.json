@@ -115,7 +115,8 @@
     "title": "SmoothScroll へようこそ",
     "body": "1分以内にホイールが滑らかに感じられるようになります。下から経路を選んでください。",
     "just_smooth": "とりあえずスムーズに (推奨)",
-    "guided": "私に合わせて調整 (3つの簡単なステップ)"
+    "guided": "私に合わせて調整 (3つの簡単なステップ)",
+    "skip": "スキップ — 後で設定する"
   },
   "stats": {
     "title": "あなたの統計 (ローカルのみ)",
@@ -320,6 +321,10 @@
         "title": "加速係数",
         "desc": "大きなフリックを強調。0で加速を無効化。"
       }
+    },
+    "zoom_sensitivity": {
+      "title": "ズーム感度",
+      "desc": "Ctrl+ホイールのズーム速度を調整"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "プリセットを適用",
+    "preset_desc": "ワンクリックのプリセットでスクロール感を上書きします。下のスライダーで微調整できます。"
   },
   "app_profiles": {
     "description": "特定のアプリでのSmoothScrollの動作を選択します。",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "削除できません: プロファイルは {{count}} 個のアプリに割り当てられています",
     "app_profile_assign_failed": "アプリにプロファイルを割り当てられませんでした",
     "app_profile_remove_failed": "アプリの上書きを削除できませんでした",
-    "save_failed": "設定の保存に失敗しました。変更はメモリには残りますが、保持されません。"
+    "save_failed": "設定の保存に失敗しました。変更はメモリには残りますが、保持されません。",
+    "profile_update_failed": "プロファイルを保存できませんでした",
+    "profile_delete_failed": "プロファイルを削除できませんでした"
   },
   "language": {
     "select_label": "表示言語",
@@ -439,7 +448,9 @@
     "load_failed": "設定の読み込みに失敗しました: {{error}}",
     "cancel": "キャンセル",
     "save": "保存",
-    "add": "追加"
+    "add": "追加",
+    "close": "閉じる",
+    "load_failed_generic": "設定を読み込めませんでした。もう一度お試しください。"
   },
   "about": {
     "version": "バージョン",
@@ -459,7 +470,9 @@
     "restart_now": "今すぐ再起動",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "リリースノートを表示"
+    "show_release_notes": "リリースノートを表示",
+    "update_check_failed": "アップデートを確認できませんでした。もう一度お試しください。",
+    "update_install_failed": "アップデートをインストールできませんでした。もう一度お試しください。"
   },
   "support": {
     "title": "このプロジェクトをサポート",
@@ -474,7 +487,8 @@
     "qr_load_failed": "QRを読み込めませんでした",
     "qr_zoom_title": "スキャンして送金",
     "qr_alt": "銀行送金用 VietQR",
-    "donate_button": "タップして寄付"
+    "donate_button": "タップして寄付",
+    "bank_vietnam": "ベトナムの銀行"
   },
   "forced_update": {
     "title": "アップデートが必要です",
@@ -488,7 +502,8 @@
     "restarting": "アップデートをインストールしました。再起動中…",
     "quit": "終了",
     "skip": "スキップ (信頼できる端末)",
-    "error": "アップデートに失敗しました: {{message}}"
+    "error": "アップデートに失敗しました: {{message}}",
+    "error_generic": "アップデートに失敗しました。もう一度お試しください。"
   },
   "tray": {
     "quick_access": "クイックアクセス",

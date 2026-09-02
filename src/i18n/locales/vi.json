@@ -115,7 +115,8 @@
     "title": "Chào mừng đến với SmoothScroll",
     "body": "Chỉ trong dưới một phút, bánh xe chuột của bạn sẽ mượt như nhung. Chọn một lựa chọn bên dưới.",
     "just_smooth": "Cứ làm mượt thôi (khuyên dùng)",
-    "guided": "Tinh chỉnh giúp tôi (3 bước nhanh)"
+    "guided": "Tinh chỉnh giúp tôi (3 bước nhanh)",
+    "skip": "Bỏ qua — tôi sẽ thiết lập sau"
   },
   "stats": {
     "title": "Thống kê của bạn (chỉ trên máy)",
@@ -320,6 +321,10 @@
         "title": "Hệ số gia tốc",
         "desc": "Khuếch đại cú vuốt nhanh. 0 để tắt gia tốc."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Độ nhạy thu phóng",
+      "desc": "Điều chỉnh tốc độ thu phóng Ctrl+Wheel"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Áp dụng preset…",
     "apply_preset_confirm_title": "Thay thế cài đặt hiện tại?",
     "apply_preset_confirm_body": "Hành động này sẽ ghi đè kích thước bước, thời gian hiệu ứng, vận tốc tối đa và gia tốc tối đa.",
-    "apply_preset_confirm": "Thay thế"
+    "apply_preset_confirm": "Thay thế",
+    "preset": "Áp dụng preset",
+    "preset_desc": "Ghi đè cảm giác cuộn bằng preset một chạm. Tinh chỉnh thêm bằng các thanh trượt bên dưới."
   },
   "app_profiles": {
     "description": "Chọn cách SmoothScroll hoạt động trong từng ứng dụng.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Không thể xoá: hồ sơ đang được dùng cho {{count}} ứng dụng",
     "app_profile_assign_failed": "Không thể gán hồ sơ cho ứng dụng",
     "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng",
-    "save_failed": "Lưu cài đặt thất bại. Thay đổi vẫn còn trong bộ nhớ nhưng sẽ không được lưu."
+    "save_failed": "Lưu cài đặt thất bại. Thay đổi vẫn còn trong bộ nhớ nhưng sẽ không được lưu.",
+    "profile_update_failed": "Không thể lưu hồ sơ",
+    "profile_delete_failed": "Không thể xóa hồ sơ"
   },
   "language": {
     "select_label": "Ngôn ngữ hiển thị",
@@ -439,7 +448,9 @@
     "load_failed": "Không tải được cài đặt: {{error}}",
     "cancel": "Hủy",
     "save": "Lưu",
-    "add": "Thêm"
+    "add": "Thêm",
+    "close": "Đóng",
+    "load_failed_generic": "Không tải được cài đặt. Vui lòng thử lại."
   },
   "about": {
     "version": "Phiên bản",
@@ -459,7 +470,9 @@
     "restart_now": "Khởi động lại",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "Bản macOS chưa được ký số và chạy trên kênh beta cho đến khi có chứng chỉ Apple Developer ID.",
-    "show_release_notes": "Xem ghi chú phát hành"
+    "show_release_notes": "Xem ghi chú phát hành",
+    "update_check_failed": "Không thể kiểm tra bản cập nhật. Vui lòng thử lại.",
+    "update_install_failed": "Không thể cài đặt bản cập nhật. Vui lòng thử lại."
   },
   "support": {
     "title": "Ủng hộ dự án",
@@ -474,7 +487,8 @@
     "qr_load_failed": "Không tải được mã QR",
     "qr_zoom_title": "Quét để chuyển khoản",
     "qr_alt": "Mã VietQR để chuyển khoản",
-    "donate_button": "Nhấn vào đây để Donate"
+    "donate_button": "Nhấn vào đây để Donate",
+    "bank_vietnam": "Ngân hàng Việt Nam"
   },
   "forced_update": {
     "title": "Bắt buộc cập nhật",
@@ -488,7 +502,8 @@
     "restarting": "Đã cài đặt xong. Đang khởi động lại…",
     "quit": "Thoát app",
     "skip": "Bỏ qua (máy tin cậy)",
-    "error": "Cập nhật thất bại: {{message}}"
+    "error": "Cập nhật thất bại: {{message}}",
+    "error_generic": "Cập nhật thất bại. Vui lòng thử lại."
   },
   "tray": {
     "quick_access": "Truy cập nhanh",

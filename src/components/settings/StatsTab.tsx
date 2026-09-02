@@ -39,34 +39,34 @@ export function StatsTab() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">{t("stats.today", "Today's Scroll Stats")}</h2>
+      <h2 className="text-lg font-semibold">{t("stats.today")}</h2>
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="pt-4 text-center">
             <MousePointer2 className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
             <p className="text-2xl font-bold tabular-nums">{distanceLabel}</p>
-            <p className="text-xs text-muted-foreground">{t("stats.distance", "Distance")}</p>
+            <p className="text-xs text-muted-foreground">{t("stats.distance")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
             <Activity className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
             <p className="text-2xl font-bold tabular-nums">{formatTime(stats.active_time_ms)}</p>
-            <p className="text-xs text-muted-foreground">{t("stats.active_time", "Active")}</p>
+            <p className="text-xs text-muted-foreground">{t("stats.active_time")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
             <BarChart3 className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
             <p className="text-2xl font-bold tabular-nums">{stats.total_notches.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">{t("stats.notches", "Notches")}</p>
+            <p className="text-xs text-muted-foreground">{t("stats.notches")}</p>
           </CardContent>
         </Card>
       </div>
       {topApps.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t("stats.top_apps", "Top Apps")}</CardTitle>
+            <CardTitle className="text-base">{t("stats.top_apps")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {topApps.map(([name, px], i) => {
@@ -88,11 +88,11 @@ export function StatsTab() {
       <Card>
         <CardContent className="pt-4 space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">{t("stats.peak_velocity", "Peak velocity")}</span>
-            <span className="font-medium tabular-nums">{stats.peak_velocity.toFixed(1)} {t("stats.notches_sec", "notches/sec")}</span>
+            <span className="text-muted-foreground">{t("stats.peak_velocity")}</span>
+            <span className="font-medium tabular-nums">{stats.peak_velocity.toFixed(1)} {t("stats.notches_sec")}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">{t("stats.profile_switches", "Profile switches")}</span>
+            <span className="text-muted-foreground">{t("stats.profile_switches")}</span>
             <span className="font-medium tabular-nums">{stats.profile_switches}</span>
           </div>
         </CardContent>

@@ -115,7 +115,8 @@
     "title": "SmoothScroll में आपका स्वागत है",
     "body": "एक मिनट से कम में आपका व्हील मक्खन-जैसा चिकना हो जाएगा। नीचे एक पथ चुनें।",
     "just_smooth": "बस इसे स्मूथ करें (अनुशंसित)",
-    "guided": "मेरे लिए ट्यून करें (3 त्वरित चरण)"
+    "guided": "मेरे लिए ट्यून करें (3 त्वरित चरण)",
+    "skip": "छोड़ें — बाद में सेट करूँगा"
   },
   "stats": {
     "title": "आपके आँकड़े (केवल स्थानीय)",
@@ -320,6 +321,10 @@
         "title": "त्वरण कारक",
         "desc": "बड़े फ्लिक्स बढ़ाएँ। 0 त्वरण को निष्क्रिय करता है।"
       }
+    },
+    "zoom_sensitivity": {
+      "title": "ज़ूम संवेदनशीलता",
+      "desc": "Ctrl+Wheel ज़ूम की गति समायोजित करें"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "प्रीसेट लागू करें",
+    "preset_desc": "एक क्लिक में प्रीसेट से स्क्रॉल फ़ील बदलें। बारीक समायोजन के लिए नीचे के स्लाइडर बदलें।"
   },
   "app_profiles": {
     "description": "चुनें कि SmoothScroll विशिष्ट ऐप्स में कैसे व्यवहार करे।",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "हटाया नहीं जा सकता: प्रोफ़ाइल {{count}} ऐप्स को असाइन है",
     "app_profile_assign_failed": "ऐप को प्रोफ़ाइल असाइन करने में विफल",
     "app_profile_remove_failed": "ऐप ओवरराइड हटाने में विफल",
-    "save_failed": "सेटिंग्स सहेजने में विफल। परिवर्तन मेमोरी में रखे जाएँगे लेकिन स्थायी नहीं होंगे।"
+    "save_failed": "सेटिंग्स सहेजने में विफल। परिवर्तन मेमोरी में रखे जाएँगे लेकिन स्थायी नहीं होंगे।",
+    "profile_update_failed": "प्रोफ़ाइल सहेजी नहीं जा सकी",
+    "profile_delete_failed": "प्रोफ़ाइल हटाई नहीं जा सकी"
   },
   "language": {
     "select_label": "प्रदर्शन भाषा",
@@ -439,7 +448,9 @@
     "load_failed": "सेटिंग्स लोड करने में विफल: {{error}}",
     "cancel": "रद्द करें",
     "save": "सहेजें",
-    "add": "जोड़ें"
+    "add": "जोड़ें",
+    "close": "बंद करें",
+    "load_failed_generic": "सेटिंग लोड नहीं हो सकीं। कृपया फिर कोशिश करें।"
   },
   "about": {
     "version": "संस्करण",
@@ -459,7 +470,9 @@
     "restart_now": "अभी पुनरारंभ करें",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "रिलीज़ नोट्स दिखाएँ"
+    "show_release_notes": "रिलीज़ नोट्स दिखाएँ",
+    "update_check_failed": "अपडेट जाँचा नहीं जा सका। कृपया फिर कोशिश करें।",
+    "update_install_failed": "अपडेट इंस्टॉल नहीं हो सका। कृपया फिर कोशिश करें।"
   },
   "support": {
     "title": "इस प्रोजेक्ट का समर्थन करें",
@@ -474,7 +487,8 @@
     "qr_load_failed": "QR लोड नहीं हो सका",
     "qr_zoom_title": "ट्रांसफर के लिए स्कैन करें",
     "qr_alt": "बैंक ट्रांसफर के लिए VietQR",
-    "donate_button": "दान के लिए यहाँ टैप करें"
+    "donate_button": "दान के लिए यहाँ टैप करें",
+    "bank_vietnam": "वियतनाम बैंक"
   },
   "forced_update": {
     "title": "अपडेट आवश्यक",
@@ -488,7 +502,8 @@
     "restarting": "अपडेट इंस्टॉल हुआ। पुनरारंभ हो रहा है…",
     "quit": "ऐप छोड़ें",
     "skip": "छोड़ें (विश्वसनीय डिवाइस)",
-    "error": "अपडेट विफल: {{message}}"
+    "error": "अपडेट विफल: {{message}}",
+    "error_generic": "अपडेट विफल रहा। कृपया फिर कोशिश करें।"
   },
   "tray": {
     "quick_access": "त्वरित पहुँच",

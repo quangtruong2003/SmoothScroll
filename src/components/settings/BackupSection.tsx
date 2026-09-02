@@ -57,7 +57,7 @@ export function BackupSection() {
     URL.revokeObjectURL(url);
     showStatus({
       kind: "ok",
-      message: t("backup.exported", "Settings exported successfully"),
+      message: t("backup.exported"),
     });
   };
 
@@ -71,10 +71,7 @@ export function BackupSection() {
     if (!file) return;
     if (
       !window.confirm(
-        t(
-          "backup.confirm_import",
-          "Import will overwrite your current settings. Continue?",
-        ),
+        t("backup.confirm_import"),
       )
     ) {
       return;
@@ -89,7 +86,7 @@ export function BackupSection() {
       await reload();
       showStatus({
         kind: "ok",
-        message: t("backup.imported", "Settings imported. Reloading…"),
+        message: t("backup.imported"),
       });
     } catch {
       showStatus({
@@ -102,14 +99,11 @@ export function BackupSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("backup.title", "Backup & restore")}</CardTitle>
+        <CardTitle>{t("backup.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <p className="text-xs text-muted-foreground">
-          {t(
-            "backup.description",
-            "Export your settings to a JSON file or restore from a backup. Useful when moving to a new machine.",
-          )}
+          {t("backup.description")}
         </p>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -119,11 +113,11 @@ export function BackupSection() {
             disabled={!settings}
           >
             <Download className="mr-2 h-3.5 w-3.5" />
-            {t("backup.export", "Export settings")}
+            {t("backup.export")}
           </Button>
           <Button variant="outline" size="sm" onClick={onImportClick}>
             <Upload className="mr-2 h-3.5 w-3.5" />
-            {t("backup.import", "Import settings")}
+            {t("backup.import")}
           </Button>
           <input
             ref={fileInputRef}

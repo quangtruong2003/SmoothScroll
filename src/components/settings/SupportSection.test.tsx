@@ -12,7 +12,13 @@ vi.mock("@tauri-apps/plugin-shell", () => ({
 }));
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) =>
+      ({
+        "support.buy_me_a_coffee": "Buy Me a Coffee",
+        "support.bank_vietnam": "Bank Việt Nam",
+      })[key] ?? key,
+  }),
 }));
 
 import { BANK_QR_URL, BMC_URL } from "@/lib/donate";

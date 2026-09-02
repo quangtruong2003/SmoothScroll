@@ -70,7 +70,7 @@ export function ProfilesSection() {
       toast.success(t("profiles.deleted", { name: profile.name }));
     } catch (e) {
       console.error("deleteProfile failed", e);
-      toast.error(String(e));
+      toast.error(t("errors.profile_delete_failed"));
     }
   };
 

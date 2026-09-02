@@ -115,7 +115,8 @@
     "title": "欢迎使用 SmoothScroll",
     "body": "我们将在一分钟内让您的滚轮变得丝滑顺畅。请在下方选择一种方式。",
     "just_smooth": "直接平滑(推荐)",
-    "guided": "为我调整(3 个快捷步骤)"
+    "guided": "为我调整(3 个快捷步骤)",
+    "skip": "跳过 — 稍后设置"
   },
   "stats": {
     "title": "您的统计(仅本地)",
@@ -320,6 +321,10 @@
         "title": "加速系数",
         "desc": "增强快速滑动。0 表示禁用加速。"
       }
+    },
+    "zoom_sensitivity": {
+      "title": "缩放灵敏度",
+      "desc": "调整 Ctrl+滚轮的缩放速度"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "应用预设",
+    "preset_desc": "一键使用预设覆盖滚动手感。可通过下方滑块进行微调。"
   },
   "app_profiles": {
     "description": "选择 SmoothScroll 在特定应用中的行为方式。",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "无法删除：配置已分配给 {{count}} 个应用",
     "app_profile_assign_failed": "无法为应用分配配置",
     "app_profile_remove_failed": "无法移除应用覆盖",
-    "save_failed": "保存设置失败。更改保留在内存中但不会持久化。"
+    "save_failed": "保存设置失败。更改保留在内存中但不会持久化。",
+    "profile_update_failed": "无法保存配置",
+    "profile_delete_failed": "无法删除配置"
   },
   "language": {
     "select_label": "显示语言",
@@ -439,7 +448,9 @@
     "load_failed": "加载设置失败: {{error}}",
     "cancel": "取消",
     "save": "保存",
-    "add": "添加"
+    "add": "添加",
+    "close": "关闭",
+    "load_failed_generic": "无法加载设置。请重试。"
   },
   "about": {
     "version": "版本",
@@ -459,7 +470,9 @@
     "restart_now": "立即重启",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS 版本未经签名，在配置 Apple Developer ID 之前运行在 beta 通道。",
-    "show_release_notes": "查看发行说明"
+    "show_release_notes": "查看发行说明",
+    "update_check_failed": "无法检查更新。请重试。",
+    "update_install_failed": "无法安装更新。请重试。"
   },
   "support": {
     "title": "支持这个项目",
@@ -474,7 +487,8 @@
     "qr_load_failed": "无法加载二维码",
     "qr_zoom_title": "扫码转账",
     "qr_alt": "用于银行转账的 VietQR",
-    "donate_button": "点击此处捐赠"
+    "donate_button": "点击此处捐赠",
+    "bank_vietnam": "越南银行"
   },
   "forced_update": {
     "title": "必须更新",
@@ -488,7 +502,8 @@
     "restarting": "已安装更新。正在重新启动…",
     "quit": "退出应用",
     "skip": "跳过（受信任设备）",
-    "error": "更新失败: {{message}}"
+    "error": "更新失败: {{message}}",
+    "error_generic": "更新失败。请重试。"
   },
   "tray": {
     "quick_access": "快速访问",

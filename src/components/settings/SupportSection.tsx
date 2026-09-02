@@ -57,11 +57,11 @@ export function SupportSection() {
             onClick={handleBuyMeACoffee}
           >
             <Coffee className="h-4 w-4" />
-            Buy Me a Coffee
+            {t("support.buy_me_a_coffee")}
           </Button>
           <Button className="gap-2" onClick={() => showQr("bank")}>
             <QrCode className="h-4 w-4" />
-            Bank Việt Nam
+            {t("support.bank_vietnam")}
           </Button>
         </div>
 

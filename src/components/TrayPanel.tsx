@@ -211,8 +211,8 @@ export function TrayPanel() {
               IS_LINUX
                 ? t('tray.start_with_system')
                 : IS_MAC
-                  ? t('tray.start_with_macos', 'Start at Login')
-                  : t('tray.start_with_windows', 'Start with Windows')
+                  ? t('tray.start_with_macos')
+                  : t('tray.start_with_windows')
             }
             toggle
             checked={autostart}

@@ -108,7 +108,8 @@ export function ProfileEditor({ profile, onClose }: Props) {
       toast.success(t("profiles.saved", { name }));
       onClose();
     } catch (e) {
-      toast.error(String(e));
+      console.error("updateProfile failed", e);
+      toast.error(t("errors.profile_update_failed"));
     } finally {
       setSaving(false);
     }
@@ -389,13 +390,13 @@ export function ProfileEditor({ profile, onClose }: Props) {
 
             <SettingRow
               htmlFor="profile-zoom-sensitivity"
-              title={t("settings.zoom_sensitivity.title", { defaultValue: "Zoom sensitivity" })}
-              description={t("settings.zoom_sensitivity.desc", { defaultValue: "Scale Ctrl+Wheel zoom speed" })}
+              title={t("settings.zoom_sensitivity.title")}
+              description={t("settings.zoom_sensitivity.desc")}
               trailing={`${draft.zoom_sensitivity.toFixed(2)}x`}
             >
               <Slider
                 id="profile-zoom-sensitivity"
-                aria-label={t("settings.zoom_sensitivity.title", { defaultValue: "Zoom sensitivity" })}
+                aria-label={t("settings.zoom_sensitivity.title")}
                 value={[draft.zoom_sensitivity]}
                 min={0.25}
                 max={4}

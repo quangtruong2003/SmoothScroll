@@ -115,7 +115,8 @@
     "title": "Welcome to SmoothScroll",
     "body": "We'll get your wheel feeling buttery smooth in under a minute. Pick a path below.",
     "just_smooth": "Just smooth it (recommended)",
-    "guided": "Tune it for me (3 quick steps)"
+    "guided": "Tune it for me (3 quick steps)",
+    "skip": "Skip — I'll configure later"
   },
   "stats": {
     "title": "Your stats (local only)",
@@ -320,6 +321,10 @@
         "title": "Acceleration factor",
         "desc": "Boost large flicks. 0 disables acceleration."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Zoom sensitivity",
+      "desc": "Scale Ctrl+Wheel zoom speed"
     }
   },
   "excluded": {
@@ -417,7 +422,9 @@
     "profile_in_use_plural": "Cannot delete: profile is assigned to {{count}} apps",
     "app_profile_assign_failed": "Failed to assign profile to app",
     "app_profile_remove_failed": "Failed to remove app override",
-    "save_failed": "Failed to save settings. Changes are kept in memory but won't persist."
+    "save_failed": "Failed to save settings. Changes are kept in memory but won't persist.",
+    "profile_update_failed": "Failed to save profile",
+    "profile_delete_failed": "Failed to delete profile"
   },
   "language": {
     "select_label": "Display language",
@@ -441,7 +448,9 @@
     "load_failed": "Failed to load settings: {{error}}",
     "cancel": "Cancel",
     "save": "Save",
-    "add": "Add"
+    "add": "Add",
+    "close": "Close",
+    "load_failed_generic": "Failed to load settings. Please try again."
   },
   "about": {
     "version": "Version",
@@ -461,7 +470,9 @@
     "restart_now": "Restart now",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Show release notes"
+    "show_release_notes": "Show release notes",
+    "update_check_failed": "Could not check for updates. Please try again.",
+    "update_install_failed": "Could not install the update. Please try again."
   },
   "support": {
     "title": "Support this project",
@@ -476,7 +487,8 @@
     "qr_load_failed": "Could not load QR",
     "qr_zoom_title": "Scan to transfer",
     "qr_alt": "VietQR for bank transfer",
-    "donate_button": "Tap here to donate"
+    "donate_button": "Tap here to donate",
+    "bank_vietnam": "Vietnam bank"
   },
   "forced_update": {
     "title": "Update required",
@@ -490,7 +502,8 @@
     "restarting": "Update installed. Restarting…",
     "quit": "Quit app",
     "skip": "Skip (trusted device)",
-    "error": "Update failed: {{message}}"
+    "error": "Update failed: {{message}}",
+    "error_generic": "Update failed. Please try again."
   },
   "tray": {
     "quick_access": "Quick Access",

@@ -65,12 +65,7 @@ export function BatteryHint() {
       ) : (
         <BatteryFull className="h-3.5 w-3.5 shrink-0" />
       )}
-      <span>
-        {t(
-          "battery.low_hint",
-          "Battery is low. Smooth scrolling adds a small CPU cost — consider turning it off temporarily.",
-        )}
-      </span>
+      <span>{t("battery.low_hint")}</span>
     </div>
   );
 }

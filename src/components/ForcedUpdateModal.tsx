@@ -21,7 +21,7 @@ type ModalState =
   | { kind: "idle" }
   | { kind: "downloading"; progress: InstallProgress }
   | { kind: "installed" }
-  | { kind: "error"; message: string };
+  | { kind: "error" };
 
 export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: ForcedUpdateModalProps) {
   const { t } = useTranslation();
@@ -40,11 +40,13 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
       try {
         await restartApp();
       } catch (e) {
-        setState({ kind: "error", message: String(e) });
+        console.error("forced update restart failed", e);
+        setState({ kind: "error" });
       }
     } catch (e) {
+      console.error("forced update install failed", e);
       void invoke("restore_window_size");
-      setState({ kind: "error", message: String(e) });
+      setState({ kind: "error" });
     }
   };
 
@@ -119,7 +121,7 @@ export function ForcedUpdateModal({ update, currentVersion, canSkip, onSkip }: F
 
         {state.kind === "error" && (
           <p className="text-sm text-destructive">
-            {t("forced_update.error", { message: state.message })}
+            {t("forced_update.error_generic")}
           </p>
         )}
       </div>

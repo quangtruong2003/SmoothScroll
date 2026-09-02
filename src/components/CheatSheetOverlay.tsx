@@ -43,13 +43,13 @@ export function CheatSheetOverlay() {
   const mod = isMac ? "⌘" : "Ctrl";
 
   const rows: { keys: string[]; label: string }[] = [
-    { keys: ["?"], label: t("cheatsheet.toggle", "Show / hide this sheet") },
-    { keys: [`${mod}`, "/"], label: t("cheatsheet.toggle_alt", "Same — alternative") },
-    { keys: ["Ctrl", "Alt", "S"], label: t("cheatsheet.toggle_smoothing", "Toggle smooth scrolling on/off (rebindable)") },
-    { keys: ["Esc"], label: t("cheatsheet.close", "Close dialogs / this sheet") },
-    { keys: ["Tab"], label: t("cheatsheet.tab", "Move focus between controls") },
-    { keys: ["Space"], label: t("cheatsheet.space_slider", "Toggle slider value (when focused)") },
-    { keys: ["←", "→"], label: t("cheatsheet.arrows", "Adjust slider step-by-step") },
+    { keys: ["?"], label: t("cheatsheet.toggle") },
+    { keys: [`${mod}`, "/"], label: t("cheatsheet.toggle_alt") },
+    { keys: ["Ctrl", "Alt", "S"], label: t("cheatsheet.toggle_smoothing") },
+    { keys: ["Esc"], label: t("cheatsheet.close") },
+    { keys: ["Tab"], label: t("cheatsheet.tab") },
+    { keys: ["Space"], label: t("cheatsheet.space_slider") },
+    { keys: ["←", "→"], label: t("cheatsheet.arrows") },
   ];
 
   return (
@@ -68,12 +68,12 @@ export function CheatSheetOverlay() {
           <div className="flex items-center gap-2">
             <Keyboard className="h-4 w-4 text-muted-foreground" />
             <h2 id="cheatsheet-title" className="text-sm font-semibold">
-              {t("cheatsheet.title", "Keyboard shortcuts")}
+              {t("cheatsheet.title")}
             </h2>
           </div>
           <button
             type="button"
-            aria-label={t("cheatsheet.close", "Close")}
+            aria-label={t("common.close")}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
             onClick={() => setOpen(false)}
           >
@@ -101,7 +101,7 @@ export function CheatSheetOverlay() {
           ))}
         </ul>
         <footer className="mt-4 text-center text-[0.77rem] text-muted-foreground">
-          {t("cheatsheet.hint", "Press ? anywhere to open this sheet")}
+          {t("cheatsheet.hint")}
         </footer>
       </div>
     </div>

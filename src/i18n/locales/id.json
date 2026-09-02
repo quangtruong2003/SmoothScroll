@@ -115,7 +115,8 @@
     "title": "Selamat datang di SmoothScroll",
     "body": "Dalam waktu kurang dari satu menit, roda Anda akan terasa selembut mentega. Pilih jalur di bawah.",
     "just_smooth": "Hanya buat halus (disarankan)",
-    "guided": "Sesuaikan untuk saya (3 langkah cepat)"
+    "guided": "Sesuaikan untuk saya (3 langkah cepat)",
+    "skip": "Lewati — atur nanti"
   },
   "stats": {
     "title": "Statistik Anda (lokal saja)",
@@ -320,6 +321,10 @@
         "title": "Faktor akselerasi",
         "desc": "Tingkatkan flick besar. 0 menonaktifkan akselerasi."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Sensitivitas zoom",
+      "desc": "Atur kecepatan zoom Ctrl+Wheel"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Terapkan preset",
+    "preset_desc": "Ganti nuansa scroll dengan preset sekali klik. Sesuaikan slider di bawah untuk penyetelan lebih lanjut."
   },
   "app_profiles": {
     "description": "Pilih bagaimana SmoothScroll berperilaku di aplikasi tertentu.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Tidak dapat menghapus: profil ditugaskan ke {{count}} aplikasi",
     "app_profile_assign_failed": "Gagal menugaskan profil ke aplikasi",
     "app_profile_remove_failed": "Gagal menghapus penggantian aplikasi",
-    "save_failed": "Gagal menyimpan pengaturan. Perubahan disimpan di memori tetapi tidak akan persisten."
+    "save_failed": "Gagal menyimpan pengaturan. Perubahan disimpan di memori tetapi tidak akan persisten.",
+    "profile_update_failed": "Profil gagal disimpan",
+    "profile_delete_failed": "Profil gagal dihapus"
   },
   "language": {
     "select_label": "Bahasa tampilan",
@@ -439,7 +448,9 @@
     "load_failed": "Gagal memuat pengaturan: {{error}}",
     "cancel": "Batal",
     "save": "Simpan",
-    "add": "Tambah"
+    "add": "Tambah",
+    "close": "Tutup",
+    "load_failed_generic": "Pengaturan gagal dimuat. Silakan coba lagi."
   },
   "about": {
     "version": "Versi",
@@ -459,7 +470,9 @@
     "restart_now": "Mulai ulang",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Lihat catatan rilis"
+    "show_release_notes": "Lihat catatan rilis",
+    "update_check_failed": "Gagal memeriksa pembaruan. Silakan coba lagi.",
+    "update_install_failed": "Gagal memasang pembaruan. Silakan coba lagi."
   },
   "support": {
     "title": "Dukung proyek ini",
@@ -474,7 +487,8 @@
     "qr_load_failed": "QR gagal dimuat",
     "qr_zoom_title": "Pindai untuk transfer",
     "qr_alt": "VietQR untuk transfer bank",
-    "donate_button": "Ketuk di sini untuk donasi"
+    "donate_button": "Ketuk di sini untuk donasi",
+    "bank_vietnam": "Bank Vietnam"
   },
   "forced_update": {
     "title": "Pembaruan diperlukan",
@@ -488,7 +502,8 @@
     "restarting": "Pembaruan dipasang. Memulai ulang…",
     "quit": "Keluar",
     "skip": "Lewati (perangkat tepercaya)",
-    "error": "Pembaruan gagal: {{message}}"
+    "error": "Pembaruan gagal: {{message}}",
+    "error_generic": "Pembaruan gagal. Silakan coba lagi."
   },
   "tray": {
     "quick_access": "Akses Cepat",

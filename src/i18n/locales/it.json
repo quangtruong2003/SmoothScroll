@@ -115,7 +115,8 @@
     "title": "Benvenuto in SmoothScroll",
     "body": "In meno di un minuto la tua rotellina diventerà liscia come il burro. Scegli un percorso qui sotto.",
     "just_smooth": "Rendilo solo fluido (consigliato)",
-    "guided": "Configuralo per me (3 passaggi rapidi)"
+    "guided": "Configuralo per me (3 passaggi rapidi)",
+    "skip": "Salta — configurerò più tardi"
   },
   "stats": {
     "title": "Le tue statistiche (solo locali)",
@@ -320,6 +321,10 @@
         "title": "Fattore di accelerazione",
         "desc": "Amplifica i gesti rapidi. 0 disabilita l'accelerazione."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Sensibilità zoom",
+      "desc": "Regola la velocità dello zoom con Ctrl+rotellina"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Applica preset",
+    "preset_desc": "Sostituisci la sensazione di scorrimento con un preset in un clic. Regola i cursori qui sotto per rifinire."
   },
   "app_profiles": {
     "description": "Scegli come si comporta SmoothScroll in app specifiche.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Eliminazione impossibile: il profilo è assegnato a {{count}} app",
     "app_profile_assign_failed": "Impossibile assegnare il profilo all'app",
     "app_profile_remove_failed": "Impossibile rimuovere la sostituzione",
-    "save_failed": "Impossibile salvare le impostazioni. Le modifiche restano in memoria ma non saranno persistenti."
+    "save_failed": "Impossibile salvare le impostazioni. Le modifiche restano in memoria ma non saranno persistenti.",
+    "profile_update_failed": "Impossibile salvare il profilo",
+    "profile_delete_failed": "Impossibile eliminare il profilo"
   },
   "language": {
     "select_label": "Lingua di visualizzazione",
@@ -439,7 +448,9 @@
     "load_failed": "Impossibile caricare le impostazioni: {{error}}",
     "cancel": "Annulla",
     "save": "Salva",
-    "add": "Aggiungi"
+    "add": "Aggiungi",
+    "close": "Chiudi",
+    "load_failed_generic": "Impossibile caricare le impostazioni. Riprova."
   },
   "about": {
     "version": "Versione",
@@ -459,7 +470,9 @@
     "restart_now": "Riavvia ora",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Mostra note di rilascio"
+    "show_release_notes": "Mostra note di rilascio",
+    "update_check_failed": "Impossibile controllare gli aggiornamenti. Riprova.",
+    "update_install_failed": "Impossibile installare l’aggiornamento. Riprova."
   },
   "support": {
     "title": "Supporta questo progetto",
@@ -474,7 +487,8 @@
     "qr_load_failed": "Impossibile caricare il QR",
     "qr_zoom_title": "Scansiona per trasferire",
     "qr_alt": "VietQR per bonifico bancario",
-    "donate_button": "Tocca qui per donare"
+    "donate_button": "Tocca qui per donare",
+    "bank_vietnam": "Banca vietnamita"
   },
   "forced_update": {
     "title": "Aggiornamento richiesto",
@@ -488,7 +502,8 @@
     "restarting": "Aggiornamento installato. Riavvio in corso…",
     "quit": "Esci",
     "skip": "Salta (dispositivo affidabile)",
-    "error": "Aggiornamento fallito: {{message}}"
+    "error": "Aggiornamento fallito: {{message}}",
+    "error_generic": "Aggiornamento non riuscito. Riprova."
   },
   "tray": {
     "quick_access": "Accesso rapido",

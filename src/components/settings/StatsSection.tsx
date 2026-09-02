@@ -29,10 +29,7 @@ export function StatsSection() {
   const onReset = () => {
     if (
       !window.confirm(
-        t(
-          "stats.confirm_reset",
-          "This will clear all locally-stored statistics. Continue?",
-        ),
+        t("stats.confirm_reset"),
       )
     )
       return;
@@ -45,31 +42,28 @@ export function StatsSection() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4" />
-          {t("stats.title", "Your stats (local only)")}
+          {t("stats.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <p className="text-xs text-muted-foreground">
-          {t(
-            "stats.description",
-            "These numbers stay on your device. Nothing is uploaded.",
-          )}
+          {t("stats.description")}
         </p>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-md border bg-muted/20 p-3 text-xs">
           <dt className="text-muted-foreground">
-            {t("stats.sessions", "Sessions")}
+            {t("stats.sessions")}
           </dt>
           <dd className="text-right font-medium tabular-nums">
             {stats.sessionCount}
           </dd>
           <dt className="text-muted-foreground">
-            {t("stats.using_for", "Using for")}
+            {t("stats.using_for")}
           </dt>
           <dd className="text-right font-medium tabular-nums">{since}</dd>
         </dl>
         <Button variant="outline" size="sm" onClick={onReset}>
           <Trash2 className="mr-2 h-3.5 w-3.5" />
-          {t("stats.reset", "Reset stats")}
+          {t("stats.reset")}
         </Button>
       </CardContent>
     </Card>

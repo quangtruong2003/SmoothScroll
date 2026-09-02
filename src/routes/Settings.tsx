@@ -114,7 +114,7 @@ export function SettingsPage() {
   if (error) {
     return (
       <div className="flex h-screen items-center justify-center text-sm text-destructive">
-        {t("common.load_failed", { error })}
+        {t("common.load_failed_generic")}
       </div>
     );
   }

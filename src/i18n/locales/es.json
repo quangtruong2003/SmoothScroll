@@ -115,7 +115,8 @@
     "title": "Bienvenido a SmoothScroll",
     "body": "En menos de un minuto tu rueda quedará suave como mantequilla. Elige una opción abajo.",
     "just_smooth": "Solo suavízalo (recomendado)",
-    "guided": "Ajústalo por mí (3 pasos rápidos)"
+    "guided": "Ajústalo por mí (3 pasos rápidos)",
+    "skip": "Omitir — configuraré más tarde"
   },
   "stats": {
     "title": "Tus estadísticas (solo locales)",
@@ -320,6 +321,10 @@
         "title": "Factor de aceleración",
         "desc": "Amplifica gestos rápidos. 0 desactiva la aceleración."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Sensibilidad del zoom",
+      "desc": "Ajusta la velocidad del zoom con Ctrl+rueda"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Aplicar preajuste",
+    "preset_desc": "Sustituye el comportamiento con un preajuste de un clic. Ajusta los controles de abajo para afinarlo."
   },
   "app_profiles": {
     "description": "Elige cómo se comporta SmoothScroll en aplicaciones específicas.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "No se puede eliminar: el perfil está asignado a {{count}} aplicaciones",
     "app_profile_assign_failed": "No se pudo asignar el perfil a la aplicación",
     "app_profile_remove_failed": "No se pudo eliminar la sustitución de la aplicación",
-    "save_failed": "No se pudieron guardar los ajustes. Los cambios se mantienen en memoria pero no se conservarán."
+    "save_failed": "No se pudieron guardar los ajustes. Los cambios se mantienen en memoria pero no se conservarán.",
+    "profile_update_failed": "No se pudo guardar el perfil",
+    "profile_delete_failed": "No se pudo eliminar el perfil"
   },
   "language": {
     "select_label": "Idioma de visualización",
@@ -439,7 +448,9 @@
     "load_failed": "No se pudieron cargar los ajustes: {{error}}",
     "cancel": "Cancelar",
     "save": "Guardar",
-    "add": "Añadir"
+    "add": "Añadir",
+    "close": "Cerrar",
+    "load_failed_generic": "No se pudieron cargar los ajustes. Inténtalo de nuevo."
   },
   "about": {
     "version": "Versión",
@@ -459,7 +470,9 @@
     "restart_now": "Reiniciar ahora",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Mostrar notas de la versión"
+    "show_release_notes": "Mostrar notas de la versión",
+    "update_check_failed": "No se pudieron buscar actualizaciones. Inténtalo de nuevo.",
+    "update_install_failed": "No se pudo instalar la actualización. Inténtalo de nuevo."
   },
   "support": {
     "title": "Apoya este proyecto",
@@ -474,7 +487,8 @@
     "qr_load_failed": "No se pudo cargar el QR",
     "qr_zoom_title": "Escanea para transferir",
     "qr_alt": "VietQR para transferencia bancaria",
-    "donate_button": "Toca aquí para donar"
+    "donate_button": "Toca aquí para donar",
+    "bank_vietnam": "Banco de Vietnam"
   },
   "forced_update": {
     "title": "Actualización requerida",
@@ -488,7 +502,8 @@
     "restarting": "Actualización instalada. Reiniciando…",
     "quit": "Salir",
     "skip": "Omitir (dispositivo de confianza)",
-    "error": "Actualización fallida: {{message}}"
+    "error": "Actualización fallida: {{message}}",
+    "error_generic": "La actualización falló. Inténtalo de nuevo."
   },
   "tray": {
     "quick_access": "Acceso rápido",

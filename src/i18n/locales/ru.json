@@ -115,7 +115,8 @@
     "title": "Добро пожаловать в SmoothScroll",
     "body": "Менее чем за минуту ваше колесо станет идеально плавным. Выберите путь ниже.",
     "just_smooth": "Просто сделать плавно (рекомендуется)",
-    "guided": "Настройте за меня (3 быстрых шага)"
+    "guided": "Настройте за меня (3 быстрых шага)",
+    "skip": "Пропустить — настрою позже"
   },
   "stats": {
     "title": "Ваша статистика (только локально)",
@@ -320,6 +321,10 @@
         "title": "Коэффициент ускорения",
         "desc": "Усиливать резкие движения. 0 отключает ускорение."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Чувствительность масштаба",
+      "desc": "Настройте скорость масштаба для Ctrl+колесо"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Применить пресет",
+    "preset_desc": "Замените ощущение прокрутки пресетом в один клик. Для точной настройки используйте ползунки ниже."
   },
   "app_profiles": {
     "description": "Выберите, как SmoothScroll работает в конкретных приложениях.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Удаление невозможно: профиль назначен {{count}} приложениям",
     "app_profile_assign_failed": "Не удалось назначить профиль приложению",
     "app_profile_remove_failed": "Не удалось удалить переопределение приложения",
-    "save_failed": "Не удалось сохранить настройки. Изменения хранятся в памяти, но не сохранятся."
+    "save_failed": "Не удалось сохранить настройки. Изменения хранятся в памяти, но не сохранятся.",
+    "profile_update_failed": "Не удалось сохранить профиль",
+    "profile_delete_failed": "Не удалось удалить профиль"
   },
   "language": {
     "select_label": "Язык интерфейса",
@@ -439,7 +448,9 @@
     "load_failed": "Не удалось загрузить настройки: {{error}}",
     "cancel": "Отмена",
     "save": "Сохранить",
-    "add": "Добавить"
+    "add": "Добавить",
+    "close": "Закрыть",
+    "load_failed_generic": "Не удалось загрузить настройки. Повторите попытку."
   },
   "about": {
     "version": "Версия",
@@ -459,7 +470,9 @@
     "restart_now": "Перезапустить",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Показать примечания к выпуску"
+    "show_release_notes": "Показать примечания к выпуску",
+    "update_check_failed": "Не удалось проверить обновления. Повторите попытку.",
+    "update_install_failed": "Не удалось установить обновление. Повторите попытку."
   },
   "support": {
     "title": "Поддержать проект",
@@ -474,7 +487,8 @@
     "qr_load_failed": "Не удалось загрузить QR",
     "qr_zoom_title": "Отсканируйте для перевода",
     "qr_alt": "VietQR для банковского перевода",
-    "donate_button": "Нажмите, чтобы поддержать"
+    "donate_button": "Нажмите, чтобы поддержать",
+    "bank_vietnam": "Банк Вьетнама"
   },
   "forced_update": {
     "title": "Требуется обновление",
@@ -488,7 +502,8 @@
     "restarting": "Обновление установлено. Перезапуск…",
     "quit": "Выйти",
     "skip": "Пропустить (доверенное устройство)",
-    "error": "Ошибка обновления: {{message}}"
+    "error": "Ошибка обновления: {{message}}",
+    "error_generic": "Не удалось обновить приложение. Повторите попытку."
   },
   "tray": {
     "quick_access": "Быстрый доступ",

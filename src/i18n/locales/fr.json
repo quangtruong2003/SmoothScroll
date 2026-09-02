@@ -115,7 +115,8 @@
     "title": "Bienvenue dans SmoothScroll",
     "body": "Votre molette sera fluide comme du beurre en moins d'une minute. Choisissez une option ci-dessous.",
     "just_smooth": "Juste fluidifier (recommandé)",
-    "guided": "Ajuster pour moi (3 étapes rapides)"
+    "guided": "Ajuster pour moi (3 étapes rapides)",
+    "skip": "Ignorer — je configurerai plus tard"
   },
   "stats": {
     "title": "Vos statistiques (locales uniquement)",
@@ -320,6 +321,10 @@
         "title": "Facteur d'accélération",
         "desc": "Amplifier les gestes rapides. 0 désactive l'accélération."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Sensibilité du zoom",
+      "desc": "Ajuster la vitesse du zoom avec Ctrl+molette"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Appliquer un préréglage",
+    "preset_desc": "Remplacez le comportement avec un préréglage en un clic. Ajustez les curseurs ci-dessous pour affiner."
   },
   "app_profiles": {
     "description": "Choisissez le comportement de SmoothScroll pour chaque application.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Suppression impossible : le profil est affecté à {{count}} applications",
     "app_profile_assign_failed": "Échec de l'affectation du profil",
     "app_profile_remove_failed": "Échec de la suppression du remplacement",
-    "save_failed": "Échec de l'enregistrement. Les changements sont conservés en mémoire mais ne seront pas persistés."
+    "save_failed": "Échec de l'enregistrement. Les changements sont conservés en mémoire mais ne seront pas persistés.",
+    "profile_update_failed": "Impossible d’enregistrer le profil",
+    "profile_delete_failed": "Impossible de supprimer le profil"
   },
   "language": {
     "select_label": "Langue d'affichage",
@@ -439,7 +448,9 @@
     "load_failed": "Échec du chargement des paramètres : {{error}}",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "close": "Fermer",
+    "load_failed_generic": "Impossible de charger les paramètres. Réessayez."
   },
   "about": {
     "version": "Version",
@@ -459,7 +470,9 @@
     "restart_now": "Redémarrer",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Afficher les notes de version"
+    "show_release_notes": "Afficher les notes de version",
+    "update_check_failed": "Impossible de rechercher les mises à jour. Réessayez.",
+    "update_install_failed": "Impossible d’installer la mise à jour. Réessayez."
   },
   "support": {
     "title": "Soutenir ce projet",
@@ -474,7 +487,8 @@
     "qr_load_failed": "Impossible de charger le QR",
     "qr_zoom_title": "Scanner pour transférer",
     "qr_alt": "VietQR pour virement bancaire",
-    "donate_button": "Appuyer ici pour faire un don"
+    "donate_button": "Appuyer ici pour faire un don",
+    "bank_vietnam": "Banque vietnamienne"
   },
   "forced_update": {
     "title": "Mise à jour requise",
@@ -488,7 +502,8 @@
     "restarting": "Mise à jour installée. Redémarrage…",
     "quit": "Quitter",
     "skip": "Ignorer (appareil de confiance)",
-    "error": "Échec de la mise à jour : {{message}}"
+    "error": "Échec de la mise à jour : {{message}}",
+    "error_generic": "Échec de la mise à jour. Réessayez."
   },
   "tray": {
     "quick_access": "Accès rapide",

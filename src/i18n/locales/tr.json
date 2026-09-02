@@ -115,7 +115,8 @@
     "title": "SmoothScroll'a hoş geldiniz",
     "body": "Bir dakikadan kısa sürede tekerleğiniz tereyağı gibi yumuşak hissettirecek. Aşağıdan bir yol seçin.",
     "just_smooth": "Sadece yumuşat (önerilir)",
-    "guided": "Benim için ayarla (3 hızlı adım)"
+    "guided": "Benim için ayarla (3 hızlı adım)",
+    "skip": "Atla — daha sonra ayarlayacağım"
   },
   "stats": {
     "title": "İstatistikleriniz (yalnızca yerel)",
@@ -320,6 +321,10 @@
         "title": "İvme faktörü",
         "desc": "Büyük hareketleri güçlendir. 0 ivmeyi devre dışı bırakır."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Yakınlaştırma hassasiyeti",
+      "desc": "Ctrl+Tekerlek yakınlaştırma hızını ayarla"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Ön ayarı uygula",
+    "preset_desc": "Tek tıklamayla bir ön ayar kullanın. İnce ayar için aşağıdaki kaydırıcıları düzenleyin."
   },
   "app_profiles": {
     "description": "SmoothScroll'un belirli uygulamalarda nasıl davranacağını seçin.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Silinemiyor: profil {{count}} uygulamaya atanmış",
     "app_profile_assign_failed": "Profil uygulamaya atanamadı",
     "app_profile_remove_failed": "Uygulama geçersiz kılması kaldırılamadı",
-    "save_failed": "Ayarlar kaydedilemedi. Değişiklikler bellekte tutulur ancak kalıcı olmayacak."
+    "save_failed": "Ayarlar kaydedilemedi. Değişiklikler bellekte tutulur ancak kalıcı olmayacak.",
+    "profile_update_failed": "Profil kaydedilemedi",
+    "profile_delete_failed": "Profil silinemedi"
   },
   "language": {
     "select_label": "Görüntüleme dili",
@@ -439,7 +448,9 @@
     "load_failed": "Ayarlar yüklenemedi: {{error}}",
     "cancel": "İptal",
     "save": "Kaydet",
-    "add": "Ekle"
+    "add": "Ekle",
+    "close": "Kapat",
+    "load_failed_generic": "Ayarlar yüklenemedi. Lütfen tekrar deneyin."
   },
   "about": {
     "version": "Sürüm",
@@ -459,7 +470,9 @@
     "restart_now": "Şimdi yeniden başlat",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Sürüm notlarını göster"
+    "show_release_notes": "Sürüm notlarını göster",
+    "update_check_failed": "Güncellemeler denetlenemedi. Lütfen tekrar deneyin.",
+    "update_install_failed": "Güncelleme yüklenemedi. Lütfen tekrar deneyin."
   },
   "support": {
     "title": "Bu projeyi destekle",
@@ -474,7 +487,8 @@
     "qr_load_failed": "QR yüklenemedi",
     "qr_zoom_title": "Havale için tara",
     "qr_alt": "Banka havalesi için VietQR",
-    "donate_button": "Bağış yapmak için dokun"
+    "donate_button": "Bağış yapmak için dokun",
+    "bank_vietnam": "Vietnam bankası"
   },
   "forced_update": {
     "title": "Güncelleme gerekli",
@@ -488,7 +502,8 @@
     "restarting": "Güncelleme yüklendi. Yeniden başlatılıyor…",
     "quit": "Çıkış",
     "skip": "Atla (güvenilir cihaz)",
-    "error": "Güncelleme başarısız: {{message}}"
+    "error": "Güncelleme başarısız: {{message}}",
+    "error_generic": "Güncelleme başarısız oldu. Lütfen tekrar deneyin."
   },
   "tray": {
     "quick_access": "Hızlı erişim",

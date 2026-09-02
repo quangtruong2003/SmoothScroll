@@ -88,7 +88,7 @@ export function WhatsNewModal() {
             </div>
             <div>
               <h2 id="whatsnew-title" className="text-base font-semibold">
-                {t("whatsnew.title", "What's new")}
+                {t("whatsnew.title")}
               </h2>
               <p className="text-xs text-muted-foreground">
                 {t("whatsnew.version_label", { version })}

@@ -180,7 +180,7 @@ describe("settingsStore", () => {
 
       const state = useSettingsStore.getState();
       expect(state.loading).toBe(false);
-      expect(state.error).toBe("Error: Failed to load");
+      expect(state.error).toBe("load_failed");
       expect(state.settings).toBe(null);
     });
   });

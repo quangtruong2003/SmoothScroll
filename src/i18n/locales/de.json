@@ -115,7 +115,8 @@
     "title": "Willkommen bei SmoothScroll",
     "body": "In unter einer Minute fühlt sich Ihr Mausrad butterweich an. Wählen Sie unten einen Pfad.",
     "just_smooth": "Einfach glätten (empfohlen)",
-    "guided": "Für mich anpassen (3 schnelle Schritte)"
+    "guided": "Für mich anpassen (3 schnelle Schritte)",
+    "skip": "Überspringen — später konfigurieren"
   },
   "stats": {
     "title": "Ihre Statistiken (nur lokal)",
@@ -320,6 +321,10 @@
         "title": "Beschleunigungsfaktor",
         "desc": "Schnelle Wischbewegungen verstärken. 0 deaktiviert die Beschleunigung."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "Zoom-Empfindlichkeit",
+      "desc": "Geschwindigkeit für Zoom mit Strg+Mausrad anpassen"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "Voreinstellung anwenden",
+    "preset_desc": "Überschreiben Sie das Scrollgefühl mit einer Voreinstellung. Mit den Reglern unten können Sie feinjustieren."
   },
   "app_profiles": {
     "description": "Wählen Sie, wie sich SmoothScroll in bestimmten Apps verhält.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "Löschen nicht möglich: Profil ist {{count}} Apps zugewiesen",
     "app_profile_assign_failed": "Profil konnte der App nicht zugewiesen werden",
     "app_profile_remove_failed": "App-Überschreibung konnte nicht entfernt werden",
-    "save_failed": "Einstellungen konnten nicht gespeichert werden. Änderungen bleiben im Speicher, sind aber nicht persistent."
+    "save_failed": "Einstellungen konnten nicht gespeichert werden. Änderungen bleiben im Speicher, sind aber nicht persistent.",
+    "profile_update_failed": "Profil konnte nicht gespeichert werden",
+    "profile_delete_failed": "Profil konnte nicht gelöscht werden"
   },
   "language": {
     "select_label": "Anzeigesprache",
@@ -439,7 +448,9 @@
     "load_failed": "Einstellungen konnten nicht geladen werden: {{error}}",
     "cancel": "Abbrechen",
     "save": "Speichern",
-    "add": "Hinzufügen"
+    "add": "Hinzufügen",
+    "close": "Schließen",
+    "load_failed_generic": "Einstellungen konnten nicht geladen werden. Bitte versuchen Sie es erneut."
   },
   "about": {
     "version": "Version",
@@ -459,7 +470,9 @@
     "restart_now": "Jetzt neu starten",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "Versionshinweise anzeigen"
+    "show_release_notes": "Versionshinweise anzeigen",
+    "update_check_failed": "Updates konnten nicht geprüft werden. Bitte versuchen Sie es erneut.",
+    "update_install_failed": "Das Update konnte nicht installiert werden. Bitte versuchen Sie es erneut."
   },
   "support": {
     "title": "Dieses Projekt unterstützen",
@@ -474,7 +487,8 @@
     "qr_load_failed": "QR-Code konnte nicht geladen werden",
     "qr_zoom_title": "Zum Überweisen scannen",
     "qr_alt": "VietQR für Banküberweisung",
-    "donate_button": "Hier tippen, um zu spenden"
+    "donate_button": "Hier tippen, um zu spenden",
+    "bank_vietnam": "Vietnamesische Bank"
   },
   "forced_update": {
     "title": "Update erforderlich",
@@ -488,7 +502,8 @@
     "restarting": "Update installiert. Neustart…",
     "quit": "Beenden",
     "skip": "Überspringen (vertrautes Gerät)",
-    "error": "Update fehlgeschlagen: {{message}}"
+    "error": "Update fehlgeschlagen: {{message}}",
+    "error_generic": "Update fehlgeschlagen. Bitte versuchen Sie es erneut."
   },
   "tray": {
     "quick_access": "Schnellzugriff",

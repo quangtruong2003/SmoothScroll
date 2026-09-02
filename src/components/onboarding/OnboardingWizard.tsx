@@ -64,10 +64,7 @@ export function OnboardingWizard({ onClose }: Props) {
             {t("onboarding_intro.title")}
           </h2>
           <p className="mx-auto mb-6 max-w-md text-center text-sm text-muted-foreground">
-            {t(
-              "onboarding_intro.body",
-              "We'll get your wheel feeling buttery smooth in under a minute. Pick a path below.",
-            )}
+            {t("onboarding_intro.body")}
           </p>
           <div className="flex flex-col gap-2">
             <Button
@@ -76,7 +73,7 @@ export function OnboardingWizard({ onClose }: Props) {
               className="w-full"
             >
               <Wand2 className="mr-2 h-4 w-4" />
-              {t("onboarding_intro.just_smooth", "Just smooth it (recommended)")}
+              {t("onboarding_intro.just_smooth")}
             </Button>
             <Button
               variant="outline"
@@ -84,14 +81,14 @@ export function OnboardingWizard({ onClose }: Props) {
               onClick={() => setIntroSeen(true)}
               className="w-full"
             >
-              {t("onboarding_intro.guided", "Tune it for me (3 quick steps)")}
+              {t("onboarding_intro.guided")}
             </Button>
             <button
               type="button"
               onClick={skip}
               className="mt-1 text-xs text-muted-foreground hover:text-foreground"
             >
-              {t("onboarding.skip", "Skip — I'll configure later")}
+              {t("onboarding_intro.skip")}
             </button>
           </div>
         </div>

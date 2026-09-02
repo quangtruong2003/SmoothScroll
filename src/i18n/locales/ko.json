@@ -115,7 +115,8 @@
     "title": "SmoothScroll에 오신 것을 환영합니다",
     "body": "1분 안에 휠이 버터처럼 부드럽게 느껴지도록 만들어드립니다. 아래에서 경로를 선택하세요.",
     "just_smooth": "그냥 부드럽게 (권장)",
-    "guided": "맞춤 설정 (간단한 3단계)"
+    "guided": "맞춤 설정 (간단한 3단계)",
+    "skip": "건너뛰기 — 나중에 설정"
   },
   "stats": {
     "title": "내 통계 (로컬 전용)",
@@ -320,6 +321,10 @@
         "title": "가속 계수",
         "desc": "큰 플릭을 강조합니다. 0이면 가속 비활성화."
       }
+    },
+    "zoom_sensitivity": {
+      "title": "확대/축소 감도",
+      "desc": "Ctrl+휠 확대/축소 속도 조절"
     }
   },
   "excluded": {
@@ -375,7 +380,9 @@
     "apply_preset": "Apply preset…",
     "apply_preset_confirm_title": "Replace current settings?",
     "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace"
+    "apply_preset_confirm": "Replace",
+    "preset": "프리셋 적용",
+    "preset_desc": "한 번의 클릭으로 프리셋을 적용합니다. 아래 슬라이더에서 세밀하게 조정하세요."
   },
   "app_profiles": {
     "description": "특정 앱에서 SmoothScroll의 동작 방식을 선택하세요.",
@@ -415,7 +422,9 @@
     "profile_in_use_plural": "삭제할 수 없음: 프로필이 {{count}}개 앱에 할당되어 있습니다",
     "app_profile_assign_failed": "앱에 프로필을 할당하지 못했습니다",
     "app_profile_remove_failed": "앱 재정의를 제거하지 못했습니다",
-    "save_failed": "설정 저장에 실패했습니다. 변경 사항은 메모리에 유지되지만 영구 저장되지 않습니다."
+    "save_failed": "설정 저장에 실패했습니다. 변경 사항은 메모리에 유지되지만 영구 저장되지 않습니다.",
+    "profile_update_failed": "프로필을 저장하지 못했습니다",
+    "profile_delete_failed": "프로필을 삭제하지 못했습니다"
   },
   "language": {
     "select_label": "표시 언어",
@@ -439,7 +448,9 @@
     "load_failed": "설정 불러오기 실패: {{error}}",
     "cancel": "취소",
     "save": "저장",
-    "add": "추가"
+    "add": "추가",
+    "close": "닫기",
+    "load_failed_generic": "설정을 불러오지 못했습니다. 다시 시도하세요."
   },
   "about": {
     "version": "버전",
@@ -459,7 +470,9 @@
     "restart_now": "지금 다시 시작",
     "beta_badge_label": "BETA",
     "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
-    "show_release_notes": "릴리스 노트 표시"
+    "show_release_notes": "릴리스 노트 표시",
+    "update_check_failed": "업데이트를 확인하지 못했습니다. 다시 시도하세요.",
+    "update_install_failed": "업데이트를 설치하지 못했습니다. 다시 시도하세요."
   },
   "support": {
     "title": "이 프로젝트 후원하기",
@@ -474,7 +487,8 @@
     "qr_load_failed": "QR을 불러오지 못했습니다",
     "qr_zoom_title": "스캔하여 송금",
     "qr_alt": "은행 송금용 VietQR",
-    "donate_button": "여기를 눌러 후원하기"
+    "donate_button": "여기를 눌러 후원하기",
+    "bank_vietnam": "베트남 은행"
   },
   "forced_update": {
     "title": "업데이트 필요",
@@ -488,7 +502,8 @@
     "restarting": "업데이트가 설치되었습니다. 다시 시작 중…",
     "quit": "앱 종료",
     "skip": "건너뛰기 (신뢰할 수 있는 기기)",
-    "error": "업데이트 실패: {{message}}"
+    "error": "업데이트 실패: {{message}}",
+    "error_generic": "업데이트에 실패했습니다. 다시 시도하세요."
   },
   "tray": {
     "quick_access": "빠른 접근",

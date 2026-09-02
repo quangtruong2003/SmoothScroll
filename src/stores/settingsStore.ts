@@ -79,7 +79,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       applyTheme(settings.theme);
       set({ settings, defaults, loading: false });
     } catch (e) {
-      set({ loading: false, error: String(e) });
+      console.error("getSettings failed", e);
+      set({ loading: false, error: "load_failed" });
     }
   },
 

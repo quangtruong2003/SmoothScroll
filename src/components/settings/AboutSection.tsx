@@ -21,7 +21,7 @@ type UiState =
   | { kind: "available"; result: Extract<UpdateCheckResult, { state: "available" }> }
   | { kind: "downloading"; progress: InstallProgress }
   | { kind: "ready-to-restart" }
-  | { kind: "error"; message: string };
+  | { kind: "error"; messageKey: "about.update_check_failed" | "about.update_install_failed" };
 
 export function AboutSection() {
   const { t } = useTranslation();
@@ -41,7 +41,8 @@ export function AboutSection() {
     } else if (result.state === "available") {
       setUi({ kind: "available", result });
     } else {
-      setUi({ kind: "error", message: result.message });
+      console.error("update check failed", result.message);
+      setUi({ kind: "error", messageKey: "about.update_check_failed" });
     }
   };
 
@@ -54,7 +55,8 @@ export function AboutSection() {
       });
       setUi({ kind: "ready-to-restart" });
     } catch (e) {
-      setUi({ kind: "error", message: String(e) });
+      console.error("update install failed", e);
+      setUi({ kind: "error", messageKey: "about.update_install_failed" });
     }
   };
 
@@ -154,7 +156,7 @@ export function AboutSection() {
             </div>
           )}
           {ui.kind === "error" && (
-            <p className="text-xs text-destructive">{ui.message}</p>
+            <p className="text-xs text-destructive">{t(ui.messageKey)}</p>
           )}
         </div>
         <div className="flex flex-wrap gap-2">
