@@ -1,6 +1,6 @@
-//! Game-mode poll thread. 1 Hz tick: detects fullscreen foreground or known-game
-//! process and toggles `state.game_mode_active`. Emits `game-mode-changed` to
-//! the frontend on transitions.
+//! Game-mode poll thread. On Windows, the 1 Hz tick activates only for known-game
+//! foreground processes. Other platforms retain the existing fullscreen/known-game
+//! policy. Emits `game-mode-changed` to the frontend on transitions.
 
 use crate::state::AppState;
 use smoothscroll_core::settings::AppSettings;
@@ -47,8 +47,14 @@ fn known_game_pid_from_info(settings: &AppSettings, info: Option<ProcessInfo>) -
     matches_known_game(settings, &info.name).then_some(info.pid)
 }
 
+#[cfg(target_os = "windows")]
+fn game_mode_active_from_known_game_pid(known_game_pid: Option<u32>) -> bool {
+    known_game_pid.is_some()
+}
+
 fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
     let mut last_fg_pid = 0u32;
+    #[cfg(not(target_os = "windows"))]
     let mut last_known_game = false;
     #[cfg(target_os = "windows")]
     let mut last_known_game_pid = None;
@@ -71,8 +77,14 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
         let fg_pid = state.processes.foreground_process_id().unwrap_or(0);
 
         let now_active = if fg_pid == last_fg_pid {
-            // PID unchanged: only re-check fullscreen (cheap — single HWND + monitor rect).
-            state.fullscreen_detector.is_foreground_fullscreen() || last_known_game
+            #[cfg(target_os = "windows")]
+            {
+                game_mode_active_from_known_game_pid(last_known_game_pid)
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                state.fullscreen_detector.is_foreground_fullscreen() || last_known_game
+            }
         } else {
             // PID changed: resolve process identity on the 1 Hz poll thread only.
             // This potentially heavier lookup never runs inside the wheel hook.
@@ -81,7 +93,7 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
             {
                 last_known_game_pid =
                     known_game_pid_from_info(&s, state.processes.foreground_process_info());
-                last_known_game = last_known_game_pid.is_some();
+                game_mode_active_from_known_game_pid(last_known_game_pid)
             }
             #[cfg(not(target_os = "windows"))]
             {
@@ -90,8 +102,8 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
                     .foreground_process_name()
                     .unwrap_or_default();
                 last_known_game = matches_known_game(&s, &fg_name);
+                state.fullscreen_detector.is_foreground_fullscreen() || last_known_game
             }
-            state.fullscreen_detector.is_foreground_fullscreen() || last_known_game
         };
         drop(s);
 
@@ -139,6 +151,13 @@ mod tests {
         };
 
         assert_eq!(known_game_pid_from_info(&settings, Some(info)), Some(4242));
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn game_mode_activation_depends_only_on_known_game_identity() {
+        assert!(!game_mode_active_from_known_game_pid(None));
+        assert!(game_mode_active_from_known_game_pid(Some(4242)));
     }
 
     #[cfg(not(target_os = "windows"))]

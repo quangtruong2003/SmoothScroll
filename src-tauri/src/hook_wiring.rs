@@ -90,9 +90,9 @@ impl EngineSink {
     }
 
     /// Game Mode is maintained by a low-frequency poll thread, so its published
-    /// state can be stale for up to one second after leaving fullscreen or
-    /// switching away from a game. On Windows, revalidate only while the packed
-    /// hook snapshot is active so the normal wheel hot path stays unchanged.
+    /// state can be stale for up to one second after switching away from a game.
+    /// On Windows, revalidate the known-game PID only while the packed hook
+    /// snapshot is active so the normal wheel hot path stays unchanged.
     fn should_bypass_for_game_mode(&self) -> bool {
         #[cfg(target_os = "windows")]
         {
@@ -104,13 +104,9 @@ impl EngineSink {
                 return false;
             }
 
-            if let Some(known_game_pid) = known_game_pid {
-                if self.state.processes.foreground_process_id() == Some(known_game_pid) {
-                    return true;
-                }
-            }
-
-            return self.state.fullscreen_detector.is_foreground_fullscreen();
+            known_game_pid.is_some_and(|known_game_pid| {
+                self.state.processes.foreground_process_id() == Some(known_game_pid)
+            })
         }
 
         #[cfg(not(target_os = "windows"))]
@@ -1656,16 +1652,25 @@ mod tests {
 
     #[cfg(target_os = "windows")]
     #[test]
-    fn current_fullscreen_game_mode_still_passes_through() {
-        let s = AppSettings::default();
-        let mut state = make_state(s);
-        Arc::get_mut(&mut state).unwrap().fullscreen_detector = Arc::new(TrueFullscreen);
-        state.publish_game_mode_state(true, None);
-        let sink = EngineSink::new(state.clone());
+    fn fullscreen_browsers_do_not_trigger_game_mode() {
+        for browser in ["chrome.exe", "msedge.exe"] {
+            let mut settings = AppSettings::default();
+            settings.auto_disable_windows_apps = false;
+            let mut state = make_state_with_processes(settings, None, Some(browser));
+            Arc::get_mut(&mut state).unwrap().fullscreen_detector = Arc::new(TrueFullscreen);
+            state.publish_game_mode_state(true, None);
+            let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
-        assert!(!state.engine.lock().has_pending_work());
+            assert_eq!(
+                sink.on_wheel(120, no_mods()),
+                HookDecision::Swallow,
+                "fullscreen {browser} must keep smoothing enabled"
+            );
+            assert!(
+                state.engine.lock().has_pending_work(),
+                "fullscreen {browser} must reach the smoothing engine"
+            );
+        }
     }
 
     #[cfg(target_os = "windows")]

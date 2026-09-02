@@ -74,7 +74,7 @@ pub struct AppState {
     /// as one coherent snapshot instead of two independently published atomics.
     pub game_mode_active: Arc<AtomicBool>,
     /// Packed Windows hook snapshot: bit 32 = active; low 32 bits = known-game
-    /// foreground PID (0 when active only because of fullscreen, or inactive).
+    /// foreground PID (0 when inactive).
     pub game_mode_hook_state: Arc<AtomicU64>,
     pub fullscreen_detector: Arc<dyn FullscreenDetector>,
     pub window_geom: Arc<dyn WindowGeometry>,
