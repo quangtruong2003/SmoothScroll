@@ -117,6 +117,35 @@ impl HorizontalScrollDispatcher {
     }
 }
 
+fn current_root_under_cursor() -> Option<isize> {
+    let mut point = POINT { x: 0, y: 0 };
+    if unsafe { GetCursorPos(&mut point) } == 0 {
+        return None;
+    }
+    let hit = unsafe { WindowFromPoint(point) };
+    if hit.is_null() {
+        return None;
+    }
+    let root = unsafe { GetAncestor(hit, GA_ROOT) };
+    if root.is_null() {
+        None
+    } else {
+        Some(root as isize)
+    }
+}
+
+fn compatibility_dispatch_is_current(
+    expected_root: Option<isize>,
+    current_root: Option<isize>,
+    generation_current: bool,
+) -> bool {
+    generation_current
+        && match (expected_root, current_root) {
+            (Some(expected), Some(current)) => expected == current,
+            _ => true,
+        }
+}
+
 fn spawn_worker() -> std::result::Result<WorkerHandle, String> {
     let (sender, receiver) = sync_channel(WORKER_QUEUE_CAPACITY);
     thread::Builder::new()
@@ -142,9 +171,21 @@ fn worker_loop(receiver: Receiver<WorkerCommand>) {
     for command in receiver {
         match command {
             WorkerCommand::Semantic(command) => {
-                // The generation is re-checked immediately before dispatch so
-                // a transition that landed after enqueue still cancels.
-                let live = command.generation.load(Ordering::Acquire) == command.axis_generation;
+                // Re-check both sequence generation and the live root immediately
+                // before dispatch. A transient root lookup failure degrades open,
+                // matching the engine-thread validation contract.
+                let generation_current =
+                    command.generation.load(Ordering::Acquire) == command.axis_generation;
+                let current_root = if command.root_owner.is_some() {
+                    current_root_under_cursor()
+                } else {
+                    None
+                };
+                let live = compatibility_dispatch_is_current(
+                    command.root_owner,
+                    current_root,
+                    generation_current,
+                );
                 let result = if !live {
                     Err(PlatformError::StaleEmission)
                 } else {
@@ -671,6 +712,26 @@ mod tests {
         ];
 
         assert_eq!(select_horizontal_scrollbar(&candidates, point), Some(30));
+    }
+
+    #[test]
+    fn compatibility_dispatch_rejects_changed_root_before_worker_emission() {
+        assert!(!compatibility_dispatch_is_current(
+            Some(0x1000),
+            Some(0x2000),
+            true,
+        ));
+        assert!(compatibility_dispatch_is_current(
+            Some(0x1000),
+            Some(0x1000),
+            true,
+        ));
+        assert!(compatibility_dispatch_is_current(Some(0x1000), None, true));
+        assert!(!compatibility_dispatch_is_current(
+            Some(0x1000),
+            Some(0x1000),
+            false,
+        ));
     }
 
     #[test]
