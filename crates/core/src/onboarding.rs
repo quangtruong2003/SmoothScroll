@@ -3,7 +3,9 @@
 //! persisting the result.
 
 use crate::easing::EasingMode;
-use crate::settings::{AppSettings, ModifierPassthrough};
+use crate::settings::{
+    AppSettings, ModifierPassthrough, ShiftWheelBehavior, WheelOutputMode,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UseCase {
@@ -21,6 +23,9 @@ pub enum Feel {
 }
 
 pub fn apply_preset(s: &mut AppSettings, use_case: UseCase, feel: Feel) {
+    s.shift_wheel_behavior = ShiftWheelBehavior::Preserve;
+    s.wheel_output_mode = WheelOutputMode::SmoothPulses;
+
     match (use_case, feel) {
         (UseCase::Reader, Feel::Glide) => mac_like(s),
         (UseCase::Reader, Feel::Balanced) => {

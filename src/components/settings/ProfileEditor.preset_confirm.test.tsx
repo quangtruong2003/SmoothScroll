@@ -34,6 +34,8 @@ const profile: ScrollProfile = {
   easing_mode: "Linear",
   reverse_wheel_direction: true,
   horizontal_smoothness: false,
+  shift_wheel_behavior: "Preserve",
+  wheel_output_mode: "SmoothPulses",
   smooth_zoom: true,
   zoom_invert: false,
   zoom_sensitivity: 1,

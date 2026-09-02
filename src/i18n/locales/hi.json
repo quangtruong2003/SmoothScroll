@@ -226,8 +226,23 @@
       "desc": "स्क्रॉल दिशा उलटें (नेचुरल-स्टाइल)"
     },
     "horizontal_smoothness": {
-      "title": "क्षैतिज स्क्रॉलिंग स्मूथ करें",
-      "desc": "टिल्ट-व्हील और Shift+व्हील स्क्रॉल पर स्मूथिंग लागू करें"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "क्षैतिज दिशा उलटें",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "स्मूथ टचपैड स्क्रॉलिंग",
-        "desc": "हाई-रिज़ॉल्यूशन टचपैड इनपुट पर ईज़िंग लागू करें"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "पिक्सेल गुणक",

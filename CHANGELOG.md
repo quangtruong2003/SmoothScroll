@@ -7,6 +7,13 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+- add explicit Shift + Wheel conversion and wheel compatibility modes
+
+### Changed
+- preserve Ctrl, Shift, Alt, and physical horizontal wheel semantics while smoothing
+- use native touchpad behavior when touchpad smoothing is disabled
+
 ## [1.31.0] - 2026-08-31
 
 ### Added

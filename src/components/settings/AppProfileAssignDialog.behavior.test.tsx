@@ -43,6 +43,8 @@ vi.mock('@/stores/settingsStore', () => ({
             easing_mode: 'ExponentialOut',
             reverse_wheel_direction: false,
             horizontal_smoothness: true,
+            shift_wheel_behavior: 'Preserve',
+            wheel_output_mode: 'SmoothPulses',
           },
         ],
       },

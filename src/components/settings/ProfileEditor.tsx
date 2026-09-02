@@ -29,7 +29,11 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { PRESETS, ORDER, type PresetKey } from "@/lib/scrollPresets";
-import type { ScrollProfile, EasingMode } from "@/lib/tauri";
+import type {
+  ScrollProfile,
+  EasingMode,
+  WheelOutputMode,
+} from "@/lib/tauri";
 
 interface Props {
   profile: ScrollProfile;
@@ -317,6 +321,46 @@ export function ProfileEditor({ profile, onClose }: Props) {
                 checked={draft.horizontal_smoothness}
                 onCheckedChange={(v) => patch({ horizontal_smoothness: v })}
               />
+            </SettingRow>
+
+            <SettingRow
+              htmlFor="profile-shift-wheel-conversion"
+              title={t("settings.shift_wheel_conversion.title")}
+              description={t("settings.shift_wheel_conversion.desc")}
+            >
+              <Switch
+                id="profile-shift-wheel-conversion"
+                checked={draft.shift_wheel_behavior === "ConvertToHorizontal"}
+                onCheckedChange={(v) => patch({
+                  shift_wheel_behavior: v ? "ConvertToHorizontal" : "Preserve",
+                })}
+              />
+            </SettingRow>
+
+            <SettingRow
+              htmlFor="profile-wheel-output-mode"
+              title={t("settings.wheel_output_mode.title")}
+              description={t("settings.wheel_output_mode.desc")}
+            >
+              <Select
+                value={draft.wheel_output_mode}
+                onValueChange={(v) => patch({ wheel_output_mode: v as WheelOutputMode })}
+              >
+                <SelectTrigger id="profile-wheel-output-mode" className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SmoothPulses">
+                    {t("settings.wheel_output_mode.smooth")}
+                  </SelectItem>
+                  <SelectItem value="PreserveWholeNotches">
+                    {t("settings.wheel_output_mode.notches")}
+                  </SelectItem>
+                  <SelectItem value="Raw">
+                    {t("settings.wheel_output_mode.raw")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </SettingRow>
 
             <SettingRow

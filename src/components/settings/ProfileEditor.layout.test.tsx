@@ -38,6 +38,8 @@ const fakeProfile: any = {
   easing_mode: 'ExponentialOut',
   reverse_wheel_direction: false,
   horizontal_smoothness: true,
+  shift_wheel_behavior: 'Preserve',
+  wheel_output_mode: 'SmoothPulses',
   smooth_zoom: true,
   zoom_invert: false,
   zoom_sensitivity: 1,

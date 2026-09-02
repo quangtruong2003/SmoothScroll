@@ -226,8 +226,23 @@
       "desc": "Scrollrichtung umkehren (natürlicher Stil)"
     },
     "horizontal_smoothness": {
-      "title": "Horizontales Scrollen glätten",
-      "desc": "Glättung auf Tilt-Wheel und Umschalt+Mausrad anwenden"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "Horizontale Richtung umkehren",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "Sanftes Touchpad-Scrollen",
-        "desc": "Easing auf hochauflösende Touchpad-Eingabe anwenden"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "Pixel-Multiplikator",

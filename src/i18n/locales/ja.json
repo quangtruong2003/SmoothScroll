@@ -226,8 +226,23 @@
       "desc": "スクロール方向を反転 (ナチュラルスタイル)"
     },
     "horizontal_smoothness": {
-      "title": "水平スクロールをスムーズに",
-      "desc": "チルトホイールとShift+ホイールにスムージングを適用"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "水平方向を反転",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "タッチパッドのスムーズスクロール",
-        "desc": "高解像度タッチパッド入力にイージングを適用"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "ピクセル乗数",

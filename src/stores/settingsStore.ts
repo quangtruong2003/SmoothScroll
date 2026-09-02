@@ -243,6 +243,7 @@ export const useScrollFields = () =>
         max_velocity: set.max_velocity,
         acceleration_max: set.acceleration_max,
         tail_to_head_ratio: set.tail_to_head_ratio,
+        wheel_output_mode: set.wheel_output_mode,
       };
     })
   );
@@ -269,6 +270,7 @@ export const useDirectionFields = () =>
         animation_time_enabled: set.animation_time_enabled,
         reverse_wheel_direction: set.reverse_wheel_direction,
         horizontal_smoothness: set.horizontal_smoothness,
+        shift_wheel_behavior: set.shift_wheel_behavior,
         horizontal_invert: set.horizontal_invert,
         smooth_zoom: set.smooth_zoom,
         zoom_invert: set.zoom_invert,

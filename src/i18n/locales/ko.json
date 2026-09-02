@@ -226,8 +226,23 @@
       "desc": "스크롤 방향 반전 (자연스러운 스타일)"
     },
     "horizontal_smoothness": {
-      "title": "가로 스크롤 부드럽게",
-      "desc": "틸트 휠 및 Shift+휠 스크롤에 부드러움 적용"
+      "title": "Smooth horizontal wheel",
+      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+    },
+    "shift_wheel_conversion": {
+      "title": "Convert Shift + Wheel to horizontal",
+      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+    },
+    "wheel_output_mode": {
+      "title": "Wheel compatibility",
+      "desc": "Choose smooth pulses, whole wheel steps, or native input",
+      "smooth": "Smooth pulses",
+      "notches": "Preserve whole wheel steps",
+      "raw": "Native/raw"
+    },
+    "preserve_wheel_shortcuts": {
+      "title": "Preserve app wheel shortcuts",
+      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
     },
     "horizontal_invert": {
       "title": "수평 방향 반전",
@@ -295,7 +310,7 @@
       },
       "enable": {
         "title": "부드러운 터치패드 스크롤",
-        "desc": "고해상도 터치패드 입력에 이징 적용"
+        "desc": "Turn off to use the application's native touchpad behavior."
       },
       "pixel_multiplier": {
         "title": "픽셀 배수",

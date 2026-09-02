@@ -50,6 +50,7 @@ vi.mock("@/components/BatteryHint", () => ({ BatteryHint: () => null }));
 import { SettingsPage } from "./Settings";
 
 const settings: AppSettings = {
+  settings_schema_version: 1,
   enabled: true,
   step_size_px: 10,
   animation_time_ms: 200,
@@ -60,6 +61,8 @@ const settings: AppSettings = {
   animation_easing: true,
   easing_mode: "CubicOut",
   horizontal_smoothness: true,
+  shift_wheel_behavior: "Preserve",
+  wheel_output_mode: "SmoothPulses",
   horizontal_invert: false,
   reverse_wheel_direction: false,
   direction_sync_enabled: false,
@@ -83,6 +86,8 @@ const settings: AppSettings = {
     easing_mode: "CubicOut",
     reverse_wheel_direction: false,
     horizontal_smoothness: true,
+    shift_wheel_behavior: "Preserve",
+    wheel_output_mode: "SmoothPulses",
     smooth_zoom: true,
     zoom_invert: false,
     zoom_sensitivity: 1,
