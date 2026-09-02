@@ -107,9 +107,7 @@ fn resolve_wheel_action(
         WheelOutputMode::PreserveWholeNotches
             if matches!(event.source, InputSource::Wheel | InputSource::HighResWheel) =>
         {
-            // The safe scheduler does not land until Task 10. Until then the
-            // persisted mode is intentionally a raw escape hatch.
-            return raw(true);
+            SmoothingStrategy::DiscreteNotchPreserving
         }
         WheelOutputMode::PreserveWholeNotches => return raw(true),
         WheelOutputMode::SmoothPulses | WheelOutputMode::Raw => SmoothingStrategy::Continuous,
@@ -1550,12 +1548,40 @@ mod tests {
     }
 
     #[test]
-    fn policy_stages_whole_notches_as_raw_until_scheduler_exists() {
+    fn policy_whole_notches_uses_discrete_scheduler_for_wheels() {
         let mut settings = eff();
         settings.wheel_output_mode = WheelOutputMode::PreserveWholeNotches;
         assert!(matches!(
             resolve_wheel_action(
                 vertical(120, no_mods(), InputSource::Wheel),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::Smooth {
+                sequence: WheelSequence {
+                    strategy: SmoothingStrategy::DiscreteNotchPreserving,
+                    ..
+                },
+                ..
+            }
+        ));
+        assert!(matches!(
+            resolve_wheel_action(
+                vertical(40, no_mods(), InputSource::HighResWheel),
+                &settings,
+                false
+            ),
+            ResolvedWheelAction::Smooth {
+                sequence: WheelSequence {
+                    strategy: SmoothingStrategy::DiscreteNotchPreserving,
+                    ..
+                },
+                ..
+            }
+        ));
+        assert!(matches!(
+            resolve_wheel_action(
+                vertical(40, no_mods(), InputSource::Touchpad),
                 &settings,
                 false
             ),

@@ -391,6 +391,75 @@ fn drain_vertical(e: &mut SmoothScrollEngine, eff: &EffectiveSettings) -> i32 {
     total
 }
 
+fn register_discrete(e: &mut SmoothScrollEngine, delta: i32, now_ms: u64) {
+    let semantic = WheelSemantic {
+        axis: WheelAxis::Vertical,
+        modifiers: ModifierKeys::default(),
+    };
+    e.register(
+        WheelInputEvent {
+            delta,
+            semantic,
+            source: InputSource::Wheel,
+        },
+        WheelSequence {
+            semantic,
+            transport: WheelTransport::Native,
+            strategy: SmoothingStrategy::DiscreteNotchPreserving,
+            delta_transform: DeltaTransform::Generic { sign: 1 },
+        },
+        now_ms,
+        &eff(),
+    );
+}
+
+fn drain_discrete(e: &mut SmoothScrollEngine, settings: &EffectiveSettings) -> Vec<i32> {
+    let mut pulses = Vec::new();
+    for _ in 0..500 {
+        if let Some(pulse) = e.step(1000.0 / 120.0, settings).vertical {
+            pulses.push(pulse.units);
+        }
+        if !e.has_pending_work() {
+            break;
+        }
+    }
+    pulses
+}
+
+#[test]
+fn one_discrete_notch_emits_exactly_one_notch() {
+    let mut engine = SmoothScrollEngine::new();
+    register_discrete(&mut engine, 120, 1_000);
+
+    assert_eq!(drain_discrete(&mut engine, &eff()), vec![120]);
+}
+
+#[test]
+fn discrete_strategy_never_emits_sub_notch_units() {
+    let mut engine = SmoothScrollEngine::new();
+    for (i, delta) in [40, 40, 40, 120, -120].into_iter().enumerate() {
+        register_discrete(&mut engine, delta, 1_000 + i as u64 * 10);
+    }
+
+    let pulses = drain_discrete(&mut engine, &eff());
+    assert!(pulses.iter().all(|units| units % 120 == 0));
+    assert_eq!(pulses.iter().sum::<i32>(), 120);
+}
+
+#[test]
+fn instant_discrete_output_keeps_whole_notch_total() {
+    let mut settings = eff();
+    settings.instant_mode = true;
+    let mut engine = SmoothScrollEngine::new();
+    for i in 0..3 {
+        register_discrete(&mut engine, 120, 1_000 + i * 10);
+    }
+
+    let pulse = engine.step(1000.0 / 120.0, &settings).vertical.unwrap();
+    assert_eq!(pulse.units, 360);
+    assert!(!engine.has_pending_work());
+}
+
 fn drain_first_vertical(
     e: &mut SmoothScrollEngine,
     eff: &EffectiveSettings,

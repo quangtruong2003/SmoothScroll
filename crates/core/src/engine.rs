@@ -189,6 +189,20 @@ impl Axis {
             .map_or(0, |direction| direction as i32 * WHEEL_DELTA)
     }
 
+    fn flush_discrete_instant(&mut self) -> i32 {
+        let Some(direction) = self.discrete_notches.pop_front() else {
+            return 0;
+        };
+        let mut notches = 1i32;
+        while self.discrete_notches.front() == Some(&direction) {
+            self.discrete_notches.pop_front();
+            notches = notches.saturating_add(1);
+        }
+        (direction as i32)
+            .saturating_mul(WHEEL_DELTA)
+            .saturating_mul(notches)
+    }
+
     fn step_continuous(&mut self, dt_ms: f64) -> i32 {
         const DECAY_HALF_LIFE_MS: f64 = 200.0;
         let decay = (-0.693 * dt_ms / DECAY_HALF_LIFE_MS).exp();
@@ -416,6 +430,9 @@ impl SmoothScrollEngine {
         let units = match sequence.strategy {
             SmoothingStrategy::Continuous if instant_mode => axis_state.flush_instant(),
             SmoothingStrategy::Continuous => axis_state.step_continuous(dt_ms),
+            SmoothingStrategy::DiscreteNotchPreserving if instant_mode => {
+                axis_state.flush_discrete_instant()
+            }
             SmoothingStrategy::DiscreteNotchPreserving => axis_state.flush_discrete(),
         };
 
