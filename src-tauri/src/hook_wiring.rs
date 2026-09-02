@@ -384,145 +384,119 @@ impl EngineSink {
         }
     }
 
-    /// Legacy per-axis route retained for non-Windows platforms until
-    /// Task 11; Windows uses `route_wheel_event` instead.
+    /// Non-Windows semantic route. It preserves the existing per-axis policy
+    /// while accepting only the final `WheelInputEvent` API from the hook.
     #[cfg(not(windows))]
-    fn route_vertical_with_source(
-        &self,
-        delta: i32,
-        mods: ModifierKeys,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        {
-            if !self.state.enabled.load(Ordering::Relaxed) {
-                return HookDecision::Pass;
-            }
-            if self.should_bypass_for_game_mode() {
-                return HookDecision::Pass;
-            }
-
-            let eff = match self.resolve_active() {
-                Some(e) => e,
-                None => return HookDecision::Pass,
-            };
-
-            if self.state.window_geom.cursor_over_discrete_control() {
-                return HookDecision::Pass;
-            }
-
-            #[cfg(target_os = "macos")]
-            let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
-                || (mods.alt && eff.modifier_alt_passthrough);
-            #[cfg(not(target_os = "macos"))]
-            let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
-                || (mods.alt && eff.modifier_alt_passthrough);
-
-            if precision {
-                if eff.modifier_clear_inertia {
-                    self.state.engine.lock().reset_axes();
-                }
-                return HookDecision::Pass;
-            }
-
-            self.update_last_source(source);
-            let now = self.now_ms();
-
-            #[cfg(not(target_os = "macos"))]
-            let ctrl_pressed = mods.ctrl;
-            #[cfg(target_os = "macos")]
-            let ctrl_pressed = mods.cmd;
-
-            if ctrl_pressed && !eff.smooth_zoom {
-                return HookDecision::Pass;
-            }
-
-            if !ctrl_pressed && mods.shift && !eff.horizontal_smoothness {
-                return HookDecision::Pass;
-            }
-
-            let mut engine = self.state.engine.lock();
-
-            if ctrl_pressed {
-                let semantic = WheelSemantic {
-                    axis: WheelAxis::Vertical,
-                    modifiers: mods,
-                };
-                engine.register(
-                    WheelInputEvent {
-                        delta,
-                        semantic,
-                        source,
-                    },
-                    WheelSequence {
-                        semantic,
-                        transport: WheelTransport::Native,
-                        strategy: SmoothingStrategy::Continuous,
-                        delta_transform: if eff.smooth_zoom && zoom_modifier_isolated(&mods) {
-                            DeltaTransform::CtrlZoom {
-                                sensitivity: eff.zoom_sensitivity,
-                                sign: if eff.zoom_invert { -1 } else { 1 },
-                            }
-                        } else {
-                            DeltaTransform::Generic {
-                                sign: if eff.reverse_wheel_direction { -1 } else { 1 },
-                            }
-                        },
-                    },
-                    now,
-                    &eff,
-                );
-            } else if mods.shift && eff.horizontal_smoothness {
-                let h_delta = if eff.horizontal_invert { -delta } else { delta };
-                engine.on_hwheel_with_source(h_delta, now, source, &eff);
-            } else {
-                engine.on_wheel_with_source(delta, now, source, &eff);
-            }
-            drop(engine);
-            self.state.stats.record_notch();
-            self.state.engine_signal.signal();
-            HookDecision::Swallow
+    fn route_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
+        if !self.state.enabled.load(Ordering::Relaxed) {
+            return HookDecision::Pass;
         }
-    }
+        if self.should_bypass_for_game_mode() {
+            return HookDecision::Pass;
+        }
 
-    /// Legacy per-axis route retained for non-Windows platforms until
-    /// Task 11; Windows uses `route_wheel_event` instead.
-    #[cfg(not(windows))]
-    fn route_horizontal_with_source(
-        &self,
-        delta: i32,
-        source: smoothscroll_core::input_source::InputSource,
-    ) -> HookDecision {
-        {
-            if !self.state.enabled.load(Ordering::Relaxed) {
-                return HookDecision::Pass;
+        let eff = match self.resolve_active() {
+            Some(e) => e,
+            None => return HookDecision::Pass,
+        };
+        let delta = event.delta;
+        let mods = event.semantic.modifiers;
+        let source = event.source;
+
+        match event.semantic.axis {
+            WheelAxis::Horizontal => {
+                if !eff.horizontal_smoothness {
+                    return HookDecision::Pass;
+                }
+                if self.state.window_geom.cursor_over_discrete_control() {
+                    return HookDecision::Pass;
+                }
+
+                self.update_last_source(source);
+                let now = self.now_ms();
+                let h_delta = if eff.horizontal_invert { -delta } else { delta };
+                self.state
+                    .engine
+                    .lock()
+                    .on_hwheel_with_source(h_delta, now, source, &eff);
+                self.state.engine_signal.signal();
+                HookDecision::Swallow
             }
-            if self.should_bypass_for_game_mode() {
-                return HookDecision::Pass;
+            WheelAxis::Vertical => {
+                if self.state.window_geom.cursor_over_discrete_control() {
+                    return HookDecision::Pass;
+                }
+
+                #[cfg(target_os = "macos")]
+                let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
+                    || (mods.alt && eff.modifier_alt_passthrough);
+                #[cfg(not(target_os = "macos"))]
+                let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
+                    || (mods.alt && eff.modifier_alt_passthrough);
+
+                if precision {
+                    if eff.modifier_clear_inertia {
+                        self.state.engine.lock().reset_axes();
+                    }
+                    return HookDecision::Pass;
+                }
+
+                self.update_last_source(source);
+                let now = self.now_ms();
+
+                #[cfg(not(target_os = "macos"))]
+                let ctrl_pressed = mods.ctrl;
+                #[cfg(target_os = "macos")]
+                let ctrl_pressed = mods.cmd;
+
+                if ctrl_pressed && !eff.smooth_zoom {
+                    return HookDecision::Pass;
+                }
+                if !ctrl_pressed && mods.shift && !eff.horizontal_smoothness {
+                    return HookDecision::Pass;
+                }
+
+                let mut engine = self.state.engine.lock();
+                if ctrl_pressed {
+                    let semantic = WheelSemantic {
+                        axis: WheelAxis::Vertical,
+                        modifiers: mods,
+                    };
+                    engine.register(
+                        WheelInputEvent {
+                            delta,
+                            semantic,
+                            source,
+                        },
+                        WheelSequence {
+                            semantic,
+                            transport: WheelTransport::Native,
+                            strategy: SmoothingStrategy::Continuous,
+                            delta_transform: if eff.smooth_zoom && zoom_modifier_isolated(&mods) {
+                                DeltaTransform::CtrlZoom {
+                                    sensitivity: eff.zoom_sensitivity,
+                                    sign: if eff.zoom_invert { -1 } else { 1 },
+                                }
+                            } else {
+                                DeltaTransform::Generic {
+                                    sign: if eff.reverse_wheel_direction { -1 } else { 1 },
+                                }
+                            },
+                        },
+                        now,
+                        &eff,
+                    );
+                } else if mods.shift && eff.horizontal_smoothness {
+                    let h_delta = if eff.horizontal_invert { -delta } else { delta };
+                    engine.on_hwheel_with_source(h_delta, now, source, &eff);
+                } else {
+                    engine.on_wheel_with_source(delta, now, source, &eff);
+                }
+                drop(engine);
+                self.state.stats.record_notch();
+                self.state.engine_signal.signal();
+                HookDecision::Swallow
             }
-
-            let eff = match self.resolve_active() {
-                Some(e) => e,
-                None => return HookDecision::Pass,
-            };
-
-            if !eff.horizontal_smoothness {
-                return HookDecision::Pass;
-            }
-
-            if self.state.window_geom.cursor_over_discrete_control() {
-                return HookDecision::Pass;
-            }
-
-            self.update_last_source(source);
-            let now = self.now_ms();
-
-            let mut engine = self.state.engine.lock();
-
-            let h_delta = if eff.horizontal_invert { -delta } else { delta };
-            engine.on_hwheel_with_source(h_delta, now, source, &eff);
-            drop(engine);
-            self.state.engine_signal.signal();
-            HookDecision::Swallow
         }
     }
 
@@ -660,9 +634,8 @@ impl EngineSink {
 }
 
 /// True when the wheel semantic carries exactly the platform's zoom modifier
-/// (Ctrl on Windows/Linux, Cmd on macOS) with no other modifier held.
-/// Only the legacy non-Windows route uses this until Task 11; the unified
-/// Windows route resolves the zoom transform in `resolve_wheel_action`.
+/// (Ctrl on Linux, Cmd on macOS) with no other modifier held. The non-Windows
+/// route uses this to choose the semantic zoom transform before registration.
 #[cfg(not(windows))]
 fn zoom_modifier_isolated(mods: &ModifierKeys) -> bool {
     #[cfg(target_os = "macos")]
@@ -739,7 +712,7 @@ mod tests {
     use smoothscroll_platform::traits::{
         Autostart, EmissionContext, FullscreenDetector, HookEventSink, HookHandle, Hotkey,
         HotkeyHandle, MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery,
-        SemanticWheelEmitter, WheelEmitter, WindowGeometry, ZoomEmitter,
+        SemanticWheelEmitter, WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
@@ -813,16 +786,6 @@ mod tests {
         }
     }
     struct StubEmitter;
-    impl WheelEmitter for StubEmitter {
-        fn emit(&self, _v: i32, _h: i32) -> Result<()> {
-            Ok(())
-        }
-    }
-    impl ZoomEmitter for StubEmitter {
-        fn emit_zoom(&self, _units: i32) -> Result<()> {
-            Ok(())
-        }
-    }
     impl SemanticWheelEmitter for StubEmitter {
         fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
             Ok(())
@@ -838,16 +801,6 @@ mod tests {
     }
     /// Always fails `prepare` so the route must Pass before swallowing.
     struct FailingPrepareEmitter;
-    impl WheelEmitter for FailingPrepareEmitter {
-        fn emit(&self, _v: i32, _h: i32) -> Result<()> {
-            Ok(())
-        }
-    }
-    impl ZoomEmitter for FailingPrepareEmitter {
-        fn emit_zoom(&self, _units: i32) -> Result<()> {
-            Ok(())
-        }
-    }
     impl SemanticWheelEmitter for FailingPrepareEmitter {
         fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
             Err(PlatformError::Os("prepare unavailable".into()))
@@ -863,17 +816,19 @@ mod tests {
     }
     #[derive(Default)]
     struct RecordingEmitter {
-        generic_calls: Mutex<Vec<(i32, i32)>>,
-        immediate_calls: Mutex<Vec<i32>>,
+        semantic_calls: Mutex<Vec<smoothscroll_core::wheel::SemanticPulse>>,
     }
-    impl WheelEmitter for RecordingEmitter {
-        fn emit(&self, vertical: i32, horizontal: i32) -> Result<()> {
-            self.generic_calls.lock().push((vertical, horizontal));
+    impl SemanticWheelEmitter for RecordingEmitter {
+        fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
             Ok(())
         }
 
-        fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
-            self.immediate_calls.lock().push(units);
+        fn emit_semantic(
+            &self,
+            pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: EmissionContext,
+        ) -> Result<()> {
+            self.semantic_calls.lock().push(pulse);
             Ok(())
         }
     }
@@ -1049,7 +1004,7 @@ mod tests {
 
     fn make_state_with_emitter(
         settings: AppSettings,
-        emitter: Arc<dyn WheelEmitter>,
+        semantic_emitter: Arc<dyn SemanticWheelEmitter>,
     ) -> Arc<AppState> {
         let eff = EffectiveSettings::from_settings(&settings);
         Arc::new(AppState {
@@ -1059,9 +1014,7 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter,
-            zoom_emitter: Arc::new(StubEmitter),
-            semantic_emitter: Arc::new(StubEmitter),
+            semantic_emitter,
             wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(StubProcessQuery),
             autostart: Arc::new(StubAutostart),
@@ -1087,59 +1040,14 @@ mod tests {
         })
     }
 
-    /// Test constructor that injects the semantic emitter (used to exercise
-    /// preparation failure inside the unified Windows route).
-    #[cfg(windows)]
-    fn make_state_with_semantic_emitter(
-        settings: AppSettings,
-        semantic_emitter: Arc<dyn SemanticWheelEmitter>,
-    ) -> Arc<AppState> {
-        let eff = EffectiveSettings::from_settings(&settings);
-        Arc::new(AppState {
-            engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
-            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
-            settings: Arc::new(RwLock::new(settings.clone())),
-            effective: Arc::new(ArcSwap::from_pointee(eff)),
-            effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
-            mouse_hook: Arc::new(StubHook),
-            emitter: Arc::new(StubEmitter),
-            zoom_emitter: Arc::new(StubEmitter),
-            semantic_emitter,
-            wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
-            processes: Arc::new(StubProcessQuery),
-            autostart: Arc::new(StubAutostart),
-            hotkey: Arc::new(StubHotkey),
-            hotkey_handle: Arc::new(Mutex::new(None)),
-            engine_signal: Arc::new(EngineSignal::default()),
-            enabled: Arc::new(AtomicBool::new(settings.enabled)),
-            game_mode_active: Arc::new(AtomicBool::new(false)),
-            game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
-            fullscreen_detector: Arc::new(StubFullscreen),
-            window_geom: Arc::new(StubWindowGeom),
-            monitor_enum: Arc::new(StubMonitorEnum),
-            last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
-            persistor: Arc::new(SettingsPersistor::spawn()),
-            reduce_motion: Arc::new(AtomicBool::new(false)),
-            accessibility: Arc::new(StubAccessibility),
-            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
-            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
-            app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
-            stats: smoothscroll_core::stats::StatsCollector::new(
-                std::env::temp_dir().join("test-stats-semantic.json"),
-            ),
-        })
-    }
-
     #[cfg(windows)]
     #[test]
     fn preparation_failure_passes_before_swallow() {
-        let state = make_state_with_semantic_emitter(
-            AppSettings::default(),
-            Arc::new(FailingPrepareEmitter),
-        );
+        let state =
+            make_state_with_emitter(AppSettings::default(), Arc::new(FailingPrepareEmitter));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -1203,8 +1111,6 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter: Arc::new(StubEmitter),
-            zoom_emitter: Arc::new(StubEmitter),
             semantic_emitter: Arc::new(StubEmitter),
             wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(ElevatedStaticProcessQuery {
@@ -1253,8 +1159,6 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter: Arc::new(StubEmitter),
-            zoom_emitter: Arc::new(StubEmitter),
             semantic_emitter: Arc::new(StubEmitter),
             wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(StaticProcessQuery {
@@ -1325,6 +1229,14 @@ mod tests {
             },
             source,
         }
+    }
+
+    fn wheel(sink: &EngineSink, delta: i32, modifiers: ModifierKeys) -> HookDecision {
+        sink.on_wheel_event(vertical(delta, modifiers, InputSource::Wheel))
+    }
+
+    fn hwheel(sink: &EngineSink, delta: i32) -> HookDecision {
+        sink.on_wheel_event(horizontal(delta, no_mods(), InputSource::Wheel))
     }
 
     fn eff() -> EffectiveSettings {
@@ -1635,7 +1547,7 @@ mod tests {
         state.commit_settings(settings);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -1657,7 +1569,7 @@ mod tests {
         assert!(state.effective.load_full().instant_mode);
 
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -1674,12 +1586,12 @@ mod tests {
         let state = make_state_with_window_geom(settings, geom.clone());
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(state.animation_owner.get(), Some(A));
 
         geom.root.store(B, Ordering::Relaxed);
         geom.hit_child.store(0x2001, Ordering::Relaxed);
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         assert_eq!(state.animation_owner.get(), Some(B));
         assert!(state.engine.lock().has_pending_work());
@@ -1696,12 +1608,12 @@ mod tests {
         let state = make_state_with_window_geom(settings, geom.clone());
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert_eq!(state.animation_owner.get(), Some(ROOT));
         assert!(state.engine.lock().has_pending_work());
 
         geom.hit_child.store(0x1002, Ordering::Relaxed);
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         assert_eq!(state.animation_owner.get(), Some(ROOT));
         assert!(state.engine.lock().has_pending_work());
@@ -1724,7 +1636,7 @@ mod tests {
         state.commit_settings(settings);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
         assert_eq!(geom.calls.load(Ordering::Relaxed), 0);
         assert_eq!(state.animation_owner.get(), None);
     }
@@ -1742,11 +1654,11 @@ mod tests {
         let state = make_state_with_window_geom(settings, geom.clone());
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
         assert_eq!(state.animation_owner.get(), Some(A));
 
         geom.root.store(B, Ordering::Relaxed);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
 
         assert_eq!(state.animation_owner.get(), Some(B));
         assert!(state.engine.lock().has_pending_work());
@@ -1758,9 +1670,9 @@ mod tests {
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
         state.enabled.store(false, Ordering::Relaxed);
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
-        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Pass);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
     }
 
     #[cfg(windows)]
@@ -1983,7 +1895,7 @@ mod tests {
         s.horizontal_invert = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(100, shift_only()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 100, shift_only()), HookDecision::Swallow);
         assert_eq!(
             state
                 .engine
@@ -2004,7 +1916,7 @@ mod tests {
         s.horizontal_smoothness = false;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        let decision = sink.on_wheel(120, shift_only());
+        let decision = wheel(&sink, 120, shift_only());
 
         assert_eq!(decision, HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
@@ -2029,8 +1941,8 @@ mod tests {
         let generic_state = make_state_with_process(s, Some("notepad"));
         let generic_sink = EngineSink::new(generic_state.clone());
 
-        assert_eq!(office_sink.on_hwheel(120), HookDecision::Swallow);
-        assert_eq!(generic_sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&office_sink, 120), HookDecision::Swallow);
+        assert_eq!(hwheel(&generic_sink, 120), HookDecision::Swallow);
         let (office_v, office_h) = drain_engine(&office_state);
         let (generic_v, generic_h) = drain_engine(&generic_state);
 
@@ -2046,7 +1958,7 @@ mod tests {
         s.horizontal_invert = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        sink.on_hwheel(100);
+        hwheel(&sink, 100);
         let (_v, h) = drain_engine(&state);
         assert!(
             h < 0,
@@ -2060,7 +1972,7 @@ mod tests {
         s.horizontal_smoothness = false;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        let decision = sink.on_hwheel(120);
+        let decision = hwheel(&sink, 120);
         assert_eq!(decision, HookDecision::Pass);
     }
 
@@ -2070,7 +1982,7 @@ mod tests {
         s.horizontal_smoothness = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        let decision = sink.on_hwheel(120);
+        let decision = hwheel(&sink, 120);
         assert_eq!(decision, HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
@@ -2082,10 +1994,9 @@ mod tests {
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
-        assert!(recorder.generic_calls.lock().is_empty());
-        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(recorder.semantic_calls.lock().is_empty());
     }
 
     #[test]
@@ -2097,9 +2008,9 @@ mod tests {
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, shift_only()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, shift_only()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
-        assert!(recorder.immediate_calls.lock().is_empty());
+        assert!(recorder.semantic_calls.lock().is_empty());
     }
 
     #[test]
@@ -2110,7 +2021,7 @@ mod tests {
         Arc::get_mut(&mut state).unwrap().window_geom = Arc::new(DiscreteControlWindowGeom);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2120,7 +2031,7 @@ mod tests {
         s.reverse_wheel_direction = true;
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        sink.on_wheel(120, no_mods());
+        wheel(&sink, 120, no_mods());
         let (v, _h) = drain_engine(&state);
         assert!(v < 0, "reverse direction should flip sign");
     }
@@ -2131,7 +2042,7 @@ mod tests {
         s.excluded_apps.push("notepad".to_string());
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2141,7 +2052,7 @@ mod tests {
         s.excluded_apps.push("Notepad".to_string());
         let state = make_state_with_process(s, Some("NOTEPAD"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
     }
 
     #[test]
@@ -2150,7 +2061,7 @@ mod tests {
         s.excluded_apps.push("excel".to_string());
         let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
     }
 
     #[test]
@@ -2158,7 +2069,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_process(s, Some("Notepad.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2167,7 +2078,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_processes(s, Some("Code.exe"), Some("SystemSettings.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2177,7 +2088,7 @@ mod tests {
         s.auto_disable_windows_apps = false;
         let state = make_state_with_processes(s, Some("Notepad.exe"), Some("SystemSettings.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2191,7 +2102,7 @@ mod tests {
         );
         let state = make_state_with_process(s, Some("Notepad.exe"));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2213,7 +2124,7 @@ mod tests {
             .write()
             .insert(profile.id, Arc::new(profile_eff.clone()));
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         let global = state.effective.load_full();
         let mut frames = 0;
@@ -2243,7 +2154,7 @@ mod tests {
             .insert(profile.id, Arc::new(profile_eff));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_hwheel(120), HookDecision::Swallow);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2273,7 +2184,7 @@ mod tests {
             smoothscroll_core::input_source::InputSource::Wheel,
             &profile_eff,
         );
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
 
         let mut expected = Vec::new();
         let mut actual = Vec::new();
@@ -2293,8 +2204,8 @@ mod tests {
         let state = make_state(s);
         state.game_mode_active.store(true, Ordering::Release);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2306,7 +2217,7 @@ mod tests {
         state.publish_game_mode_state(true, None);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(
             state.engine.lock().has_pending_work(),
             "stale fullscreen Game Mode must not block the first wheel event"
@@ -2322,8 +2233,8 @@ mod tests {
         state.publish_game_mode_state(true, None);
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2337,7 +2248,7 @@ mod tests {
         state.publish_game_mode_state(true, Some(GAME_PID));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2353,7 +2264,7 @@ mod tests {
         state.publish_game_mode_state(true, Some(OLD_GAME_PID));
         let sink = EngineSink::new(state.clone());
 
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2426,7 +2337,7 @@ mod tests {
             alt: false,
             cmd: false,
         };
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2440,7 +2351,7 @@ mod tests {
             ctrl: true,
             ..ModifierKeys::default()
         };
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
 
         let eff = state.effective.load_full();
         let pulse = loop {
@@ -2467,7 +2378,7 @@ mod tests {
             shift: true,
             ..ModifierKeys::default()
         };
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
 
         let eff = state.effective.load_full();
         let pulse = loop {
@@ -2509,7 +2420,7 @@ mod tests {
             ..ModifierKeys::default()
         };
 
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
         let profile_eff = state
             .effective_per_profile
             .read()
@@ -2549,7 +2460,7 @@ mod tests {
             ..ModifierKeys::default()
         };
 
-        assert_eq!(sink.on_wheel(120, mods), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, mods), HookDecision::Swallow);
         let eff = state.effective.load_full();
         let pulse = loop {
             if let Some(pulse) = state.engine.lock().step(1000.0 / 120.0, &eff).vertical {
@@ -2573,7 +2484,7 @@ mod tests {
         s.modifier_passthrough.ctrl = true; // enable passthrough
         let state = make_state(s);
         let sink = EngineSink::new(state.clone());
-        sink.on_wheel(120, no_mods());
+        wheel(&sink, 120, no_mods());
         assert!(state.engine.lock().has_pending_work());
         let mods = ModifierKeys {
             shift: false,
@@ -2581,7 +2492,7 @@ mod tests {
             alt: false,
             cmd: false,
         };
-        let _ = sink.on_wheel(120, mods);
+        let _ = wheel(&sink, 120, mods);
         assert!(
             !state.engine.lock().has_pending_work(),
             "inertia should clear on ctrl press when passthrough enabled"
@@ -2598,7 +2509,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true, false);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
@@ -2610,7 +2521,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), false, false);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2624,7 +2535,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true, true);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Swallow);
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
     }
 
@@ -2634,7 +2545,7 @@ mod tests {
         let s = AppSettings::default();
         let state = make_state_with_elevation(s, Some("Code"), true, false);
         let sink = EngineSink::new(state.clone());
-        assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 }

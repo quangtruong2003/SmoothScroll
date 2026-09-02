@@ -173,79 +173,50 @@ fn dispatch_frame(
 
     let mut emitted_axes = [false; 2];
 
-    #[cfg(windows)]
+    for (index, pulse) in [frame.output.vertical, frame.output.horizontal]
+        .into_iter()
+        .enumerate()
     {
-        for (index, pulse) in [frame.output.vertical, frame.output.horizontal]
-            .into_iter()
-            .enumerate()
-        {
-            let Some(pulse) = pulse else { continue };
-            let axis = if index == 0 {
-                WheelAxis::Vertical
-            } else {
-                WheelAxis::Horizontal
-            };
-            let expected_generation = if index == 0 {
-                frame.vertical_generation
-            } else {
-                frame.horizontal_generation
-            };
-            let context = smoothscroll_platform::traits::EmissionContext {
-                root_owner: frame.root_owner,
-                axis_generation: expected_generation,
-                generation: state.wheel_generations.token(axis),
-            };
-            let owner_matches = state.engine.lock().active_sequence(axis) == Some(pulse.sequence);
-            if !owner_matches || !context.is_current() {
-                continue;
-            }
-            match state.semantic_emitter.emit_semantic(pulse, context) {
-                Ok(()) => emitted_axes[index] = true,
-                Err(error) => {
-                    let generation_still_matches =
-                        state.wheel_generations.get(axis) == expected_generation;
-                    if generation_still_matches {
-                        let mut engine = state.engine.lock();
-                        engine.reset_axis_if_sequence(axis, pulse.sequence);
-                    }
-                    tracing::warn!(
-                        error = %error,
-                        ?axis,
-                        shift = pulse.sequence.semantic.modifiers.shift,
-                        ctrl = pulse.sequence.semantic.modifiers.ctrl,
-                        alt = pulse.sequence.semantic.modifiers.alt,
-                        units = pulse.units,
-                        owner = ?frame.root_owner,
-                        "semantic wheel emission failed; tail cancelled"
-                    );
+        let Some(pulse) = pulse else { continue };
+        let axis = if index == 0 {
+            WheelAxis::Vertical
+        } else {
+            WheelAxis::Horizontal
+        };
+        let expected_generation = if index == 0 {
+            frame.vertical_generation
+        } else {
+            frame.horizontal_generation
+        };
+        let context = smoothscroll_platform::traits::EmissionContext {
+            root_owner: frame.root_owner,
+            axis_generation: expected_generation,
+            generation: state.wheel_generations.token(axis),
+        };
+        let owner_matches = state.engine.lock().active_sequence(axis) == Some(pulse.sequence);
+        if !owner_matches || !context.is_current() {
+            continue;
+        }
+        match state.semantic_emitter.emit_semantic(pulse, context) {
+            Ok(()) => emitted_axes[index] = true,
+            Err(error) => {
+                let generation_still_matches =
+                    state.wheel_generations.get(axis) == expected_generation;
+                if generation_still_matches {
+                    let mut engine = state.engine.lock();
+                    engine.reset_axis_if_sequence(axis, pulse.sequence);
                 }
+                tracing::warn!(
+                    error = %error,
+                    ?axis,
+                    shift = pulse.sequence.semantic.modifiers.shift,
+                    ctrl = pulse.sequence.semantic.modifiers.ctrl,
+                    alt = pulse.sequence.semantic.modifiers.alt,
+                    units = pulse.units,
+                    owner = ?frame.root_owner,
+                    "semantic wheel emission failed; tail cancelled"
+                );
             }
-        }
-    }
-
-    #[cfg(not(windows))]
-    {
-        let vertical = frame.output.vertical.map_or(0, |pulse| pulse.units);
-        let horizontal = frame.output.horizontal.map_or(0, |pulse| pulse.units);
-        let zoom = frame
-            .output
-            .vertical
-            .filter(|pulse| {
-                matches!(
-                    pulse.sequence.delta_transform,
-                    smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
-                )
-            })
-            .map_or(0, |pulse| pulse.units);
-        let scroll_vertical = if zoom != 0 { 0 } else { vertical };
-        if scroll_vertical != 0 || horizontal != 0 {
-            if state.emitter.emit(scroll_vertical, horizontal).is_ok() {
-                emitted_axes[0] = vertical != 0;
-                emitted_axes[1] = horizontal != 0;
-            }
-        }
-        if zoom != 0 && state.zoom_emitter.emit_zoom(zoom).is_ok() {
-            emitted_axes[0] = true;
         }
     }
 
@@ -307,8 +278,7 @@ mod tests {
     use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
         AccessibilitySignals, Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey,
-        HotkeyHandle, MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery, WheelEmitter,
-        WindowGeometry, ZoomEmitter,
+        HotkeyHandle, MonitorEnumeration, MouseHook, ProcessInfo, ProcessQuery, WindowGeometry,
     };
     use smoothscroll_platform::types::{Accelerator, PlatformError, Point, Result, WindowRect};
     use std::collections::HashMap;
@@ -319,8 +289,6 @@ mod tests {
 
     #[derive(Default)]
     struct RecordingEmitter {
-        wheel_calls: Mutex<Vec<(i32, i32)>>,
-        zoom_calls: Mutex<Vec<i32>>,
         semantic_calls: Mutex<Vec<smoothscroll_core::wheel::SemanticPulse>>,
         fail_vertical: AtomicBool,
         fail_horizontal: AtomicBool,
@@ -352,20 +320,6 @@ mod tests {
                 return Err(PlatformError::Os("semantic test emitter failed".into()));
             }
             self.semantic_calls.lock().push(pulse);
-            Ok(())
-        }
-    }
-
-    impl WheelEmitter for RecordingEmitter {
-        fn emit(&self, vertical: i32, horizontal: i32) -> Result<()> {
-            self.wheel_calls.lock().push((vertical, horizontal));
-            Ok(())
-        }
-    }
-
-    impl ZoomEmitter for RecordingEmitter {
-        fn emit_zoom(&self, units: i32) -> Result<()> {
-            self.zoom_calls.lock().push(units);
             Ok(())
         }
     }
@@ -498,8 +452,6 @@ mod tests {
             effective: Arc::new(ArcSwap::from_pointee(eff)),
             effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
             mouse_hook: Arc::new(StubHook),
-            emitter: recorder.clone(),
-            zoom_emitter: recorder.clone(),
             semantic_emitter: recorder,
             wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
             processes: Arc::new(StubProcessQuery),
@@ -718,7 +670,6 @@ mod tests {
         run_frame(&state, 1000.0 / 120.0, &eff);
 
         assert!(recorder.semantic_calls.lock().is_empty());
-        assert!(recorder.zoom_calls.lock().is_empty());
         assert!(!state.engine.lock().has_pending_work());
         assert_eq!(state.engine.lock().last_velocity(), 0.0);
         assert_eq!(state.animation_owner.get(), None);
@@ -748,7 +699,6 @@ mod tests {
         run_frame(&state, 1000.0 / 120.0, &eff);
 
         assert!(recorder.semantic_calls.lock().is_empty());
-        assert!(recorder.zoom_calls.lock().is_empty());
         assert!(state.engine.lock().has_pending_work());
         assert_eq!(state.animation_owner.get(), Some(B));
         let stats = state.stats.snapshot();

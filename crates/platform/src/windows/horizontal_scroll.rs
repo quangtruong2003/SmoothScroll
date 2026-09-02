@@ -32,7 +32,6 @@ struct WorkerHandle {
 }
 
 enum WorkerCommand {
-    Legacy(HorizontalCommand),
     Semantic(SemanticHorizontalCommand),
 }
 
@@ -62,44 +61,6 @@ impl HorizontalScrollDispatcher {
             .map(|_| ())
             .map_err(|error| {
                 PlatformError::Os(format!("horizontal scroll worker unavailable: {error}"))
-            })
-    }
-
-    pub fn dispatch(units: i32) -> Result<()> {
-        if units == 0 {
-            return Ok(());
-        }
-
-        let mut point = POINT { x: 0, y: 0 };
-        if unsafe { GetCursorPos(&mut point) } == 0 {
-            return Err(PlatformError::Os("GetCursorPos failed".into()));
-        }
-
-        let sender = WORKER
-            .get_or_init(spawn_worker)
-            .as_ref()
-            .map_err(|error| {
-                PlatformError::Os(format!("horizontal scroll worker unavailable: {error}"))
-            })?
-            .sender
-            .clone();
-        let command = HorizontalCommand {
-            point: ScreenPoint {
-                x: point.x,
-                y: point.y,
-            },
-            units,
-        };
-
-        sender
-            .try_send(WorkerCommand::Legacy(command))
-            .map_err(|error| match error {
-                TrySendError::Full(_) => {
-                    PlatformError::Os("horizontal scroll worker queue is full".into())
-                }
-                TrySendError::Disconnected(_) => {
-                    PlatformError::Os("horizontal scroll worker disconnected".into())
-                }
             })
     }
 
@@ -180,11 +141,6 @@ fn worker_loop(receiver: Receiver<WorkerCommand>) {
 
     for command in receiver {
         match command {
-            WorkerCommand::Legacy(command) => {
-                if let Err(error) = scroll_with_backend(&mut backend, command) {
-                    tracing::warn!(%error, "immediate horizontal scroll failed");
-                }
-            }
             WorkerCommand::Semantic(command) => {
                 // The generation is re-checked immediately before dispatch so
                 // a transition that landed after enqueue still cancels.

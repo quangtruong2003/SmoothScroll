@@ -13,7 +13,7 @@ use parking_lot::{Mutex, RwLock};
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{self, EffectiveSettings};
 use std::collections::HashMap;
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, AtomicU64};
 use std::sync::Arc;
 
 mod engine_thread;
@@ -66,8 +66,8 @@ fn main() {
         effective: effective_arc,
         effective_per_profile: effective_per_profile_arc,
         mouse_hook: platform.mouse_hook,
-        emitter: platform.wheel_emitter.clone(),
-        zoom_emitter: platform.zoom_emitter.clone(),
+        semantic_emitter: platform.semantic_emitter,
+        emission_generation: Arc::new(AtomicU64::new(0)),
         processes: platform.process_query,
         autostart: platform.autostart,
         hotkey: platform.hotkey,

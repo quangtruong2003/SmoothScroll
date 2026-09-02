@@ -119,7 +119,7 @@ impl MouseHook for LinuxMouseHook {
                         let button = (*xi_event).detail;
                         xlib::XFreeEventData(d, &mut event.generic_event_cookie);
 
-                        // Skip self-injected events from WheelEmitter
+                        // Skip self-injected events from the semantic wheel emitter
                         if super::wheel_emitter::is_suppressed() {
                             continue;
                         }

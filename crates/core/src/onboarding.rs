@@ -3,9 +3,7 @@
 //! persisting the result.
 
 use crate::easing::EasingMode;
-use crate::settings::{
-    AppSettings, ModifierPassthrough, ShiftWheelBehavior, WheelOutputMode,
-};
+use crate::settings::{AppSettings, ModifierPassthrough, ShiftWheelBehavior, WheelOutputMode};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UseCase {

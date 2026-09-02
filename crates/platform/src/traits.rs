@@ -2,46 +2,15 @@
 //! `windows/` and `macos/` modules (cfg-gated).
 
 use crate::types::{
-    Accelerator, HookDecision, ModifierKeys, Point, Result, SemanticPulse, WheelAxis,
-    WheelInputEvent, WheelSemantic, WheelSequence, WindowRect,
+    Accelerator, HookDecision, Point, Result, SemanticPulse, WheelInputEvent, WheelSequence,
+    WindowRect,
 };
-use smoothscroll_core::input_source::InputSource;
 use std::sync::atomic::AtomicU64;
 use std::sync::Arc;
 
-/// Receives parsed hook events. Implementation lives in the app crate.
+/// Receives parsed wheel events with their complete semantic identity.
 pub trait HookEventSink: Send + Sync {
     fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision;
-
-    fn on_wheel(&self, delta: i32, mods: ModifierKeys) -> HookDecision {
-        self.on_wheel_ext(delta, mods, InputSource::Wheel)
-    }
-
-    fn on_hwheel(&self, delta: i32) -> HookDecision {
-        self.on_hwheel_ext(delta, ModifierKeys::default(), InputSource::Wheel)
-    }
-
-    fn on_wheel_ext(&self, delta: i32, mods: ModifierKeys, source: InputSource) -> HookDecision {
-        self.on_wheel_event(WheelInputEvent {
-            delta,
-            semantic: WheelSemantic {
-                axis: WheelAxis::Vertical,
-                modifiers: mods,
-            },
-            source,
-        })
-    }
-
-    fn on_hwheel_ext(&self, delta: i32, mods: ModifierKeys, source: InputSource) -> HookDecision {
-        self.on_wheel_event(WheelInputEvent {
-            delta,
-            semantic: WheelSemantic {
-                axis: WheelAxis::Horizontal,
-                modifiers: mods,
-            },
-            source,
-        })
-    }
 }
 
 /// Opaque RAII handle. Dropping uninstalls the hook.
@@ -57,24 +26,6 @@ impl HookHandle {
 
 pub trait MouseHook: Send + Sync {
     fn install(&self, sink: Arc<dyn HookEventSink>) -> Result<HookHandle>;
-}
-
-/// Emits synthetic wheel events. Pre-multiplied integer pulses
-/// (use `core::constants::EMIT_UNIT`).
-pub trait WheelEmitter: Send + Sync {
-    fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()>;
-
-    /// Dispatch one horizontal wheel notch without waiting for engine inertia.
-    /// Platforms may override this when the native operation must run on a
-    /// dedicated thread. The default preserves the existing emitter behavior.
-    fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
-        self.emit(0, units)
-    }
-}
-
-/// Emits synthetic zoom events (Ctrl+Wheel).
-pub trait ZoomEmitter: Send + Sync {
-    fn emit_zoom(&self, units: i32) -> Result<()>;
 }
 
 /// Captured identity of the animation that produced a semantic pulse, used to
@@ -243,19 +194,6 @@ pub trait DisplayQuery: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Mutex;
-
-    #[derive(Default)]
-    struct RecordingSink {
-        last: Mutex<Option<WheelInputEvent>>,
-    }
-
-    impl HookEventSink for RecordingSink {
-        fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
-            *self.last.lock().unwrap() = Some(event);
-            HookDecision::Pass
-        }
-    }
 
     struct StubWindowGeometry;
 
@@ -263,49 +201,6 @@ mod tests {
         fn cursor_in_window(&self) -> Option<(Point, WindowRect)> {
             None
         }
-    }
-
-    #[test]
-    fn horizontal_compatibility_adapter_can_carry_modifiers() {
-        let sink = RecordingSink::default();
-        let mods = ModifierKeys {
-            ctrl: true,
-            alt: true,
-            ..ModifierKeys::default()
-        };
-        sink.on_hwheel_ext(120, mods, InputSource::HighResWheel);
-        assert_eq!(
-            *sink.last.lock().unwrap(),
-            Some(WheelInputEvent {
-                delta: 120,
-                semantic: WheelSemantic {
-                    axis: WheelAxis::Horizontal,
-                    modifiers: mods,
-                },
-                source: InputSource::HighResWheel,
-            })
-        );
-    }
-
-    #[test]
-    fn vertical_compatibility_adapter_can_carry_modifiers() {
-        let sink = RecordingSink::default();
-        let mods = ModifierKeys {
-            shift: true,
-            ..ModifierKeys::default()
-        };
-        sink.on_wheel_ext(-120, mods, InputSource::Touchpad);
-        assert_eq!(
-            *sink.last.lock().unwrap(),
-            Some(WheelInputEvent {
-                delta: -120,
-                semantic: WheelSemantic {
-                    axis: WheelAxis::Vertical,
-                    modifiers: mods,
-                },
-                source: InputSource::Touchpad,
-            })
-        );
     }
 
     #[test]

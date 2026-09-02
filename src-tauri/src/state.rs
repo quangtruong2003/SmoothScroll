@@ -8,7 +8,7 @@ use smoothscroll_core::wheel::WheelAxis;
 use smoothscroll_platform::icon::IconCache;
 use smoothscroll_platform::traits::{
     Autostart, FullscreenDetector, Hotkey, HotkeyHandle, MonitorEnumeration, MouseHook,
-    ProcessQuery, SemanticWheelEmitter, WheelEmitter, WindowGeometry, ZoomEmitter,
+    ProcessQuery, SemanticWheelEmitter, WindowGeometry,
 };
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicIsize, AtomicU64, AtomicU8, Ordering};
@@ -97,8 +97,6 @@ pub struct AppState {
     /// Pre-built EffectiveSettings per profile ID. Rebuilt on profile CRUD.
     pub effective_per_profile: Arc<RwLock<HashMap<String, Arc<EffectiveSettings>>>>,
     pub mouse_hook: Arc<dyn MouseHook>,
-    pub emitter: Arc<dyn WheelEmitter>,
-    pub zoom_emitter: Arc<dyn ZoomEmitter>,
     pub semantic_emitter: Arc<dyn SemanticWheelEmitter>,
     /// Per-axis semantic generation tokens; see `WheelAxisGenerations`.
     pub wheel_generations: Arc<WheelAxisGenerations>,

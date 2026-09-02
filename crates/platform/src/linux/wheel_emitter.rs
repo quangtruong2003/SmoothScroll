@@ -1,15 +1,15 @@
 //! Scroll injection via XTest extension.
 //!
 //! CRITICAL: XTest events trigger XInput2 raw events, causing feedback loops.
-//! We use a static suppression flag — WheelEmitter sets it before injecting,
-//! and MouseHook skips events while it's set.
+//! We use a static suppression flag — the semantic emitter sets it before
+//! injecting, and MouseHook skips events while it's set.
 //!
 //! The suppression flag is set/cleared INSIDE the Display mutex to prevent
 //! race conditions where concurrent emit() calls could clear the flag early.
 //!
 //! Uses a persistent Display connection to avoid per-emit open/close overhead.
 
-use crate::traits::{WheelEmitter, ZoomEmitter};
+use crate::traits::SemanticWheelEmitter;
 use crate::types::{PlatformError, Result};
 use parking_lot::Mutex;
 use std::os::raw::c_int;
@@ -35,11 +35,11 @@ struct SendDisplay(*mut xlib::Display);
 unsafe impl Send for SendDisplay {}
 unsafe impl Sync for SendDisplay {}
 
-/// Global suppression flag. WheelEmitter sets this before injecting events.
+/// Global suppression flag. The semantic emitter sets this before injecting events.
 /// MouseHook checks and skips events while this is true.
 static SUPPRESSING: AtomicBool = AtomicBool::new(false);
 
-/// Check if the current event should be suppressed (self-injected by WheelEmitter).
+/// Check if the current event should be suppressed (self-injected).
 pub fn is_suppressed() -> bool {
     SUPPRESSING.load(Ordering::Acquire)
 }
@@ -103,8 +103,8 @@ impl LinuxWheelEmitter {
     }
 }
 
-impl WheelEmitter for LinuxWheelEmitter {
-    fn emit(&self, vertical_units: i32, horizontal_units: i32) -> Result<()> {
+impl LinuxWheelEmitter {
+    fn emit_scroll(&self, vertical_units: i32, horizontal_units: i32) -> Result<()> {
         if vertical_units == 0 && horizontal_units == 0 {
             return Ok(());
         }
@@ -153,7 +153,7 @@ impl WheelEmitter for LinuxWheelEmitter {
     }
 }
 
-impl ZoomEmitter for LinuxWheelEmitter {
+impl LinuxWheelEmitter {
     fn emit_zoom(&self, units: i32) -> Result<()> {
         if units == 0 {
             return Ok(());
@@ -215,11 +215,10 @@ impl Drop for LinuxWheelEmitter {
     }
 }
 
-/// No-regression semantic adapter: until Task 11 lands native Linux semantic
-/// emission, route pulses through the existing channel emitters so current
-/// observable behavior is preserved. Ctrl-captured vertical pulses map to the
-/// existing Ctrl-wrapped zoom path; everything else scrolls.
-impl crate::traits::SemanticWheelEmitter for LinuxWheelEmitter {
+/// Final semantic emission entry point. The transport-specific helpers below
+/// preserve the existing X11 injection behavior while the caller supplies the
+/// captured axis/modifier/transform identity.
+impl SemanticWheelEmitter for LinuxWheelEmitter {
     fn prepare(&self, _sequence: smoothscroll_core::wheel::WheelSequence) -> Result<()> {
         Ok(())
     }
@@ -232,11 +231,14 @@ impl crate::traits::SemanticWheelEmitter for LinuxWheelEmitter {
         if pulse.units == 0 {
             return Ok(());
         }
-        let ctrl_captured = pulse.sequence.semantic.modifiers.ctrl;
-        match (pulse.sequence.semantic.axis, ctrl_captured) {
-            (smoothscroll_core::wheel::WheelAxis::Vertical, true) => self.emit_zoom(pulse.units),
-            (smoothscroll_core::wheel::WheelAxis::Vertical, false) => self.emit(pulse.units, 0),
-            (smoothscroll_core::wheel::WheelAxis::Horizontal, _) => self.emit(0, pulse.units),
+        let zoom = matches!(
+            pulse.sequence.delta_transform,
+            smoothscroll_core::wheel::DeltaTransform::CtrlZoom { .. }
+        );
+        match pulse.sequence.semantic.axis {
+            smoothscroll_core::wheel::WheelAxis::Vertical if zoom => self.emit_zoom(pulse.units),
+            smoothscroll_core::wheel::WheelAxis::Vertical => self.emit_scroll(pulse.units, 0),
+            smoothscroll_core::wheel::WheelAxis::Horizontal => self.emit_scroll(0, pulse.units),
         }
     }
 }
