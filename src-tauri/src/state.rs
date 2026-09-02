@@ -216,10 +216,10 @@ impl AppState {
         (active, known_game_pid)
     }
 
-    /// Atomically replace the authoritative settings, rebuild the hot-path
-    /// effective snapshot, rebuild the per-profile cache, and queue a debounced
-    /// disk write. This is the ONLY path that should mutate settings.
-    pub fn commit_settings(&self, new: AppSettings) {
+    /// Apply one settings snapshot and rebuild all hot-path views. Startup loads
+    /// use `persist = false` because path-aware schema migration has already
+    /// persisted when necessary; user mutations use `commit_settings`.
+    fn apply_settings(&self, new: AppSettings, persist: bool) {
         use smoothscroll_core::settings::RespectReduceMotion;
         let os_rm = self.reduce_motion.load(Ordering::Relaxed);
         let reduce_motion_instant = match new.respect_reduce_motion {
@@ -247,6 +247,19 @@ impl AppState {
         }
         self.effective.store(Arc::new(new_eff));
         *self.effective_per_profile.write() = new_per_profile;
-        self.persistor.submit(new);
+        if persist {
+            self.persistor.submit(new);
+        }
+    }
+
+    /// Apply settings loaded from disk without scheduling an unconditional
+    /// startup rewrite.
+    pub fn apply_loaded_settings(&self, new: AppSettings) {
+        self.apply_settings(new, false);
+    }
+
+    /// Commit a runtime/user settings change and queue the debounced disk write.
+    pub fn commit_settings(&self, new: AppSettings) {
+        self.apply_settings(new, true);
     }
 }

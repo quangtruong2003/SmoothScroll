@@ -109,14 +109,26 @@ pub fn get_settings(state: State<'_, Arc<AppState>>) -> AppSettings {
     state.settings.read().clone()
 }
 
+fn prepare_typed_settings_for_save(mut settings: AppSettings) -> Result<AppSettings, String> {
+    if settings.settings_schema_version > settings::CURRENT_SETTINGS_SCHEMA_VERSION {
+        return Err(format!(
+            "unsupported settings schema {}; current schema is {}",
+            settings.settings_schema_version,
+            settings::CURRENT_SETTINGS_SCHEMA_VERSION
+        ));
+    }
+    settings.settings_schema_version = settings::CURRENT_SETTINGS_SCHEMA_VERSION;
+    settings.clamp();
+    Ok(settings)
+}
+
 #[tauri::command]
 pub fn save_settings<R: tauri::Runtime>(
     app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     settings: AppSettings,
 ) -> Result<(), String> {
-    let mut clamped = settings;
-    clamped.clamp();
+    let clamped = prepare_typed_settings_for_save(settings)?;
 
     // Synchronous save — frontend's explicit Save action requires disk state.
     settings::save(&clamped).map_err(|e| e.to_string())?;
@@ -836,5 +848,34 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
         current_profile_id,
         is_excluded,
         app_icon_base64,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use smoothscroll_core::settings::CURRENT_SETTINGS_SCHEMA_VERSION;
+
+    #[test]
+    fn typed_settings_save_upgrades_legacy_schema() {
+        let mut settings = AppSettings::default();
+        settings.settings_schema_version = 0;
+
+        let prepared = prepare_typed_settings_for_save(settings).unwrap();
+
+        assert_eq!(
+            prepared.settings_schema_version,
+            CURRENT_SETTINGS_SCHEMA_VERSION
+        );
+    }
+
+    #[test]
+    fn typed_settings_save_rejects_future_schema() {
+        let mut settings = AppSettings::default();
+        settings.settings_schema_version = CURRENT_SETTINGS_SCHEMA_VERSION + 1;
+
+        let error = prepare_typed_settings_for_save(settings).unwrap_err();
+
+        assert!(error.contains("unsupported settings schema"));
     }
 }

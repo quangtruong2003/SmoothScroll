@@ -1,7 +1,10 @@
 #![allow(clippy::field_reassign_with_default)]
 
 use smoothscroll_core::easing::EasingMode;
-use smoothscroll_core::settings::{AppSettings, ShiftWheelBehavior, WheelOutputMode};
+use smoothscroll_core::settings::{
+    migrate_raw_settings, try_load_from, AppSettings, SettingsError, ShiftWheelBehavior,
+    WheelOutputMode, CURRENT_SETTINGS_SCHEMA_VERSION,
+};
 
 #[test]
 fn semantic_policy_defaults_preserve_input_meaning() {
@@ -575,4 +578,163 @@ fn with_profile_keeps_other_fields_from_base() {
     let eff = EffectiveSettings::with_profile(&s, &profile);
     assert_eq!(eff.horizontal_invert, true);
     assert_eq!(eff.touchpad_smoothing_enabled, true);
+}
+
+fn legacy_profile(id: &str, horizontal_smoothness: bool) -> serde_json::Value {
+    serde_json::json!({
+        "id": id,
+        "name": format!("Profile {id}"),
+        "step_size_px": 144,
+        "animation_time_ms": 220,
+        "acceleration_max": 10,
+        "tail_to_head_ratio": 5,
+        "animation_easing": true,
+        "easing_mode": "QuinticOut",
+        "reverse_wheel_direction": false,
+        "horizontal_smoothness": horizontal_smoothness
+    })
+}
+
+#[test]
+fn schema_zero_absent_modifier_defaults_migrate_to_semantic_smoothing() {
+    let raw = serde_json::json!({ "horizontal_smoothness": true });
+    let (settings, migrated) = migrate_raw_settings(raw).unwrap();
+
+    assert!(migrated);
+    assert_eq!(
+        settings.settings_schema_version,
+        CURRENT_SETTINGS_SCHEMA_VERSION
+    );
+    assert!(!settings.modifier_passthrough.ctrl);
+    assert!(!settings.modifier_passthrough.alt);
+    assert_eq!(settings.shift_wheel_behavior, ShiftWheelBehavior::Preserve);
+    assert_eq!(settings.wheel_output_mode, WheelOutputMode::SmoothPulses);
+}
+
+#[test]
+fn schema_zero_explicit_modifier_passthrough_is_preserved() {
+    let raw = serde_json::json!({
+        "modifier_passthrough": {
+            "ctrl": true,
+            "alt": true,
+            "clear_inertia_on_press": true
+        }
+    });
+    let (settings, migrated) = migrate_raw_settings(raw).unwrap();
+
+    assert!(migrated);
+    assert!(settings.modifier_passthrough.ctrl);
+    assert!(settings.modifier_passthrough.alt);
+}
+
+#[test]
+fn old_horizontal_profile_does_not_infer_shift_conversion() {
+    let raw = serde_json::json!({
+        "horizontal_smoothness": false,
+        "smooth_zoom": false,
+        "zoom_invert": true,
+        "zoom_sensitivity": 2.5,
+        "profiles": [
+            legacy_profile("reaper-profile", true),
+            legacy_profile("editor-profile", false)
+        ],
+        "app_profiles": {
+            "REAPER.exe": "reaper-profile",
+            "Legacy Disabled.exe": "__disabled__"
+        }
+    });
+    let (settings, migrated) = migrate_raw_settings(raw).unwrap();
+
+    assert!(migrated);
+    assert!(!settings.horizontal_smoothness);
+    assert_eq!(settings.profiles.len(), 2);
+    for profile in &settings.profiles {
+        assert_eq!(profile.shift_wheel_behavior, ShiftWheelBehavior::Preserve);
+        assert_eq!(profile.wheel_output_mode, WheelOutputMode::SmoothPulses);
+        assert!(!profile.smooth_zoom);
+        assert!(profile.zoom_invert);
+        assert_eq!(profile.zoom_sensitivity, 2.5);
+    }
+    assert_eq!(
+        settings.app_profiles.get("reaper"),
+        Some(&"reaper-profile".to_string())
+    );
+    assert_eq!(
+        settings.app_profiles.get("legacy disabled"),
+        Some(&AppSettings::DISABLED_PROFILE_ID.to_string())
+    );
+}
+
+#[test]
+fn schema_one_preserves_explicit_semantic_policy_values() {
+    let raw = serde_json::json!({
+        "settings_schema_version": CURRENT_SETTINGS_SCHEMA_VERSION,
+        "shift_wheel_behavior": "ConvertToHorizontal",
+        "wheel_output_mode": "Raw",
+        "modifier_passthrough": {
+            "ctrl": true,
+            "alt": false,
+            "clear_inertia_on_press": false
+        }
+    });
+    let (settings, migrated) = migrate_raw_settings(raw).unwrap();
+
+    assert!(!migrated);
+    assert_eq!(
+        settings.shift_wheel_behavior,
+        ShiftWheelBehavior::ConvertToHorizontal
+    );
+    assert_eq!(settings.wheel_output_mode, WheelOutputMode::Raw);
+    assert!(settings.modifier_passthrough.ctrl);
+    assert!(!settings.modifier_passthrough.alt);
+    assert!(!settings.modifier_passthrough.clear_inertia_on_press);
+}
+
+#[test]
+fn future_schema_is_rejected() {
+    let raw = serde_json::json!({
+        "settings_schema_version": CURRENT_SETTINGS_SCHEMA_VERSION + 1
+    });
+    let error = migrate_raw_settings(raw).unwrap_err();
+
+    assert!(matches!(error, SettingsError::UnsupportedSchema { .. }));
+}
+
+#[test]
+fn migration_persists_once_and_second_load_does_not_rewrite() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("settings.json");
+    std::fs::write(
+        &path,
+        serde_json::to_vec_pretty(&serde_json::json!({
+            "horizontal_smoothness": true,
+            "modifier_passthrough": { "alt": true }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    let (first, migrated) = try_load_from(&path).unwrap();
+    assert!(migrated);
+    assert_eq!(
+        first.settings_schema_version,
+        CURRENT_SETTINGS_SCHEMA_VERSION
+    );
+    assert!(first.modifier_passthrough.alt);
+
+    let persisted: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    assert_eq!(
+        persisted["settings_schema_version"],
+        serde_json::json!(CURRENT_SETTINGS_SCHEMA_VERSION)
+    );
+    let modified_after_first = std::fs::metadata(&path).unwrap().modified().unwrap();
+
+    std::thread::sleep(std::time::Duration::from_millis(25));
+    let (second, migrated_again) = try_load_from(&path).unwrap();
+    let modified_after_second = std::fs::metadata(&path).unwrap().modified().unwrap();
+
+    assert!(!migrated_again);
+    assert_eq!(second, first);
+    assert_eq!(modified_after_second, modified_after_first);
 }

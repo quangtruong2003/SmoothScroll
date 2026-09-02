@@ -139,10 +139,10 @@ pub fn run() {
         stats: stats_collector,
     });
 
-    // Apply the OS Reduce Motion signal to the initial effective snapshot.
-    // Without this, the engine smooths everything until the user first saves
-    // settings or the RM watcher fires.
-    app_state.commit_settings(loaded_settings.clone());
+    // Apply the OS Reduce Motion signal to the initial effective snapshot
+    // without scheduling an unconditional startup rewrite. Schema migration,
+    // when needed, is persisted synchronously by the path-aware loader.
+    app_state.apply_loaded_settings(loaded_settings.clone());
 
     let engine_thread = EngineThread::spawn(app_state.clone(), frame_ms);
     edge_scroll_thread::spawn(app_state.clone());
