@@ -103,6 +103,9 @@ struct SteppedFrame {
     root_owner: Option<isize>,
     vertical_generation: u64,
     horizontal_generation: u64,
+    vertical_complete: bool,
+    horizontal_complete: bool,
+    dt_ms: f64,
 }
 
 fn step_frame(
@@ -131,12 +134,22 @@ fn step_frame(
         root_owner,
         vertical_generation: state.wheel_generations.get(WheelAxis::Vertical),
         horizontal_generation: state.wheel_generations.get(WheelAxis::Horizontal),
+        vertical_complete: !engine.has_pending_axis(WheelAxis::Vertical),
+        horizontal_complete: !engine.has_pending_axis(WheelAxis::Horizontal),
+        dt_ms,
     }
 }
 
 fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::EffectiveSettings) {
     let frame = step_frame(state, dt_ms, eff);
+    dispatch_frame(state, frame, eff);
+}
 
+fn dispatch_frame(
+    state: &AppState,
+    frame: SteppedFrame,
+    eff: &smoothscroll_core::settings::EffectiveSettings,
+) {
     #[cfg(windows)]
     if !eff.instant_mode && frame.output != smoothscroll_core::engine::EngineOutput::default() {
         if let Some(owner) = frame.root_owner {
@@ -251,16 +264,16 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
             .foreground_process_name()
             .unwrap_or_default();
         state.stats.record_distance(distance, &fg_name);
-        state.stats.record_active_time(dt_ms as u64);
+        state.stats.record_active_time(frame.dt_ms as u64);
     }
 
     let mut engine = state.engine.lock();
-    if emitted_axes[0] {
+    if emitted_axes[0] && frame.vertical_complete {
         if let Some(pulse) = frame.output.vertical {
             engine.finish_axis_pulse(WheelAxis::Vertical, pulse.sequence);
         }
     }
-    if emitted_axes[1] {
+    if emitted_axes[1] && frame.horizontal_complete {
         if let Some(pulse) = frame.output.horizontal {
             engine.finish_axis_pulse(WheelAxis::Horizontal, pulse.sequence);
         }
@@ -576,44 +589,6 @@ mod tests {
     fn step_frame_for_ctrl(state: &AppState, eff: &EffectiveSettings) -> SteppedFrame {
         queue_ctrl_wheel(state, eff, 120);
         step_frame(state, 1000.0 / 120.0, eff)
-    }
-
-    #[allow(dead_code)]
-    fn dispatch_frame(state: &AppState, frame: SteppedFrame, eff: &EffectiveSettings) {
-        // Re-run the production dispatcher against a captured frame without
-        // stepping a second time. This mirrors the stale-frame gate used by
-        // `run_frame` and keeps the regression test allocation-free.
-        #[cfg(windows)]
-        {
-            for (index, pulse) in [frame.output.vertical, frame.output.horizontal]
-                .into_iter()
-                .enumerate()
-            {
-                let Some(pulse) = pulse else { continue };
-                let axis = if index == 0 {
-                    WheelAxis::Vertical
-                } else {
-                    WheelAxis::Horizontal
-                };
-                let generation = if index == 0 {
-                    frame.vertical_generation
-                } else {
-                    frame.horizontal_generation
-                };
-                let context = smoothscroll_platform::traits::EmissionContext {
-                    root_owner: frame.root_owner,
-                    axis_generation: generation,
-                    generation: state.wheel_generations.token(axis),
-                };
-                if state.engine.lock().active_sequence(axis) != Some(pulse.sequence)
-                    || !context.is_current()
-                {
-                    continue;
-                }
-                let _ = state.semantic_emitter.emit_semantic(pulse, context);
-            }
-        }
-        let _ = eff;
     }
 
     #[allow(dead_code)]
