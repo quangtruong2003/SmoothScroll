@@ -189,8 +189,12 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
             match state.semantic_emitter.emit_semantic(pulse, context) {
                 Ok(()) => emitted_axes[index] = true,
                 Err(error) => {
-                    let mut engine = state.engine.lock();
-                    engine.reset_axis_if_sequence(axis, pulse.sequence);
+                    let generation_still_matches =
+                        state.wheel_generations.get(axis) == expected_generation;
+                    if generation_still_matches {
+                        let mut engine = state.engine.lock();
+                        engine.reset_axis_if_sequence(axis, pulse.sequence);
+                    }
                     tracing::warn!(
                         error = %error,
                         ?axis,
