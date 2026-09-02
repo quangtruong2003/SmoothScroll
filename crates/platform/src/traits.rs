@@ -6,6 +6,7 @@ use crate::types::{
     WheelInputEvent, WheelSemantic, WheelSequence, WindowRect,
 };
 use smoothscroll_core::input_source::InputSource;
+use std::sync::atomic::AtomicU64;
 use std::sync::Arc;
 
 /// Receives parsed hook events. Implementation lives in the app crate.
@@ -78,10 +79,22 @@ pub trait ZoomEmitter: Send + Sync {
 
 /// Captured identity of the animation that produced a semantic pulse, used to
 /// invalidate queued compatibility work after semantic/root/raw transitions.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// The generation token is backed by the caller's shared `Arc<AtomicU64>` so
+/// the routing layer and the platform worker validate against the exact same
+/// counter the pulse was planned under.
+#[derive(Debug, Clone)]
 pub struct EmissionContext {
     pub root_owner: Option<isize>,
     pub axis_generation: u64,
+    pub generation: Arc<AtomicU64>,
+}
+
+impl EmissionContext {
+    /// True when the axis generation is still current at validation time.
+    pub fn is_current(&self) -> bool {
+        self.generation.load(std::sync::atomic::Ordering::Acquire) == self.axis_generation
+    }
 }
 
 /// Emits wheel pulses that preserve the captured semantic identity.

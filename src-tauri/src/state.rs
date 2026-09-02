@@ -50,31 +50,36 @@ impl AnimationOwner {
 
 /// Per-axis generation tokens for the semantic wheel pipeline. A semantic,
 /// raw, or root transition on one axis invalidates only that axis's queued
-/// work; a root-window change invalidates both axes.
-#[derive(Default)]
+/// work; a root-window change invalidates both axes. The `Arc<AtomicU64>`
+/// handles are shared with the platform emitters via `EmissionContext` so
+/// queued work validates against the exact counter it was planned under.
+#[derive(Debug, Default)]
 pub struct WheelAxisGenerations {
-    vertical: AtomicU64,
-    horizontal: AtomicU64,
+    vertical: Arc<AtomicU64>,
+    horizontal: Arc<AtomicU64>,
 }
 
 impl WheelAxisGenerations {
     pub fn get(&self, axis: WheelAxis) -> u64 {
-        match axis {
-            WheelAxis::Vertical => self.vertical.load(Ordering::Acquire),
-            WheelAxis::Horizontal => self.horizontal.load(Ordering::Acquire),
-        }
+        self.token(axis).load(Ordering::Acquire)
     }
 
     pub fn invalidate(&self, axis: WheelAxis) {
-        match axis {
-            WheelAxis::Vertical => self.vertical.fetch_add(1, Ordering::Release),
-            WheelAxis::Horizontal => self.horizontal.fetch_add(1, Ordering::Release),
-        };
+        self.token(axis).fetch_add(1, Ordering::Release);
     }
 
     pub fn invalidate_all(&self) {
         self.invalidate(WheelAxis::Vertical);
         self.invalidate(WheelAxis::Horizontal);
+    }
+
+    /// The shared token for one axis; passed to the emitter in
+    /// `EmissionContext` so the platform validates against this store.
+    pub fn token(&self, axis: WheelAxis) -> Arc<AtomicU64> {
+        match axis {
+            WheelAxis::Vertical => self.vertical.clone(),
+            WheelAxis::Horizontal => self.horizontal.clone(),
+        }
     }
 }
 

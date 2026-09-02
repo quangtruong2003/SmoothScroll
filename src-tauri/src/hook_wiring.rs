@@ -15,7 +15,9 @@ use smoothscroll_core::settings::{EffectiveSettings, ShiftWheelBehavior, WheelOu
 use smoothscroll_core::wheel::WheelSemantic;
 use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
 use smoothscroll_platform::traits::HookEventSink;
-use smoothscroll_platform::types::{HookDecision, ModifierKeys, WheelAxis, WheelInputEvent};
+#[cfg(any(not(windows), test))]
+use smoothscroll_platform::types::ModifierKeys;
+use smoothscroll_platform::types::{HookDecision, WheelAxis, WheelInputEvent};
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
@@ -646,6 +648,7 @@ impl EngineSink {
                 alt = output_event.semantic.modifiers.alt,
                 source = ?event.source,
                 strategy = ?sequence.strategy,
+                transform = ?sequence.delta_transform,
                 transport = ?sequence.transport,
                 owner_hwnd = ?current_root,
                 decision = "swallow",
@@ -660,7 +663,9 @@ impl EngineSink {
 
 /// True when the wheel semantic carries exactly the platform's zoom modifier
 /// (Ctrl on Windows/Linux, Cmd on macOS) with no other modifier held.
-#[cfg_attr(not(test), allow(dead_code))]
+/// Only the legacy non-Windows route uses this until Task 11; the unified
+/// Windows route resolves the zoom transform in `resolve_wheel_action`.
+#[cfg(not(windows))]
 fn zoom_modifier_isolated(mods: &ModifierKeys) -> bool {
     #[cfg(target_os = "macos")]
     {
@@ -833,6 +838,31 @@ mod tests {
             Ok(())
         }
     }
+    /// Always fails `prepare` so the route must Pass before swallowing.
+    struct FailingPrepareEmitter;
+    impl WheelEmitter for FailingPrepareEmitter {
+        fn emit(&self, _v: i32, _h: i32) -> Result<()> {
+            Ok(())
+        }
+    }
+    impl ZoomEmitter for FailingPrepareEmitter {
+        fn emit_zoom(&self, _units: i32) -> Result<()> {
+            Ok(())
+        }
+    }
+    impl SemanticWheelEmitter for FailingPrepareEmitter {
+        fn prepare(&self, _sequence: WheelSequence) -> Result<()> {
+            Err(PlatformError::Os("prepare unavailable".into()))
+        }
+
+        fn emit_semantic(
+            &self,
+            _pulse: smoothscroll_core::wheel::SemanticPulse,
+            _context: EmissionContext,
+        ) -> Result<()> {
+            Ok(())
+        }
+    }
     #[derive(Default)]
     struct RecordingEmitter {
         generic_calls: Mutex<Vec<(i32, i32)>>,
@@ -847,16 +877,6 @@ mod tests {
         fn emit_horizontal_immediate(&self, units: i32) -> Result<()> {
             self.immediate_calls.lock().push(units);
             Ok(())
-        }
-    }
-    struct FailingImmediateEmitter;
-    impl WheelEmitter for FailingImmediateEmitter {
-        fn emit(&self, _vertical: i32, _horizontal: i32) -> Result<()> {
-            Ok(())
-        }
-
-        fn emit_horizontal_immediate(&self, _units: i32) -> Result<()> {
-            Err(PlatformError::Os("immediate queue unavailable".into()))
         }
     }
     struct StubProcessQuery;
@@ -1067,6 +1087,62 @@ mod tests {
                 std::env::temp_dir().join("test-stats.json"),
             ),
         })
+    }
+
+    /// Test constructor that injects the semantic emitter (used to exercise
+    /// preparation failure inside the unified Windows route).
+    #[cfg(windows)]
+    fn make_state_with_semantic_emitter(
+        settings: AppSettings,
+        semantic_emitter: Arc<dyn SemanticWheelEmitter>,
+    ) -> Arc<AppState> {
+        let eff = EffectiveSettings::from_settings(&settings);
+        Arc::new(AppState {
+            engine: Arc::new(Mutex::new(SmoothScrollEngine::new())),
+            animation_owner: Arc::new(crate::state::AnimationOwner::default()),
+            settings: Arc::new(RwLock::new(settings.clone())),
+            effective: Arc::new(ArcSwap::from_pointee(eff)),
+            effective_per_profile: Arc::new(RwLock::new(HashMap::new())),
+            mouse_hook: Arc::new(StubHook),
+            emitter: Arc::new(StubEmitter),
+            zoom_emitter: Arc::new(StubEmitter),
+            semantic_emitter,
+            wheel_generations: Arc::new(crate::state::WheelAxisGenerations::default()),
+            processes: Arc::new(StubProcessQuery),
+            autostart: Arc::new(StubAutostart),
+            hotkey: Arc::new(StubHotkey),
+            hotkey_handle: Arc::new(Mutex::new(None)),
+            engine_signal: Arc::new(EngineSignal::default()),
+            enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            game_mode_active: Arc::new(AtomicBool::new(false)),
+            game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
+            fullscreen_detector: Arc::new(StubFullscreen),
+            window_geom: Arc::new(StubWindowGeom),
+            monitor_enum: Arc::new(StubMonitorEnum),
+            last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
+            persistor: Arc::new(SettingsPersistor::spawn()),
+            reduce_motion: Arc::new(AtomicBool::new(false)),
+            accessibility: Arc::new(StubAccessibility),
+            rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
+            last_foreground_at_tray_open: Arc::new(parking_lot::Mutex::new(None)),
+            app_icon_cache: Arc::new(parking_lot::Mutex::new(IconCache::new())),
+            stats: smoothscroll_core::stats::StatsCollector::new(
+                std::env::temp_dir().join("test-stats-semantic.json"),
+            ),
+        })
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn preparation_failure_passes_before_swallow() {
+        let state = make_state_with_semantic_emitter(
+            AppSettings::default(),
+            Arc::new(FailingPrepareEmitter),
+        );
+        let sink = EngineSink::new(state.clone());
+
+        assert_eq!(sink.on_wheel(120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
     }
 
     struct StaticProcessQuery {
@@ -1661,6 +1737,7 @@ mod tests {
         assert_eq!(sink.on_hwheel(120), HookDecision::Pass);
     }
 
+    #[cfg(windows)]
     #[test]
     fn shift_vertical_defaults_to_smoothed_shift_vertical() {
         let state = make_state(AppSettings::default());
@@ -1692,6 +1769,7 @@ mod tests {
             .is_none());
     }
 
+    #[cfg(windows)]
     #[test]
     fn smooth_zoom_off_still_smooths_ctrl_semantic() {
         let mut settings = AppSettings::default();
@@ -1724,6 +1802,7 @@ mod tests {
         );
     }
 
+    #[cfg(windows)]
     #[test]
     fn explicit_shift_conversion_uses_compatibility_transport() {
         let mut settings = AppSettings::default();
@@ -1786,6 +1865,7 @@ mod tests {
         }
     }
 
+    #[cfg(windows)]
     #[test]
     fn native_horizontal_modifiers_are_smoothed_as_horizontal() {
         let mut settings = AppSettings::default();
@@ -1838,6 +1918,7 @@ mod tests {
         assert!(state.engine.lock().has_pending_work());
     }
 
+    #[cfg(windows)]
     #[test]
     fn shift_vertical_high_resolution_smoothing_matches_plain_when_conversion_off() {
         // Shift+HighRes stays on the vertical semantic (no implicit
@@ -1866,6 +1947,7 @@ mod tests {
         );
     }
 
+    #[cfg(windows)]
     #[test]
     fn horizontal_invert_affects_shift_wheel() {
         // Under the unified route, default Shift+Wheel is preserved vertical;
@@ -1886,6 +1968,7 @@ mod tests {
         );
     }
 
+    #[cfg(windows)]
     #[test]
     fn shift_wheel_passes_through_when_smoothness_disabled_and_conversion_off() {
         // Under the unified route, default Shift+Wheel with horizontal
@@ -2116,7 +2199,7 @@ mod tests {
     }
 
     #[test]
-    fn profile_enables_immediate_horizontal_when_global_smoothing_is_disabled() {
+    fn profile_horizontal_smoothness_overrides_global_default() {
         // A profile that enables horizontal smoothing keeps native horizontal
         // input smoothable even when the global default is off.
         let mut settings = AppSettings::default();
@@ -2374,6 +2457,7 @@ mod tests {
         assert!(pulse.sequence.semantic.modifiers.shift);
     }
 
+    #[cfg(windows)]
     #[test]
     fn per_app_profile_zoom_settings_override_global_settings() {
         let mut settings = AppSettings::default();

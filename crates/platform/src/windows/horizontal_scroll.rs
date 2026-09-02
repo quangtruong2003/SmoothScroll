@@ -27,23 +27,8 @@ const MAX_UIA_ANCESTORS: usize = 16;
 const NATIVE_SCROLL_TIMEOUT_MS: u32 = 100;
 const WHEEL_DELTA: u32 = 120;
 
-/// Per-axis generation tokens invalidated on semantic/raw/root transitions.
-/// Queued compatibility commands capture the value they were planned for and
-/// the worker re-checks it immediately before platform dispatch.
-///
-/// The vertical token exists so a root-window change (which resets both axes)
-/// can also cancel any queued work, while a single-axis semantic/raw transition
-/// bumps only the horizontal token used by compatibility dispatch.
-#[derive(Debug, Default)]
-pub struct AxisGenerations {
-    #[cfg_attr(not(test), allow(dead_code))]
-    vertical: AtomicU64,
-    horizontal: AtomicU64,
-}
-
 struct WorkerHandle {
     sender: SyncSender<WorkerCommand>,
-    generation: Arc<AxisGenerations>,
 }
 
 enum WorkerCommand {
@@ -60,7 +45,9 @@ struct SemanticHorizontalCommand {
     axis_generation: u64,
     #[allow(dead_code)]
     done: std::sync::mpsc::Sender<Result<()>>,
-    generation: Arc<AxisGenerations>,
+    /// Shared with the routing layer via `EmissionContext`; the worker
+    /// re-checks it immediately before platform dispatch.
+    generation: Arc<AtomicU64>,
 }
 
 static WORKER: OnceLock<std::result::Result<WorkerHandle, String>> = OnceLock::new();
@@ -130,9 +117,14 @@ impl HorizontalScrollDispatcher {
             return Err(PlatformError::Os("GetCursorPos failed".into()));
         }
 
-        let handle = WORKER.get_or_init(spawn_worker).as_ref().map_err(|error| {
-            PlatformError::Os(format!("horizontal scroll worker unavailable: {error}"))
-        })?;
+        let sender = WORKER
+            .get_or_init(spawn_worker)
+            .as_ref()
+            .map_err(|error| {
+                PlatformError::Os(format!("horizontal scroll worker unavailable: {error}"))
+            })?
+            .sender
+            .clone();
 
         let (done_tx, done_rx) = std::sync::mpsc::channel::<Result<()>>();
         let command = SemanticHorizontalCommand {
@@ -143,46 +135,24 @@ impl HorizontalScrollDispatcher {
             units,
             root_owner: context.root_owner,
             axis_generation: context.axis_generation,
-            generation: handle.generation.clone(),
+            generation: context.generation,
             done: done_tx,
         };
 
-        handle
-            .sender
-            .try_send(WorkerCommand::Semantic(command))
-            .map_err(|error: TrySendError<WorkerCommand>| match error {
+        sender.try_send(WorkerCommand::Semantic(command)).map_err(
+            |error: TrySendError<WorkerCommand>| match error {
                 TrySendError::Full(_) => {
                     PlatformError::Os("horizontal scroll worker queue is full".into())
                 }
                 TrySendError::Disconnected(_) => {
                     PlatformError::Os("horizontal scroll worker disconnected".into())
                 }
-            })?;
+            },
+        )?;
 
         done_rx
             .recv()
             .map_err(|_| PlatformError::Os("horizontal worker exited".into()))?
-    }
-
-    /// Invalidate queued compatibility commands for one axis. Called by the
-    /// routing layer on semantic/raw/root transitions; never blocks the hook.
-    /// Task 6 wires this into the app layer; until then it is intentionally
-    /// unused outside tests.
-    #[cfg_attr(not(test), allow(dead_code))]
-    pub fn invalidate_axis(axis: crate::types::WheelAxis, root_changed: bool) {
-        let Some(handle) = WORKER.get().map(|r| r.as_ref().ok()).flatten() else {
-            return;
-        };
-        match axis {
-            crate::types::WheelAxis::Vertical => {
-                if root_changed {
-                    handle.generation.vertical.fetch_add(1, Ordering::Release);
-                }
-            }
-            crate::types::WheelAxis::Horizontal => {
-                handle.generation.horizontal.fetch_add(1, Ordering::Release);
-            }
-        }
     }
 }
 
@@ -192,10 +162,7 @@ fn spawn_worker() -> std::result::Result<WorkerHandle, String> {
         .name("horizontal-scroll".into())
         .spawn(move || worker_loop(receiver))
         .map_err(|error| error.to_string())?;
-    Ok(WorkerHandle {
-        sender,
-        generation: Arc::new(AxisGenerations::default()),
-    })
+    Ok(WorkerHandle { sender })
 }
 
 fn worker_loop(receiver: Receiver<WorkerCommand>) {
@@ -221,8 +188,7 @@ fn worker_loop(receiver: Receiver<WorkerCommand>) {
             WorkerCommand::Semantic(command) => {
                 // The generation is re-checked immediately before dispatch so
                 // a transition that landed after enqueue still cancels.
-                let live = command.generation.horizontal.load(Ordering::Acquire)
-                    == command.axis_generation;
+                let live = command.generation.load(Ordering::Acquire) == command.axis_generation;
                 let result = if !live {
                     Err(PlatformError::StaleEmission)
                 } else {

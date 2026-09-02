@@ -165,6 +165,7 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
             let context = smoothscroll_platform::traits::EmissionContext {
                 root_owner: frame_owner,
                 axis_generation: state.wheel_generations.get(WheelAxis::Vertical),
+                generation: state.wheel_generations.token(WheelAxis::Vertical),
             };
             if let Err(e) = state.semantic_emitter.emit_semantic(pulse, context) {
                 tracing::warn!(error = %e, axis = ?WheelAxis::Vertical, "semantic emit failed");
@@ -176,6 +177,7 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
             let context = smoothscroll_platform::traits::EmissionContext {
                 root_owner: frame_owner,
                 axis_generation: state.wheel_generations.get(WheelAxis::Horizontal),
+                generation: state.wheel_generations.token(WheelAxis::Horizontal),
             };
             if let Err(e) = state.semantic_emitter.emit_semantic(pulse, context) {
                 tracing::warn!(error = %e, axis = ?WheelAxis::Horizontal, "semantic emit failed");
