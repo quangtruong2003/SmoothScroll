@@ -143,7 +143,11 @@ fn run_frame(state: &AppState, dt_ms: f64, eff: &smoothscroll_core::settings::Ef
             if let Some(current_root) = state.window_geom.root_window_under_cursor() {
                 if current_root != owner {
                     let mut engine = state.engine.lock();
-                    if state.animation_owner.get() == Some(owner) {
+                    let generation_matches = state.wheel_generations.get(WheelAxis::Vertical)
+                        == frame.vertical_generation
+                        && state.wheel_generations.get(WheelAxis::Horizontal)
+                            == frame.horizontal_generation;
+                    if state.animation_owner.get() == Some(owner) && generation_matches {
                         engine.reset_sequence();
                         state.wheel_generations.invalidate_all();
                         state.animation_owner.clear();
@@ -653,6 +657,37 @@ mod tests {
     }
 
     #[test]
+    fn stale_ctrl_frame_cannot_clear_new_plain_sequence() {
+        let (settings, eff) = animated_settings();
+        let recorder = Arc::new(RecordingEmitter::default());
+        let geom = Arc::new(RootWindowGeom::new(Some(A)));
+        let state = make_state(settings, eff.clone(), recorder.clone(), geom);
+        state.animation_owner.set(Some(A));
+        let frame = step_frame_for_ctrl(&state, &eff);
+
+        state.wheel_generations.invalidate(WheelAxis::Vertical);
+        state.engine.lock().reset_axis(WheelAxis::Vertical);
+        queue_wheel(&state, &eff);
+        dispatch_frame(&state, frame, &eff);
+
+        assert!(!recorder.semantic_calls.lock().iter().any(|pulse| pulse
+            .sequence
+            .semantic
+            .modifiers
+            .ctrl));
+        assert!(
+            !state
+                .engine
+                .lock()
+                .active_sequence(WheelAxis::Vertical)
+                .unwrap()
+                .semantic
+                .modifiers
+                .ctrl
+        );
+    }
+
+    #[test]
     fn semantic_emit_failure_stops_only_matching_axis_tail() {
         let (settings, eff) = animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
@@ -721,10 +756,12 @@ mod tests {
 
         let engine = state.engine.clone();
         let owner = state.animation_owner.clone();
+        let generations = state.wheel_generations.clone();
         let eff_for_b = eff.clone();
         geom.set_on_query(move || {
             let mut engine = engine.lock();
             engine.reset_sequence();
+            generations.invalidate_all();
             owner.set(Some(B));
             engine.on_wheel_with_source(120, 2_000, InputSource::Wheel, &eff_for_b);
         });

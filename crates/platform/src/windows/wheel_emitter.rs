@@ -224,6 +224,9 @@ impl SemanticWheelEmitter for WindowsWheelEmitter {
     }
 
     fn emit_semantic(&self, pulse: SemanticPulse, context: EmissionContext) -> Result<()> {
+        if !context.is_current() {
+            return Err(PlatformError::StaleEmission);
+        }
         if pulse.units == 0 {
             return Ok(());
         }
