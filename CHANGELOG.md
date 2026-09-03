@@ -7,6 +7,33 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.32.0] - 2026-09-03
+
+### Added
+- preserve whole wheel notches
+- expose wheel semantic policies
+- migrate semantic wheel policies
+- emit semantic wheel pulses
+- define semantic wheel policies
+- define semantic wheel events
+- add Buy Me a Coffee donation option
+
+### Fixed
+- localize remaining user-facing text
+- optimize semantic wheel dispatch and discrete controls
+- finalize semantic wheel review corrections
+- revalidate horizontal owner before dispatch
+- limit game mode to known games
+- dispatch captured semantic frames directly
+- isolate stale semantic frame failures
+- reject stale semantic frame emissions
+- validate semantic frames before emission
+- share one axis generation store
+- keep cross-platform emitters compiling
+- gate tauri zoom on isolated platform modifier
+- keep zoom pulses on legacy emitters
+- apply reverse direction to shift conversion
+- capture wheel modifiers at event boundary
 ### Added
 - add explicit Shift + Wheel conversion and wheel compatibility modes
 
