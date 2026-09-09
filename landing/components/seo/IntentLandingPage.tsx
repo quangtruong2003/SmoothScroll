@@ -13,6 +13,13 @@ function IntentJsonLd({ page }: { page: IntentPage }) {
   const url = intentUrl(page.slug)
   const graph = [
     {
+      '@type': 'WebSite',
+      '@id': 'https://smoothscroll.top/#website',
+      url: 'https://smoothscroll.top/',
+      name: 'SmoothScroll',
+      alternateName: 'Smooth Scroll',
+    },
+    {
       '@type': 'WebPage',
       '@id': `${url}#webpage`,
       url,

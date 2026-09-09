@@ -41,7 +41,7 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
       sameAs: ['https://github.com/quangtruong2003/SmoothScroll'],
     },
     {
-      '@type': 'WebSite', '@id': websiteId, url: `${BASE_URL}/`, name: 'SmoothScroll',
+      '@type': 'WebSite', '@id': websiteId, url: `${BASE_URL}/`, name: 'SmoothScroll', alternateName: 'Smooth Scroll',
       publisher: { '@id': organizationId }, inLanguage: htmlLang(locale),
     },
     {

@@ -9,6 +9,7 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://smoothscroll.top'),
+  applicationName: 'SmoothScroll',
   robots: { index: true, follow: true },
   icons: { icon: `${BASE_PATH}/assets/icon-128.png`, apple: `${BASE_PATH}/assets/icon-128.png` },
 }

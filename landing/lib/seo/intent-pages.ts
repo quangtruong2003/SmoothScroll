@@ -253,7 +253,7 @@ export const intentPages: readonly IntentPage[] = [
     description: 'Give VS Code a dedicated smooth-scroll profile on Windows with precise step size, short easing, acceleration controls, and Ctrl/Alt wheel pass-through.',
     eyebrow: 'VS Code on Windows',
     heading: 'Smooth VS Code scrolling while keeping code navigation precise',
-    lead: 'A code editor needs a different scroll feel from a long article. SmoothScroll lets VS Code have its own Windows-level profile instead of forcing one global curve everywhere.',
+    lead: 'A code editor needs a different scroll feel from a long article. SmoothScroll lets VS Code have its own Windows-level profile instead of forcing one global curve everywhere. VS Code also has an editor.smoothScrolling setting for editor-only behavior, while SmoothScroll adds a Windows-level mouse-wheel profile across desktop apps.',
     answer: 'SmoothScroll can give VS Code a dedicated mouse-wheel profile on Windows. A shorter animation time and controlled step size can keep line navigation precise, while Ctrl + wheel and Alt + wheel pass-through remain available for zoom or editor commands that should receive raw wheel ticks.',
     sections: [
       {
@@ -285,6 +285,10 @@ export const intentPages: readonly IntentPage[] = [
       'A/B test with the global hotkey and keep the profile only if it makes navigation more predictable for your editor workflow.',
     ],
     faq: [
+      {
+        question: 'Does VS Code have built-in smooth scrolling?',
+        answer: 'Yes. VS Code has an editor.smoothScrolling setting for editor scrolling. SmoothScroll works at the Windows mouse-wheel layer instead, so you can tune a dedicated VS Code profile alongside different settings for other applications.',
+      },
       {
         question: 'Can VS Code use different SmoothScroll settings from Chrome?',
         answer: 'Yes. SmoothScroll supports per-app profile assignments, so VS Code can use a tighter profile while Chrome uses a longer or softer easing setup.',

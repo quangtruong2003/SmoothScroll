@@ -7,6 +7,7 @@ import '@/styles/marquee.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://smoothscroll.top'),
+  applicationName: 'SmoothScroll',
   robots: { index: true, follow: true },
   icons: { icon: '/assets/icon-128.png', apple: '/assets/icon-128.png' },
 }

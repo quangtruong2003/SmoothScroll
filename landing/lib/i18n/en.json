@@ -5,7 +5,7 @@
   },
   "seo": {
     "title": "Smooth Scrolling Software for Windows | SmoothScroll",
-    "description": "SmoothScroll is free smooth scrolling software for Windows 10 and 11. Turn mouse-wheel input into fluid 120 Hz scrolling with per-app profiles and no telemetry."
+    "description": "SmoothScroll is free smooth scrolling software for Windows 10 and 11. Turn mouse-wheel input into fluid 120 Hz scrolling with per-app profiles and no telemetry. Download SmoothScroll for Windows with adjustable easing."
   },
   "geo": {
     "title": "What is SmoothScroll?",
@@ -23,8 +23,8 @@
     "eyebrowMac": "macOS coming soon",
     "title": "Smooth scrolling for Windows,",
     "titleAccent": "finally done right.",
-    "subtitle": "A 120 Hz easing engine for every wheel tick, in every app. Built for people who notice the difference between a smooth scroll and a stuttering one.",
-    "cta": "Download for Windows",
+    "subtitle": "A 120 Hz easing engine for every wheel tick, in every app. Built for people who notice the difference between a smooth scroll and a stuttering one. Free smooth scrolling software for Windows 10 and 11.",
+    "cta": "Download SmoothScroll for Windows",
     "ctaLinux": "Download for Linux",
     "ctaMac": "Download for macOS",
     "ctaFallback": "Download",
@@ -103,7 +103,7 @@
       "macos": "Accessibility permission is required for global input interception"
     },
     "supportNotice": "SmoothScroll currently supports Windows and Linux. macOS support is coming soon.",
-    "cta": "Download for Windows",
+    "cta": "Download SmoothScroll for Windows",
     "ctaMac": "Download Beta for macOS",
     "ctaLinux": "Download for Linux"
   },
@@ -113,6 +113,7 @@
       { "q": "Does this work with all apps?", "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything - Chrome, VS Code, File Explorer, Adobe apps, and more." },
       { "q": "Will it drain my battery?", "a": "No. SmoothScroll runs at near-zero CPU when idle and only processes input during scroll events. Most users see no measurable battery impact." },
       { "q": "Is it safe? What does it install?", "a": "SmoothScroll is a standalone executable. No service, no daemon, no system driver. It doesn't install any network listeners or telemetry. You can verify this by reading the source on GitHub (FSL-1.1-Apache-2.0)." },
+      { "q": "Is SmoothScroll safe?", "a": "Yes. SmoothScroll is a standalone executable with no service, daemon, system driver, network listeners, or telemetry. You can verify this by reading the source on GitHub." },
       { "q": "How is this different from Windows' built-in smooth scrolling?", "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll provides a unified, configurable curve applied globally - with per-app profiles, adjustable strength, and instant toggle." },
       { "q": "Does it work with gaming mice or high-DPI devices?", "a": "Yes. SmoothScroll respects the actual scroll delta from your hardware and applies smoothing on top. Works with all mice tested so far, including high-refresh and gaming mice." },
       { "q": "Can I disable it for specific apps?", "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list." },
@@ -164,14 +165,14 @@
   },
   "howItWorks": {
     "seo": {
-      "title": "How SmoothScroll Works: Windows Scroll Settings Guide",
-      "description": "Learn how SmoothScroll turns mouse-wheel input into smooth scrolling on Windows with easing curves, profiles, shortcuts, and app exclusions."
+      "title": "How SmoothScroll Works: Windows Scroll Settings Guide | Mouse Wheel Smoothing",
+      "description": "Learn how SmoothScroll turns mouse-wheel input into smooth scrolling on Windows with easing curves, profiles, shortcuts, and app exclusions. Learn what smooth scrolling does from each wheel tick to eased output."
     },
     "hero": {
       "eyebrow": "Complete walkthrough",
       "title": "See how SmoothScroll",
       "titleAccent": "actually works",
-      "subtitle": "A page-by-page tour of every tab, every setting, and every keyboard shortcut - so you can dial in the exact scroll feel you want.",
+      "subtitle": "A page-by-page tour of every tab, every setting, and every keyboard shortcut - so you can dial in the exact scroll feel you want. Learn what smooth scrolling does from raw wheel ticks to eased motion.",
       "ctaPrimary": "Download SmoothScroll",
       "ctaSecondary": "Jump to keyboard shortcuts",
       "backToHome": "Back to home"
@@ -184,7 +185,7 @@
     },
     "bigPicture": {
       "title": "The big picture",
-      "subtitle": "Three steps run for every wheel tick - 120 times a second.",
+      "subtitle": "Three steps run for every wheel tick - 120 times a second. What smooth scrolling does at each step is shown below.",
       "steps": [
         { "title": "1. Intercept", "description": "A low-level hook (Windows WH_MOUSE_LL / macOS CGEventTap) catches each raw wheel event before any app sees it." },
         { "title": "2. Smooth", "description": "An eased curve - Exponential, Cubic, Quintic, or Linear - interpolates the delta over your animation window. Acceleration stacks momentum if you scroll quickly." },

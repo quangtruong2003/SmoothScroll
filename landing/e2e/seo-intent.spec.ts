@@ -27,18 +27,22 @@ for (const intentPage of intentPages) {
       '@type': string
       url?: string
       inLanguage?: string
+      name?: string
+      alternateName?: string
       mainEntity?: { name: string; acceptedAnswer: { text: string } }[]
       itemListElement?: { item: string }[]
       downloadUrl?: string
     }[]
     const types = graph.map((item) => item['@type'])
     const webPage = graph.find((item) => item['@type'] === 'WebPage')
+    const webSite = graph.find((item) => item['@type'] === 'WebSite')
     const software = graph.find((item) => item['@type'] === 'SoftwareApplication')
     const breadcrumb = graph.find((item) => item['@type'] === 'BreadcrumbList')
     const faq = graph.find((item) => item['@type'] === 'FAQPage')
 
     expect(types).toEqual(expect.arrayContaining(['WebPage', 'SoftwareApplication', 'BreadcrumbList', 'FAQPage']))
     expect(webPage).toMatchObject({ url: intentUrl(intentPage.slug), inLanguage: 'en' })
+    expect(webSite).toMatchObject({ name: 'SmoothScroll', alternateName: 'Smooth Scroll' })
     expect(software?.downloadUrl).toBe('https://github.com/quangtruong2003/SmoothScroll/releases/latest')
     expect(breadcrumb?.itemListElement?.map(({ item }) => item)).toEqual([
       'https://smoothscroll.top/',
@@ -69,4 +73,12 @@ test('English homepage and guide link to the search-intent cluster', async ({ re
       expect(html).toContain(`href="/${intentPage.slug}/"`)
     }
   }
+})
+
+test('VS Code page answers the query with exact editor and Windows context', async ({ request }) => {
+  const html = await (await request.get('/smooth-scrolling-vscode-windows/')).text()
+
+  expect(html).toContain('Smooth VS Code scrolling while keeping code navigation precise')
+  expect(html).toContain('editor.smoothScrolling')
+  expect(html).toContain('Does VS Code have built-in smooth scrolling?')
 })
