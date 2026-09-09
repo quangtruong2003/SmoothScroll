@@ -257,30 +257,3 @@ jobs:
             target/release/bundle/nsis/*.sig
             target/release/bundle/msi/*.msi
             release-feed/latest.json
-
-  cleanup-releases:
-    needs: [bump, build-windows, build-wasm, test]
-    if: always() && needs.bump.outputs.skipped != 'true' && needs.build-windows.result == 'success'
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Delete old Windows releases (keep latest)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          CURRENT_TAG="${{ needs.bump.outputs.tag }}"
-          echo "Keeping release: $CURRENT_TAG"
-          gh release list --limit 100 --json tagName --jq '.[].tagName' \
-            | grep -vx "$CURRENT_TAG" \
-            | grep -vx 'mac/.*' \
-            | grep -vx 'linux/.*' \
-            | while read -r tag; do
-                if [ -n "$tag" ]; then
-                  echo "Deleting release + tag: $tag"
-                  gh release delete "$tag" --cleanup-tag --yes || echo "  failed to delete $tag"
-                fi
-              done
-

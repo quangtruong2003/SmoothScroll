@@ -253,28 +253,3 @@ jobs:
           files: |
             target/release-fast/bundle/deb/*.deb
             target/release-fast/bundle/appimage/*.AppImage
-
-  cleanup-releases:
-    needs: [bump, build-linux]
-    if: always() && needs.bump.outputs.skipped != 'true' && needs.build-linux.result == 'success'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Delete old Linux releases (keep latest)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          CURRENT_TAG="${{ needs.bump.outputs.tag }}"
-          echo "Keeping release: $CURRENT_TAG"
-          gh release list --limit 100 --json tagName --jq '.[].tagName' \
-            | grep '^linux/v' \
-            | grep -vx "$CURRENT_TAG" \
-            | while read -r tag; do
-                if [ -n "$tag" ]; then
-                  echo "Deleting release + tag: $tag"
-                  gh release delete "$tag" --cleanup-tag --yes || echo "  failed to delete $tag"
-                fi
-              done
-
