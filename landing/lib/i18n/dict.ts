@@ -74,8 +74,9 @@ export interface Dictionary {
   stats?: {
     title?: string
     githubStars?: string
+    downloads?: string
     version?: string
-    fallback?: { stars?: string; version?: string }
+    fallback?: { stars?: string; downloads?: string; version?: string }
   }
   indie?: {
     title?: string

@@ -27,7 +27,7 @@ export function LocalizedHowItWorksPage({ locale, dictionary: d }: LocalizedHowI
   return (
     <>
       <JsonLd locale={locale} page="how-it-works" dictionary={d} />
-      <Navigation locale={locale} pageKind="how-it-works" />
+      <Navigation locale={locale} pageKind="how-it-works" downloadsLabel={d.stats?.downloads} />
       <main id="main-content">
         <HowItWorksHero locale={locale} hero={h.hero} ctaLinuxLabel={d.hero?.ctaLinux} ctaMacLabel={d.hero?.ctaMac} betaBadge={d.beta?.badge} comingSoonLabel={d.finalCta?.comingSoon ?? 'Coming Soon'} />
         <DemoFrame demo={h.demo} />

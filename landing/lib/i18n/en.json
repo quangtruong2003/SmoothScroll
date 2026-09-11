@@ -71,9 +71,11 @@
   "stats": {
     "title": "Trusted by",
     "githubStars": "GitHub stars",
+    "downloads": "Downloads",
     "version": "Version",
     "fallback": {
       "stars": "-",
+      "downloads": "-",
       "version": "v1.0.0"
     }
   },

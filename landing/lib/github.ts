@@ -64,6 +64,13 @@ export function formatDownloadCount(count: number): string {
   return count.toString()
 }
 
+export function sumReleaseDownloads(releases: Release[]): number {
+  return releases.reduce(
+    (total, release) => total + release.assets.reduce((sum, asset) => sum + (asset.download_count || 0), 0),
+    0,
+  )
+}
+
 export function formatSize(bytes: number): string {
   if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(1)} GB`
   if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`

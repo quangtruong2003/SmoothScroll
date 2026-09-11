@@ -78,7 +78,7 @@ export function IntentLandingPage({ page }: { page: IntentPage }) {
     <>
       <IntentJsonLd page={page} />
       <BackgroundDotGrid />
-      <Navigation locale="en" />
+      <Navigation locale="en" downloadsLabel="Downloads" />
       <main id="main-content" className="relative flex-1">
         <section className="container pb-16 pt-28 sm:pb-20 sm:pt-36">
           <div className="mx-auto max-w-4xl">
