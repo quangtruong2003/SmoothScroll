@@ -1,0 +1,46 @@
+name: Update Supporters
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+concurrency:
+  group: update-supporters
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-supporters:
+    name: Refresh supporter list
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BUY_ME_A_COFFEE_TOKEN: ${{ secrets.BUY_ME_A_COFFEE_TOKEN }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update README supporter section
+        run: node scripts/update-supporters.mjs
+
+      - name: Commit README when changed
+        shell: bash
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "Supporter list is unchanged."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- README.md
+          git commit -m "docs: update supporters"
+          git push

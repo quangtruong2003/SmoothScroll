@@ -44,3 +44,9 @@ scripts/
 .env.local
 .env.*.local
 landing/pencil/
+
+# Tracked supporter updater files
+!scripts/
+scripts/*
+!scripts/update-supporters.mjs
+!scripts/update-supporters.test.mjs

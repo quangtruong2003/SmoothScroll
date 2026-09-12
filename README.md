@@ -39,6 +39,20 @@ Download the latest published package from [smoothscroll.top](https://smoothscro
 
 The downloads badge counts GitHub release-asset downloads across releases that remain published. It is a download count, not a count of unique users or installations.
 
+## ❤️ Support SmoothScroll
+
+SmoothScroll is free and actively maintained.
+
+If it makes your browsing experience a little better, you can support its development by [buying me a coffee](https://buymeacoffee.com/smoothscroll). ❤️
+
+### ☕ Supporters
+
+A special thank you to everyone supporting SmoothScroll.
+
+<!-- SMOOTHSCROLL_SUPPORTERS:START -->
+- 🥇 **Anonymous** — First supporter · ☕
+<!-- SMOOTHSCROLL_SUPPORTERS:END -->
+
 ## Source and license
 
 SmoothScroll is source-available on GitHub under the [Functional Source License, Version 1.1, Apache 2.0 Future License](LICENSE) (FSL-1.1-Apache-2.0). The complete license text in [LICENSE](LICENSE) is authoritative and unchanged.
