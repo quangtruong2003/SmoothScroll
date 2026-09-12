@@ -29,7 +29,7 @@ export function LocalizedHomePage({ locale, dictionary: d }: LocalizedHomePagePr
     <>
       <JsonLd locale={locale} page="home" dictionary={d} />
       <BackgroundDotGrid />
-      <Navigation locale={locale} downloadsLabel={d.stats?.downloads} />
+      <Navigation locale={locale} />
       <main id="main-content" className="flex-1">
         <Hero locale={locale} dict={{ hero: d.hero }} />
         <PainPoints dict={{ painPoints: d.painPoints }} />

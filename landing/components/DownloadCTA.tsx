@@ -2,7 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { recordDownloadIntent } from '@/lib/downloadAttribution'
+import { formatDownloadCount } from '@/lib/github'
 import { useDownloadUrl } from '@/lib/useDownloadUrl'
+import { useGitHubDownloads } from '@/lib/useGitHubDownloads'
 import { Download } from 'lucide-react'
 
 interface DownloadCTAProps {
@@ -27,7 +29,9 @@ export function DownloadCTA({
   className,
 }: DownloadCTAProps) {
   const { url, filename, isBeta, isMac, isLinux } = useDownloadUrl()
+  const downloads = useGitHubDownloads()
   const displayLabel = isLinux && labelLinux ? labelLinux : isBeta && labelMac ? labelMac : label
+  const downloadCount = !downloads.loading && downloads.value !== null ? formatDownloadCount(downloads.value) : null
 
   if (isMac) {
     return (
@@ -63,6 +67,11 @@ export function DownloadCTA({
       >
         <Download className="h-5 w-5 mr-2" />
         {displayLabel}
+        {downloadCount && (
+          <span data-testid="download-cta-count" className="ml-2 inline-flex items-center rounded-md bg-primary-foreground/15 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider">
+            {downloadCount}
+          </span>
+        )}
         {isLinux && (
           <span className="ml-2 inline-flex items-center rounded-md bg-green-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-green-500 ring-1 ring-inset ring-green-500/40">
             NEW

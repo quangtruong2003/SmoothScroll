@@ -3,13 +3,11 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Download, Star, Github } from 'lucide-react'
+import { Star, Github } from 'lucide-react'
 import { ScrollToTop } from './ScrollToTop'
 import { Button } from '@/components/ui/button'
 import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
-import { formatDownloadCount } from '@/lib/github'
-import { useGitHubDownloads } from '@/lib/useGitHubDownloads'
 import { useGitHubStars } from '@/lib/useGitHubStars'
 import type { Locale } from '@/lib/i18n/dict'
 import { localePath } from '@/lib/i18n/routing'
@@ -19,13 +17,11 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 interface NavigationProps {
   locale: Locale
   pageKind?: 'home' | 'how-it-works'
-  downloadsLabel?: string
 }
 
-export function Navigation({ locale, pageKind = 'home', downloadsLabel = 'Downloads' }: NavigationProps) {
+export function Navigation({ locale, pageKind = 'home' }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false)
   const stars = useGitHubStars()
-  const downloads = useGitHubDownloads()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -48,10 +44,8 @@ export function Navigation({ locale, pageKind = 'home', downloadsLabel = 'Downlo
             <span className="hidden sm:inline">SmoothScroll</span>
           </Link>
           <div className="flex items-center gap-2">
-            {stars !== null && <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer" className="hidden xl:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"><Star className="h-4 w-4" /><span>{stars.toLocaleString()}</span></a>}
-            {!downloads.loading && downloads.value !== null && <a data-testid="header-download-count" href="https://github.com/quangtruong2003/SmoothScroll/releases" target="_blank" rel="noopener noreferrer" className="hidden lg:flex items-center gap-1.5 rounded-full border border-border/70 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground" aria-label={`${formatDownloadCount(downloads.value)} ${downloadsLabel}`}><Download className="h-3.5 w-3.5" aria-hidden="true" /><span className="font-semibold text-foreground">{formatDownloadCount(downloads.value)}</span><span>{downloadsLabel}</span></a>}
-            <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer" className="flex" aria-label="SmoothScroll on GitHub (opens new tab)">
-              <Button variant="ghost" size="sm"><Github className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">GitHub</span></Button>
+            <a href="https://github.com/quangtruong2003/SmoothScroll" target="_blank" rel="noopener noreferrer" className="flex" aria-label={`SmoothScroll on GitHub${stars !== null ? ` (${stars.toLocaleString()} stars)` : ''} (opens new tab)`}>
+              <Button variant="ghost" size="sm"><Github className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">GitHub</span>{stars !== null && <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground"><Star className="h-3 w-3 fill-current text-yellow-500" aria-hidden="true" />{stars.toLocaleString()}</span>}</Button>
             </a>
             <LangSwitcher pageKind={pageKind} />
             <ThemeToggle />
