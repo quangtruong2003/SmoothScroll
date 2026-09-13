@@ -45,6 +45,8 @@ scripts/
 .env.*.local
 landing/pencil/
 
+.mimosa/
+
 # Tracked supporter updater files
 !scripts/
 scripts/*
