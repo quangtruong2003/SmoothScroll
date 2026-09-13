@@ -152,6 +152,7 @@ export const tauri = {
   getDefaultSettings: () => invoke<AppSettings>("get_default_settings"),
   saveSettings: (settings: AppSettings) =>
     invoke<null>("save_settings", { settings }),
+  exportSettings: (path: string) => invoke<string>("export_settings", { path }),
 
   setHotkeyEnabled: (enabled: boolean) =>
     invoke<null>("set_hotkey_enabled", { enabled }),

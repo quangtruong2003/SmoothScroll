@@ -99,7 +99,8 @@
     "description": "Exporte suas configurações para um arquivo JSON ou restaure de um backup. Útil ao mudar para uma nova máquina.",
     "export": "Exportar configurações",
     "import": "Importar configurações",
-    "exported": "Configurações exportadas com sucesso",
+    "exported_to": "Configurações exportadas para {{path}}",
+    "export_error": "Não foi possível exportar as configurações.",
     "imported": "Configurações importadas. Recarregando…",
     "import_error": "Não foi possível ler o arquivo de backup. Certifique-se de que foi exportado do SmoothScroll.",
     "confirm_import": "A importação substituirá suas configurações atuais. Continuar?"

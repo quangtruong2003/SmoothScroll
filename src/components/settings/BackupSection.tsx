@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { save as saveFileDialog } from "@tauri-apps/plugin-dialog";
 import { Download, Upload, CheckCircle2, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { tauri, type AppSettings } from "@/lib/tauri";
 
@@ -41,24 +43,23 @@ export function BackupSection() {
     }
   };
 
-  const onExport = () => {
+  const onExport = async () => {
     if (!settings) return;
     const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const blob = new Blob([JSON.stringify(settings, null, 2)], {
-      type: "application/json",
+    const path = await saveFileDialog({
+      defaultPath: `smoothscroll-settings-${ts}.json`,
+      filters: [{ name: "JSON", extensions: ["json"] }],
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `smoothscroll-settings-${ts}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showStatus({
-      kind: "ok",
-      message: t("backup.exported"),
-    });
+    if (!path) return;
+    try {
+      const savedPath = await tauri.exportSettings(path);
+      const message = t("backup.exported_to", { path: savedPath });
+      toast.success(message);
+      showStatus({ kind: "ok", message });
+    } catch {
+      toast.error(t("backup.export_error"));
+      showStatus({ kind: "error", message: t("backup.export_error") });
+    }
   };
 
   const onImportClick = () => {

@@ -99,7 +99,8 @@
     "description": "Ayarları bir JSON dosyasına dışa aktarın veya bir yedekten geri yükleyin. Yeni bir makineye geçerken kullanışlı.",
     "export": "Ayarları dışa aktar",
     "import": "Ayarları içe aktar",
-    "exported": "Ayarlar başarıyla dışa aktarıldı",
+    "exported_to": "Ayarlar şuraya aktarıldı: {{path}}",
+    "export_error": "Ayarlar dışa aktarılamadı.",
     "imported": "Ayarlar içe aktarıldı. Yeniden yükleniyor…",
     "import_error": "Yedek dosyası ayrıştırılamadı. SmoothScroll'tan dışa aktarıldığından emin olun.",
     "confirm_import": "İçe aktarma mevcut ayarlarınızın üzerine yazacak. Devam edilsin mi?"

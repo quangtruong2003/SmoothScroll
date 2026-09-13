@@ -99,7 +99,8 @@
     "description": "Esporta le impostazioni in un file JSON o ripristina da un backup. Utile quando passi a una nuova macchina.",
     "export": "Esporta impostazioni",
     "import": "Importa impostazioni",
-    "exported": "Impostazioni esportate con successo",
+    "exported_to": "Impostazioni esportate in {{path}}",
+    "export_error": "Impossibile esportare le impostazioni.",
     "imported": "Impostazioni importate. Ricaricamento…",
     "import_error": "Impossibile leggere il file di backup. Assicurati che sia stato esportato da SmoothScroll.",
     "confirm_import": "L'importazione sovrascriverà le impostazioni attuali. Continuare?"

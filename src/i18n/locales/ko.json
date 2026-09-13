@@ -99,7 +99,8 @@
     "description": "설정을 JSON 파일로 내보내거나 백업에서 복원합니다. 새 컴퓨터로 옮길 때 유용합니다.",
     "export": "설정 내보내기",
     "import": "설정 불러오기",
-    "exported": "설정을 성공적으로 내보냈습니다",
+    "exported_to": "설정을 {{path}}에 내보냈습니다",
+    "export_error": "설정을 내보낼 수 없습니다",
     "imported": "설정을 불러왔습니다. 다시 로드 중…",
     "import_error": "백업 파일을 분석할 수 없습니다. SmoothScroll에서 내보낸 파일인지 확인하세요.",
     "confirm_import": "가져오면 현재 설정이 덮어씌워집니다. 계속하시겠습니까?"

@@ -99,7 +99,8 @@
     "description": "Export your settings to a JSON file or restore from a backup. Useful when moving to a new machine.",
     "export": "Export settings",
     "import": "Import settings",
-    "exported": "Settings exported successfully",
+    "exported_to": "Settings exported to {{path}}",
+    "export_error": "Could not export settings.",
     "imported": "Settings imported. Reloading…",
     "import_error": "Could not parse backup file. Make sure it was exported from SmoothScroll.",
     "confirm_import": "Import will overwrite your current settings. Continue?"

@@ -99,7 +99,8 @@
     "description": "Ekspor pengaturan ke file JSON atau pulihkan dari cadangan. Berguna saat pindah ke mesin baru.",
     "export": "Ekspor pengaturan",
     "import": "Impor pengaturan",
-    "exported": "Pengaturan berhasil diekspor",
+    "exported_to": "Pengaturan diekspor ke {{path}}",
+    "export_error": "Tidak dapat mengekspor pengaturan.",
     "imported": "Pengaturan diimpor. Memuat ulang…",
     "import_error": "Tidak dapat membaca file cadangan. Pastikan diekspor dari SmoothScroll.",
     "confirm_import": "Impor akan menimpa pengaturan saat ini. Lanjutkan?"

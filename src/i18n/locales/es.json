@@ -99,7 +99,8 @@
     "description": "Exporta tus ajustes a un archivo JSON o restaura desde una copia. Útil al cambiar de máquina.",
     "export": "Exportar ajustes",
     "import": "Importar ajustes",
-    "exported": "Ajustes exportados correctamente",
+    "exported_to": "Ajustes exportados a {{path}}",
+    "export_error": "No se pudieron exportar los ajustes.",
     "imported": "Ajustes importados. Recargando…",
     "import_error": "No se pudo leer el archivo de copia. Asegúrate de que se exportó desde SmoothScroll.",
     "confirm_import": "La importación sobrescribirá tus ajustes actuales. ¿Continuar?"

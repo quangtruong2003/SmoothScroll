@@ -99,7 +99,8 @@
     "description": "Xuất cài đặt ra file JSON hoặc khôi phục từ bản sao lưu. Hữu ích khi chuyển sang máy mới.",
     "export": "Xuất cài đặt",
     "import": "Nhập cài đặt",
-    "exported": "Đã xuất cài đặt thành công",
+    "exported_to": "Đã xuất cài đặt vào {{path}}",
+    "export_error": "Không xuất được cài đặt.",
     "imported": "Đã nhập cài đặt. Đang tải lại…",
     "import_error": "Không đọc được file sao lưu. Hãy chắc chắn file được xuất từ SmoothScroll.",
     "confirm_import": "Việc nhập sẽ ghi đè cài đặt hiện tại. Tiếp tục?"

@@ -99,7 +99,8 @@
     "description": "Exportieren Sie Ihre Einstellungen in eine JSON-Datei oder stellen Sie sie aus einer Sicherung wieder her. Nützlich beim Wechsel auf einen neuen Computer.",
     "export": "Einstellungen exportieren",
     "import": "Einstellungen importieren",
-    "exported": "Einstellungen erfolgreich exportiert",
+    "exported_to": "Einstellungen exportiert nach {{path}}",
+    "export_error": "Einstellungen konnten nicht exportiert werden.",
     "imported": "Einstellungen importiert. Wird neu geladen…",
     "import_error": "Sicherungsdatei konnte nicht gelesen werden. Stellen Sie sicher, dass sie aus SmoothScroll exportiert wurde.",
     "confirm_import": "Beim Import werden Ihre aktuellen Einstellungen überschrieben. Fortfahren?"

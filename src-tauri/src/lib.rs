@@ -208,6 +208,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(app_state.clone())
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
@@ -338,6 +339,7 @@ pub fn run() {
             commands::set_enabled,
             commands::get_settings,
             commands::save_settings,
+            commands::export_settings,
             commands::set_hotkey_enabled,
             commands::set_hotkey_accelerator,
             commands::list_running_processes,

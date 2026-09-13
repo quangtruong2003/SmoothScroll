@@ -99,7 +99,8 @@
     "description": "将设置导出为 JSON 文件,或从备份中恢复。在迁移到新机器时很有用。",
     "export": "导出设置",
     "import": "导入设置",
-    "exported": "设置导出成功",
+    "exported_to": "设置已导出到 {{path}}",
+    "export_error": "无法导出设置。",
     "imported": "设置已导入。正在重新加载…",
     "import_error": "无法解析备份文件。请确保它是从 SmoothScroll 导出的。",
     "confirm_import": "导入将覆盖您当前的设置。是否继续?"

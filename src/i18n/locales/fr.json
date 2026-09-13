@@ -99,7 +99,8 @@
     "description": "Exportez vos paramètres dans un fichier JSON ou restaurez depuis une sauvegarde. Utile lors d'un changement de machine.",
     "export": "Exporter les paramètres",
     "import": "Importer les paramètres",
-    "exported": "Paramètres exportés avec succès",
+    "exported_to": "Paramètres exportés vers {{path}}",
+    "export_error": "Impossible d'exporter les paramètres.",
     "imported": "Paramètres importés. Rechargement…",
     "import_error": "Impossible de lire le fichier de sauvegarde. Assurez-vous qu'il a été exporté depuis SmoothScroll.",
     "confirm_import": "L'import écrasera vos paramètres actuels. Continuer ?"

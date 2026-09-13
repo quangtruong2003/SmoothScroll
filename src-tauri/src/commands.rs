@@ -109,26 +109,31 @@ pub fn get_settings(state: State<'_, Arc<AppState>>) -> AppSettings {
     state.settings.read().clone()
 }
 
-fn prepare_typed_settings_for_save(mut settings: AppSettings) -> Result<AppSettings, String> {
-    if settings.settings_schema_version > settings::CURRENT_SETTINGS_SCHEMA_VERSION {
-        return Err(format!(
-            "unsupported settings schema {}; current schema is {}",
-            settings.settings_schema_version,
-            settings::CURRENT_SETTINGS_SCHEMA_VERSION
-        ));
-    }
-    settings.settings_schema_version = settings::CURRENT_SETTINGS_SCHEMA_VERSION;
-    settings.clamp();
-    Ok(settings)
+/// Export the live settings snapshot to a user-chosen path via the native
+/// Save dialog. Writes atomically; returns the final path (".json" appended
+/// when the user omitted it) so the UI can show where the file landed.
+#[tauri::command]
+pub fn export_settings(state: State<'_, Arc<AppState>>, path: String) -> Result<String, String> {
+    let path = if path.to_lowercase().ends_with(".json") {
+        path
+    } else {
+        format!("{path}.json")
+    };
+    let current = state.settings.read().clone();
+    settings::save_to(std::path::Path::new(&path), &current).map_err(|e| e.to_string())?;
+    Ok(path)
 }
 
 #[tauri::command]
 pub fn save_settings<R: tauri::Runtime>(
     app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
-    settings: AppSettings,
+    settings: serde_json::Value,
 ) -> Result<(), String> {
-    let clamped = prepare_typed_settings_for_save(settings)?;
+    // Migrate through the same pipeline as disk loads so importing an old
+    // backup yields exactly what a restart would load (v0 field insertions,
+    // profile zoom inheritance, v1→v2 app profiles, key canonicalization).
+    let (clamped, _) = settings::migrate_raw_settings(settings).map_err(|e| e.to_string())?;
 
     // Synchronous save — frontend's explicit Save action requires disk state.
     settings::save(&clamped).map_err(|e| e.to_string())?;
@@ -848,34 +853,5 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
         current_profile_id,
         is_excluded,
         app_icon_base64,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use smoothscroll_core::settings::CURRENT_SETTINGS_SCHEMA_VERSION;
-
-    #[test]
-    fn typed_settings_save_upgrades_legacy_schema() {
-        let mut settings = AppSettings::default();
-        settings.settings_schema_version = 0;
-
-        let prepared = prepare_typed_settings_for_save(settings).unwrap();
-
-        assert_eq!(
-            prepared.settings_schema_version,
-            CURRENT_SETTINGS_SCHEMA_VERSION
-        );
-    }
-
-    #[test]
-    fn typed_settings_save_rejects_future_schema() {
-        let mut settings = AppSettings::default();
-        settings.settings_schema_version = CURRENT_SETTINGS_SCHEMA_VERSION + 1;
-
-        let error = prepare_typed_settings_for_save(settings).unwrap_err();
-
-        assert!(error.contains("unsupported settings schema"));
     }
 }
