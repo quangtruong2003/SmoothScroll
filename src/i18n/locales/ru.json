@@ -26,30 +26,30 @@
   "permission": {
     "title": "Требуется доступ к Универсальному доступу",
     "body": "SmoothScroll нужен доступ Accessibility, чтобы перехватывать события колеса мыши и заново отправлять их с плавной анимацией. Откройте System Settings → Privacy & Security → Accessibility и включите SmoothScroll.",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll требуется разрешение «Универсальный доступ»",
+    "macos_body": "Откройте Системные настройки → Конфиденциальность и безопасность → Универсальный доступ и включите SmoothScroll. Это позволит SmoothScroll перехватывать и сглаживать события колеса мыши.",
+    "windows_subtitle": "SmoothScroll требуется разрешение «Универсальный доступ»",
     "open": "Запросить разрешение",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "Я только что разрешил — проверить сейчас",
+    "checking": "Проверка…",
+    "still_denied": "Пока не разрешено. Убедитесь, что SmoothScroll включен в Системных настройках.",
     "polling": "Я обнаружу момент, когда вы предоставите доступ, и продолжу.",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "Проверка системных требований…",
+    "linux_retry": "Проверить снова после настройки",
+    "linux_retry_hint": "После выполнения команд выше нажмите «Проверить снова»",
     "linux_uinput_title": "Требуется разрешение на доступ",
     "linux_uinput_body": "SmoothScroll требуется доступ к /dev/uinput для сглаживания прокрутки.\n\nВыполните следующие команды и выйдите из системы:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nПосле повторного входа перезапустите SmoothScroll.",
     "linux_uinput_hint": "После выполнения вышеуказанных команд выйдите из системы и войдите снова, затем перезапустите SmoothScroll.",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll требуется доступ к /dev/uinput",
+    "linux_wayland_subtitle": "Работает на Wayland — требуется доступ к uinput",
+    "linux_x11_subtitle": "Работает на X11",
     "linux_flatpak_title": "SmoothScroll не поддерживает Flatpak",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll не может работать в песочнице Flatpak",
     "linux_flatpak_body": "Песочница Flatpak блокирует доступ к /dev/uinput, необходимый для перехвата прокрутки. Установите SmoothScroll из .deb или .AppImage.",
     "linux_flatpak_hint": "Установите SmoothScroll из .deb или .AppImage.",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "Не удалось проверить состояние платформы. Перезапустите SmoothScroll.",
+    "session_label": "Сеанс:",
+    "wayland_hint": "Wayland может потребовать дополнительной настройки"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "Используется",
     "reset": "Сбросить статистику",
     "confirm_reset": "Это очистит всю локальную статистику. Продолжить?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "Статистика прокрутки за сегодня",
+    "distance": "Дистанция",
+    "active_time": "Активность",
+    "notches": "Щелчки",
+    "top_apps": "Популярные приложения",
+    "peak_velocity": "Пиковая скорость",
+    "profile_switches": "Переключения профиля",
+    "notches_sec": "щелчков/с"
   },
   "battery": {
     "low_hint": "Батарея разряжена. Плавная прокрутка немного нагружает CPU — рассмотрите её временное отключение."
@@ -174,9 +174,9 @@
       "description": "Автоматически отключать плавную прокрутку для известных игр."
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "Статистика",
+      "title": "Статистика прокрутки",
+      "description": "Ежедневная аналитика прокрутки и разбивка по приложениям."
     }
   },
   "presets": {
@@ -218,8 +218,8 @@
       "desc": "Форма кривой замедления",
       "preview": "Предпросмотр",
       "ExponentialOut": "Exponential Out (по умолчанию)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
+      "CubicOut": "Кубическое замедление",
+      "QuinticOut": "Квинтическое замедление",
       "Linear": "Линейно"
     },
     "reverse_wheel": {
@@ -227,23 +227,23 @@
       "desc": "Изменить направление прокрутки (естественный стиль)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "Сглаживать горизонтальное колесо",
+      "desc": "Применять сглаживание к физическому горизонтальному вводу или наклонному колесу"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Преобразовывать Shift + колесо в горизонтальную прокрутку",
+      "desc": "Явно переназначать вертикальные Shift + колесо на горизонтальную прокрутку"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "Совместимость колеса",
+      "desc": "Выберите плавные импульсы, целые шаги колеса или нативный ввод",
+      "smooth": "Плавные импульсы",
+      "notches": "Сохранять целые шаги колеса",
+      "raw": "Нативный/без обработки"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "Сохранять сочетания колеса в приложениях",
+      "desc": "Сглаживать действия колеса с Ctrl, Shift и Alt, не меняя сами сочетания"
     },
     "horizontal_invert": {
       "title": "Инвертировать горизонтальное направление",
@@ -285,8 +285,8 @@
       "System": "Системная"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "Автоотключение в приложениях Windows",
+      "desc": "Приостанавливает плавную прокрутку во встроенных приложениях Windows, где уже есть собственная плавная прокрутка. SmoothScroll автоматически возобновит работу при переключении."
     },
     "force_enable_all": {
       "title": "Принудительно включить для всех приложений",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "Плавная прокрутка тачпадом",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "Отключите, чтобы использовать собственное поведение тачпада приложения."
       },
       "pixel_multiplier": {
         "title": "Множитель пикселей",
@@ -377,10 +377,10 @@
       "use": "Использовать предложение",
       "pick_manually": "Выбрать вручную"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "Применить пресет…",
+    "apply_preset_confirm_title": "Заменить текущие настройки?",
+    "apply_preset_confirm_body": "Это перезапишет размер шага, время анимации, максимальную скорость и максимальное ускорение.",
+    "apply_preset_confirm": "Заменить",
     "preset": "Применить пресет",
     "preset_desc": "Замените ощущение прокрутки пресетом в один клик. Для точной настройки используйте ползунки ниже."
   },
@@ -469,7 +469,7 @@
     "ready_to_restart": "Обновление установлено. Перезапустите для применения.",
     "restart_now": "Перезапустить",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "Сборки для macOS не подписаны и выходят в бета-канале, пока не будет настроена подпись кода.",
     "show_release_notes": "Показать примечания к выпуску",
     "update_check_failed": "Не удалось проверить обновления. Повторите попытку.",
     "update_install_failed": "Не удалось установить обновление. Повторите попытку."
@@ -509,7 +509,7 @@
     "quick_access": "Быстрый доступ",
     "smooth_scrolling": "Плавная прокрутка",
     "start_with_windows": "Запускать вместе с Windows",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "Запускать при входе в систему",
     "start_with_system": "Запускать с системой",
     "start_minimized": "Запускать свёрнутым",
     "actions": "Действия",
@@ -517,13 +517,13 @@
     "excluded_apps": "Исключённые приложения",
     "open_log": "Открыть файл журнала",
     "quit": "Выйти из SmoothScroll",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "status_on": "ВКЛ",
+    "status_off": "ВЫКЛ",
+    "profile_label": "Профиль",
+    "profile_default": "По умолчанию (глобальный)",
+    "profile_disable": "Отключить для этого приложения",
+    "profile_disabled": "Отключено",
+    "profile_manage": "Управление профилями…",
     "current_app": {
       "heading": "Текущее приложение",
       "category": "Категория: {{category}}",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "Что-то пошло не так",
+    "description": "Произошла непредвиденная ошибка. Приложение попытается продолжить работу.",
+    "show_details": "Показать технические подробности",
+    "reload": "Перезагрузить",
+    "report": "Сообщить",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "Неизвестная ошибка",
+    "no_stack": "Трассировка стека отсутствует"
   }
 }

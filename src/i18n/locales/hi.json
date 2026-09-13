@@ -26,30 +26,30 @@
   "permission": {
     "title": "एक्सेसिबिलिटी एक्सेस आवश्यक",
     "body": "SmoothScroll को माउस-व्हील ईवेंट कैप्चर करने और स्मूथ एनिमेशन के साथ पुनः उत्सर्जित करने के लिए Accessibility अनुमति चाहिए। System Settings → Privacy & Security → Accessibility खोलें और SmoothScroll को सक्षम करें।",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll को सर्वसुलभता अनुमति की आवश्यकता है",
+    "macos_body": "सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → सर्वसुलभता खोलें और SmoothScroll चालू करें। इससे SmoothScroll आपके माउस व्हील इवेंट को कैप्चर और स्मूद कर सकता है।",
+    "windows_subtitle": "SmoothScroll को सर्वसुलभता अनुमति की आवश्यकता है",
     "open": "अनुमति का अनुरोध करें",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "मैंने अभी अनुमति दी है — अब जाँचें",
+    "checking": "जाँच हो रही है…",
+    "still_denied": "अभी भी अनुमति नहीं मिली। सुनिश्चित करें कि सिस्टम सेटिंग्स में SmoothScroll चालू है।",
     "polling": "जब आप अनुमति देंगे, मैं स्वयं पहचान कर आगे बढ़ूँगा।",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "सिस्टम आवश्यकताओं की जाँच हो रही है…",
+    "linux_retry": "सेटअप के बाद फिर से जाँचें",
+    "linux_retry_hint": "ऊपर दिए गए कमांड चलाने के बाद, 'फिर से जाँचें' पर क्लिक करें",
     "linux_uinput_title": "एक्सेस अनुमति आवश्यक",
     "linux_uinput_body": "SmoothScroll को स्क्रॉल स्मूथिंग के लिए /dev/uinput तक एक्सेस चाहिए।\n\nनिम्न कमांड चलाएं और लॉग आउट करें:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nलॉग इन करने के बाद, SmoothScroll को रीस्टार्ट करें।",
     "linux_uinput_hint": "उपरोक्त कमांड चलाने के बाद, लॉग आउट करें और वापस लॉग इन करें, फिर SmoothScroll को रीस्टार्ट करें।",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll को /dev/uinput तक पहुंच की आवश्यकता है",
+    "linux_wayland_subtitle": "Wayland पर चल रहा है - uinput एक्सेस आवश्यक है",
+    "linux_x11_subtitle": "X11 पर चल रहा है",
     "linux_flatpak_title": "SmoothScroll Flatpak का समर्थन नहीं करता",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll Flatpak सैंडबॉक्स में नहीं चल सकता",
     "linux_flatpak_body": "Flatpak सैंडबॉक्स /dev/uinput एक्सेस को ब्लॉक करता है जो स्क्रॉल इंटरसेप्शन के लिए आवश्यक है। कृपया .deb या .AppImage से SmoothScroll इंस्टॉल करें।",
     "linux_flatpak_hint": "कृपया .deb या .AppImage से SmoothScroll इंस्टॉल करें।",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "प्लेटफ़ॉर्म स्थिति की जाँच नहीं हो सकी। कृपया SmoothScroll पुनरारंभ करें।",
+    "session_label": "सत्र:",
+    "wayland_hint": "Wayland को अतिरिक्त सेटअप की आवश्यकता हो सकती है"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "उपयोग में",
     "reset": "आँकड़े रीसेट करें",
     "confirm_reset": "यह सभी स्थानीय आँकड़े मिटा देगा। जारी रखें?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "आज की स्क्रॉल सांख्यिकी",
+    "distance": "दूरी",
+    "active_time": "सक्रिय",
+    "notches": "नॉच",
+    "top_apps": "टॉप ऐप्स",
+    "peak_velocity": "अधिकतम गति",
+    "profile_switches": "प्रोफ़ाइल स्विच",
+    "notches_sec": "नॉच/सेकंड"
   },
   "battery": {
     "low_hint": "बैटरी कम है। स्मूथ स्क्रॉलिंग थोड़ा CPU उपयोग करती है — इसे अस्थायी रूप से बंद करने पर विचार करें।"
@@ -174,9 +174,9 @@
       "description": "ज्ञात गेम्स के लिए स्मूथ स्क्रॉलिंग स्वतः अक्षम करें।"
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "आंकड़े",
+      "title": "स्क्रॉल सांख्यिकी",
+      "description": "दैनिक स्क्रॉल विश्लेषण और प्रति-ऐप विवरण।"
     }
   },
   "presets": {
@@ -218,32 +218,32 @@
       "desc": "मंदन कर्व का आकार",
       "preview": "पूर्वावलोकन",
       "ExponentialOut": "Exponential Out (डिफ़ॉल्ट)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
-      "Linear": "Linear"
+      "CubicOut": "क्यूबिक आउट",
+      "QuinticOut": "क्विंटिक आउट",
+      "Linear": "रैखिक"
     },
     "reverse_wheel": {
       "title": "दिशा उलटें",
       "desc": "स्क्रॉल दिशा उलटें (नेचुरल-स्टाइल)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "क्षैतिज व्हील स्मूद करें",
+      "desc": "भौतिक क्षैतिज या टिल्ट-व्हील इनपुट पर स्मूदिंग लागू करें"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Shift + व्हील को क्षैतिज में बदलें",
+      "desc": "लंबवत Shift + व्हील को स्पष्ट रूप से क्षैतिज स्क्रॉलिंग में रीमैप करें"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "व्हील संगतता",
+      "desc": "स्मूद पल्स, पूरे व्हील चरण या नेटिव इनपुट चुनें",
+      "smooth": "स्मूद पल्स",
+      "notches": "पूरे व्हील चरण सुरक्षित रखें",
+      "raw": "नेटिव/रॉ"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "ऐप के व्हील शॉर्टकट सुरक्षित रखें",
+      "desc": "Ctrl, Shift और Alt व्हील क्रियाओं को उनके शॉर्टकट बदले बिना स्मूद करें"
     },
     "horizontal_invert": {
       "title": "क्षैतिज दिशा उलटें",
@@ -285,8 +285,8 @@
       "System": "सिस्टम"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "Windows ऐप्स में स्वतः अक्षम करें",
+      "desc": "उन इन-बिल्ट Windows ऐप्स में स्मूद स्क्रॉलिंग को रोकता है जिनमें पहले से नेटिव स्मूद स्क्रॉलिंग है। दूसरे ऐप पर जाने पर SmoothScroll स्वतः फिर से शुरू हो जाएगा।"
     },
     "force_enable_all": {
       "title": "सभी ऐप्स पर स्मूदिंग फ़ोर्स करें",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "स्मूथ टचपैड स्क्रॉलिंग",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "ऐप के मूल टचपैड व्यवहार का उपयोग करने के लिए इसे बंद करें।"
       },
       "pixel_multiplier": {
         "title": "पिक्सेल गुणक",
@@ -377,10 +377,10 @@
       "use": "सुझाव का उपयोग करें",
       "pick_manually": "मैन्युअल रूप से चुनें"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "प्रीसेट लागू करें…",
+    "apply_preset_confirm_title": "वर्तमान सेटिंग्स बदलें?",
+    "apply_preset_confirm_body": "यह स्टेप साइज़, एनिमेशन समय, अधिकतम वेग और अधिकतम त्वरण को अधिलेखित कर देगा।",
+    "apply_preset_confirm": "बदलें",
     "preset": "प्रीसेट लागू करें",
     "preset_desc": "एक क्लिक में प्रीसेट से स्क्रॉल फ़ील बदलें। बारीक समायोजन के लिए नीचे के स्लाइडर बदलें।"
   },
@@ -469,7 +469,7 @@
     "ready_to_restart": "अपडेट इंस्टॉल हो गया। लागू करने के लिए पुनरारंभ करें।",
     "restart_now": "अभी पुनरारंभ करें",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "macOS बिल्ड अहस्ताक्षरित हैं और कोड-साइनिंग सेट अप होने तक बीटा चैनल पर चलते हैं।",
     "show_release_notes": "रिलीज़ नोट्स दिखाएँ",
     "update_check_failed": "अपडेट जाँचा नहीं जा सका। कृपया फिर कोशिश करें।",
     "update_install_failed": "अपडेट इंस्टॉल नहीं हो सका। कृपया फिर कोशिश करें।"
@@ -509,7 +509,7 @@
     "quick_access": "त्वरित पहुँच",
     "smooth_scrolling": "स्मूथ स्क्रॉलिंग",
     "start_with_windows": "Windows के साथ शुरू करें",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "लॉगिन पर शुरू करें",
     "start_with_system": "सिस्टम के साथ शुरू करें",
     "start_minimized": "मिनिमाइज़ शुरू करें",
     "actions": "क्रियाएँ",
@@ -517,13 +517,13 @@
     "excluded_apps": "अपवर्जित ऐप्स",
     "open_log": "लॉग फ़ाइल खोलें",
     "quit": "SmoothScroll छोड़ें",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "status_on": "चालू",
+    "status_off": "बंद",
+    "profile_label": "प्रोफ़ाइल",
+    "profile_default": "डिफ़ॉल्ट (ग्लोबल)",
+    "profile_disable": "इस ऐप के लिए अक्षम करें",
+    "profile_disabled": "अक्षम",
+    "profile_manage": "प्रोफ़ाइल प्रबंधित करें…",
     "current_app": {
       "heading": "वर्तमान ऐप",
       "category": "श्रेणी: {{category}}",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "कुछ गड़बड़ हो गई",
+    "description": "एक अप्रत्याशित त्रुटि हुई। ऐप जारी रखने का प्रयास करेगा।",
+    "show_details": "तकनीकी विवरण दिखाएं",
+    "reload": "पुनः लोड करें",
+    "report": "रिपोर्ट करें",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "अज्ञात त्रुटि",
+    "no_stack": "कोई स्टैक ट्रेस नहीं"
   }
 }

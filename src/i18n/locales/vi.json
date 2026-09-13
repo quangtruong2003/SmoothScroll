@@ -10,7 +10,7 @@
     "direction": "Hướng",
     "behavior": "Hành vi",
     "excluded_apps": "Ứng dụng loại trừ",
-    "monitor_profiles": "Monitor profiles",
+    "monitor_profiles": "Hồ sơ màn hình",
     "profiles": "Hồ sơ cuộn",
     "app_profiles": "Cuộn theo ứng dụng",
     "language": "Ngôn ngữ",
@@ -26,30 +26,30 @@
   "permission": {
     "title": "Cần quyền Trợ năng",
     "body": "SmoothScroll cần quyền Accessibility để bắt sự kiện cuộn chuột và phát lại với hiệu ứng mượt. Mở System Settings → Privacy & Security → Accessibility và bật SmoothScroll.",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll cần quyền Trợ năng",
+    "macos_body": "Mở Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng rồi bật SmoothScroll. Điều này cho phép SmoothScroll ghi nhận và làm mượt các sự kiện con lăn chuột của bạn.",
+    "windows_subtitle": "SmoothScroll cần quyền Trợ năng",
     "open": "Yêu cầu quyền",
     "check_now": "Tôi vừa cấp xong — kiểm tra ngay",
     "checking": "Đang kiểm tra…",
     "still_denied": "Vẫn chưa được cấp. Hãy chắc chắn SmoothScroll đã BẬT trong System Settings.",
     "polling": "Đang theo dõi quyền. Tôi sẽ tự tiếp tục khi được cấp.",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "Đang kiểm tra yêu cầu hệ thống…",
+    "linux_retry": "Kiểm tra lại sau khi thiết lập",
+    "linux_retry_hint": "Sau khi chạy các lệnh ở trên, hãy nhấn 'Kiểm tra lại'",
     "linux_uinput_title": "Yêu cầu quyền truy cập",
     "linux_uinput_body": "SmoothScroll cần quyền truy cập /dev/uinput để làm mượt cuộn.\n\nChạy các lệnh sau và đăng xuất:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nSau khi đăng nhập lại, khởi động lại SmoothScroll.",
     "linux_uinput_hint": "Sau khi chạy các lệnh trên, đăng xuất và đăng nhập lại, sau đó khởi động lại SmoothScroll.",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll cần quyền truy cập /dev/uinput",
+    "linux_wayland_subtitle": "Đang chạy trên Wayland - cần quyền truy cập uinput",
+    "linux_x11_subtitle": "Đang chạy trên X11",
     "linux_flatpak_title": "SmoothScroll không hỗ trợ Flatpak",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll không thể chạy trong sandbox Flatpak",
     "linux_flatpak_body": "Flatpak sandbox chặn truy cập /dev/uinput cần thiết cho việc chặn cuộn. Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage.",
     "linux_flatpak_hint": "Vui lòng cài đặt SmoothScroll từ .deb hoặc .AppImage.",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "Không thể kiểm tra trạng thái nền tảng. Vui lòng khởi động lại SmoothScroll.",
+    "session_label": "Phiên:",
+    "wayland_hint": "Wayland có thể cần thiết lập thêm"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "Đã dùng",
     "reset": "Đặt lại thống kê",
     "confirm_reset": "Việc này sẽ xoá toàn bộ thống kê lưu trên máy. Tiếp tục?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "Thống kê cuộn hôm nay",
+    "distance": "Quãng đường",
+    "active_time": "Hoạt động",
+    "notches": "Nấc",
+    "top_apps": "Ứng dụng hàng đầu",
+    "peak_velocity": "Vận tốc đỉnh",
+    "profile_switches": "Lượt đổi hồ sơ",
+    "notches_sec": "nấc/giây"
   },
   "battery": {
     "low_hint": "Pin yếu. Cuộn mượt tiêu tốn một chút CPU — bạn có thể tạm tắt nếu cần."
@@ -174,9 +174,9 @@
       "description": "Tự động tắt cuộn mượt cho các game đã biết."
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "Thống kê",
+      "title": "Thống kê cuộn",
+      "description": "Phân tích cuộn hàng ngày và chi tiết theo ứng dụng."
     }
   },
   "presets": {
@@ -198,8 +198,8 @@
       "desc": "Mỗi lần cuộn kéo dài bao lâu"
     },
     "max_velocity": {
-      "title": "Max velocity",
-      "desc": "Maximum scroll speed before acceleration reaches its peak"
+      "title": "Vận tốc tối đa",
+      "desc": "Tốc độ cuộn tối đa trước khi gia tốc đạt đỉnh"
     },
     "accel_max": {
       "title": "Tăng tốc tối đa",
@@ -218,8 +218,8 @@
       "desc": "Hình dạng của đường cong giảm tốc",
       "preview": "Xem trước",
       "ExponentialOut": "Exponential Out (mặc định)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
+      "CubicOut": "Suy giảm bậc ba",
+      "QuinticOut": "Suy giảm bậc năm",
       "Linear": "Tuyến tính"
     },
     "reverse_wheel": {
@@ -227,23 +227,23 @@
       "desc": "Đảo hướng cuộn (kiểu tự nhiên)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "Làm mượt con lăn ngang",
+      "desc": "Áp dụng làm mượt cho tín hiệu ngang vật lý hoặc con lăn nghiêng"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Chuyển Shift + con lăn thành cuộn ngang",
+      "desc": "Gán lại rõ ràng Shift + con lăn dọc thành cuộn ngang"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "Tương thích con lăn",
+      "desc": "Chọn xung mượt, từng nấc cuộn nguyên hoặc tín hiệu gốc",
+      "smooth": "Xung mượt",
+      "notches": "Giữ nguyên từng nấc cuộn",
+      "raw": "Gốc/thô"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "Giữ nguyên phím tắt con lăn của ứng dụng",
+      "desc": "Làm mượt các thao tác con lăn Ctrl, Shift, Alt mà không đổi phím tắt"
     },
     "horizontal_invert": {
       "title": "Đảo chiều cuộn ngang",
@@ -285,12 +285,12 @@
       "System": "Theo hệ thống"
     },
     "auto_disable_windows_apps": {
-      "title": "Tự tắt trong app Windows",
-      "desc": "Tạm dừng smooth scrolling trong các app Windows có sẵn (đã có smooth scroll native). SmoothScroll sẽ tự bật lại khi bạn chuyển sang app khác."
+      "title": "Tự tắt trong các ứng dụng Windows",
+      "desc": "Tạm dừng cuộn mượt trong các ứng dụng Windows tích hợp sẵn đã có cuộn mượt riêng. SmoothScroll sẽ tự tiếp tục khi bạn chuyển sang ứng dụng khác."
     },
     "force_enable_all": {
-      "title": "Force Smooth on All Apps",
-      "desc": "Override auto-disable for Windows native apps"
+      "title": "Buộc bật mượt cho mọi ứng dụng",
+      "desc": "Ghi đè chế độ tự tắt cho các ứng dụng gốc của Windows"
     },
     "reduce_motion": {
       "title": "Tôn trọng Giảm chuyển động của hệ thống",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "Cuộn touchpad mượt",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "Tắt để dùng hành vi touchpad gốc của ứng dụng."
       },
       "pixel_multiplier": {
         "title": "Hệ số pixel",
@@ -400,8 +400,8 @@
     }
   },
   "monitor_profiles": {
-    "description": "Assign a scroll profile to each monitor. When you move to a different monitor, SmoothScroll switches automatically.",
-    "global_default": "Global default"
+    "description": "Gán hồ sơ cuộn cho từng màn hình. Khi chuyển sang màn hình khác, SmoothScroll sẽ tự động chuyển theo.",
+    "global_default": "Mặc định chung"
   },
   "game_mode": {
     "auto_disable": "Tự tắt khi chơi game",
@@ -509,7 +509,7 @@
     "quick_access": "Truy cập nhanh",
     "smooth_scrolling": "Cuộn mượt",
     "start_with_windows": "Khởi động cùng Windows",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "Khởi động cùng hệ thống",
     "start_with_system": "Khởi động cùng hệ thống",
     "start_minimized": "Khởi động ẩn",
     "actions": "Thao tác",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "Đã xảy ra lỗi",
+    "description": "Đã xảy ra lỗi không mong muốn. Ứng dụng sẽ cố tiếp tục hoạt động.",
+    "show_details": "Hiện chi tiết kỹ thuật",
+    "reload": "Tải lại",
+    "report": "Báo cáo",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "Lỗi không xác định",
+    "no_stack": "Không có dấu vết ngăn xếp"
   }
 }

@@ -26,30 +26,30 @@
   "permission": {
     "title": "Erişilebilirlik izni gerekli",
     "body": "SmoothScroll, fare tekerleği olaylarını yakalayıp yumuşak animasyonla yeniden yayımlamak için Accessibility iznine ihtiyaç duyar. System Settings → Privacy & Security → Accessibility yolunu açıp SmoothScroll'u etkinleştirin.",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll'un Erişilebilirlik iznine ihtiyacı var",
+    "macos_body": "Sistem Ayarları → Gizlilik ve Güvenlik → Erişilebilirlik bölümünü açın ve SmoothScroll'u etkinleştirin. Bu, SmoothScroll'un fare tekerleği olaylarını yakalamasına ve yumuşatmasına olanak tanır.",
+    "windows_subtitle": "SmoothScroll'un Erişilebilirlik iznine ihtiyacı var",
     "open": "İzin iste",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "Az önce izin verdim — şimdi kontrol et",
+    "checking": "Kontrol ediliyor…",
+    "still_denied": "Hâlâ verilmedi. Sistem Ayarları'nda SmoothScroll'un açık olduğundan emin olun.",
     "polling": "İzni verdiğinizde algılayıp devam edeceğim.",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "Sistem gereksinimleri kontrol ediliyor…",
+    "linux_retry": "Kurulumdan sonra tekrar kontrol et",
+    "linux_retry_hint": "Yukarıdaki komutları çalıştırdıktan sonra 'Tekrar kontrol et'e tıklayın",
     "linux_uinput_title": "Erişim izni gerekli",
     "linux_uinput_body": "SmoothScroll'un kaydırmayı yumuşatması için /dev/uinput erişimi gerekiyor.\n\nŞu komutları çalıştırın ve çıkış yapın:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nYeniden giriş yaptıktan sonra SmoothScroll'u yeniden başlatın.",
     "linux_uinput_hint": "Yukarıdaki komutları çalıştırdıktan sonra çıkış yapın ve tekrar giriş yapın, ardından SmoothScroll'u yeniden başlatın.",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll'un /dev/uinput erişimine ihtiyacı var",
+    "linux_wayland_subtitle": "Wayland üzerinde çalışıyor - uinput erişimi gerekiyor",
+    "linux_x11_subtitle": "X11 üzerinde çalışıyor",
     "linux_flatpak_title": "SmoothScroll Flatpak'ı desteklemiyor",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll bir Flatpak sanal alanında çalışamaz",
     "linux_flatpak_body": "Flatpak korumalı alanı, kaydırma ele geçirme için gerekli /dev/uinput erişimini engelliyor. SmoothScroll'u .deb veya .AppImage'den kurun.",
     "linux_flatpak_hint": "SmoothScroll'u .deb veya .AppImage'den kurun.",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "Platform durumu kontrol edilemedi. Lütfen SmoothScroll'u yeniden başlatın.",
+    "session_label": "Oturum:",
+    "wayland_hint": "Wayland ek kurulum gerektirebilir"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "Kullanım süresi",
     "reset": "İstatistikleri sıfırla",
     "confirm_reset": "Bu, yerel olarak depolanmış tüm istatistikleri silecek. Devam edilsin mi?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "Bugünün Kaydırma İstatistikleri",
+    "distance": "Mesafe",
+    "active_time": "Aktif",
+    "notches": "Tık",
+    "top_apps": "Popüler uygulamalar",
+    "peak_velocity": "Tepe hız",
+    "profile_switches": "Profil geçişleri",
+    "notches_sec": "tık/sn"
   },
   "battery": {
     "low_hint": "Pil zayıf. Yumuşak kaydırma az miktarda CPU kullanır — geçici olarak kapatmayı düşünebilirsiniz."
@@ -174,9 +174,9 @@
       "description": "Bilinen oyunlar için yumuşak kaydırmayı otomatik devre dışı bırak."
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "İstatistikler",
+      "title": "Kaydırma İstatistikleri",
+      "description": "Günlük kaydırma analizi ve uygulama bazında döküm."
     }
   },
   "presets": {
@@ -218,8 +218,8 @@
       "desc": "Yavaşlama eğrisinin şekli",
       "preview": "Önizleme",
       "ExponentialOut": "Exponential Out (varsayılan)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
+      "CubicOut": "Kübik çıkış",
+      "QuinticOut": "Kuintik çıkış",
       "Linear": "Doğrusal"
     },
     "reverse_wheel": {
@@ -227,23 +227,23 @@
       "desc": "Kaydırma yönünü tersine çevir (doğal stil)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "Yatay tekerleği yumuşat",
+      "desc": "Fiziksel yatay veya eğim tekerleği girişine yumuşatma uygula"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Shift + Tekerleği yatay kaydırmaya dönüştür",
+      "desc": "Dikey Shift + Tekerleği açıkça yatay kaydırmaya yeniden eşle"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "Tekerlek uyumluluğu",
+      "desc": "Yumuşak darbeler, bütün tekerlek adımları veya yerel giriş seçin",
+      "smooth": "Yumuşak darbeler",
+      "notches": "Bütün tekerlek adımlarını koru",
+      "raw": "Yerel/ham"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "Uygulama tekerleği kısayollarını koru",
+      "desc": "Ctrl, Shift ve Alt tekerlek eylemlerini kısayollarını değiştirmeden yumuşat"
     },
     "horizontal_invert": {
       "title": "Yatay yönü tersine çevir",
@@ -285,8 +285,8 @@
       "System": "Sistem"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "Windows uygulamalarında otomatik devre dışı bırak",
+      "desc": "Yerleşik Windows uygulamalarında, zaten yerel yumuşak kaydırma bulunanlarda yumuşak kaydırmayı duraklatır. Başka bir uygulamaya geçtiğinizde SmoothScroll otomatik olarak devam eder."
     },
     "force_enable_all": {
       "title": "Tüm uygulamalarda kaydırmayı zorla",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "Yumuşak dokunmatik yüzey kaydırması",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "Uygulamanın yerel dokunmatik yüzey davranışını kullanmak için kapatın."
       },
       "pixel_multiplier": {
         "title": "Piksel çarpanı",
@@ -377,10 +377,10 @@
       "use": "Öneriyi kullan",
       "pick_manually": "Manuel olarak seç"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "Ön ayarı uygula…",
+    "apply_preset_confirm_title": "Geçerli ayarlar değiştirilsin mi?",
+    "apply_preset_confirm_body": "Bu, adım boyutu, animasyon süresi, en yüksek hız ve en yüksek ivmeyi üzerine yazar.",
+    "apply_preset_confirm": "Değiştir",
     "preset": "Ön ayarı uygula",
     "preset_desc": "Tek tıklamayla bir ön ayar kullanın. İnce ayar için aşağıdaki kaydırıcıları düzenleyin."
   },
@@ -469,7 +469,7 @@
     "ready_to_restart": "Güncelleme yüklendi. Uygulamak için yeniden başlatın.",
     "restart_now": "Şimdi yeniden başlat",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "macOS derlemeleri imzasızdır ve kod imzalama ayarlanana kadar beta kanalında yayınlanır.",
     "show_release_notes": "Sürüm notlarını göster",
     "update_check_failed": "Güncellemeler denetlenemedi. Lütfen tekrar deneyin.",
     "update_install_failed": "Güncelleme yüklenemedi. Lütfen tekrar deneyin."
@@ -509,7 +509,7 @@
     "quick_access": "Hızlı erişim",
     "smooth_scrolling": "Yumuşak kaydırma",
     "start_with_windows": "Windows ile başlat",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "Girişte başlat",
     "start_with_system": "Sistemle birlikte başlat",
     "start_minimized": "Küçültülmüş başlat",
     "actions": "Eylemler",
@@ -517,13 +517,13 @@
     "excluded_apps": "Hariç tutulan uygulamalar",
     "open_log": "Günlük dosyasını aç",
     "quit": "SmoothScroll'tan çık",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "status_on": "AÇIK",
+    "status_off": "KAPALI",
+    "profile_label": "Profil",
+    "profile_default": "Varsayılan (genel)",
+    "profile_disable": "Bu uygulama için devre dışı bırak",
+    "profile_disabled": "Devre dışı",
+    "profile_manage": "Profilleri yönet…",
     "current_app": {
       "heading": "Geçerli uygulama",
       "category": "Kategori: {{category}}",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "Bir şeyler ters gitti",
+    "description": "Beklenmeyen bir hata oluştu. Uygulama devam etmeyi deneyecek.",
+    "show_details": "Teknik ayrıntıları göster",
+    "reload": "Yeniden yükle",
+    "report": "Bildir",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "Bilinmeyen hata",
+    "no_stack": "Yığın izi yok"
   }
 }

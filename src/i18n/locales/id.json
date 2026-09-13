@@ -5,7 +5,7 @@
     "tagline_off": "Scrolling native sedang aktif"
   },
   "section": {
-    "scrolling": "Scrolling",
+    "scrolling": "Penggulungan",
     "animation": "Animasi",
     "direction": "Arah",
     "behavior": "Perilaku",
@@ -26,30 +26,30 @@
   "permission": {
     "title": "Akses Aksesibilitas diperlukan",
     "body": "SmoothScroll membutuhkan izin Accessibility untuk menangkap event roda mouse dan mengirim ulang dengan animasi mulus. Buka System Settings → Privacy & Security → Accessibility lalu aktifkan SmoothScroll.",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll membutuhkan izin Aksesibilitas",
+    "macos_body": "Buka System Settings → Privacy & Security → Accessibility dan aktifkan SmoothScroll. Ini memungkinkan SmoothScroll menangkap dan menghaluskan peristiwa roda mouse Anda.",
+    "windows_subtitle": "SmoothScroll membutuhkan izin Aksesibilitas",
     "open": "Minta izin",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "Baru saja saya izinkan — periksa sekarang",
+    "checking": "Memeriksa…",
+    "still_denied": "Masih belum diizinkan. Pastikan SmoothScroll diaktifkan di System Settings.",
     "polling": "Saya akan mendeteksi saat Anda memberi izin dan melanjutkan.",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "Memeriksa persyaratan sistem…",
+    "linux_retry": "Periksa Lagi Setelah Penyiapan",
+    "linux_retry_hint": "Setelah menjalankan perintah di atas, klik 'Periksa Lagi'",
     "linux_uinput_title": "Izin akses diperlukan",
     "linux_uinput_body": "SmoothScroll membutuhkan akses ke /dev/uinput untuk menghaluskan gulir.\n\nJalankan perintah berikut dan keluar:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nSetelah masuk kembali, mulai ulang SmoothScroll.",
     "linux_uinput_hint": "Setelah menjalankan perintah di atas, keluar dan masuk kembali, lalu mulai ulang SmoothScroll.",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll membutuhkan akses ke /dev/uinput",
+    "linux_wayland_subtitle": "Berjalan di Wayland - perlu akses uinput",
+    "linux_x11_subtitle": "Berjalan di X11",
     "linux_flatpak_title": "SmoothScroll tidak mendukung Flatpak",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll tidak dapat berjalan di sandbox Flatpak",
     "linux_flatpak_body": "Sandbox Flatpak memblokir akses ke /dev/uinput yang diperlukan untuk intersepsi gulir. Harap instal SmoothScroll dari .deb atau .AppImage.",
     "linux_flatpak_hint": "Harap instal SmoothScroll dari .deb atau .AppImage.",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "Tidak dapat memeriksa status platform. Silakan mulai ulang SmoothScroll.",
+    "session_label": "Sesi:",
+    "wayland_hint": "Wayland mungkin memerlukan penyiapan tambahan"
   },
   "feel": {
     "anim": {
@@ -125,22 +125,22 @@
     "using_for": "Digunakan selama",
     "reset": "Reset statistik",
     "confirm_reset": "Ini akan menghapus semua statistik tersimpan secara lokal. Lanjutkan?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "Statistik Gulir Hari Ini",
+    "distance": "Jarak",
+    "active_time": "Aktif",
+    "notches": "Notch",
+    "top_apps": "Aplikasi Teratas",
+    "peak_velocity": "Kecepatan puncak",
+    "profile_switches": "Pergantian profil",
+    "notches_sec": "notch/detik"
   },
   "battery": {
     "low_hint": "Baterai lemah. Smooth scrolling menambah sedikit beban CPU — pertimbangkan untuk menonaktifkan sementara."
   },
   "tabs": {
     "scroll": {
-      "label": "Scroll",
-      "title": "Scroll",
+      "label": "Gulir",
+      "title": "Gulir",
       "description": "Aktifkan scroll, atur ukuran langkah, easing, arah, dan tampilan."
     },
     "devices": {
@@ -174,18 +174,18 @@
       "description": "Nonaktifkan scroll halus secara otomatis untuk game yang dikenal."
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "Statistik",
+      "title": "Statistik Gulir",
+      "description": "Analitik gulir harian dan rincian per aplikasi."
     }
   },
   "presets": {
     "slow": "Lambat",
-    "default": "Default",
+    "default": "Bawaan",
     "fast": "Cepat",
     "snappy": "Tegas",
     "mac_like": "Gaya Mac",
-    "linear": "Linear",
+    "linear": "Linier",
     "currently": "Saat ini: {{preset}}"
   },
   "settings": {
@@ -217,33 +217,33 @@
       "title": "Kurva easing",
       "desc": "Bentuk kurva deselerasi",
       "preview": "Pratinjau",
-      "ExponentialOut": "Exponential Out (default)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
-      "Linear": "Linear"
+      "ExponentialOut": "Eksponensial keluar (bawaan)",
+      "CubicOut": "Kubik keluar",
+      "QuinticOut": "Kuintik keluar",
+      "Linear": "Linier"
     },
     "reverse_wheel": {
       "title": "Balik arah",
       "desc": "Balikkan arah scroll (gaya alami)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "Haluskan roda horizontal",
+      "desc": "Terapkan penghalusan pada input horizontal fisik atau roda miring"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Konversi Shift + Roda menjadi horizontal",
+      "desc": "Petakan ulang Shift + Roda vertikal secara eksplisit menjadi penggulungan horizontal"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "Kompatibilitas roda",
+      "desc": "Pilih pulsa halus, langkah roda utuh, atau input native",
+      "smooth": "Pulsa halus",
+      "notches": "Pertahankan langkah roda utuh",
+      "raw": "Native/mentah"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "Pertahankan pintasan roda aplikasi",
+      "desc": "Haluskan aksi roda Ctrl, Shift, dan Alt tanpa mengubah pintasannya"
     },
     "horizontal_invert": {
       "title": "Balik arah horizontal",
@@ -285,8 +285,8 @@
       "System": "Sistem"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "Nonaktifkan otomatis di aplikasi Windows",
+      "desc": "Menjeda penggulungan halus di aplikasi Windows bawaan yang sudah memiliki penggulungan halus native. SmoothScroll akan dilanjutkan secara otomatis saat Anda berpindah aplikasi."
     },
     "force_enable_all": {
       "title": "Paksa Haluskan Semua Aplikasi",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "Smooth scrolling touchpad",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "Matikan untuk menggunakan perilaku touchpad bawaan aplikasi."
       },
       "pixel_multiplier": {
         "title": "Pengganda piksel",
@@ -377,10 +377,10 @@
       "use": "Gunakan saran",
       "pick_manually": "Pilih manual"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "Terapkan preset…",
+    "apply_preset_confirm_title": "Ganti pengaturan saat ini?",
+    "apply_preset_confirm_body": "Ini akan menimpa ukuran langkah, waktu animasi, kecepatan maksimum, dan akselerasi maksimum.",
+    "apply_preset_confirm": "Ganti",
     "preset": "Terapkan preset",
     "preset_desc": "Ganti nuansa scroll dengan preset sekali klik. Sesuaikan slider di bawah untuk penyetelan lebih lanjut."
   },
@@ -469,7 +469,7 @@
     "ready_to_restart": "Pembaruan dipasang. Mulai ulang untuk menerapkan.",
     "restart_now": "Mulai ulang",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "Build macOS tidak ditandatangani dan berjalan di kanal beta hingga penandatanganan kode disiapkan.",
     "show_release_notes": "Lihat catatan rilis",
     "update_check_failed": "Gagal memeriksa pembaruan. Silakan coba lagi.",
     "update_install_failed": "Gagal memasang pembaruan. Silakan coba lagi."
@@ -507,9 +507,9 @@
   },
   "tray": {
     "quick_access": "Akses Cepat",
-    "smooth_scrolling": "Smooth Scrolling",
+    "smooth_scrolling": "Gulir Halus",
     "start_with_windows": "Mulai bersama Windows",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "Mulai saat Login",
     "start_with_system": "Mulai dengan sistem",
     "start_minimized": "Mulai terminimalisasi",
     "actions": "Aksi",
@@ -517,18 +517,18 @@
     "excluded_apps": "Aplikasi Dikecualikan",
     "open_log": "Buka File Log",
     "quit": "Keluar SmoothScroll",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "status_on": "AKTIF",
+    "status_off": "NONAKTIF",
+    "profile_label": "Profil",
+    "profile_default": "Bawaan (global)",
+    "profile_disable": "Nonaktifkan untuk aplikasi ini",
+    "profile_disabled": "Dinonaktifkan",
+    "profile_manage": "Kelola profil…",
     "current_app": {
       "heading": "Aplikasi saat ini",
       "category": "Kategori: {{category}}",
       "profile": "Profil",
-      "default": "Default",
+      "default": "Bawaan",
       "disabled": "Dinonaktifkan (pass-through)",
       "disable_for_this_app": "Nonaktifkan penghalusan untuk aplikasi ini",
       "smoothing_on": "Penghalusan aktif",
@@ -558,7 +558,7 @@
         "help": "Artikel, PDF, halaman panjang."
       },
       "Coder": {
-        "label": "Coder",
+        "label": "Pemrogram",
         "help": "VS Code, JetBrains, terminal."
       },
       "Designer": {
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "Terjadi kesalahan",
+    "description": "Terjadi kesalahan tak terduga. Aplikasi akan mencoba untuk melanjutkan.",
+    "show_details": "Tampilkan detail teknis",
+    "reload": "Muat ulang",
+    "report": "Laporkan",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "Kesalahan tidak dikenal",
+    "no_stack": "Tidak ada jejak tumpukan"
   }
 }

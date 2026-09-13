@@ -26,30 +26,30 @@
   "permission": {
     "title": "Bedienungshilfen-Zugriff erforderlich",
     "body": "SmoothScroll benötigt die Accessibility-Berechtigung, um Mausrad-Ereignisse zu erfassen und mit sanfter Animation erneut auszulösen. Öffnen Sie System Settings → Privacy & Security → Accessibility und aktivieren Sie SmoothScroll.",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll benötigt die Bedienungshilfen-Berechtigung",
+    "macos_body": "Öffnen Sie Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen und aktivieren Sie SmoothScroll. Dadurch kann SmoothScroll Ihre Mausrad-Ereignisse erfassen und glätten.",
+    "windows_subtitle": "SmoothScroll benötigt die Bedienungshilfen-Berechtigung",
     "open": "Berechtigung anfordern",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "Habe ich gerade erteilt – jetzt prüfen",
+    "checking": "Wird geprüft…",
+    "still_denied": "Immer noch nicht erteilt. Stellen Sie sicher, dass SmoothScroll in den Systemeinstellungen aktiviert ist.",
     "polling": "Sobald Sie die Berechtigung erteilen, erkenne ich es und mache weiter.",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "Systemanforderungen werden geprüft…",
+    "linux_retry": "Nach der Einrichtung erneut prüfen",
+    "linux_retry_hint": "Nachdem Sie die obigen Befehle ausgeführt haben, klicken Sie auf „Erneut prüfen“",
     "linux_uinput_title": "Zugriffsberechtigung erforderlich",
     "linux_uinput_body": "SmoothScroll benötigt Zugriff auf /dev/uinput für Scroll-Glättung.\n\nFühren Sie die folgenden Befehle aus und melden Sie sich ab:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nMelden Sie sich nach dem Abmelden erneut an und starten Sie SmoothScroll neu.",
     "linux_uinput_hint": "Nachdem Sie die oben genannten Befehle ausgeführt haben, melden Sie sich ab und wieder an, dann starten Sie SmoothScroll neu.",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll benötigt Zugriff auf /dev/uinput",
+    "linux_wayland_subtitle": "Läuft unter Wayland – uinput-Zugriff erforderlich",
+    "linux_x11_subtitle": "Läuft unter X11",
     "linux_flatpak_title": "SmoothScroll unterstützt Flatpak nicht",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll kann nicht in einer Flatpak-Sandbox ausgeführt werden",
     "linux_flatpak_body": "Die Flatpak-Sandbox blockiert den Zugriff auf /dev/uinput, der für Scroll-Interception erforderlich ist. Bitte installieren Sie SmoothScroll von .deb oder .AppImage.",
     "linux_flatpak_hint": "Bitte installieren Sie SmoothScroll von .deb oder .AppImage.",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "Plattformstatus konnte nicht geprüft werden. Bitte starten Sie SmoothScroll neu.",
+    "session_label": "Sitzung:",
+    "wayland_hint": "Wayland erfordert möglicherweise zusätzliche Einrichtung"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "In Verwendung seit",
     "reset": "Statistiken zurücksetzen",
     "confirm_reset": "Dadurch werden alle lokal gespeicherten Statistiken gelöscht. Fortfahren?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "Heutige Scroll-Statistiken",
+    "distance": "Distanz",
+    "active_time": "Aktiv",
+    "notches": "Rastungen",
+    "top_apps": "Top-Apps",
+    "peak_velocity": "Spitzengeschwindigkeit",
+    "profile_switches": "Profilwechsel",
+    "notches_sec": "Rastungen/Sek."
   },
   "battery": {
     "low_hint": "Akku schwach. Sanftes Scrollen kostet etwas CPU — Sie können es vorübergehend deaktivieren."
@@ -174,9 +174,9 @@
       "description": "Glattes Scrollen für bekannte Spiele automatisch deaktivieren."
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "Statistiken",
+      "title": "Scroll-Statistiken",
+      "description": "Tägliche Scroll-Analysen und Aufschlüsselung pro App."
     }
   },
   "presets": {
@@ -218,8 +218,8 @@
       "desc": "Form der Verzögerungskurve",
       "preview": "Vorschau",
       "ExponentialOut": "Exponential Out (Standard)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
+      "CubicOut": "Kubisch auslaufend",
+      "QuinticOut": "Quintisch auslaufend",
       "Linear": "Linear"
     },
     "reverse_wheel": {
@@ -227,23 +227,23 @@
       "desc": "Scrollrichtung umkehren (natürlicher Stil)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "Horizontales Mausrad glätten",
+      "desc": "Glättung auf physische horizontale oder Neig-Rad-Eingaben anwenden"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Shift + Mausrad in horizontal umwandeln",
+      "desc": "Vertikales Shift + Mausrad explizit auf horizontales Scrollen umlegen"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "Mausrad-Kompatibilität",
+      "desc": "Wählen Sie weiche Impulse, ganze Rad-Schritte oder native Eingabe",
+      "smooth": "Weiche Impulse",
+      "notches": "Ganze Rad-Schritte beibehalten",
+      "raw": "Nativ/roh"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "App-Mausrad-Kürzel beibehalten",
+      "desc": "Strg-, Shift- und Alt-Mausrad-Aktionen glätten, ohne die Kürzel zu ändern"
     },
     "horizontal_invert": {
       "title": "Horizontale Richtung umkehren",
@@ -285,8 +285,8 @@
       "System": "System"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "In Windows-Apps automatisch deaktivieren",
+      "desc": "Pausiert das weiche Scrollen in integrierten Windows-Apps, die bereits natives weiches Scrollen haben. SmoothScroll wird automatisch fortgesetzt, wenn Sie die App wechseln."
     },
     "force_enable_all": {
       "title": "Glätten für alle Apps erzwingen",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "Sanftes Touchpad-Scrollen",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "Ausschalten, um das native Touchpad-Verhalten der Anwendung zu verwenden."
       },
       "pixel_multiplier": {
         "title": "Pixel-Multiplikator",
@@ -377,10 +377,10 @@
       "use": "Vorschlag verwenden",
       "pick_manually": "Manuell auswählen"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "Voreinstellung anwenden…",
+    "apply_preset_confirm_title": "Aktuelle Einstellungen ersetzen?",
+    "apply_preset_confirm_body": "Dies überschreibt Schrittweite, Animationsdauer, maximale Geschwindigkeit und maximale Beschleunigung.",
+    "apply_preset_confirm": "Ersetzen",
     "preset": "Voreinstellung anwenden",
     "preset_desc": "Überschreiben Sie das Scrollgefühl mit einer Voreinstellung. Mit den Reglern unten können Sie feinjustieren."
   },
@@ -459,7 +459,7 @@
     "rerun_setup": "Einrichtungsassistent erneut ausführen",
     "homepage": "Startseite",
     "homepage_url": "https://github.com/quangtruong2003/SmoothScroll",
-    "updates": "Updates",
+    "updates": "Aktualisierungen",
     "check_now": "Jetzt prüfen",
     "checking": "Wird geprüft…",
     "up_to_date": "Sie verwenden die neueste Version.",
@@ -469,7 +469,7 @@
     "ready_to_restart": "Update installiert. Neustart zur Anwendung erforderlich.",
     "restart_now": "Jetzt neu starten",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "macOS-Builds sind unsigniert und laufen auf dem Beta-Kanal, bis Code-Signing eingerichtet ist.",
     "show_release_notes": "Versionshinweise anzeigen",
     "update_check_failed": "Updates konnten nicht geprüft werden. Bitte versuchen Sie es erneut.",
     "update_install_failed": "Das Update konnte nicht installiert werden. Bitte versuchen Sie es erneut."
@@ -509,7 +509,7 @@
     "quick_access": "Schnellzugriff",
     "smooth_scrolling": "Sanftes Scrollen",
     "start_with_windows": "Mit Windows starten",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "Beim Anmelden starten",
     "start_with_system": "Mit System starten",
     "start_minimized": "Minimiert starten",
     "actions": "Aktionen",
@@ -519,11 +519,11 @@
     "quit": "SmoothScroll beenden",
     "status_on": "AN",
     "status_off": "AUS",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "profile_label": "Profil",
+    "profile_default": "Standard (global)",
+    "profile_disable": "Für diese App deaktivieren",
+    "profile_disabled": "Deaktiviert",
+    "profile_manage": "Profile verwalten…",
     "current_app": {
       "heading": "Aktuelle App",
       "category": "Kategorie: {{category}}",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "Etwas ist schiefgelaufen",
+    "description": "Ein unerwarteter Fehler ist aufgetreten. Die App versucht, fortzufahren.",
+    "show_details": "Technische Details anzeigen",
+    "reload": "Neu laden",
+    "report": "Melden",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "Unbekannter Fehler",
+    "no_stack": "Kein Stack-Trace"
   }
 }

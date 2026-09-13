@@ -26,30 +26,30 @@
   "permission": {
     "title": "アクセシビリティ権限が必要",
     "body": "SmoothScrollはマウスホイールイベントを取得し、滑らかなアニメーションで再送信するためにAccessibility権限が必要です。System Settings → Privacy & Security → Accessibility を開き、SmoothScrollを有効にしてください。",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScrollにはアクセシビリティの権限が必要です",
+    "macos_body": "システム設定 → プライバシーとセキュリティ → アクセシビリティを開き、SmoothScrollをオンにしてください。これにより、SmoothScrollがマウスホイールのイベントを取得してスムーズにできるようになります。",
+    "windows_subtitle": "SmoothScrollにはアクセシビリティの権限が必要です",
     "open": "権限をリクエスト",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "許可したばかりです — 今すぐ確認",
+    "checking": "確認中…",
+    "still_denied": "まだ許可されていません。システム設定でSmoothScrollがオンになっていることを確認してください。",
     "polling": "権限が付与されたら自動で検知して続行します。",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "システム要件を確認中…",
+    "linux_retry": "セットアップ後に再確認",
+    "linux_retry_hint": "上記のコマンドを実行した後、「再確認」をクリックしてください",
     "linux_uinput_title": "アクセス権限が必要です",
     "linux_uinput_body": "SmoothScrollはスクロールのスムージングのために/dev/uinputへのアクセスが必要です。\n\n以下のコマンドを実行してログアウトしてください：\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\n再ログイン後、SmoothScrollを再起動してください。",
     "linux_uinput_hint": "上記のコマンドを実行した後、ログアウトして再度ログインし、その後SmoothScrollを再起動してください。",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScrollは/dev/uinputへのアクセスが必要です",
+    "linux_wayland_subtitle": "Waylandで実行中 - uinputアクセスが必要です",
+    "linux_x11_subtitle": "X11で実行中",
     "linux_flatpak_title": "SmoothScrollはFlatpakに対応していません",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScrollはFlatpakサンドボックス内では実行できません",
     "linux_flatpak_body": "Flatpakサンドボックスはスクロール傍受に必要な/dev/uinputへのアクセスをブロックします。.debまたは.AppImageからSmoothScrollをインストールしてください。",
     "linux_flatpak_hint": ".debまたは.AppImageからSmoothScrollをインストールしてください。",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "プラットフォームの状態を確認できませんでした。SmoothScrollを再起動してください。",
+    "session_label": "セッション:",
+    "wayland_hint": "Waylandでは追加のセットアップが必要な場合があります"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "使用期間",
     "reset": "統計をリセット",
     "confirm_reset": "ローカルに保存されたすべての統計を消去します。続行しますか?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "今日のスクロール統計",
+    "distance": "距離",
+    "active_time": "アクティブ",
+    "notches": "ノッチ",
+    "top_apps": "上位アプリ",
+    "peak_velocity": "最高速度",
+    "profile_switches": "プロファイル切り替え",
+    "notches_sec": "ノッチ/秒"
   },
   "battery": {
     "low_hint": "バッテリーが少なくなっています。スムーススクロールはわずかにCPUを使います — 一時的にオフにすることを検討してください。"
@@ -174,9 +174,9 @@
       "description": "既知のゲームでスムーススクロールを自動的に無効化します。"
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "統計",
+      "title": "スクロール統計",
+      "description": "日次スクロール分析とアプリ別の内訳。"
     }
   },
   "presets": {
@@ -218,32 +218,32 @@
       "desc": "減速カーブの形状",
       "preview": "プレビュー",
       "ExponentialOut": "Exponential Out (デフォルト)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
-      "Linear": "Linear"
+      "CubicOut": "キュービックアウト",
+      "QuinticOut": "クインティックアウト",
+      "Linear": "リニア"
     },
     "reverse_wheel": {
       "title": "方向を反転",
       "desc": "スクロール方向を反転 (ナチュラルスタイル)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "横方向ホイールをスムーズ化",
+      "desc": "物理的な横方向またはチルトホイール入力にスムージングを適用"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Shift + ホイールを横スクロールに変換",
+      "desc": "縦方向のShift + ホイールを横スクロールに明示的に再マッピング"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "ホイール互換性",
+      "desc": "スムーズなパルス、ホイール1段階単位、ネイティブ入力から選択",
+      "smooth": "スムーズなパルス",
+      "notches": "ホイールの1段階単位を維持",
+      "raw": "ネイティブ/生"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "アプリのホイールショートカットを維持",
+      "desc": "Ctrl、Shift、Altのホイール操作をショートカットを変えずにスムーズ化"
     },
     "horizontal_invert": {
       "title": "水平方向を反転",
@@ -285,8 +285,8 @@
       "System": "システム"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "Windowsアプリで自動的に無効化",
+      "desc": "ネイティブのスムーススクロールを既に備えたWindows標準アプリではスムーススクロールを一時停止します。アプリを切り替えるとSmoothScrollは自動的に再開します。"
     },
     "force_enable_all": {
       "title": "全アプリにスムーズスクロールを強制",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "タッチパッドのスムーズスクロール",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "オフにするとアプリ固有のタッチパッド動作が使用されます。"
       },
       "pixel_multiplier": {
         "title": "ピクセル乗数",
@@ -377,10 +377,10 @@
       "use": "提案を使用",
       "pick_manually": "手動で選ぶ"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "プリセットを適用…",
+    "apply_preset_confirm_title": "現在の設定を置き換えますか？",
+    "apply_preset_confirm_body": "ステップサイズ、アニメーション時間、最大速度、最大加速度が上書きされます。",
+    "apply_preset_confirm": "置き換える",
     "preset": "プリセットを適用",
     "preset_desc": "ワンクリックのプリセットでスクロール感を上書きします。下のスライダーで微調整できます。"
   },
@@ -469,7 +469,7 @@
     "ready_to_restart": "アップデートをインストールしました。適用するには再起動してください。",
     "restart_now": "今すぐ再起動",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "macOSビルドは未署名で、コード署名が整うまでベータチャンネルで配信されます。",
     "show_release_notes": "リリースノートを表示",
     "update_check_failed": "アップデートを確認できませんでした。もう一度お試しください。",
     "update_install_failed": "アップデートをインストールできませんでした。もう一度お試しください。"
@@ -509,7 +509,7 @@
     "quick_access": "クイックアクセス",
     "smooth_scrolling": "スムーススクロール",
     "start_with_windows": "Windowsと同時に起動",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "ログイン時に起動",
     "start_with_system": "システム起動時に開始",
     "start_minimized": "最小化された状態で起動",
     "actions": "アクション",
@@ -517,13 +517,13 @@
     "excluded_apps": "除外アプリ",
     "open_log": "ログファイルを開く",
     "quit": "SmoothScrollを終了",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "status_on": "オン",
+    "status_off": "オフ",
+    "profile_label": "プロファイル",
+    "profile_default": "デフォルト（グローバル）",
+    "profile_disable": "このアプリで無効にする",
+    "profile_disabled": "無効",
+    "profile_manage": "プロファイルを管理…",
     "current_app": {
       "heading": "現在のアプリ",
       "category": "カテゴリ: {{category}}",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "問題が発生しました",
+    "description": "予期しないエラーが発生しました。アプリは動作を続行しようとします。",
+    "show_details": "技術的な詳細を表示",
+    "reload": "再読み込み",
+    "report": "報告",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "不明なエラー",
+    "no_stack": "スタックトレースなし"
   }
 }

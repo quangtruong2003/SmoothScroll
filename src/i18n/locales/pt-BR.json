@@ -26,30 +26,30 @@
   "permission": {
     "title": "Permissão de Acessibilidade necessária",
     "body": "O SmoothScroll precisa da permissão Accessibility para capturar eventos da roda do mouse e reemiti-los com animação suave. Abra System Settings → Privacy & Security → Accessibility e ative o SmoothScroll.",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "O SmoothScroll precisa da permissão de Acessibilidade",
+    "macos_body": "Abra Ajustes do Sistema → Privacidade e Segurança → Acessibilidade e ative o SmoothScroll. Isso permite que o SmoothScroll capture e suavize os eventos da roda do mouse.",
+    "windows_subtitle": "O SmoothScroll precisa da permissão de Acessibilidade",
     "open": "Solicitar permissão",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "Acabei de conceder — verificar agora",
+    "checking": "Verificando…",
+    "still_denied": "Ainda não concedido. Certifique-se de que o SmoothScroll está ativado nos Ajustes do Sistema.",
     "polling": "Vou detectar quando você conceder a permissão e continuar.",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "Verificando requisitos do sistema…",
+    "linux_retry": "Verificar novamente após a configuração",
+    "linux_retry_hint": "Após executar os comandos acima, clique em 'Verificar novamente'",
     "linux_uinput_title": "Permissão de acesso necessária",
     "linux_uinput_body": "O SmoothScroll precisa de acesso ao /dev/uinput para suavizar a rolagem.\n\nExecute os seguintes comandos e saia:\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\nApós fazer login novamente, reinicie o SmoothScroll.",
     "linux_uinput_hint": "Após executar os comandos acima, saia e faça login novamente, depois reinicie o SmoothScroll.",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "O SmoothScroll precisa de acesso ao /dev/uinput",
+    "linux_wayland_subtitle": "Executando no Wayland - necessário acesso ao uinput",
+    "linux_x11_subtitle": "Executando no X11",
     "linux_flatpak_title": "SmoothScroll não suporta Flatpak",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "O SmoothScroll não pode ser executado em um sandbox do Flatpak",
     "linux_flatpak_body": "O sandbox Flatpak bloqueia o acesso ao /dev/uinput necessário para interceptação de rolagem. Instale o SmoothScroll de .deb ou .AppImage.",
     "linux_flatpak_hint": "Instale o SmoothScroll de .deb ou .AppImage.",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "Não foi possível verificar o status da plataforma. Reinicie o SmoothScroll.",
+    "session_label": "Sessão:",
+    "wayland_hint": "O Wayland pode exigir configuração adicional"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "Em uso há",
     "reset": "Redefinir estatísticas",
     "confirm_reset": "Isso apagará todas as estatísticas armazenadas localmente. Continuar?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "Estatísticas de rolagem de hoje",
+    "distance": "Distância",
+    "active_time": "Ativo",
+    "notches": "Entalhes",
+    "top_apps": "Principais aplicativos",
+    "peak_velocity": "Velocidade de pico",
+    "profile_switches": "Trocas de perfil",
+    "notches_sec": "entalhes/s"
   },
   "battery": {
     "low_hint": "Bateria fraca. A rolagem suave usa um pouco de CPU — considere desativá-la temporariamente."
@@ -154,7 +154,7 @@
       "description": "Janela de aceleração, proporção de cauda, modificadores de precisão e rolagem automática de borda."
     },
     "apps": {
-      "label": "Apps",
+      "label": "Aplicativos",
       "title": "Por aplicativo",
       "description": "Perfis e exclusões adaptados a aplicativos específicos."
     },
@@ -174,9 +174,9 @@
       "description": "Desativar a rolagem suave automaticamente para jogos conhecidos."
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "Estatísticas",
+      "title": "Estatísticas de rolagem",
+      "description": "Análises diárias de rolagem e detalhamento por aplicativo."
     }
   },
   "presets": {
@@ -218,8 +218,8 @@
       "desc": "Forma da curva de desaceleração",
       "preview": "Pré-visualização",
       "ExponentialOut": "Exponential Out (padrão)",
-      "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
+      "CubicOut": "Saída cúbica",
+      "QuinticOut": "Saída quíntica",
       "Linear": "Linear"
     },
     "reverse_wheel": {
@@ -227,23 +227,23 @@
       "desc": "Inverter a direção da rolagem (estilo natural)"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "Suavizar a roda horizontal",
+      "desc": "Aplicar suavização à entrada física horizontal ou de roda de inclinação"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "Converter Shift + roda em horizontal",
+      "desc": "Remapeia explicitamente Shift + roda vertical para rolagem horizontal"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "Compatibilidade da roda",
+      "desc": "Escolha pulsos suaves, passos inteiros da roda ou entrada nativa",
+      "smooth": "Pulsos suaves",
+      "notches": "Preservar passos inteiros da roda",
+      "raw": "Nativo/bruto"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "Preservar atalhos de roda dos aplicativos",
+      "desc": "Suaviza as ações de roda com Ctrl, Shift e Alt sem alterar seus atalhos"
     },
     "horizontal_invert": {
       "title": "Inverter direção horizontal",
@@ -285,8 +285,8 @@
       "System": "Sistema"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "Desativar automaticamente em aplicativos do Windows",
+      "desc": "Pausa a rolagem suave nos aplicativos integrados do Windows que já possuem rolagem suave nativa. O SmoothScroll será retomado automaticamente quando você trocar de aplicativo."
     },
     "force_enable_all": {
       "title": "Forçar suavização em todos os apps",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "Rolagem suave do touchpad",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "Desative para usar o comportamento nativo do touchpad do aplicativo."
       },
       "pixel_multiplier": {
         "title": "Multiplicador de pixels",
@@ -377,10 +377,10 @@
       "use": "Usar sugestão",
       "pick_manually": "Escolher manualmente"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "Aplicar predefinição…",
+    "apply_preset_confirm_title": "Substituir as configurações atuais?",
+    "apply_preset_confirm_body": "Isso sobrescreverá o tamanho do passo, o tempo de animação, a velocidade máxima e a aceleração máxima.",
+    "apply_preset_confirm": "Substituir",
     "preset": "Aplicar predefinição",
     "preset_desc": "Substitua a sensação de rolagem com uma predefinição de um clique. Ajuste os controles abaixo para refinar."
   },
@@ -469,7 +469,7 @@
     "ready_to_restart": "Atualização instalada. Reinicie para aplicar.",
     "restart_now": "Reiniciar agora",
     "beta_badge_label": "BETA",
-    "beta_badge_tooltip": "macOS builds are unsigned and run on the beta channel until code-signing is set up.",
+    "beta_badge_tooltip": "As compilações do macOS não são assinadas e rodam no canal beta até que a assinatura de código seja configurada.",
     "show_release_notes": "Mostrar notas de versão",
     "update_check_failed": "Não foi possível verificar atualizações. Tente novamente.",
     "update_install_failed": "Não foi possível instalar a atualização. Tente novamente."
@@ -509,7 +509,7 @@
     "quick_access": "Acesso rápido",
     "smooth_scrolling": "Rolagem suave",
     "start_with_windows": "Iniciar com o Windows",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "Iniciar ao fazer login",
     "start_with_system": "Iniciar com o sistema",
     "start_minimized": "Iniciar minimizado",
     "actions": "Ações",
@@ -517,13 +517,13 @@
     "excluded_apps": "Aplicativos excluídos",
     "open_log": "Abrir arquivo de log",
     "quit": "Sair do SmoothScroll",
-    "status_on": "ON",
-    "status_off": "OFF",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "status_on": "ATIVO",
+    "status_off": "INATIVO",
+    "profile_label": "Perfil",
+    "profile_default": "Padrão (global)",
+    "profile_disable": "Desativar para este aplicativo",
+    "profile_disabled": "Desativado",
+    "profile_manage": "Gerenciar perfis…",
     "current_app": {
       "heading": "Aplicativo atual",
       "category": "Categoria: {{category}}",
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. O aplicativo tentará continuar.",
+    "show_details": "Mostrar detalhes técnicos",
+    "reload": "Recarregar",
+    "report": "Relatar",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "Erro desconhecido",
+    "no_stack": "Sem rastreamento de pilha"
   }
 }

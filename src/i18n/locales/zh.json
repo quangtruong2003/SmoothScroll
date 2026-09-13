@@ -26,30 +26,30 @@
   "permission": {
     "title": "需要辅助功能权限",
     "body": "SmoothScroll 需要 Accessibility 权限来捕获鼠标滚轮事件并以平滑动画重新发送。打开 System Settings → Privacy & Security → Accessibility 并启用 SmoothScroll。",
-    "macos_subtitle": "SmoothScroll needs Accessibility permission",
-    "macos_body": "Open System Settings → Privacy & Security → Accessibility and toggle SmoothScroll on. This allows SmoothScroll to capture and smooth your mouse wheel events.",
-    "windows_subtitle": "SmoothScroll needs Accessibility permission",
+    "macos_subtitle": "SmoothScroll 需要辅助功能权限",
+    "macos_body": "打开系统设置 → 隐私与安全性 → 辅助功能，并开启 SmoothScroll。这样 SmoothScroll 才能捕获并平滑您的鼠标滚轮事件。",
+    "windows_subtitle": "SmoothScroll 需要辅助功能权限",
     "open": "请求权限",
-    "check_now": "I just granted it — check now",
-    "checking": "Checking...",
-    "still_denied": "Still not granted. Make sure SmoothScroll is toggled ON in System Settings.",
+    "check_now": "我刚刚已授权 — 立即检查",
+    "checking": "检查中…",
+    "still_denied": "尚未授权。请确保在系统设置中已开启 SmoothScroll。",
     "polling": "授予权限后，我会自动检测并继续。",
-    "linux_checking": "Checking system requirements...",
-    "linux_retry": "Check Again After Setup",
-    "linux_retry_hint": "After running the commands above, click 'Check Again'",
+    "linux_checking": "正在检查系统要求…",
+    "linux_retry": "设置完成后重新检查",
+    "linux_retry_hint": "运行上面的命令后，点击“重新检查”",
     "linux_uinput_title": "需要访问权限",
     "linux_uinput_body": "SmoothScroll 需要访问 /dev/uinput 以实现滚动平滑化。\n\n运行以下命令并注销：\n\n  sudo gpasswd -a $USER input\n  sudo bash -c 'echo \"KERNEL==\\\"uinput\\\", GROUP=\\\"input\\\", MODE=\\\"0660\\\", OPTIONS+=\\\"static_node=uinput\\\"\" > /etc/udev/rules.d/99-smoothscroll.rules'\n  sudo udevadm control --reload-rules\n\n重新登录后，重启 SmoothScroll。",
     "linux_uinput_hint": "运行上述命令后，注销并重新登录，然后重启 SmoothScroll。",
-    "linux_uinput_subtitle": "SmoothScroll needs access to /dev/uinput",
-    "linux_wayland_subtitle": "Running on Wayland - uinput access needed",
-    "linux_x11_subtitle": "Running on X11",
+    "linux_uinput_subtitle": "SmoothScroll 需要访问 /dev/uinput",
+    "linux_wayland_subtitle": "正在 Wayland 上运行 - 需要 uinput 访问权限",
+    "linux_x11_subtitle": "正在 X11 上运行",
     "linux_flatpak_title": "SmoothScroll 不支持 Flatpak",
-    "linux_flatpak_subtitle": "SmoothScroll cannot run in a Flatpak sandbox",
+    "linux_flatpak_subtitle": "SmoothScroll 无法在 Flatpak 沙盒中运行",
     "linux_flatpak_body": "Flatpak 沙盒阻止访问 /dev/uinput，这是滚动拦截所必需的。请从 .deb 或 .AppImage 安装 SmoothScroll。",
     "linux_flatpak_hint": "请从 .deb 或 .AppImage 安装 SmoothScroll。",
-    "platform_error": "Unable to check platform status. Please restart SmoothScroll.",
-    "session_label": "Session:",
-    "wayland_hint": "Wayland may require additional setup"
+    "platform_error": "无法检查平台状态。请重启 SmoothScroll。",
+    "session_label": "会话：",
+    "wayland_hint": "Wayland 可能需要额外设置"
   },
   "feel": {
     "anim": {
@@ -125,14 +125,14 @@
     "using_for": "使用时长",
     "reset": "重置统计",
     "confirm_reset": "这将清除所有本地存储的统计数据。是否继续?",
-    "today": "Today's Scroll Stats",
-    "distance": "Distance",
-    "active_time": "Active",
-    "notches": "Notches",
-    "top_apps": "Top Apps",
-    "peak_velocity": "Peak velocity",
-    "profile_switches": "Profile switches",
-    "notches_sec": "notches/sec"
+    "today": "今日滚动统计",
+    "distance": "距离",
+    "active_time": "活跃",
+    "notches": "刻度",
+    "top_apps": "常用应用",
+    "peak_velocity": "峰值速度",
+    "profile_switches": "配置切换",
+    "notches_sec": "刻度/秒"
   },
   "battery": {
     "low_hint": "电量较低。平滑滚动会增加少量 CPU 开销 — 可以考虑暂时关闭。"
@@ -174,9 +174,9 @@
       "description": "为已知游戏自动禁用平滑滚动。"
     },
     "stats": {
-      "label": "Stats",
-      "title": "Scroll Statistics",
-      "description": "Daily scroll analytics and per-app breakdown."
+      "label": "统计",
+      "title": "滚动统计",
+      "description": "每日滚动分析和按应用细分。"
     }
   },
   "presets": {
@@ -227,23 +227,23 @@
       "desc": "反转滚动方向（自然滚动）"
     },
     "horizontal_smoothness": {
-      "title": "Smooth horizontal wheel",
-      "desc": "Apply smoothing to physical horizontal or tilt-wheel input"
+      "title": "平滑横向滚轮",
+      "desc": "对物理横向输入或倾斜滚轮输入应用平滑"
     },
     "shift_wheel_conversion": {
-      "title": "Convert Shift + Wheel to horizontal",
-      "desc": "Explicitly remap vertical Shift + Wheel to horizontal scrolling"
+      "title": "将 Shift + 滚轮转换为横向滚动",
+      "desc": "明确将纵向 Shift + 滚轮重新映射为横向滚动"
     },
     "wheel_output_mode": {
-      "title": "Wheel compatibility",
-      "desc": "Choose smooth pulses, whole wheel steps, or native input",
-      "smooth": "Smooth pulses",
-      "notches": "Preserve whole wheel steps",
-      "raw": "Native/raw"
+      "title": "滚轮兼容性",
+      "desc": "选择平滑脉冲、整格滚轮步进或原生输入",
+      "smooth": "平滑脉冲",
+      "notches": "保留整格滚轮步进",
+      "raw": "原生/原始"
     },
     "preserve_wheel_shortcuts": {
-      "title": "Preserve app wheel shortcuts",
-      "desc": "Smooth Ctrl, Shift, and Alt wheel actions without changing their shortcuts"
+      "title": "保留应用的滚轮快捷键",
+      "desc": "平滑 Ctrl、Shift 和 Alt 滚轮操作，但不改变其快捷键"
     },
     "horizontal_invert": {
       "title": "反转水平滚动方向",
@@ -285,8 +285,8 @@
       "System": "跟随系统"
     },
     "auto_disable_windows_apps": {
-      "title": "Auto-disable in Windows apps",
-      "desc": "Pause smooth scrolling in built-in Windows apps that already have native smooth scrolling. SmoothScroll will resume automatically when you switch away."
+      "title": "在 Windows 应用中自动禁用",
+      "desc": "在已具备原生平滑滚动的 Windows 内置应用中暂停平滑滚动。切换到其他应用时 SmoothScroll 会自动恢复。"
     },
     "force_enable_all": {
       "title": "强制为所有应用启用平滑",
@@ -311,7 +311,7 @@
       },
       "enable": {
         "title": "平滑触控板滚动",
-        "desc": "Turn off to use the application's native touchpad behavior."
+        "desc": "关闭后将使用应用自带的触摸板行为。"
       },
       "pixel_multiplier": {
         "title": "像素倍率",
@@ -377,10 +377,10 @@
       "use": "使用建议",
       "pick_manually": "手动选择"
     },
-    "apply_preset": "Apply preset…",
-    "apply_preset_confirm_title": "Replace current settings?",
-    "apply_preset_confirm_body": "This will overwrite step size, animation time, max velocity, and acceleration max.",
-    "apply_preset_confirm": "Replace",
+    "apply_preset": "应用预设…",
+    "apply_preset_confirm_title": "替换当前设置？",
+    "apply_preset_confirm_body": "这将覆盖步长、动画时长、最大速度和最大加速度。",
+    "apply_preset_confirm": "替换",
     "preset": "应用预设",
     "preset_desc": "一键使用预设覆盖滚动手感。可通过下方滑块进行微调。"
   },
@@ -509,7 +509,7 @@
     "quick_access": "快速访问",
     "smooth_scrolling": "平滑滚动",
     "start_with_windows": "开机启动",
-    "start_with_macos": "Start at Login",
+    "start_with_macos": "登录时启动",
     "start_with_system": "开机启动",
     "start_minimized": "启动时最小化",
     "actions": "操作",
@@ -519,20 +519,20 @@
     "quit": "退出 SmoothScroll",
     "status_on": "开",
     "status_off": "关",
-    "profile_label": "Profile",
-    "profile_default": "Default (global)",
-    "profile_disable": "Disable for this app",
-    "profile_disabled": "Disabled",
-    "profile_manage": "Manage profiles…",
+    "profile_label": "配置",
+    "profile_default": "默认（全局）",
+    "profile_disable": "为此应用禁用",
+    "profile_disabled": "已禁用",
+    "profile_manage": "管理配置…",
     "current_app": {
-      "heading": "Current app",
-      "category": "Category: {{category}}",
-      "profile": "Profile",
-      "default": "Default",
-      "disabled": "Disabled (pass-through)",
-      "disable_for_this_app": "Disable smoothing for this app",
-      "smoothing_on": "Smoothing active",
-      "smoothing_off": "Smoothing disabled"
+      "heading": "当前应用",
+      "category": "类别：{{category}}",
+      "profile": "配置",
+      "default": "默认",
+      "disabled": "已禁用（直通）",
+      "disable_for_this_app": "为该应用禁用平滑滚动",
+      "smoothing_on": "平滑滚动已开启",
+      "smoothing_off": "平滑滚动已关闭"
     }
   },
   "onboarding": {
@@ -586,13 +586,13 @@
     }
   },
   "error_boundary": {
-    "title": "Something went wrong",
-    "description": "An unexpected error occurred. The app will attempt to continue.",
-    "show_details": "Show technical details",
-    "reload": "Reload",
-    "report": "Report",
+    "title": "出现了一些问题",
+    "description": "发生了意外错误。应用将尝试继续运行。",
+    "show_details": "显示技术详情",
+    "reload": "重新加载",
+    "report": "报告",
     "email_subject": "[SmoothScroll] UI Error Report",
-    "unknown_error": "Unknown error",
-    "no_stack": "No stack trace"
+    "unknown_error": "未知错误",
+    "no_stack": "无堆栈跟踪"
   }
 }
