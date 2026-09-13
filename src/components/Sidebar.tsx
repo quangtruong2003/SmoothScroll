@@ -103,9 +103,17 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
   const settings = useSettingsStore((s) => s.settings);
   const patch = useSettingsStore((s) => s.patch);
   const [version, setVersion] = useState("");
+  const [trusted, setTrusted] = useState(false);
 
   useEffect(() => {
     void tauri.appVersion().then(setVersion);
+    // Trusted devices (the developer's own builds) hide the donate shortcut.
+    void tauri
+      .isTrustedDevice()
+      .then(setTrusted)
+      .catch(() => {
+        // ignore — show the button when the check is unavailable
+      });
   }, []);
 
   if (!settings) return null;
@@ -140,14 +148,16 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
 
   return (
     <div className="mt-auto flex flex-col gap-2 border-t pt-3">
-      <Button
-        className="h-8 w-full gap-1.5 bg-[#FFDD00] px-2 text-xs text-black hover:bg-[#FFDD00]/90"
-        onClick={handleBuyMeACoffee}
-        title={t("support.buy_me_a_coffee")}
-      >
-        <Coffee className="h-3.5 w-3.5 shrink-0" />
-        <span className="truncate">{t("support.buy_me_a_coffee")}</span>
-      </Button>
+      {!trusted && (
+        <Button
+          className="h-8 w-full gap-1.5 bg-[#FFDD00] px-2 text-xs text-black hover:bg-[#FFDD00]/90"
+          onClick={handleBuyMeACoffee}
+          title={t("support.buy_me_a_coffee")}
+        >
+          <Coffee className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{t("support.buy_me_a_coffee")}</span>
+        </Button>
+      )}
       <div
         role="radiogroup"
         aria-label={t("settings.theme.title")}
