@@ -1,7 +1,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { open } from "@tauri-apps/plugin-shell";
 import {
   AppWindow,
+  Coffee,
   Gamepad2,
   Info,
   Keyboard,
@@ -16,7 +18,9 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { setLanguage, SUPPORTED_LANGS, type Lang } from "@/i18n";
 import { tauri, type ThemeMode } from "@/lib/tauri";
 import { IS_LINUX } from "@/lib/platform";
+import { BMC_URL } from "@/lib/donate";
 import { FlagIcon } from "@/components/FlagIcon";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -122,6 +126,12 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
 
   const currentLang = settings.language as Lang;
 
+  const handleBuyMeACoffee = () => {
+    void open(BMC_URL).catch(() => {
+      // ignore
+    });
+  };
+
   const themeOptions: { mode: ThemeMode; icon: ReactNode; labelKey: string }[] = [
     { mode: "Light", icon: <Sun className="h-3.5 w-3.5" />, labelKey: "settings.theme.Light" },
     { mode: "System", icon: <Monitor className="h-3.5 w-3.5" />, labelKey: "settings.theme.System" },
@@ -130,6 +140,14 @@ function SidebarFooter({ t }: { t: (key: string) => string }) {
 
   return (
     <div className="mt-auto flex flex-col gap-2 border-t pt-3">
+      <Button
+        className="h-8 w-full gap-1.5 bg-[#FFDD00] px-2 text-xs text-black hover:bg-[#FFDD00]/90"
+        onClick={handleBuyMeACoffee}
+        title={t("support.buy_me_a_coffee")}
+      >
+        <Coffee className="h-3.5 w-3.5 shrink-0" />
+        <span className="truncate">{t("support.buy_me_a_coffee")}</span>
+      </Button>
       <div
         role="radiogroup"
         aria-label={t("settings.theme.title")}
