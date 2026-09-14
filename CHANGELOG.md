@@ -7,6 +7,17 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.33.0] - 2026-09-14
+
+### Added
+- export settings via native save dialog
+- add Buy Me a Coffee donation button
+- show total download count
+- expand SEO search intent signals
+
+### Fixed
+- harden settings and toggle state
+- translate remaining hardcoded English strings across all locales
 ## [1.32.0] - 2026-09-03
 
 ### Added
