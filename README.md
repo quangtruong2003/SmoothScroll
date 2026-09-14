@@ -51,6 +51,7 @@ A special thank you to everyone supporting SmoothScroll.
 
 <!-- SMOOTHSCROLL_SUPPORTERS:START -->
 - 🥇 **Anonymous** — First supporter · ☕
+- **Someone** · ☕
 <!-- SMOOTHSCROLL_SUPPORTERS:END -->
 
 ## Source and license
