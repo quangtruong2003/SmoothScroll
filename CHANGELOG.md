@@ -7,6 +7,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.33.1] - 2026-09-14
+
+### Fixed
+- restore browser scroll behavior
 ## [1.33.0] - 2026-09-14
 
 ### Added
