@@ -49,6 +49,9 @@ export function HotkeyRecorderInput({
         setRecording(false);
         return;
       }
+      // Rebuild from the event's live modifier flags on every keydown: a
+      // modifier tapped earlier in the session must not linger once released.
+      mods.clear();
       if (e.ctrlKey) mods.add("Ctrl");
       if (e.altKey) mods.add("Alt");
       if (e.shiftKey) mods.add("Shift");
@@ -61,6 +64,12 @@ export function HotkeyRecorderInput({
       e.preventDefault();
       e.stopPropagation();
       if (e.key === "Escape") return;
+      // A released modifier must leave the set; otherwise tapping Alt (down
+      // then up) and then pressing A would commit "Alt+A".
+      if (e.code === "ControlLeft" || e.code === "ControlRight") mods.delete("Ctrl");
+      if (e.code === "AltLeft" || e.code === "AltRight") mods.delete("Alt");
+      if (e.code === "ShiftLeft" || e.code === "ShiftRight") mods.delete("Shift");
+      if (e.code === "MetaLeft" || e.code === "MetaRight") mods.delete("Win");
       const plain = isPlainKey(e.code);
       if (!plain) return;
       if (mods.size === 0) return;

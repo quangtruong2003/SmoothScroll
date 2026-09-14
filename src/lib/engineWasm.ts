@@ -9,7 +9,16 @@ import wasmUrl from "./engine-wasm/smoothscroll_core_bg.wasm?url";
 let initialized: Promise<void> | null = null;
 
 export async function ensureWasmReady(): Promise<void> {
-  if (!initialized) initialized = init(wasmUrl).then(() => undefined);
+  // Do NOT cache a rejected init: a transient failure (fetch hiccup, OOM)
+  // would otherwise poison every later attempt for the whole session.
+  if (!initialized) {
+    initialized = init(wasmUrl)
+      .then(() => undefined)
+      .catch((e) => {
+        initialized = null;
+        throw e;
+      });
+  }
   return initialized;
 }
 

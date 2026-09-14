@@ -496,14 +496,20 @@ impl AppSettings {
     }
 
     /// True when a process name should be auto-disabled by the built-in
-    /// Windows native-smooth list.
+    /// Windows native-smooth list. Both sides are canonicalized so seed
+    /// entries like "Notepad.exe" match live process names from
+    /// `process_name_for_pid`, which returns the extensionless file stem.
     pub fn should_auto_disable_windows_app(&self, process_name: &str) -> bool {
         if !self.auto_disable_windows_apps {
             return false;
         }
+        let live = Self::canonicalize_process_name(process_name);
+        if live.is_empty() {
+            return false;
+        }
         Self::NATIVE_SMOOTH_SEED
             .iter()
-            .any(|n| n.eq_ignore_ascii_case(process_name))
+            .any(|n| Self::canonicalize_process_name(n) == live)
     }
 
     /// O(1) HashMap lookup by canonical key. Stored keys are guaranteed canonical
@@ -532,10 +538,15 @@ impl AppSettings {
                 return true;
             }
         }
-        // Fall back to legacy excluded_apps
+        // Fall back to legacy excluded_apps. Canonicalize both sides so a
+        // user-typed "notepad.exe" matches the live extensionless file stem.
+        let target = Self::canonicalize_process_name(process_name);
+        if target.is_empty() {
+            return false;
+        }
         self.excluded_apps
             .iter()
-            .any(|app| app.eq_ignore_ascii_case(process_name))
+            .any(|app| Self::canonicalize_process_name(app) == target)
     }
 
     /// Returns the profile assigned to a process, if any.
@@ -950,14 +961,50 @@ pub fn save(settings: &AppSettings) -> Result<(), SettingsError> {
 }
 
 /// Save settings atomically to an explicit path.
+///
+/// The temp file gets a per-call unique name: `save_to` runs on several
+/// threads at once (persistor worker, IPC command threads), and a fixed
+/// `settings.json.tmp` would let two writers truncate each other's file and
+/// publish a torn JSON via rename.
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_to(path: &Path, settings: &AppSettings) -> Result<(), SettingsError> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
     }
-    let tmp = path.with_extension("json.tmp");
+    let tmp = unique_tmp_path(path);
     let json = serde_json::to_vec_pretty(settings)?;
     std::fs::write(&tmp, &json)?;
-    std::fs::rename(&tmp, path)?;
-    Ok(())
+    match std::fs::rename(&tmp, path) {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            // Windows rename fails if an AV scanner briefly holds the
+            // destination open; one bounded retry closes the gap.
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            match std::fs::rename(&tmp, path) {
+                Ok(()) => Ok(()),
+                Err(_) => {
+                    let _ = std::fs::remove_file(&tmp);
+                    Err(error.into())
+                }
+            }
+        }
+    }
+}
+
+/// `foo.json` → `foo.<pid>.<counter>.json.tmp`. Unique per call, siblings of
+/// the target so rename stays atomic on the same volume.
+#[cfg(not(target_arch = "wasm32"))]
+fn unique_tmp_path(path: &Path) -> std::path::PathBuf {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let unique = format!(
+        "{}.{}.{}",
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0)
+    );
+    path.with_extension(format!("{unique}.json.tmp"))
 }

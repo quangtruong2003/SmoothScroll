@@ -1,6 +1,20 @@
 //! Tests for the settings persistor worker.
+//! Every test binds the persistor to a unique temp path — the worker never
+//! touches the developer's real settings.json.
 
+use std::path::PathBuf;
 use std::time::Duration;
+
+fn unique_temp_path(prefix: &str) -> PathBuf {
+    std::env::temp_dir().join(format!(
+        "{prefix}-{}-{}.json",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ))
+}
 
 fn make_test_settings(step: i32, enabled: bool) -> smoothscroll_core::settings::AppSettings {
     smoothscroll_core::settings::AppSettings {
@@ -10,82 +24,67 @@ fn make_test_settings(step: i32, enabled: bool) -> smoothscroll_core::settings::
     }
 }
 
+fn read_step_size(path: &std::path::Path) -> Option<i32> {
+    let raw: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(path).ok()?,
+    )
+    .ok()?;
+    raw.get("step_size_px")?.as_i64().map(|v| v as i32)
+}
+
 #[test]
 fn test_debounce_collapse_multiple_rapid_saves() {
-    // This test verifies that rapid saves are debounced
-    // Since we can't easily mock the save function in integration tests,
-    // we test the behavior through the actual implementation
-    // by checking that saves complete within reasonable time
+    let path = unique_temp_path("ss-persistor-debounce");
+    let persistor = crate::settings_persistor::SettingsPersistor::spawn_with_path(path.clone());
 
-    let persistor = crate::settings_persistor::SettingsPersistor::spawn();
-
-    // Submit 5 saves with 50ms spacing (less than debounce)
+    // Submit 5 saves with 50ms spacing (less than debounce) — only the last
+    // snapshot may land on disk.
     for i in 0..5 {
         persistor.submit(make_test_settings(i * 10, true));
         std::thread::sleep(Duration::from_millis(50));
     }
 
-    // Wait for debounce to settle
     std::thread::sleep(Duration::from_millis(500));
+    persistor.shutdown();
 
-    // Drop will trigger shutdown and flush
-    drop(persistor);
-
-    // The test passes if no panic occurs
-    // In real scenarios, we'd verify save count via mock
+    assert_eq!(read_step_size(&path), Some(40));
+    let _ = std::fs::remove_file(&path);
 }
 
 #[test]
 fn test_settings_persistor_shutdown_flushes_pending() {
-    let persistor = crate::settings_persistor::SettingsPersistor::spawn();
+    let path = unique_temp_path("ss-persistor-flush");
+    let persistor = crate::settings_persistor::SettingsPersistor::spawn_with_path(path.clone());
 
-    // Submit a save
     persistor.submit(make_test_settings(42, false));
 
-    // Shutdown immediately - should flush pending
+    // Shutdown immediately — the pending write must be flushed, not dropped.
     persistor.shutdown();
 
-    // Test passes if no panic
+    assert_eq!(read_step_size(&path), Some(42));
+    let _ = std::fs::remove_file(&path);
 }
 
 #[test]
-fn test_settings_persistor_submit_succeeds() {
-    let persistor = crate::settings_persistor::SettingsPersistor::spawn();
+fn test_submit_then_drop_flushes_pending() {
+    let path = unique_temp_path("ss-persistor-drop");
+    let persistor = crate::settings_persistor::SettingsPersistor::spawn_with_path(path.clone());
 
-    // Submit should not panic
     persistor.submit(make_test_settings(100, true));
+    // Drop triggers shutdown, which drains the pending write.
+    drop(persistor);
+    std::thread::sleep(Duration::from_millis(50));
 
-    // Immediately shutdown
-    persistor.shutdown();
+    assert_eq!(read_step_size(&path), Some(100));
+    let _ = std::fs::remove_file(&path);
 }
 
 #[test]
-fn test_drop_calls_shutdown() {
-    // Creating and dropping should not panic
-    let _persistor = crate::settings_persistor::SettingsPersistor::spawn();
-    // Drop happens automatically at end of scope
-}
-
-#[test]
-fn test_multiple_submit_calls() {
-    let persistor = crate::settings_persistor::SettingsPersistor::spawn();
-
-    for i in 0..10 {
-        persistor.submit(make_test_settings(i, i % 2 == 0));
-    }
-
-    std::thread::sleep(Duration::from_millis(100));
+fn test_shutdown_without_submit_is_noop() {
+    let path = unique_temp_path("ss-persistor-noop");
+    let persistor = crate::settings_persistor::SettingsPersistor::spawn_with_path(path.clone());
     persistor.shutdown();
-}
 
-#[test]
-fn test_settings_with_different_values() {
-    let persistor = crate::settings_persistor::SettingsPersistor::spawn();
-
-    // Test various settings values
-    persistor.submit(make_test_settings(1, false));
-    persistor.submit(make_test_settings(100, true));
-    persistor.submit(make_test_settings(0, false));
-
-    persistor.shutdown();
+    assert!(read_step_size(&path).is_none());
+    let _ = std::fs::remove_file(&path);
 }

@@ -20,6 +20,42 @@ pub struct EngineSignal {
     pub cv: Condvar,
 }
 
+/// Foreground-process name cache with a TTL, for the stats attribution path
+/// (see `AppState::stats_fg_name_cache`).
+pub struct StatsForegroundNameCache {
+    last_call_at: Option<std::time::Instant>,
+    last_name: Option<String>,
+}
+
+impl StatsForegroundNameCache {
+    pub fn new() -> Self {
+        Self {
+            last_call_at: None,
+            last_name: None,
+        }
+    }
+
+    /// Return the cached name when fresh, else fetch a new one.
+    pub fn get<F>(&mut self, fetch: F) -> Option<String>
+    where
+        F: FnOnce() -> Option<String>,
+    {
+        let fresh = self
+            .last_call_at
+            .is_some_and(|at| at.elapsed() < STATS_FG_NAME_TTL);
+        if fresh {
+            return self.last_name.clone();
+        }
+        let name = fetch();
+        self.last_call_at = Some(std::time::Instant::now());
+        self.last_name = name.clone();
+        name
+    }
+}
+
+/// Match the hook path's process-cache cadence (~20 Hz max).
+const STATS_FG_NAME_TTL: std::time::Duration = std::time::Duration::from_millis(50);
+
 impl EngineSignal {
     pub fn signal(&self) {
         let mut flag = self.mutex.lock();
@@ -106,6 +142,9 @@ pub struct AppState {
     pub hotkey_handle: Arc<Mutex<Option<HotkeyHandle>>>,
     pub engine_signal: Arc<EngineSignal>,
     pub enabled: Arc<AtomicBool>,
+    /// Cooperative shutdown flag for the engine worker loop; set by
+    /// `EngineThread::drop` so the join in `Drop` can actually complete.
+    pub engine_shutdown: Arc<AtomicBool>,
     /// UI/non-Windows mirror of Game Mode activity. The Windows hook uses the
     /// packed `game_mode_hook_state` below so active + known-game PID are read
     /// as one coherent snapshot instead of two independently published atomics.
@@ -118,6 +157,18 @@ pub struct AppState {
     pub monitor_enum: Arc<dyn MonitorEnumeration>,
     pub last_input_source: Arc<AtomicU8>,
     pub persistor: Arc<crate::settings_persistor::SettingsPersistor>,
+    /// Throttled foreground-process name for the stats attribution path.
+    /// The engine thread runs at up to 120 Hz; an unthrottled
+    /// `foreground_process_name()` there walks the window Z-order on every
+    /// emitted frame (the hook path already throttles via ProcessNameCache).
+    pub stats_fg_name_cache: Mutex<StatsForegroundNameCache>,
+    /// Notifier installed during setup so non-Tauri surfaces (the global
+    /// hotkey callback) can apply + broadcast an enabled toggle exactly like
+    /// the IPC commands do. Stored as an opaque closure rather than a
+    /// concrete `AppHandle`: test binaries construct AppState, and a concrete
+    /// handle would link the platform tray stack into the test exe. Unset
+    /// until `setup` runs; toggle paths fall back to the bare runtime toggle.
+    pub enabled_notifier: std::sync::OnceLock<Box<dyn Fn(bool) + Send + Sync>>,
     // Accessibility
     pub reduce_motion: Arc<AtomicBool>,
     pub accessibility: Arc<dyn smoothscroll_platform::traits::AccessibilitySignals>,

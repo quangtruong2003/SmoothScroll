@@ -80,6 +80,10 @@ export function ProfilePill({ ctx }: ProfilePillProps): React.ReactNode | null {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("tray.profile_label")}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
       >
         <ChevronDown className="h-4 w-4" />
       </button>

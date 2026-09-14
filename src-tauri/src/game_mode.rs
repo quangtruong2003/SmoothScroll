@@ -63,9 +63,8 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
     loop {
         thread::sleep(Duration::from_secs(1));
 
-        let s = state.settings.read();
+        let s = state.settings.read().clone();
         if !s.game_mode_enabled {
-            drop(s);
             state.publish_game_mode_state(false, None);
             if last_active {
                 let _ = app.emit("game-mode-changed", false);
@@ -91,8 +90,12 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
             last_fg_pid = fg_pid;
             #[cfg(target_os = "windows")]
             {
+                // Resolve from the SAME GetForegroundWindow pid the hook later
+                // revalidates against — the Z-order "eligible window" walk can
+                // name a different app (untitled/tool windows), causing hook
+                // revalidation to mismatch and smoothing to stay on in games.
                 last_known_game_pid =
-                    known_game_pid_from_info(&s, state.processes.foreground_process_info());
+                    known_game_pid_from_info(&s, state.processes.foreground_process_info_by_pid());
                 game_mode_active_from_known_game_pid(last_known_game_pid)
             }
             #[cfg(not(target_os = "windows"))]
@@ -105,7 +108,6 @@ fn run<R: Runtime>(app: AppHandle<R>, state: Arc<AppState>) {
                 state.fullscreen_detector.is_foreground_fullscreen() || last_known_game
             }
         };
-        drop(s);
 
         #[cfg(target_os = "windows")]
         let known_game_pid = last_known_game_pid;

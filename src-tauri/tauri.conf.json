@@ -39,7 +39,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: https://asset.localhost https://img.vietqr.io"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: https://asset.localhost https://img.vietqr.io; connect-src 'self' ipc: http://ipc.localhost https://*.ingest.sentry.io https://sentry.io"
     }
   },
   "bundle": {

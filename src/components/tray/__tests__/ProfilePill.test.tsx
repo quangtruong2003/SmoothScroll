@@ -73,7 +73,9 @@ describe('ProfilePill', () => {
 
   it('opens popover on click and selects disable option', async () => {
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
       within(listbox).getByRole('option', { name: /disable/i }),
@@ -86,7 +88,9 @@ describe('ProfilePill', () => {
 
   it('selects default option to unassign profile', async () => {
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
       within(listbox).getByRole('option', { name: /default/i }),
@@ -98,7 +102,9 @@ describe('ProfilePill', () => {
 
   it('closes popover without IPC when reselecting assigned profile', async () => {
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     mockInvoke.mockClear();
     await userEvent.click(
@@ -122,7 +128,9 @@ describe('ProfilePill', () => {
       },
     } as any);
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     mockInvoke.mockClear();
     await userEvent.click(
@@ -146,7 +154,9 @@ describe('ProfilePill', () => {
       },
     } as any);
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
       within(listbox).getByRole('option', { name: /Writing/ }),
@@ -171,7 +181,9 @@ describe('ProfilePill', () => {
       () => new Promise<void>((resolve) => { resolveAssignment = resolve; }),
     );
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
       within(listbox).getByRole('option', { name: /Writing/ }),
@@ -203,7 +215,9 @@ describe('ProfilePill', () => {
       () => new Promise<void>((resolve) => { resolveAssignment = resolve; }),
     );
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
       within(listbox).getByRole('option', { name: /Writing/ }),
@@ -233,7 +247,9 @@ describe('ProfilePill', () => {
     } as any);
     mockInvoke.mockRejectedValueOnce(new Error('assignment failed'));
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await userEvent.click(
       within(listbox).getByRole('option', { name: /Writing/ }),
@@ -251,7 +267,9 @@ describe('ProfilePill', () => {
 
   it('closes popover on Escape key', async () => {
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     await screen.findByRole('listbox');
     await userEvent.keyboard('{Escape}');
     await waitFor(() => {
@@ -277,7 +295,9 @@ describe('ProfilePill', () => {
       },
     } as any);
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     for (let i = 1; i <= 12; i++) {
       expect(
@@ -292,7 +312,9 @@ describe('ProfilePill', () => {
       right: 0,
     } as DOMRect);
     render(<PanelWrapper><ProfilePill ctx={mockCtx} /></PanelWrapper>);
-    await userEvent.click(screen.getByRole('button', { name: /profile/i }));
+    // skipHover: the popover auto-opens on row hover; clicking the chevron
+    // must also toggle it, so start from a closed state.
+    await userEvent.click(screen.getByRole('button', { name: /profile/i }), { skipHover: true });
     const listbox = await screen.findByRole('listbox');
     await waitFor(() => {
       expect(listbox).toHaveStyle({ maxHeight: '360px' });

@@ -327,16 +327,10 @@ pub fn init<R: Runtime>(app: &AppHandle<R>, state: Arc<AppState>) -> tauri::Resu
                             return;
                         }
                         let new_enabled = !state.enabled.load(std::sync::atomic::Ordering::Relaxed);
-                        state
-                            .enabled
-                            .store(new_enabled, std::sync::atomic::Ordering::Relaxed);
-                        state.engine_signal.signal();
-                        crate::commands::emit_enabled_changed(&app, new_enabled);
-
-                        // Keep the rest of the app in sync (e.g. TrayPanel polling)
-                        // by emitting the full settings snapshot, matching `set_enabled`.
-                        let current = state.settings.read().clone();
-                        crate::commands::emit_settings_changed(&app, &current);
+                        // Unified toggle: mirrors settings.enabled, commits +
+                        // persists, and emits both events so the panel and the
+                        // settings window stay in sync.
+                        crate::commands::apply_enabled(&app, &state, new_enabled);
 
                         if let Some(tray) = app.tray_by_id(TRAY_ID) {
                             let _ = tray.set_icon(Some(icon_for(&app, new_enabled)));

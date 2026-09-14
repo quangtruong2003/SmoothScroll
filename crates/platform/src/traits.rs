@@ -89,6 +89,17 @@ pub trait ProcessQuery: Send + Sync {
         None
     }
 
+    /// Identity of the process that owns the current foreground window —
+    /// resolved from the SAME source as `foreground_process_id()`
+    /// (e.g. `GetForegroundWindow` on Windows), unlike
+    /// `foreground_process_info()`, which may resolve a different
+    /// "eligible" topmost window. Callers that validate against
+    /// `foreground_process_id()` must use this so both sides agree.
+    /// Default returns None; per-platform impls override.
+    fn foreground_process_info_by_pid(&self) -> Option<ProcessInfo> {
+        None
+    }
+
     /// Returns true if the window under the cursor belongs to a process
     /// running at High (elevated) integrity level. Used to bypass smooth
     /// scrolling for admin apps that UIPI would otherwise block.

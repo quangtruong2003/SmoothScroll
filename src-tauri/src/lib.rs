@@ -122,6 +122,7 @@ pub fn run() {
         hotkey_handle: Arc::new(Mutex::new(None)),
         engine_signal: Arc::new(EngineSignal::default()),
         enabled: Arc::new(AtomicBool::new(enabled_initial)),
+        engine_shutdown: Arc::new(AtomicBool::new(false)),
         game_mode_active: Arc::new(AtomicBool::new(false)),
         game_mode_hook_state: Arc::new(AtomicU64::new(0)),
         fullscreen_detector,
@@ -129,6 +130,10 @@ pub fn run() {
         monitor_enum,
         last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
         persistor,
+        enabled_notifier: std::sync::OnceLock::new(),
+            stats_fg_name_cache: parking_lot::Mutex::new(
+                crate::state::StatsForegroundNameCache::new(),
+            ),
         reduce_motion: Arc::new(AtomicBool::new(initial_rm)),
         accessibility: platform.accessibility.clone(),
         rm_watch_handle: Arc::new(Mutex::new(None)),
@@ -212,6 +217,14 @@ pub fn run() {
         .manage(app_state.clone())
         .manage(parking_lot::Mutex::new(Some(owned)))
         .setup(move |app| {
+            // Install the notifier used by the global hotkey callback so a
+            // hotkey toggle applies and broadcasts exactly like `set_enabled`.
+            let notify_state = state_for_setup.clone();
+            let notify_app = app.handle().clone();
+            let _ = state_for_setup.enabled_notifier.set(Box::new(move |enabled| {
+                commands::apply_enabled(&notify_app, &notify_state, enabled);
+            }));
+
             // Initialize system tray on all platforms. The Swift Menu Bar app
             // (macos/SmoothScrollMenuBar) is the primary tray on macOS and talks
             // to the engine over the Unix socket below; the Tauri tray remains
@@ -384,11 +397,23 @@ pub fn run() {
             commands::list_monitors,
             commands::get_daily_stats,
         ])
-        .run(tauri::generate_context!())
+        .build(tauri::generate_context!())
         .unwrap_or_else(|e| {
             tracing::error!(error = %e, "Tauri runtime error - shutting down");
             sentry::capture_error(&e);
             eprintln!("SmoothScroll encountered an error: {}", e);
+            std::process::exit(1);
+        })
+        .run(|app_handle, event| {
+            if let tauri::RunEvent::ExitRequested { code, .. } = event {
+                // `App::run` ends in `std::process::exit`, which runs no
+                // destructors — the debounced persistor write would be lost.
+                // Flush it here, before the process tears down.
+                tracing::debug!(?code, "exit requested; flushing settings persistor");
+                if let Some(state) = app_handle.try_state::<Arc<AppState>>() {
+                    state.persistor.shutdown();
+                }
+            }
         });
 }
 
@@ -417,7 +442,7 @@ fn init_logging() {
     Box::leak(Box::new(guard));
 
     let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,softscroll=debug"));
+        .unwrap_or_else(|_| EnvFilter::new("info,smoothscroll=debug"));
 
     let _ = tracing_subscriber::registry()
         .with(filter)

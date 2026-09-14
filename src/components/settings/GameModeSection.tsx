@@ -66,9 +66,17 @@ function GameModeSectionInner() {
             />
             <Button
               onClick={async () => {
-                if (!newGame.trim()) return;
-                await tauri.addKnownGame(newGame);
-                patch({ game_mode_known_apps: [...fields.game_mode_known_apps, newGame.trim()] });
+                const name = newGame.trim();
+                if (!name) return;
+                // The backend dedupes case-insensitively; mirror that here so
+                // the store (and its debounced save) never grows a duplicate
+                // entry the backend would have rejected.
+                if (fields.game_mode_known_apps.some((x) => x.toLowerCase() === name.toLowerCase())) {
+                  setNewGame("");
+                  return;
+                }
+                await tauri.addKnownGame(name);
+                patch({ game_mode_known_apps: [...fields.game_mode_known_apps, name] });
                 setNewGame("");
               }}
             >{t("common.add")}</Button>

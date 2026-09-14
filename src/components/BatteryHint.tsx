@@ -49,6 +49,13 @@ export function BatteryHint() {
 
     return () => {
       cancelled = true;
+      // Detach the listeners: the BatteryManager lives for the document
+      // lifetime, so leaving stale closures attached would stack one pair
+      // per remount (every visit to the Settings window).
+      if (battery) {
+        battery.removeEventListener("levelchange", sync);
+        battery.removeEventListener("chargingchange", sync);
+      }
     };
   }, []);
 

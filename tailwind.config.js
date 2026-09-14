@@ -1,5 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  // The app theme is driven by the `.dark` class on <html> (see
+  // lib/theme.ts applyTheme). Without this, Tailwind's default `media`
+  // strategy resolves `dark:` utilities from the OS preference, which
+  // disagrees with the CSS-variable theme when they differ.
+  darkMode: "class",
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",

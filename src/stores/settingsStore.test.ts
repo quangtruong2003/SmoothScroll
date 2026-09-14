@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { act } from "react";
 import { useSettingsStore } from "./settingsStore";
 import type { AppSettings, ScrollProfile } from "@/lib/tauri";
@@ -57,6 +57,7 @@ vi.mock("@/components/ui/toast", () => ({
 
 const mockSettings: AppSettings = {
   settings_schema_version: 1,
+  active_profile: "default",
   enabled: true,
   step_size_px: 10,
   animation_time_ms: 200,
@@ -403,6 +404,71 @@ describe("settingsStore", () => {
 
         expect(useSettingsStore.getState().settings?.app_profiles["chrome"]).toBeUndefined();
       });
+    });
+  });
+
+  describe("debounced persist freshness", () => {
+    beforeEach(async () => {
+      vi.useFakeTimers();
+      mocks.mockSaveSettings.mockClear();
+      await act(async () => {
+        await useSettingsStore.getState().load();
+      });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("setAll during the debounce window cancels the patch-time snapshot and does not re-save", async () => {
+      await act(async () => {
+        useSettingsStore.getState().patch({ step_size_px: 20 });
+      });
+      // A backend event lands inside the debounce window and replaces the
+      // store. The patch's pending timer is invalidated (backend already
+      // persisted its own snapshot), and no new timer is armed — so the
+      // store never sends a save at all.
+      await act(async () => {
+        useSettingsStore.getState().setAll({ ...mockSettings, enabled: false });
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(400);
+      });
+
+      expect(mocks.mockSaveSettings).not.toHaveBeenCalled();
+      // The store keeps the fresh backend state.
+      expect(useSettingsStore.getState().settings?.enabled).toBe(false);
+    });
+
+    it("setAll invalidates a pending debounced save scheduled before it", async () => {
+      await act(async () => {
+        useSettingsStore.getState().patch({ step_size_px: 30 });
+      });
+      await act(async () => {
+        useSettingsStore.getState().setAll({ ...mockSettings });
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(400);
+      });
+
+      // The patch's scheduled timer was invalidated by setAll's counter bump
+      // and no new timer was armed, so nothing persists.
+      expect(mocks.mockSaveSettings).not.toHaveBeenCalled();
+    });
+
+    it("setEnabledFromEvent invalidates a pending debounced save", async () => {
+      await act(async () => {
+        useSettingsStore.getState().patch({ step_size_px: 40 });
+      });
+      await act(async () => {
+        useSettingsStore.getState().setEnabledFromEvent(false);
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(400);
+      });
+
+      expect(mocks.mockSaveSettings).not.toHaveBeenCalled();
+      expect(useSettingsStore.getState().settings?.enabled).toBe(false);
     });
   });
 

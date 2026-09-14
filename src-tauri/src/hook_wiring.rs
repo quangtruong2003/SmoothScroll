@@ -740,6 +740,20 @@ mod tests {
     use super::*;
     use crate::settings_persistor::SettingsPersistor;
     use crate::state::EngineSignal;
+
+    /// Persistor bound to a per-call temp path so tests never touch the
+    /// developer's real settings.json.
+    fn test_persistor() -> Arc<SettingsPersistor> {
+        let path = std::env::temp_dir().join(format!(
+            "ss-hook-test-settings-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        Arc::new(SettingsPersistor::spawn_with_path(path))
+    }
     use arc_swap::ArcSwap;
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
@@ -1226,13 +1240,18 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            engine_shutdown: Arc::new(AtomicBool::new(false)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
             game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
-            persistor: Arc::new(SettingsPersistor::spawn()),
+            persistor: test_persistor(),
+            enabled_notifier: std::sync::OnceLock::new(),
+            stats_fg_name_cache: parking_lot::Mutex::new(
+                crate::state::StatsForegroundNameCache::new(),
+            ),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
@@ -1328,13 +1347,18 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            engine_shutdown: Arc::new(AtomicBool::new(false)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
             game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
-            persistor: Arc::new(SettingsPersistor::spawn()),
+            persistor: test_persistor(),
+            enabled_notifier: std::sync::OnceLock::new(),
+            stats_fg_name_cache: parking_lot::Mutex::new(
+                crate::state::StatsForegroundNameCache::new(),
+            ),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
@@ -1374,13 +1398,18 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(settings.enabled)),
+            engine_shutdown: Arc::new(AtomicBool::new(false)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
             game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: Arc::new(StubWindowGeom),
             monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
-            persistor: Arc::new(SettingsPersistor::spawn()),
+            persistor: test_persistor(),
+            enabled_notifier: std::sync::OnceLock::new(),
+            stats_fg_name_cache: parking_lot::Mutex::new(
+                crate::state::StatsForegroundNameCache::new(),
+            ),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(parking_lot::Mutex::new(None)),
@@ -1695,7 +1724,17 @@ mod tests {
                         assert_eq!(counters.ctrl_syntheses, 0);
                         assert_eq!(counters.keyboard_modifier_records, 0);
                     } else {
-                        assert_eq!(counters.process_name_lookups, counters.emitted_frames);
+                        // The stats path throttles foreground lookups to
+                        // ~20 Hz (50 ms TTL), so at most one lookup per
+                        // 50 ms of emitted frames — never one per frame.
+                        assert!(
+                            counters.process_name_lookups <= counters.emitted_frames,
+                            "lookups must not exceed frames"
+                        );
+                        assert!(
+                            counters.process_name_lookups >= 1,
+                            "stats attribution must still resolve the process"
+                        );
                     }
 
                     if animation_on {
@@ -2514,7 +2553,8 @@ mod tests {
         s.horizontal_smoothness = true;
         let office_state = make_state_with_process(s.clone(), Some("EXCEL"));
         let office_sink = EngineSink::new(office_state.clone());
-        let generic_state = make_state_with_process(s, Some("notepad"));
+        // Not a seed-list app, so the auto-disable switch does not interfere.
+        let generic_state = make_state_with_process(s, Some("explorer"));
         let generic_sink = EngineSink::new(generic_state.clone());
 
         assert_eq!(hwheel(&office_sink, 120), HookDecision::Swallow);
@@ -2653,14 +2693,25 @@ mod tests {
     #[test]
     fn non_excluded_app_swallows_normally() {
         let mut s = AppSettings::default();
+        // "excel" is neither excluded nor on the native-smooth seed list.
         s.excluded_apps.push("excel".to_string());
-        let state = make_state_with_process(s, Some("notepad"));
+        let state = make_state_with_process(s, Some("code"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
     }
 
     #[test]
     fn auto_disable_windows_app_under_cursor_passes_through_by_default() {
+        let s = AppSettings::default();
+        // Production process names are extensionless file stems (process_query.rs).
+        let state = make_state_with_process(s, Some("notepad"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn auto_disable_windows_app_matches_seed_exe_suffix() {
         let s = AppSettings::default();
         let state = make_state_with_process(s, Some("Notepad.exe"));
         let sink = EngineSink::new(state.clone());
@@ -2671,17 +2722,26 @@ mod tests {
     #[test]
     fn auto_disable_windows_app_foreground_passes_through_by_default() {
         let s = AppSettings::default();
-        let state = make_state_with_processes(s, Some("Code.exe"), Some("SystemSettings.exe"));
+        let state = make_state_with_processes(s, Some("Code.exe"), Some("systemsettings"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
     }
 
     #[test]
+    fn non_seed_app_is_not_auto_disabled() {
+        let s = AppSettings::default();
+        let state = make_state_with_process(s, Some("Code"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
     fn auto_disable_windows_apps_can_be_disabled() {
         let mut s = AppSettings::default();
         s.auto_disable_windows_apps = false;
-        let state = make_state_with_processes(s, Some("Notepad.exe"), Some("SystemSettings.exe"));
+        let state = make_state_with_processes(s, Some("Notepad.exe"), Some("systemsettings"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
         assert!(state.engine.lock().has_pending_work());
@@ -2695,10 +2755,42 @@ mod tests {
             "Notepad.exe".to_string(),
             Some(AppSettings::DISABLED_PROFILE_ID.to_string()),
         );
-        let state = make_state_with_process(s, Some("Notepad.exe"));
+        // Live name is extensionless; assignment key was canonicalized from
+        // "Notepad.exe" — both sides must resolve to the same canonical key.
+        let state = make_state_with_process(s, Some("notepad"));
         let sink = EngineSink::new(state.clone());
         assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
         assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn excluded_app_with_exe_suffix_matches_extensionless_live_name() {
+        let mut s = AppSettings::default();
+        s.excluded_apps.push("notepad.exe".to_string());
+        let state = make_state_with_process(s, Some("notepad"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Pass);
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn set_enabled_state_mirrors_settings_and_resets_engine() {
+        let s = AppSettings::default();
+        let state = make_state_with_process(s, Some("code"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+
+        let snapshot = crate::commands::set_enabled_state(&state, false);
+        assert!(!snapshot.enabled);
+        assert!(!state.enabled.load(std::sync::atomic::Ordering::Relaxed));
+        assert!(!state.settings.read().enabled);
+        assert!(!state.engine.lock().has_pending_work());
+
+        let snapshot = crate::commands::set_enabled_state(&state, true);
+        assert!(snapshot.enabled);
+        assert!(state.settings.read().enabled);
+        assert!(*state.engine_signal.mutex.lock());
     }
 
     #[test]

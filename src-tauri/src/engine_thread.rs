@@ -50,6 +50,10 @@ impl EngineThread {
 
 impl Drop for EngineThread {
     fn drop(&mut self) {
+        // Request exit FIRST, then wake: without the shutdown flag the worker
+        // only parks in its 100ms idle wait on `enabled=false` and the join
+        // below can never complete.
+        self.state.engine_shutdown.store(true, Ordering::Relaxed);
         self.state.enabled.store(false, Ordering::Relaxed);
         self.state.engine_signal.signal();
         if let Some(h) = self.handle.take() {
@@ -61,9 +65,17 @@ impl Drop for EngineThread {
 #[allow(unused_assignments)]
 fn worker(state: Arc<AppState>, frame_ms: f64) {
     let mut last_frame = Instant::now();
+    // Last frame that actually produced output — used to drop to 60fps after
+    // 2s without real work. Must NOT be refreshed on every iteration, or the
+    // idle fallback never engages (previous bug: it was reset right before
+    // the check, so `elapsed()` was always ~0).
     let mut last_work = Instant::now();
 
     loop {
+        if state.engine_shutdown.load(Ordering::Relaxed) {
+            return;
+        }
+
         // Fast idle: disabled AND no pending work.
         if !state.enabled.load(Ordering::Relaxed) {
             // Only lock once in this idle branch.
@@ -92,7 +104,6 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
             continue;
         }
 
-        last_work = Instant::now();
         let now = Instant::now();
         let dt_ms = now.saturating_duration_since(last_frame).as_secs_f64() * 1000.0;
         let dt_ms = dt_ms.max(1.0);
@@ -101,7 +112,13 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         let frame_ms = adaptive_frame_ms(last_work, frame_ms);
 
         let eff = state.effective.load_full();
+        let before = state.engine.lock().has_pending_work();
         run_frame(&state, dt_ms, &eff);
+        // Only frames that had work to drain count as "work" for the
+        // adaptive cadence; spinning idle frames must not reset the timer.
+        if before {
+            last_work = now;
+        }
 
         let elapsed = now.elapsed().as_secs_f64() * 1000.0;
         let sleep_ms = frame_ms - elapsed;
@@ -264,9 +281,12 @@ fn dispatch_frame(
         .map(|pulse| pulse.units.abs() as f64)
         .sum::<f64>();
     if distance > 0.0 {
+        // Throttled: an unthrottled lookup walks the window Z-order on every
+        // emitted frame (up to 120 Hz). Freshness matches the hook path.
         let fg_name = state
-            .processes
-            .foreground_process_name()
+            .stats_fg_name_cache
+            .lock()
+            .get(|| state.processes.foreground_process_name())
             .unwrap_or_default();
         state.stats.record_distance(distance, &fg_name);
         state.stats.record_active_time(frame.dt_ms as u64);
@@ -317,6 +337,20 @@ mod tests {
     use super::*;
     use crate::settings_persistor::SettingsPersistor;
     use crate::state::EngineSignal;
+
+    /// Persistor bound to a per-call temp path so tests never touch the
+    /// developer's real settings.json.
+    fn test_persistor() -> Arc<SettingsPersistor> {
+        let path = std::env::temp_dir().join(format!(
+            "ss-engine-test-settings-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        Arc::new(SettingsPersistor::spawn_with_path(path))
+    }
     use arc_swap::ArcSwap;
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
@@ -534,13 +568,18 @@ mod tests {
             hotkey_handle: Arc::new(Mutex::new(None)),
             engine_signal: Arc::new(EngineSignal::default()),
             enabled: Arc::new(AtomicBool::new(true)),
+            engine_shutdown: Arc::new(AtomicBool::new(false)),
             game_mode_active: Arc::new(AtomicBool::new(false)),
             game_mode_hook_state: Arc::new(std::sync::atomic::AtomicU64::new(0)),
             fullscreen_detector: Arc::new(StubFullscreen),
             window_geom: geom,
             monitor_enum: Arc::new(StubMonitorEnum),
             last_input_source: Arc::new(std::sync::atomic::AtomicU8::new(0)),
-            persistor: Arc::new(SettingsPersistor::spawn()),
+            persistor: test_persistor(),
+            enabled_notifier: std::sync::OnceLock::new(),
+            stats_fg_name_cache: parking_lot::Mutex::new(
+                crate::state::StatsForegroundNameCache::new(),
+            ),
             reduce_motion: Arc::new(AtomicBool::new(false)),
             accessibility: Arc::new(StubAccessibility),
             rm_watch_handle: Arc::new(Mutex::new(None)),
@@ -922,6 +961,9 @@ mod tests {
             after_hwheel.total_scroll_distance_px > after_shift.total_scroll_distance_px,
             "native HWHEEL must continue contributing to normal scroll stats"
         );
-        assert!(processes.foreground_name_calls() >= 2);
+        // The stats path throttles foreground lookups (50 ms TTL); the two
+        // frames above run back-to-back, so a single lookup serving both is
+        // the expected bounded behavior.
+        assert!(processes.foreground_name_calls() >= 1);
     }
 }

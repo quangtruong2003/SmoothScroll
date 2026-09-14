@@ -57,8 +57,16 @@ pub(crate) fn register_hotkey_internal(state: &Arc<AppState>, accel: &str) -> Re
     let toggle_state = state.clone();
     let on_pressed: Box<dyn Fn() + Send + Sync> = Box::new(move || {
         let new_enabled = !toggle_state.enabled.load(Ordering::Relaxed);
-        toggle_state.enabled.store(new_enabled, Ordering::Relaxed);
-        toggle_state.engine_signal.signal();
+        // Route through the unified toggle so the tray icon and every open
+        // window observe the hotkey like any other surface. When no notifier
+        // is installed (before setup, or in tests), fall back to the bare
+        // runtime toggle.
+        if let Some(notify) = toggle_state.enabled_notifier.get() {
+            notify(new_enabled);
+        } else {
+            toggle_state.enabled.store(new_enabled, Ordering::Relaxed);
+            toggle_state.engine_signal.signal();
+        }
         tracing::info!(enabled = new_enabled, "hotkey toggled");
     });
     state
@@ -73,6 +81,39 @@ pub(crate) fn register_hotkey_internal(state: &Arc<AppState>, accel: &str) -> Re
             *state.hotkey_handle.lock() = Some(h);
         })
         .map_err(|e| e.to_string())
+}
+
+/// Single mutation point for the enabled flag, shared by every toggle
+/// surface (settings UI, tray icon, tray panel, global hotkey). Mirrors the
+/// new value into `settings.enabled` and commits it so the persisted snapshot
+/// (and any later debounced save) carries the same state — previously only the
+/// atomic was updated, so a stale `settings-changed` snapshot could silently
+/// re-enable smoothing on the next save.
+pub(crate) fn set_enabled_state(state: &Arc<AppState>, enabled: bool) -> AppSettings {
+    let mut snapshot = state.settings.read().clone();
+    snapshot.enabled = enabled;
+    state.enabled.store(enabled, Ordering::Relaxed);
+    if enabled {
+        state.engine_signal.signal();
+    } else {
+        let mut e = state.engine.lock();
+        *e = SmoothScrollEngine::default();
+    }
+    state.commit_settings(snapshot.clone());
+    snapshot
+}
+
+/// `set_enabled_state` + the two broadcasts every open window (and the tray
+/// icon, via its `enabled-changed` listener) relies on to stay in sync.
+pub(crate) fn apply_enabled<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    state: &Arc<AppState>,
+    enabled: bool,
+) {
+    let snapshot = set_enabled_state(state, enabled);
+    emit_enabled_changed(app, enabled);
+    emit_settings_changed(app, &snapshot);
+    tracing::info!(enabled, "enabled toggled");
 }
 
 #[tauri::command]
@@ -91,17 +132,7 @@ pub fn set_enabled<R: tauri::Runtime>(
     state: State<'_, Arc<AppState>>,
     enabled: bool,
 ) {
-    state.enabled.store(enabled, Ordering::Relaxed);
-    if enabled {
-        state.engine_signal.signal();
-    } else {
-        let mut e = state.engine.lock();
-        *e = SmoothScrollEngine::default();
-    }
-    emit_enabled_changed(&app, enabled);
-    let current = state.settings.read().clone();
-    emit_settings_changed(&app, &current);
-    tracing::info!(enabled, "set_enabled");
+    apply_enabled(&app, &state, enabled);
 }
 
 #[tauri::command]
@@ -145,8 +176,14 @@ pub fn save_settings<R: tauri::Runtime>(
     emit_enabled_changed(&app, clamped.enabled);
     emit_settings_changed(&app, &clamped);
 
+    // Re-register the hotkey after the new settings are live. A failure here
+    // (e.g. the combo is claimed by another app) must reach the UI — showing
+    // a hotkey that is not actually registered is worse than failing the save.
     let state_arc: Arc<AppState> = (*state).clone();
-    let _ = refresh_hotkey(&state_arc);
+    if let Err(e) = refresh_hotkey(&state_arc) {
+        tracing::warn!(error = %e, "hotkey re-registration failed after save");
+        return Err(format!("hotkey registration failed: {e}"));
+    }
 
     tracing::debug!("settings saved");
     Ok(())
@@ -244,14 +281,22 @@ pub fn set_autostart<R: tauri::Runtime>(
     state: State<'_, Arc<AppState>>,
     enabled: bool,
 ) -> Result<(), String> {
-    state.autostart.set(enabled).map_err(|e| e.to_string())?;
-    {
-        let mut s = state.settings.write();
-        s.start_with_os = enabled;
-    }
-    let snapshot = state.settings.read().clone();
-    // Synchronous save — mirrors save_settings pattern for durability.
+    // Build a candidate without mutating the authoritative in-memory store.
+    // Persist FIRST: if this write fails, neither the OS registration nor
+    // runtime state changes, so all sources of truth remain aligned.
+    let previous = state.settings.read().clone();
+    let mut snapshot = previous.clone();
+    snapshot.start_with_os = enabled;
     settings::save(&snapshot).map_err(|e| e.to_string())?;
+
+    if let Err(error) = state.autostart.set(enabled) {
+        // Roll the persisted flag back so settings.json does not claim an
+        // autostart registration the OS rejected. Keep the old in-memory
+        // snapshot untouched; report the original OS error to the caller.
+        let _ = settings::save(&previous);
+        return Err(error.to_string());
+    }
+
     state.commit_settings(snapshot.clone());
     emit_settings_changed(&app, &snapshot);
     Ok(())

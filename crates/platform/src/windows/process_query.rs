@@ -237,6 +237,20 @@ impl ProcessQuery for WindowsProcessQuery {
         }
         None
     }
+
+    /// Resolve identity from the `GetForegroundWindow` PID — the same source
+    /// `foreground_process_id()` uses — so a caller that revalidates against
+    /// the pid cannot observe a different window than the one matched here.
+    fn foreground_process_info_by_pid(&self) -> Option<ProcessInfo> {
+        let pid = self.foreground_process_id()?;
+        let name = process_name_for_pid(pid)?;
+        Some(ProcessInfo {
+            pid,
+            name,
+            window_title: String::new(),
+            exe_path: exe_path_for_pid(pid),
+        })
+    }
 }
 
 /// Returns true when the HWND is a normal top-level user-facing app window:

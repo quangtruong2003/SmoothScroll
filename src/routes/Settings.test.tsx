@@ -51,6 +51,7 @@ import { SettingsPage } from "./Settings";
 
 const settings: AppSettings = {
   settings_schema_version: 1,
+  active_profile: "default",
   enabled: true,
   step_size_px: 10,
   animation_time_ms: 200,

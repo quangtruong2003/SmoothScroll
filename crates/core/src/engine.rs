@@ -147,7 +147,10 @@ impl Axis {
         let notches = delta as f64 / WHEEL_DELTA as f64;
 
         let instant_velocity = if self.last_notch_ms > 0 {
-            let dt = now_ms - self.last_notch_ms;
+            // Saturating: wall-clock sources (macOS hook) can step backwards
+            // across NTP corrections/resume, and a u64 underflow here would
+            // panic in debug builds inside the hook callback.
+            let dt = now_ms.saturating_sub(self.last_notch_ms);
             if (1..500).contains(&dt) {
                 1000.0 / dt as f64
             } else {

@@ -45,6 +45,11 @@ export interface ScrollProfile {
 export interface AppSettings {
   settings_schema_version: number;
   enabled: boolean;
+  /** Currently active preset, driven by the macOS menu-bar app via IPC.
+   *  Present in the persisted schema (default "default") — typed here so
+   *  code that constructs AppSettings round-trips it instead of resetting
+   *  the macOS tray's selection. */
+  active_profile: string;
   step_size_px: number;
   animation_time_ms: number;
   animation_time_enabled: boolean;

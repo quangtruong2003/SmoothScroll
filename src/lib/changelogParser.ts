@@ -55,6 +55,18 @@ function stripPreRelease(version: string): string {
   return cut !== undefined ? version.substring(0, cut) : version;
 }
 
+/** Numeric semver compare (1.10 > 1.9); lexical compares get that wrong. */
+function compareNumeric(a: string, b: string): number {
+  const pa = a.split(".").map((n) => parseInt(n, 10) || 0);
+  const pb = b.split(".").map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const da = pa[i] ?? 0;
+    const db = pb[i] ?? 0;
+    if (da !== db) return da - db;
+  }
+  return 0;
+}
+
 function selectEntry(
   entries: RawEntry[],
   target: string,
@@ -71,11 +83,11 @@ function selectEntry(
   const targetMM = stripped.split(".").slice(0, 2).join(".");
   const sameMM = entries
     .filter((e) => e.version.split(".").slice(0, 2).join(".") === targetMM)
-    .sort((a, b) => b.version.localeCompare(a.version));
+    .sort((a, b) => compareNumeric(b.version, a.version));
   if (sameMM.length > 0) return sameMM[0];
 
   // 3. Latest entry
-  const sorted = [...entries].sort((a, b) => b.version.localeCompare(a.version));
+  const sorted = [...entries].sort((a, b) => compareNumeric(b.version, a.version));
   return sorted[0];
 }
 

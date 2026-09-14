@@ -47,19 +47,36 @@ const SAVE_DEBOUNCE_MS = 350;
 
 // Counter-based invalidation for the debounced persist. Each `patch` bumps
 // `persistCounter` and captures the value when scheduling the timer; if the
-// counter has moved by the time the timer fires, the snapshot is stale
-// (e.g. cleanupNativeDisabledApps already wrote a fresh one via saveNow)
-// and the write is skipped. This avoids a stale debounced snapshot racing
-// past a fresh explicit save.
+// counter has moved by the time the timer fires, the scheduled write is stale
+// and skipped. `setAll` and the backend-event mirrors also bump the counter:
+// a backend-committed change (tray profile assignment, hotkey toggle) must
+// invalidate any pre-change snapshot still sitting in the debounce window,
+// or the stale snapshot would overwrite the backend change on disk.
 let persistCounter = 0;
 
-const debouncedPersist = debounce(async (settings: AppSettings, scheduledAt: number) => {
+// The persist reads the CURRENT store state at fire time (not the snapshot
+// captured at patch time), so writes queued during the debounce window that
+// were superseded by backend events still persist the freshest truth.
+const debouncedPersist = debounce(async (scheduledAt: number) => {
   if (scheduledAt !== persistCounter) return;
+  const current = useSettingsStore.getState().settings;
+  if (!current) return;
   try {
-    await tauri.saveSettings(settings);
+    await tauri.saveSettings(current);
   } catch (e) {
     console.error("save_settings failed", e);
     toast.error(i18n.t("errors.save_failed"));
+    // The optimistic in-memory state now diverges from disk. Re-fetch the
+    // backend snapshot (authoritative — save_settings is all-or-nothing) so
+    // the UI reflects what was actually persisted instead of silently
+    // reverting on next launch.
+    try {
+      const fresh = await tauri.getSettings();
+      persistCounter++;
+      useSettingsStore.setState({ settings: fresh });
+    } catch (e2) {
+      console.error("re-fetch after failed save failed", e2);
+    }
   }
 }, SAVE_DEBOUNCE_MS);
 
@@ -94,7 +111,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ settings: next });
     persistCounter++;
     const myCounter = persistCounter;
-    debouncedPersist(next, myCounter);
+    debouncedPersist(myCounter);
 
     if (
       patch.auto_disable_windows_apps === false &&
@@ -113,6 +130,9 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     if (current && snapshot.theme !== current.theme) {
       applyTheme(snapshot.theme);
     }
+    // Backend committed this snapshot — cancel any debounced persist that
+    // still holds a pre-change view of the store.
+    persistCounter++;
     set({ settings: snapshot });
   },
 
@@ -131,6 +151,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const current = get().settings;
     if (!current) return;
     if (current.enabled === enabled) return;
+    // The backend already applied + persisted this toggle (apply_enabled);
+    // invalidate any in-flight debounced snapshot that still holds the old
+    // value so it cannot revert the toggle on save.
+    persistCounter++;
     set({ settings: { ...current, enabled } });
   },
 
@@ -138,6 +162,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const current = get().settings;
     if (!current) return;
     if (current.start_with_os === start_with_os) return;
+    persistCounter++;
     set({ settings: { ...current, start_with_os } });
   },
 

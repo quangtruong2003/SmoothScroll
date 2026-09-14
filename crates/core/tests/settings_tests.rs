@@ -2,7 +2,7 @@
 
 use smoothscroll_core::easing::EasingMode;
 use smoothscroll_core::settings::{
-    migrate_raw_settings, try_load_from, AppSettings, SettingsError, ShiftWheelBehavior,
+    migrate_raw_settings, save_to, try_load_from, AppSettings, SettingsError, ShiftWheelBehavior,
     WheelOutputMode, CURRENT_SETTINGS_SCHEMA_VERSION,
 };
 
@@ -160,6 +160,40 @@ fn is_excluded_is_case_insensitive() {
     assert!(s.is_excluded("NOTEPAD"));
     assert!(!s.is_excluded("vscode"));
     assert!(!s.is_excluded(""));
+}
+
+#[test]
+fn auto_disable_matches_extensionless_live_name() {
+    let s = AppSettings::default();
+    assert!(s.auto_disable_windows_apps);
+    // Seed entries carry ".exe"; live names from process_query are file stems.
+    assert!(s.should_auto_disable_windows_app("notepad"));
+    assert!(s.should_auto_disable_windows_app("Notepad"));
+    assert!(s.should_auto_disable_windows_app("msedge"));
+    assert!(s.should_auto_disable_windows_app("applicationframehost"));
+    // The raw seed spelling still matches (e.g. alternate query paths).
+    assert!(s.should_auto_disable_windows_app("Notepad.exe"));
+    assert!(!s.should_auto_disable_windows_app("code"));
+    assert!(!s.should_auto_disable_windows_app(""));
+}
+
+#[test]
+fn auto_disable_respects_switch() {
+    let mut s = AppSettings::default();
+    s.auto_disable_windows_apps = false;
+    assert!(!s.should_auto_disable_windows_app("notepad"));
+}
+
+#[test]
+fn excluded_apps_match_across_exe_suffix() {
+    let mut s = AppSettings::default();
+    s.excluded_apps.push("notepad.exe".to_string());
+    assert!(s.is_excluded("notepad"));
+    assert!(s.is_excluded("Notepad"));
+    assert!(!s.is_excluded("notepad2"));
+    s.excluded_apps.clear();
+    s.excluded_apps.push("Notepad".to_string());
+    assert!(s.is_excluded("notepad.exe"));
 }
 
 #[test]
@@ -737,4 +771,44 @@ fn migration_persists_once_and_second_load_does_not_rewrite() {
     assert!(!migrated_again);
     assert_eq!(second, first);
     assert_eq!(modified_after_second, modified_after_first);
+}
+
+#[test]
+fn concurrent_saves_never_produce_a_torn_file() {
+    // Eight writers hammering one path through save_to must never interleave:
+    // every read must parse cleanly and see one writer's full snapshot.
+    let path = std::env::temp_dir().join(format!(
+        "ss-concurrent-save-{}-{}.json",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    let mut handles = Vec::new();
+    for writer in 0..8 {
+        let path = path.clone();
+        handles.push(std::thread::spawn(move || {
+            for round in 0..40 {
+                let mut s = AppSettings::default();
+                s.step_size_px = 100 + writer + round;
+                s.animation_time_ms = 200 + writer;
+                save_to(&path, &s).unwrap();
+            }
+        }));
+    }
+    for h in handles {
+        h.join().unwrap();
+    }
+    // The final file must be valid JSON and one coherent snapshot.
+    let final_settings: AppSettings =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    assert!((100..(100 + 8 + 40)).contains(&final_settings.step_size_px));
+    // No temp leftovers next to the target.
+    for entry in std::fs::read_dir(path.parent().unwrap()).unwrap() {
+        let name = entry.unwrap().file_name();
+        let name = name.to_string_lossy();
+        assert!(!name.contains("json.tmp"), "leftover tmp file: {name}");
+    }
+    let _ = std::fs::remove_file(&path);
 }
