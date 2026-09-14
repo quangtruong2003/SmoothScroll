@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/provider'
 import { detectOS } from '@/lib/os'
+import { localePath } from '@/lib/i18n/routing'
 import { useEffect, useState } from 'react'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 export function Footer() {
-  const { dict } = useLanguage()
+  const { dict, locale } = useLanguage()
   const d = dict as Dictionary | null
   const { footer: f } = d ?? {}
   const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
@@ -30,6 +31,11 @@ export function Footer() {
         <p className="text-sm text-muted-foreground">{tagline}</p>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
           <Link
+            href={localePath(locale, 'faq')}
+            className="hover:text-foreground transition-colors"
+          >
+            {d?.faq?.title ?? 'FAQ'}
+          </Link>          <Link
             href="https://github.com/quangtruong2003/SmoothScroll"
             target="_blank"
             rel="noopener noreferrer"

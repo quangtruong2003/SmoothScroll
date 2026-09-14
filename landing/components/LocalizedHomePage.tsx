@@ -17,6 +17,8 @@ import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
 import { SearchIntentGuides } from '@/components/sections/SearchIntentGuides'
 import { WhatIsSmoothScroll } from '@/components/sections/WhatIsSmoothScroll'
+import { HOME_FAQ_LIMIT } from '@/lib/seo/faq'
+import { localePath } from '@/lib/i18n/routing'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 
 interface LocalizedHomePageProps {
@@ -41,7 +43,7 @@ export function LocalizedHomePage({ locale, dictionary: d }: LocalizedHomePagePr
         <Indie dict={{ indie: d.indie }} />
         <Install dict={{ install: d.install }} />
         {locale === 'en' && <SearchIntentGuides />}
-        <FAQ dict={{ faq: d.faq }} />
+        <FAQ dict={{ faq: d.faq }} limit={HOME_FAQ_LIMIT} viewAllHref={localePath(locale, 'faq')} />
         <FinalCTA dict={{ finalCta: d.finalCta }} />
         <WhatIsSmoothScroll locale={locale} geo={d.geo} />
       </main>

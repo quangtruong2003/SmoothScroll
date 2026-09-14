@@ -101,6 +101,10 @@ export interface Dictionary {
   }
   faq?: {
     title?: string
+    subtitle?: string
+    seo?: { title?: string; description?: string }
+    viewAll?: string
+    backToHome?: string
     questions?: { q?: string; a?: string }[]
   }
   finalCta?: {

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import {
   Accordion,
@@ -9,14 +10,18 @@ import {
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import type { Dictionary } from '@/lib/i18n/dict'
+import { faqAnchorId, faqQuestions } from '@/lib/seo/faq'
 
 interface FAQProps {
   dict: { faq?: Dictionary['faq'] }
+  limit?: number
+  viewAllHref?: string
 }
 
-export function FAQ({ dict }: FAQProps) {
+export function FAQ({ dict, limit, viewAllHref }: FAQProps) {
   const f = dict?.faq ?? { title: '', questions: [] }
-  const questions = f.questions ?? []
+  const allQuestions = faqQuestions({ faq: f } as Dictionary)
+  const questions = typeof limit === 'number' ? allQuestions.slice(0, limit) : allQuestions
   const [openItems, setOpenItems] = useState<string[]>([])
 
   const allValues = questions.map((_, idx) => `item-${idx}`)
@@ -51,7 +56,7 @@ export function FAQ({ dict }: FAQProps) {
             onValueChange={(value) => setOpenItems(value as string[])}
           >
             {questions.map((item, idx) => (
-              <AccordionItem key={idx} value={`item-${idx}`}>
+              <AccordionItem key={faqAnchorId(item.q, idx)} value={`item-${idx}`} id={faqAnchorId(item.q, idx)} className="scroll-mt-24">
                 <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed">
                   {item.a}
@@ -59,6 +64,13 @@ export function FAQ({ dict }: FAQProps) {
               </AccordionItem>
             ))}
           </Accordion>
+          {viewAllHref && f.viewAll && (
+            <div className="mt-8 text-center">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={viewAllHref}>{f.viewAll}</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </section>

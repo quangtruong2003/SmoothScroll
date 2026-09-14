@@ -8,6 +8,9 @@
 - [How SmoothScroll works](https://smoothscroll.top/how-it-works/)
 - [Vietnamese guide](https://smoothscroll.top/vi/how-it-works/)
 - [Chinese guide](https://smoothscroll.top/zh/how-it-works/)
+- [FAQ](https://smoothscroll.top/faq/)
+- [Vietnamese FAQ](https://smoothscroll.top/vi/faq/)
+- [Chinese FAQ](https://smoothscroll.top/zh/faq/)
 
 ## Windows scrolling guides
 - [Mac-like scrolling on Windows](https://smoothscroll.top/mac-like-scrolling-windows/)

@@ -6,7 +6,7 @@ import { INTENT_CONTENT_UPDATED, intentLinks, intentPath } from '@/lib/seo/inten
 export const dynamic = 'force-static'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages: PageKind[] = ['home', 'how-it-works']
+  const pages: PageKind[] = ['home', 'how-it-works', 'faq']
   const localizedPages = locales.flatMap((locale) => pages.map((page) => ({
     url: absoluteLocaleUrl(locale, page),
     lastModified: CONTENT_UPDATED,

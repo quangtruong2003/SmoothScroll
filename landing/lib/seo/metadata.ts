@@ -10,12 +10,17 @@ const openGraphLocales: Record<Locale, 'en_US' | 'vi_VN' | 'zh_CN'> = {
 
 export function buildMetadata(locale: Locale, page: PageKind, dictionary: Dictionary): Metadata {
   const isGuide = page === 'how-it-works'
+  const isFaq = page === 'faq'
   const title = isGuide
     ? dictionary.howItWorks?.seo?.title ?? 'How SmoothScroll Works'
-    : dictionary.seo?.title ?? dictionary.hero?.title ?? 'SmoothScroll'
+    : isFaq
+      ? dictionary.faq?.seo?.title ?? dictionary.faq?.title ?? 'SmoothScroll FAQ'
+      : dictionary.seo?.title ?? dictionary.hero?.title ?? 'SmoothScroll'
   const description = isGuide
     ? dictionary.howItWorks?.seo?.description ?? ''
-    : dictionary.seo?.description ?? dictionary.hero?.subtitle ?? ''
+    : isFaq
+      ? dictionary.faq?.seo?.description ?? ''
+      : dictionary.seo?.description ?? dictionary.hero?.subtitle ?? ''
   const url = absoluteLocaleUrl(locale, page)
 
   return {

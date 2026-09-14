@@ -1,5 +1,6 @@
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 import { BASE_URL, CONTENT_UPDATED, absoluteLocaleUrl, htmlLang, type PageKind } from '@/lib/i18n/routing'
+import { faqQuestions, homeFaqQuestions } from '@/lib/seo/faq'
 
 interface JsonLdProps {
   locale: Locale
@@ -11,10 +12,14 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
   const url = absoluteLocaleUrl(locale, page)
   const title = page === 'home'
     ? dictionary.seo?.title ?? dictionary.hero?.title ?? 'SmoothScroll'
-    : dictionary.howItWorks?.seo?.title ?? 'How SmoothScroll Works'
+    : page === 'faq'
+      ? dictionary.faq?.seo?.title ?? dictionary.faq?.title ?? 'SmoothScroll FAQ'
+      : dictionary.howItWorks?.seo?.title ?? 'How SmoothScroll Works'
   const description = page === 'home'
     ? dictionary.seo?.description ?? dictionary.hero?.subtitle ?? ''
-    : dictionary.howItWorks?.seo?.description ?? ''
+    : page === 'faq'
+      ? dictionary.faq?.seo?.description ?? ''
+      : dictionary.howItWorks?.seo?.description ?? ''
   const organizationId = `${BASE_URL}/#organization`
   const websiteId = `${BASE_URL}/#website`
   const softwareId = `${BASE_URL}/#software`
@@ -22,13 +27,13 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
   const featureList = (dictionary.features?.items ?? [])
     .map((item) => item.title)
     .filter((title): title is string => Boolean(title))
-  const faqQuestions = [
+  const faqEntities = [
     ...(dictionary.geo?.faqQuestion && dictionary.geo.faqAnswer ? [{
       '@type': 'Question',
       name: dictionary.geo.faqQuestion,
       acceptedAnswer: { '@type': 'Answer', text: dictionary.geo.faqAnswer },
     }] : []),
-    ...(dictionary.faq?.questions ?? []).flatMap(({ q, a }) => q && a ? [{
+    ...(page === 'home' ? homeFaqQuestions(dictionary) : faqQuestions(dictionary)).flatMap(({ q, a }) => q && a ? [{
       '@type': 'Question',
       name: q,
       acceptedAnswer: { '@type': 'Answer', text: a },
@@ -56,10 +61,13 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: releaseUrl }, softwareVersion: process.env.NEXT_PUBLIC_APP_VERSION || 'latest',
       screenshot: `${BASE_URL}/assets/screen-poster.webp`, license: 'https://github.com/quangtruong2003/SmoothScroll/blob/master/LICENSE',
     },
-    ...(page === 'home' && faqQuestions.length ? [{
-      '@type': 'FAQPage', '@id': `${url}#faq`, mainEntity: faqQuestions,
+    ...(page === 'home' && faqEntities.length ? [{
+      '@type': 'FAQPage', '@id': `${url}#faq`, mainEntity: faqEntities,
     }] : []),
-    ...(page === 'how-it-works' ? [{
+    ...(page === 'faq' && faqEntities.length ? [{
+      '@type': 'FAQPage', '@id': `${url}#faq`, mainEntity: faqEntities,
+    }] : []),
+    ...(page === 'how-it-works' || page === 'faq' ? [{
       '@type': 'BreadcrumbList',
       '@id': `${url}#breadcrumb`,
       itemListElement: [

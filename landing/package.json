@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "fetch-icons": "node scripts/fetch-brand-icons.mjs",
+    "og": "python scripts/generate-og.py",
     "prebuild": "node scripts/fetch-brand-icons.mjs"
   },
   "dependencies": {

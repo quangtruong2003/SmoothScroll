@@ -10,13 +10,13 @@ import { LangSwitcher } from './LangSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { useGitHubStars } from '@/lib/useGitHubStars'
 import type { Locale } from '@/lib/i18n/dict'
-import { localePath } from '@/lib/i18n/routing'
+import { localePath, type PageKind } from '@/lib/i18n/routing'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 interface NavigationProps {
   locale: Locale
-  pageKind?: 'home' | 'how-it-works'
+  pageKind?: PageKind
 }
 
 export function Navigation({ locale, pageKind = 'home' }: NavigationProps) {

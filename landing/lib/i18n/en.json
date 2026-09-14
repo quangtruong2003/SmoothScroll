@@ -111,6 +111,13 @@
   },
   "faq": {
     "title": "Frequently asked questions",
+    "subtitle": "Everything about installing, tuning, and trusting SmoothScroll on Windows.",
+    "seo": {
+      "title": "SmoothScroll FAQ: Pricing, Safety, Settings & Troubleshooting | Windows",
+      "description": "Answers about SmoothScroll for Windows 10 and 11: is it free and safe, how to install, step size, animation time, easing curves, per-app profiles, gaming, and fixes when an app won't smooth."
+    },
+    "viewAll": "View all FAQs",
+    "backToHome": "Back to home",
     "questions": [
       { "q": "Does this work with all apps?", "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything - Chrome, VS Code, File Explorer, Adobe apps, and more." },
       { "q": "Will it drain my battery?", "a": "No. SmoothScroll runs at near-zero CPU when idle and only processes input during scroll events. Most users see no measurable battery impact." },
@@ -125,7 +132,24 @@
       { "q": "Does this work with UWP / WinUI apps?", "a": "Yes. WinUI apps ignore synthetic wheel events by default; SmoothScroll uses a force-enable hook so scrolling actually reaches them. The toggle is in Settings → Scroll." },
       { "q": "Will anti-cheat flag this?", "a": "SmoothScroll auto-detects elevated targets (admin / UAC prompts) and passes raw input through, so anti-cheat sees standard wheel ticks. No exclusions to configure." },
       { "q": "How is this different from Logi Options+ or Razer Synapse?", "a": "SmoothScroll works with any mouse the OS recognises, not a vendor's hardware. It runs at the OS level, not the device-driver level, so it survives you switching peripherals." },
-      { "q": "Can I sync scroll direction with my Mac?", "a": "Yes. The Reverse direction toggle is per-profile, so you can match the feel of a Mac you also use without affecting your Windows-native apps." }
+      { "q": "Can I sync scroll direction with my Mac?", "a": "Yes. The Reverse direction toggle is per-profile, so you can match the feel of a Mac you also use without affecting your Windows-native apps." },
+      { "q": "Is SmoothScroll really free? What's the catch?", "a": "Yes, SmoothScroll is free for personal, educational, research, and internal use. There is no premium tier, no ads, and no feature paywall. The source is available under FSL-1.1, which converts to Apache 2.0 two years after each release." },
+      { "q": "Does SmoothScroll need an account or collect telemetry?", "a": "No account, no telemetry, no analytics. Settings live locally in %APPDATA%\\SmoothScroll\\settings.json and logs stay on your device." },
+      { "q": "How do I install SmoothScroll on Windows?", "a": "Download the installer from smoothscroll.top or the GitHub Releases page and run it. Installation is per-user with no administrator privileges required, and SmoothScroll starts automatically." },
+      { "q": "What do step size, animation time, and easing actually change?", "a": "Step size sets how far each wheel notch travels, animation time sets how long the motion takes to settle, and easing sets the shape of the deceleration. Tune distance first, then duration, then curve." },
+      { "q": "Which settings should I try first?", "a": "Start with the defaults (144 px step, 220 ms animation, Quintic Out easing). If pages travel too far, lower step size; if motion stops too abruptly, raise animation time gradually." },
+      { "q": "What do acceleration and tail-to-head ratio do?", "a": "Acceleration lets fast consecutive wheel ticks build momentum so flicks travel farther, capped by the max-acceleration setting. Tail-to-head ratio controls how sharp the deceleration is - higher means a quicker start with a longer slow tail." },
+      { "q": "Does SmoothScroll work with precision touchpads?", "a": "Yes. There is a separate touchpad section in Settings with its own smoothing toggle, pixel multiplier, and acceleration factor, independent from mouse-wheel handling." },
+      { "q": "Does it support high-refresh-rate (120/144 Hz+) monitors?", "a": "Yes. The engine emits smoothed output at 120 Hz, so motion stays fluid on high-refresh displays. Per-monitor profiles let different screens use different curves." },
+      { "q": "What are scroll profiles and per-app assignments?", "a": "Profiles are named presets (for example Snappy or Slow Reading) with their own step size, animation time, and easing. You can assign a profile to a process name such as chrome.exe, so each app keeps its own feel without touching the global settings." },
+      { "q": "What is the global hotkey and can I change it?", "a": "The default global hotkey Ctrl + Alt + S toggles smoothing system-wide without leaving your keyboard. You can rebind it in Behavior → Hotkey combination." },
+      { "q": "Will Ctrl + wheel zoom still work in browsers and design tools?", "a": "Yes. Pass-through Ctrl + wheel sends raw wheel ticks for zoom in browsers, VS Code, Photoshop, and Figma-style tools, and pending inertia can be cleared the instant a modifier is pressed." },
+      { "q": "Does SmoothScroll affect gaming performance or FPS?", "a": "No. Game mode auto-pauses the engine when a known game is in the foreground, restoring raw input for weapon switching and scope zoom. SmoothScroll never injects into game processes." },
+      { "q": "Is there a macOS version?", "a": "macOS support is in progress and not yet published. Windows 10/11 and Linux builds are available now; releases are announced on the GitHub Releases page." },
+      { "q": "How is SmoothScroll different from other free scrolling utilities?", "a": "It works with any mouse Windows recognises, runs as a single lightweight executable with no drivers or services, keeps per-app profiles with modifier pass-through, and ships with zero telemetry under a source-available license you can audit." },
+      { "q": "SmoothScroll isn't smoothing one app - how do I fix it?", "a": "Check three things: the app isn't in your excluded-apps list, it isn't running elevated as administrator (raw input passes through there by design), and for WinUI apps the force-enable toggle in Settings → Scroll is on. Then toggle smoothing with the global hotkey to A/B test." },
+      { "q": "How do I back up or move my settings to another PC?", "a": "Use Backup & restore in the About tab to export your full settings as JSON, then import the file on the other machine. No account or sync service is involved." },
+      { "q": "Do I need to change the Windows 'lines to scroll' setting?", "a": "No. SmoothScroll has its own step-size control, so you can leave the Windows wheel setting alone and tune the smoothing layer directly." }
     ]
   },
   "finalCta": {

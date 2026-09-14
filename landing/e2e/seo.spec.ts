@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { getDictionarySync, type Locale } from '../lib/i18n/dict'
+import { faqQuestions, homeFaqQuestions } from '../lib/seo/faq'
 
 const localePages = [
   { path: '/', lang: 'en', ogLocale: 'en_US', text: 'Smooth scrolling for Windows,', answer: 'SmoothScroll is free smooth-scrolling software for Windows 10 and 11.', locale: 'en' as Locale },
@@ -8,6 +9,9 @@ const localePages = [
   { path: '/how-it-works/', lang: 'en', ogLocale: 'en_US', text: 'See how SmoothScroll', locale: 'en' as Locale },
   { path: '/vi/how-it-works/', lang: 'vi', ogLocale: 'vi_VN', text: 'Xem cách SmoothScroll', locale: 'vi' as Locale },
   { path: '/zh/how-it-works/', lang: 'zh-Hans', ogLocale: 'zh_CN', text: '看 SmoothScroll', locale: 'zh' as Locale },
+  { path: '/faq/', lang: 'en', ogLocale: 'en_US', text: 'Frequently asked questions', locale: 'en' as Locale },
+  { path: '/vi/faq/', lang: 'vi', ogLocale: 'vi_VN', text: 'Câu hỏi thường gặp', locale: 'vi' as Locale },
+  { path: '/zh/faq/', lang: 'zh-Hans', ogLocale: 'zh_CN', text: '常见问题', locale: 'zh' as Locale },
 ] as const
 
 const canonicalCases = [
@@ -17,6 +21,9 @@ const canonicalCases = [
   ['/how-it-works/', 'https://smoothscroll.top/how-it-works/'],
   ['/vi/how-it-works/', 'https://smoothscroll.top/vi/how-it-works/'],
   ['/zh/how-it-works/', 'https://smoothscroll.top/zh/how-it-works/'],
+  ['/faq/', 'https://smoothscroll.top/faq/'],
+  ['/vi/faq/', 'https://smoothscroll.top/vi/faq/'],
+  ['/zh/faq/', 'https://smoothscroll.top/zh/faq/'],
 ] as const
 
 for (const page of localePages) {
@@ -146,8 +153,9 @@ test('localized homepage graphs match their page language and visible FAQ', asyn
     const expectedFeature = getDictionarySync(page.locale).features?.items?.[0]?.title
     expect(software?.featureList).toContain(expectedFeature)
     // Structured answers only earn rich results when the same text is server-rendered.
+    // Home renders the top subset; the full set lives on /faq/.
     const dictionary = getDictionarySync(page.locale)
-    const renderedQuestions = (dictionary.faq?.questions ?? []).filter(({ q, a }) => q && a)
+    const renderedQuestions = homeFaqQuestions(dictionary)
 
     expect(faq?.mainEntity).toHaveLength(renderedQuestions.length + 1)
     for (const { a } of renderedQuestions) {
@@ -166,7 +174,7 @@ test('collapsed FAQ answers stay hidden for readers but present for crawlers', a
 })
 
 test('localized guide graphs publish breadcrumbs and preserve page language', async ({ request }) => {
-  for (const page of localePages.slice(3)) {
+  for (const page of localePages.slice(3, 6)) {
     const html = await (await request.get(page.path)).text()
     const match = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)
     const graph = JSON.parse(match![1])['@graph'] as {
@@ -187,6 +195,41 @@ test('localized guide graphs publish breadcrumbs and preserve page language', as
       `https://smoothscroll.top${homePath}`,
       `https://smoothscroll.top${page.path}`,
     ])
+  }
+})
+
+test('localized faq pages publish full FAQPage answers with breadcrumbs', async ({ request }) => {
+  for (const page of localePages.slice(6)) {
+    const html = await (await request.get(page.path)).text()
+    const match = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)
+    const graph = JSON.parse(match![1])['@graph'] as {
+      '@type': string
+      url?: string
+      inLanguage?: string
+      mainEntity?: unknown[]
+      itemListElement?: { item: string }[]
+    }[]
+    const types = graph.map((item) => item['@type'])
+    const webPage = graph.find((item) => item['@type'] === 'WebPage')
+    const faq = graph.find((item) => item['@type'] === 'FAQPage')
+    const breadcrumb = graph.find((item) => item['@type'] === 'BreadcrumbList')
+    const homePath = page.path.replace('faq/', '')
+
+    expect(types).toContain('FAQPage')
+    expect(types).toContain('BreadcrumbList')
+    expect(webPage).toMatchObject({ url: `https://smoothscroll.top${page.path}`, inLanguage: page.lang })
+    expect(breadcrumb?.itemListElement?.map(({ item }) => item)).toEqual([
+      `https://smoothscroll.top${homePath}`,
+      `https://smoothscroll.top${page.path}`,
+    ])
+    const dictionary = getDictionarySync(page.locale)
+    const renderedQuestions = faqQuestions(dictionary)
+
+    expect(faq?.mainEntity).toHaveLength(renderedQuestions.length + 1)
+    for (const { a } of renderedQuestions) {
+      expect(html).toContain(a!.slice(0, 40).replace(/&/g, '&amp;'))
+    }
+    expect(html).toContain(`rel="canonical" href="https://smoothscroll.top${page.path}"`)
   }
 })
 
@@ -231,6 +274,7 @@ test('publishes optional AI discovery document', async ({ request }) => {
   await expect(response).toBeOK()
   expect(text).toContain('# SmoothScroll')
   expect(text).toContain('https://smoothscroll.top/how-it-works/')
+  expect(text).toContain('https://smoothscroll.top/faq/')
   expect(text).toContain('https://github.com/quangtruong2003/SmoothScroll')
 })
 
