@@ -2738,6 +2738,28 @@ mod tests {
     }
 
     #[test]
+    fn edge_browser_stays_on_smooth_engine_path() {
+        let s = AppSettings::default();
+        // Production returns extensionless file stems. Edge is a browser, not
+        // a native app SmoothScroll should bypass.
+        let state = make_state_with_process(s, Some("msedge"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
+    fn edge_foreground_fallback_stays_on_smooth_engine_path() {
+        let s = AppSettings::default();
+        // Browser child windows can fail the under-cursor process lookup;
+        // foreground fallback must make the same decision.
+        let state = make_state_with_processes(s, None, Some("msedge"));
+        let sink = EngineSink::new(state.clone());
+        assert_eq!(wheel(&sink, 120, no_mods()), HookDecision::Swallow);
+        assert!(state.engine.lock().has_pending_work());
+    }
+
+    #[test]
     fn auto_disable_windows_apps_can_be_disabled() {
         let mut s = AppSettings::default();
         s.auto_disable_windows_apps = false;

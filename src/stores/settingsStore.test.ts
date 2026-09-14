@@ -523,6 +523,7 @@ describe("settingsStore", () => {
         app_profiles: {
           notepad: "__disabled__",
           systemsettings: "__disabled__",
+          msedge: "__disabled__",
           chrome: "profile-1",
         },
       };
@@ -535,9 +536,11 @@ describe("settingsStore", () => {
 
       expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("Notepad.exe");
       expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("SystemSettings.exe");
+      expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("msedge.exe");
       expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("chrome.exe");
 
-      // After cleanup runs, the in-memory app_profiles must be clean.
+      // After cleanup runs, only native-app leftovers are removed. A manual
+      // Edge assignment is user intent and must remain untouched.
       await act(async () => {
         await new Promise((r) => setTimeout(r, 0));
         await new Promise((r) => setTimeout(r, 0));
@@ -545,6 +548,7 @@ describe("settingsStore", () => {
       const finalSettings = useSettingsStore.getState().settings;
       expect(finalSettings?.app_profiles["notepad"]).toBeUndefined();
       expect(finalSettings?.app_profiles["systemsettings"]).toBeUndefined();
+      expect(finalSettings?.app_profiles.msedge).toBe("__disabled__");
       expect(finalSettings?.app_profiles.chrome).toBe("profile-1");
     });
 

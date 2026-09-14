@@ -10,8 +10,6 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
-const IDLE_TIMEOUT: Duration = Duration::from_secs(2);
-const IDLE_FRAME_MS: f64 = 1000.0 / 60.0;
 const WAIT_TIMEOUT: Duration = Duration::from_millis(100);
 
 #[cfg(test)]
@@ -65,11 +63,6 @@ impl Drop for EngineThread {
 #[allow(unused_assignments)]
 fn worker(state: Arc<AppState>, frame_ms: f64) {
     let mut last_frame = Instant::now();
-    // Last frame that actually produced output — used to drop to 60fps after
-    // 2s without real work. Must NOT be refreshed on every iteration, or the
-    // idle fallback never engages (previous bug: it was reset right before
-    // the check, so `elapsed()` was always ~0).
-    let mut last_work = Instant::now();
 
     loop {
         if state.engine_shutdown.load(Ordering::Relaxed) {
@@ -109,19 +102,14 @@ fn worker(state: Arc<AppState>, frame_ms: f64) {
         let dt_ms = dt_ms.max(1.0);
         last_frame = now;
 
-        let frame_ms = adaptive_frame_ms(last_work, frame_ms);
-
         let eff = state.effective.load_full();
-        let before = state.engine.lock().has_pending_work();
         run_frame(&state, dt_ms, &eff);
-        // Only frames that had work to drain count as "work" for the
-        // adaptive cadence; spinning idle frames must not reset the timer.
-        if before {
-            last_work = now;
-        }
 
+        // The worker already sleeps on the Condvar while no work exists.
+        // Every active scroll frame therefore uses the display-derived
+        // interval, including the first frame after a long idle.
         let elapsed = now.elapsed().as_secs_f64() * 1000.0;
-        let sleep_ms = frame_ms - elapsed;
+        let sleep_ms = scroll_frame_ms(frame_ms) - elapsed;
         if sleep_ms > 0.5 {
             thread::sleep(Duration::from_micros((sleep_ms * 1000.0) as u64));
         } else {
@@ -322,12 +310,10 @@ fn dispatch_frame(
     }
 }
 
-fn adaptive_frame_ms(last_work: Instant, frame_ms: f64) -> f64 {
-    if last_work.elapsed() >= IDLE_TIMEOUT {
-        IDLE_FRAME_MS
-    } else {
-        frame_ms
-    }
+/// Active scrolling always follows the display-derived interval. Idle power
+/// savings belong in the Condvar wait path, never in the first active frame.
+fn scroll_frame_ms(display_frame_ms: f64) -> f64 {
+    display_frame_ms
 }
 
 #[cfg(all(test, windows))]
@@ -367,6 +353,14 @@ mod tests {
 
     const A: isize = 0x1000;
     const B: isize = 0x2000;
+
+    #[test]
+    fn every_scroll_frame_uses_display_refresh_interval() {
+        for refresh_hz in [60.0, 120.0, 144.0, 240.0] {
+            let display_frame_ms = 1000.0 / refresh_hz;
+            assert_eq!(scroll_frame_ms(display_frame_ms), display_frame_ms);
+        }
+    }
 
     #[derive(Default)]
     struct RecordingEmitter {

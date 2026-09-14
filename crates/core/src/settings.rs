@@ -474,9 +474,9 @@ impl AppSettings {
     /// Special profile ID for disabled (pass-through) apps.
     pub const DISABLED_PROFILE_ID: &'static str = "__disabled__";
 
-    /// Windows apps known to ship native smooth-scroll animation that conflicts
-    /// with this engine (UWP, WinUI, modern Edge). Used by the runtime
-    /// auto-disable switch (no longer seeded into app overrides).
+    /// Windows system apps known to ship native smooth-scroll animation that
+    /// conflicts with this engine (UWP/WinUI). Browsers are intentionally not
+    /// included: users expect SmoothScroll's configured feel there.
     pub const NATIVE_SMOOTH_SEED: &'static [&'static str] = &[
         "Notepad.exe",
         "SystemSettings.exe",
@@ -484,7 +484,6 @@ impl AppSettings {
         "CalculatorApp.exe",
         "Photos.exe",
         "WinStore.App.exe",
-        "msedge.exe",
     ];
 
     /// Legacy no-op. Previously seeded `NATIVE_SMOOTH_SEED` into `app_profiles`.

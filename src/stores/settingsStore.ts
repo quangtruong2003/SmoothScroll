@@ -231,7 +231,6 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       "CalculatorApp.exe",
       "Photos.exe",
       "WinStore.App.exe",
-      "msedge.exe",
     ];
     for (const app of NATIVE_SEED) {
       if (current.app_profiles[canonicalizeProcessName(app)] === "__disabled__") {

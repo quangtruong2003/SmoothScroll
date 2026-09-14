@@ -169,7 +169,10 @@ fn auto_disable_matches_extensionless_live_name() {
     // Seed entries carry ".exe"; live names from process_query are file stems.
     assert!(s.should_auto_disable_windows_app("notepad"));
     assert!(s.should_auto_disable_windows_app("Notepad"));
-    assert!(s.should_auto_disable_windows_app("msedge"));
+    // Browsers must stay on SmoothScroll's engine path. In particular, Edge
+    // was accidentally auto-bypassed when seed entries began canonicalizing.
+    assert!(!s.should_auto_disable_windows_app("msedge"));
+    assert!(!s.should_auto_disable_windows_app("msedge.exe"));
     assert!(s.should_auto_disable_windows_app("applicationframehost"));
     // The raw seed spelling still matches (e.g. alternate query paths).
     assert!(s.should_auto_disable_windows_app("Notepad.exe"));
