@@ -82,7 +82,22 @@ function GameModeSectionInner() {
     setCatalogLoading(true);
     tauri
       .getGameCatalog()
-      .then(setCatalog)
+      .then((entries) => {
+        setCatalog(entries);
+        // Picker rows show real icons too: bundled names are already covered
+        // by gameIconFor, everything else gets one bulk icon request per
+        // session (the backend caches by canonical exe name, so re-opening
+        // and re-requesting are cheap).
+        const need = entries
+          .map((e) => e.exe_name)
+          .filter((n) => !gameIconFor(n) && backendIcons[n] === undefined);
+        if (need.length > 0) {
+          tauri
+            .getKnownGameIcons(need)
+            .then((map) => setBackendIcons((prev) => ({ ...prev, ...map })))
+            .catch(() => {});
+        }
+      })
       .catch(() => setCatalog([]))
       .finally(() => setCatalogLoading(false));
   };

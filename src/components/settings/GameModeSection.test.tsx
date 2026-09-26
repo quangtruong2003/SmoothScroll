@@ -28,8 +28,12 @@ vi.mock("@tauri-apps/api/event", () => ({
 vi.mock("@/lib/platform", () => ({ IS_LINUX: false }));
 
 vi.mock("@/lib/gameIcons", () => ({
-  gameIconFor: (name: string) =>
-    name.toLowerCase().startsWith("gta5") ? "/bundled/gta5.png" : null,
+  gameIconFor: (name: string) => {
+    const n = name.toLowerCase();
+    if (n.startsWith("gta5")) return "/bundled/gta5.png";
+    if (n.startsWith("witcher3")) return "/bundled/witcher3.png";
+    return null;
+  },
 }));
 
 vi.mock("@/lib/tauri", () => ({
@@ -174,5 +178,40 @@ describe("GameModeSection", () => {
     render(<GameModeSection />);
     fireEvent.click(screen.getByPlaceholderText("game_mode.search_placeholder"));
     expect(await screen.findByText("game_mode.empty_state")).toBeTruthy();
+  });
+
+  it("bulk-fetches icons for picker entries, skipping bundled ones", async () => {
+    mockGetGameCatalog.mockResolvedValue([
+      { exe_name: "Hades.exe", display_name: "Hades" },
+      { exe_name: "witcher3.exe", display_name: "The Witcher 3" },
+    ]);
+    mockGetKnownGameIcons.mockResolvedValue({ "Hades.exe": "aGFkZXM=" });
+    render(<GameModeSection />);
+    fireEvent.click(screen.getByPlaceholderText("game_mode.search_placeholder"));
+    const list = await screen.findByTestId("game-picker-list");
+    await within(list).findByText("Hades.exe");
+
+    // Only the non-bundled entry is requested (known games are bundled here,
+    // so the mount effect has nothing to fetch — this call is the picker's).
+    await waitFor(() =>
+      expect(mockGetKnownGameIcons).toHaveBeenCalledWith(["Hades.exe"]),
+    );
+    expect(mockGetKnownGameIcons.mock.calls[0][0]).not.toContain("witcher3.exe");
+
+    // The fetched icon lands in the row; the bundled one renders from assets.
+    await waitFor(() =>
+      expect(
+        within(list)
+          .getByText("Hades.exe")
+          .closest("button")
+          ?.querySelector('img[src="data:image/png;base64,aGFkZXM="]'),
+      ).toBeTruthy(),
+    );
+    expect(
+      within(list)
+        .getByText("witcher3.exe")
+        .closest("button")
+        ?.querySelector('img[src="/bundled/witcher3.png"]'),
+    ).toBeTruthy();
   });
 });
