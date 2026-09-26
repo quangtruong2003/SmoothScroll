@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=release)](https://github.com/quangtruong2003/SmoothScroll/releases)
 [![Downloads](https://img.shields.io/github/downloads/quangtruong2003/SmoothScroll/total?label=downloads)](https://github.com/quangtruong2003/SmoothScroll/releases)
 [![Stars](https://img.shields.io/github/stars/quangtruong2003/SmoothScroll?style=social&logo=github)](https://github.com/quangtruong2003/SmoothScroll/stargazers)
-[![TiniX Trending](https://repo.tinix.ai/api/badge/7781700e-49ab-41a7-b1ba-9372cc455b46)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
+[![TiniX Trending](.github/assets/tinix-trending-badge.svg)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
 
 **Smooth mouse-wheel scrolling for the desktop.**
 
