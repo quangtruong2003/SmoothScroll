@@ -5,6 +5,8 @@
 [![Downloads](https://img.shields.io/github/downloads/quangtruong2003/SmoothScroll/total?label=downloads)](https://github.com/quangtruong2003/SmoothScroll/releases)
 [![Stars](https://img.shields.io/github/stars/quangtruong2003/SmoothScroll?style=social&logo=github)](https://github.com/quangtruong2003/SmoothScroll/stargazers)
 [![TiniX Trending](.github/assets/tinix-trending-badge.svg)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
+[![TiniX Trending — #1 weekly · mouse-wheel · 19/09/2026](https://img.shields.io/badge/%F0%9F%8F%86%20%231-mouse--wheel%20%C2%B7%2019%2F09-d4af37)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
+[![TiniX Trending — #1 weekly · inertia-scroll · 19/09/2026](https://img.shields.io/badge/%F0%9F%8F%86%20%231-inertia--scroll%20%C2%B7%2019%2F09-d4af37)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
 
 **Smooth mouse-wheel scrolling for the desktop.**
 
