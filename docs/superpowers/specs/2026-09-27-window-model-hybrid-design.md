@@ -126,7 +126,7 @@ Same pipeline as today (`px → wheel units → EMIT_UNIT pulses → PULSE_CLAMP
 
 Two layers, OS truth first (port of their `device.h` reasoning):
 
-1. **OS marker wins outright.** The WH_MOUSE_LL hook already reads `dwExtraInfo` (`mouse_hook.rs:42`); the hook computes `touch_injected = (extra_info & 0xFFFFFF00) == 0xFF515700` (`MI_WP_SIGNATURE` — Win32 knowledge stays in the platform crate) and carries it as a new `touch_injected: bool` field on the core-owned `WheelInputEvent`. Non-Windows hooks set `false`. The classifier signature becomes `classify(delta, now_ms, touch_injected)`; a marked event is `Touchpad` outright.
+1. **OS marker wins outright.** The WH_MOUSE_LL hook already reads `dwExtraInfo` (`mouse_hook.rs:42`); the hook computes `touch_injected = (extra_info & 0xFFFFFF00) == 0xFF515700` (`MI_WP_SIGNATURE` — Win32 knowledge stays in the platform crate) and passes it to the classifier: `classify(delta, touch_injected)`. A marked event classifies as `Touchpad`, which flows downstream through the existing `WheelInputEvent.source` — the event struct itself is unchanged. Non-Windows hooks pass `false`.
 2. **Magnitude evidence replaces the rate heuristic.** Keep the last 8 sub-notch (non-multiple-of-120) magnitudes per gesture:
    - whole notch (`|delta| % 120 == 0`) → `Wheel`, clears gesture evidence;
    - ≥ 2 distinct magnitudes in the window → `Touchpad`, **locked for the rest of the gesture** (a touchpad coasting can emit identical values; a real free-spinner never varies — lock direction is safe: over-missing smoothing beats breaking scroll);
