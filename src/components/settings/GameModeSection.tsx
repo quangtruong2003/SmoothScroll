@@ -76,6 +76,25 @@ function GameModeSectionInner() {
 
   if (!fields) return null;
 
+  // Requests one small batch at a time, merging each response into state as
+  // it lands, so icons pop in progressively instead of one long wait. Each
+  // backend call only extracts cache misses, so later chunks are cheap.
+  const fetchIconsInChunks = (names: string[]) => {
+    if (names.length === 0) return;
+    const CHUNK = 24;
+    let index = 0;
+    const next = (): Promise<void> => {
+      const chunk = names.slice(index, index + CHUNK);
+      index += chunk.length;
+      if (chunk.length === 0) return Promise.resolve();
+      return tauri
+        .getKnownGameIcons(chunk)
+        .then((map) => setBackendIcons((prev) => ({ ...prev, ...map })))
+        .then(next);
+    };
+    next().catch(() => {});
+  };
+
   const openPicker = () => {
     setPickerOpen(true);
     if (catalog || catalogLoading) return;
@@ -85,18 +104,13 @@ function GameModeSectionInner() {
       .then((entries) => {
         setCatalog(entries);
         // Picker rows show real icons too: bundled names are already covered
-        // by gameIconFor, everything else gets one bulk icon request per
-        // session (the backend caches by canonical exe name, so re-opening
-        // and re-requesting are cheap).
+        // by gameIconFor, the rest is fetched in small sequential chunks so
+        // the visible top of the list gets its icons first, without waiting
+        // for the whole catalog's extraction pass.
         const need = entries
           .map((e) => e.exe_name)
           .filter((n) => !gameIconFor(n) && backendIcons[n] === undefined);
-        if (need.length > 0) {
-          tauri
-            .getKnownGameIcons(need)
-            .then((map) => setBackendIcons((prev) => ({ ...prev, ...map })))
-            .catch(() => {});
-        }
+        fetchIconsInChunks(need);
       })
       .catch(() => setCatalog([]))
       .finally(() => setCatalogLoading(false));

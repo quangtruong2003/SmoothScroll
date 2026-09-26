@@ -214,4 +214,31 @@ describe("GameModeSection", () => {
         ?.querySelector('img[src="/bundled/witcher3.png"]'),
     ).toBeTruthy();
   });
+
+  it("fetches picker icons in chunks and merges as they arrive", async () => {
+    const entries = Array.from({ length: 30 }, (_, i) => ({
+      exe_name: `Game${i}.exe`,
+      display_name: null,
+    }));
+    mockGetGameCatalog.mockResolvedValue(entries);
+    mockGetKnownGameIcons.mockImplementation((names: string[]) =>
+      Promise.resolve(Object.fromEntries(names.map((n) => [n, "aGk="]))),
+    );
+    render(<GameModeSection />);
+    fireEvent.click(screen.getByPlaceholderText("game_mode.search_placeholder"));
+    const list = await screen.findByTestId("game-picker-list");
+    await within(list).findByText("Game0.exe");
+
+    await waitFor(() => expect(mockGetKnownGameIcons).toHaveBeenCalledTimes(2));
+    expect(mockGetKnownGameIcons.mock.calls[0][0]).toHaveLength(24);
+    expect(mockGetKnownGameIcons.mock.calls[1][0]).toHaveLength(6);
+    await waitFor(() =>
+      expect(
+        within(list)
+          .getByText("Game29.exe")
+          .closest("button")
+          ?.querySelector('img[src="data:image/png;base64,aGk="]'),
+      ).toBeTruthy(),
+    );
+  });
 });

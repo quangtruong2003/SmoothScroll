@@ -1007,6 +1007,80 @@ pub fn get_game_catalog(state: State<'_, Arc<AppState>>) -> Vec<GameCatalogEntry
 /// Chip icons for known games. Keys of the response mirror the requested
 /// names; misses resolve to `null` and the frontend falls back to its
 /// generic icon. Successes are cached by canonical name.
+/// Disk cache for extracted game icons: `<config>/icon-cache/<key>.b64`
+/// holding "<exe mtime nanos>\n<base64 png>". Keyed by canonical exe name
+/// (matching the name-based game-mode matching); the mtime line invalidates
+/// the entry when the source exe is replaced by an update.
+fn icon_cache_dir() -> Option<std::path::PathBuf> {
+    directories::ProjectDirs::from("com", "SmoothScroll", "SmoothScroll")
+        .map(|d| d.config_dir().join("icon-cache"))
+}
+
+/// Windows file names cannot contain these; canonical exe names otherwise do.
+fn safe_cache_file_name(key: &str) -> String {
+    key.chars()
+        .map(|c| {
+            if matches!(c, '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*') {
+                '_'
+            } else {
+                c
+            }
+        })
+        .collect()
+}
+
+fn cache_file_path(dir: &std::path::Path, key: &str) -> std::path::PathBuf {
+    dir.join(format!("{}.b64", safe_cache_file_name(key)))
+}
+
+fn exe_mtime_nanos(path: &std::path::Path) -> Option<u128> {
+    std::fs::metadata(path)
+        .ok()?
+        .modified()
+        .ok()?
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()
+        .map(|d| d.as_nanos())
+}
+
+fn load_cached_icon(dir: &std::path::Path, path: &std::path::Path, key: &str) -> Option<String> {
+    let content = std::fs::read_to_string(cache_file_path(dir, key)).ok()?;
+    let (mtime_line, b64) = content.split_once('\n')?;
+    if mtime_line.trim() != exe_mtime_nanos(path)?.to_string() {
+        return None;
+    }
+    // Cheap integrity check: base64 of a PNG always starts with this prefix.
+    b64.starts_with("iVBOR").then(|| b64.to_string())
+}
+
+fn store_cached_icon(dir: &std::path::Path, path: &std::path::Path, key: &str, b64: &str) {
+    let Some(nanos) = exe_mtime_nanos(path) else {
+        return;
+    };
+    let _ = std::fs::create_dir_all(dir);
+    let _ = std::fs::write(cache_file_path(dir, key), format!("{nanos}\n{b64}"));
+}
+
+/// Icon for a resolved exe: disk cache first, then extraction (persisted on
+/// success). `cache_dir` is `None` when the config dir cannot be resolved —
+/// the icon still extracts, it just is not persisted.
+fn icon_for_path(
+    path: &std::path::Path,
+    key: &str,
+    cache_dir: Option<&std::path::Path>,
+) -> Option<String> {
+    if let Some(dir) = cache_dir {
+        if let Some(b64) = load_cached_icon(dir, path, key) {
+            return Some(b64);
+        }
+    }
+    smoothscroll_platform::icon::extract_for_exe(path).inspect(|b64| {
+        if let Some(dir) = cache_dir {
+            store_cached_icon(dir, path, key, b64);
+        }
+    })
+}
+
 #[tauri::command]
 pub fn get_known_game_icons(
     state: State<'_, Arc<AppState>>,
@@ -1014,6 +1088,7 @@ pub fn get_known_game_icons(
 ) -> HashMap<String, Option<String>> {
     let running = state.processes.list_visible_processes();
     let installed = ensure_installed_apps();
+    let cache_dir = icon_cache_dir();
     let mut icons = GAME_ICONS.lock();
     let mut out: HashMap<String, Option<String>> = HashMap::new();
     for name in names {
@@ -1024,7 +1099,7 @@ pub fn get_known_game_icons(
         let icon = match icons.get(&key) {
             Some(b64) => Some(b64.clone()),
             None => resolve_exe_path(&name, &installed, &running)
-                .and_then(|path| smoothscroll_platform::icon::extract_for_exe(&path))
+                .and_then(|path| icon_for_path(&path, &key, cache_dir.as_deref()))
                 .inspect(|b64| {
                     icons.insert(key.clone(), b64.clone());
                 }),
@@ -1112,6 +1187,54 @@ mod tests {
                 Some(PathBuf::from(r"C:\g\hades.exe"))
             );
             assert_eq!(resolve_exe_path("missing.exe", &installed, &running_procs), None);
+        }
+    }
+
+    mod game_icon_disk_cache_tests {
+        use super::super::{load_cached_icon, safe_cache_file_name, store_cached_icon};
+        use std::path::PathBuf;
+        use std::time::{SystemTime, UNIX_EPOCH};
+
+        fn temp_cache_dir() -> PathBuf {
+            let dir = std::env::temp_dir().join(format!(
+                "ss-icon-cache-test-{}-{}",
+                std::process::id(),
+                SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+            ));
+            std::fs::create_dir_all(&dir).unwrap();
+            dir
+        }
+
+        #[test]
+        fn safe_cache_file_name_replaces_windows_reserved_chars() {
+            assert_eq!(safe_cache_file_name("a<b>c:d"), "a_b_c_d");
+            assert_eq!(safe_cache_file_name("gta5"), "gta5");
+        }
+
+        #[test]
+        fn disk_cache_round_trips_and_invalidates_on_source_change() {
+            let dir = temp_cache_dir();
+            let exe = dir.join("Game.exe");
+            std::fs::write(&exe, b"mz").unwrap();
+
+            store_cached_icon(&dir, &exe, "game.exe", "iVBORw0KGgoAAAANSUhEUg=");
+            assert_eq!(
+                load_cached_icon(&dir, &exe, "Game.exe").as_deref(),
+                Some("iVBORw0KGgoAAAANSUhEUg=")
+            );
+
+            // Same key but a different (missing) source exe: mtime unreadable.
+            assert_eq!(load_cached_icon(&dir, &dir.join("missing.exe"), "game.exe"), None);
+
+            // Corrupted payload without the PNG base64 prefix is rejected.
+            std::fs::write(
+                dir.join(format!("{}.b64", safe_cache_file_name("corrupt"))),
+                "123\nnotpng",
+            )
+            .unwrap();
+            assert_eq!(load_cached_icon(&dir, &exe, "corrupt"), None);
+
+            let _ = std::fs::remove_dir_all(&dir);
         }
     }
 }

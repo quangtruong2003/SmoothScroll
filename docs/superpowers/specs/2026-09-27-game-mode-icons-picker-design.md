@@ -120,11 +120,17 @@ get_known_game_icons(names: Vec<String>) -> HashMap<String, Option<String>>
   titles), deduped by canonical exe name. The installed scan runs lazily on
   first call and is stored in `AppState` (`Mutex<Option<…>>`).
 - `get_known_game_icons`: for each requested name, resolve name → exe path via
-  (a) running processes, then (b) the installed-apps cache; extract via the
-  existing `extract_for_exe`; store successes in a new name-keyed cache in
-  `AppState` (`Mutex<HashMap<String, String>>`). Names are canonicalized with
-  the same rules as `AppSettings::canonicalize_process_name` on both the
-  request and resolution sides. Unresolvable names return `null`.
+  (a) running processes, then (b) the installed-apps cache; serve the icon
+  from the in-memory cache, then the **disk cache**, then extraction. Store
+  successes in both caches. Names are canonicalized with the same rules as
+  `AppSettings::canonicalize_process_name` on both the request and resolution
+  sides. Unresolvable names return `null`.
+- **Disk icon cache** (`<config>/icon-cache/<canonical-name>.b64`): one text
+  file per icon holding `<exe mtime nanos>\n<base64 png>`. The mtime line
+  invalidates the entry when the source exe is replaced (game update); the
+  PNG base64 prefix (`iVBOR`) is the integrity check. This makes the first
+  dropdown open of every session instant after the first-ever extraction
+  pass. The frontend fetches in chunks of 24 so visible rows populate first.
 - Non-Windows: catalog still returns running processes (names only); icons
   resolve to `null` and the frontend falls back.
 
@@ -193,7 +199,8 @@ New `game_mode.*` keys (search placeholder, empty state, loading) added to all
 
 ## Out of scope
 
-- Persisting icons or name→path mappings to disk (per-session cache only).
+- Persisting name→path mappings to disk (the icon disk cache keeps only the
+  artwork; name resolution still re-derives from the live scan each session).
 - Icon extraction on macOS/Linux.
 - Launcher-library scans (Steam VDF, Epic manifests, GOG).
 - Expanding or curating the default games list itself.
