@@ -51,9 +51,21 @@ pub fn scan_installed_apps() -> Vec<InstalledApp> {
 mod windows_impl {
     use super::*;
     use std::fs;
+    use std::os::windows::fs::MetadataExt;
     use std::path::PathBuf;
+    use windows::core::PCWSTR;
+    use windows::Win32::Storage::FileSystem::WIN32_FIND_DATAW;
+    use windows::Win32::System::Com::{
+        CoCreateInstance, CoInitializeEx, CoUninitialize, IPersistFile, CLSCTX_INPROC_SERVER,
+        COINIT_APARTMENTTHREADED, STGM_READ,
+    };
+    use windows::Win32::UI::Shell::{IShellLinkW, ShellLink, SLGP_UNCPRIORITY};
     use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ};
     use winreg::RegKey;
+
+    /// std's is_symlink() does not report junctions; detect them via the
+    /// reparse attribute instead.
+    const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0400;
 
     const START_MENU_REL: &str = r"Microsoft\Windows\Start Menu\Programs";
     /// Bounds so a pathological Start Menu cannot stall the picker's first open.
@@ -114,6 +126,11 @@ mod windows_impl {
         }
         lnk_files.truncate(MAX_SCAN_ENTRIES);
 
+        // IShellLinkW needs an initialized apartment; treat "already
+        // initialized with a different model" (RPC_E_CHANGED_MODE) as usable.
+        let com_initialized =
+            unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED).is_ok() };
+
         let mut out = Vec::new();
         for lnk_path in lnk_files {
             let Some(target) = lnk_target(&lnk_path) else {
@@ -134,6 +151,10 @@ mod windows_impl {
                 exe_path: target,
             });
         }
+
+        if com_initialized {
+            unsafe { CoUninitialize() };
+        }
         out
     }
 
@@ -145,6 +166,14 @@ mod windows_impl {
             return;
         };
         for entry in entries.flatten() {
+            // Skip junctions/reparse points: std's is_symlink() does not
+            // report them, and a loop would recurse without bound.
+            let Ok(meta) = entry.metadata() else {
+                continue;
+            };
+            if meta.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 {
+                continue;
+            }
             let Ok(file_type) = entry.file_type() else {
                 continue;
             };
@@ -163,13 +192,29 @@ mod windows_impl {
         }
     }
 
-    /// lnk 0.5 exposes these via accessor methods; if the pinned version
-    /// differs, adjust the two accessors only.
+    /// Parses a shortcut's target path via the shell's own IShellLinkW
+    /// parser. The pure-Rust `lnk` crate is NOT an option here: it unwraps
+    /// on malformed input, and every release profile ships panic=abort, so
+    /// one bad .lnk in the Start Menu would take the whole app down.
     fn lnk_target(path: &Path) -> Option<PathBuf> {
-        let link = lnk::ShellLink::open(path).ok()?;
-        let info = link.link_info().as_ref()?;
-        let base = info.local_base_path().as_ref()?;
-        Some(PathBuf::from(base))
+        use std::os::windows::ffi::OsStrExt;
+        use windows::core::Interface;
+
+        let wide: Vec<u16> = path
+            .as_os_str()
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect();
+        let link: IShellLinkW =
+            unsafe { CoCreateInstance(&ShellLink, None, CLSCTX_INPROC_SERVER).ok()? };
+        let persist: IPersistFile = link.cast().ok()?;
+        unsafe { persist.Load(PCWSTR(wide.as_ptr()), STGM_READ).ok()? };
+        let mut buf = [0u16; 260];
+        let mut find = WIN32_FIND_DATAW::default();
+        unsafe { link.GetPath(&mut buf, &mut find, SLGP_UNCPRIORITY.0 as u32).ok()? };
+        let end = buf.iter().position(|&c| c == 0).unwrap_or(buf.len());
+        let target = String::from_utf16_lossy(&buf[..end]);
+        (!target.is_empty()).then(|| PathBuf::from(target))
     }
 }
 

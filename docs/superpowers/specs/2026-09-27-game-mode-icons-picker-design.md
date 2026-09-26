@@ -88,15 +88,20 @@ Windows implementation:
 - **Start Menu**: recursive scan of
   `%ProgramData%\Microsoft\Windows\Start Menu\Programs` and
   `%APPDATA%\Microsoft\Windows\Start Menu\Programs` for `.lnk` files, parsed
-  with the pure-Rust `lnk` crate (no COM). Bounded: depth cap 5, entry cap
-  2000, symlink/reparse points skipped. Unresolvable shortcuts are skipped
-  silently.
+  with the shell's own `IShellLinkW` COM parser. (An earlier revision used the
+  pure-Rust `lnk` crate; it unwraps on malformed input and every release
+  profile ships `panic = "abort"`, so one bad shortcut crashed the app —
+  caught in UAT 2026-09-27 and replaced with the panic-free COM path.)
+  Bounded: depth cap 5, entry cap 2000, symlink/junction (reparse-point)
+  entries skipped. Unresolvable shortcuts are skipped silently.
 - Dedup case-insensitively by exe file name (running catalog unaffected —
   dedup happens at merge time in the command layer).
 - Non-Windows: returns an empty Vec.
 
-New dependency: `lnk` (pure Rust .lnk parser) and `winreg` (battle-tested
-registry read/enumerate wrapper) in `crates/platform`.
+New dependency: `winreg` (battle-tested registry read/enumerate wrapper) in
+`crates/platform`; shortcut parsing uses the `windows` crate's `IShellLinkW`
+(new features `Win32_UI_Shell`, `Win32_Storage_FileSystem`) — no new parser
+dependency, and zero panics reachable from the scan.
 
 ### New Tauri commands (`src-tauri/src/commands.rs`)
 
