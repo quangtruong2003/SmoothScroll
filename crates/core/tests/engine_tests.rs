@@ -2,14 +2,18 @@
 
 use smoothscroll_core::engine::{EngineOutput, SmoothScrollEngine};
 use smoothscroll_core::input_source::InputSource;
-use smoothscroll_core::settings::{AppSettings, EffectiveSettings};
+use smoothscroll_core::settings::{AppSettings, EffectiveSettings, EngineTiming};
 use smoothscroll_core::wheel::{
     DeltaTransform, ModifierKeys, SmoothingStrategy, WheelAxis, WheelInputEvent, WheelSemantic,
     WheelSequence, WheelTransport,
 };
 
 fn eff() -> EffectiveSettings {
-    EffectiveSettings::from_settings(&AppSettings::default())
+    // Pinned to the legacy scheduler: these tests assert legacy-scheduler
+    // contracts (exponential tail, sub-0.1px drops, trunc-quantized instant).
+    let mut s = AppSettings::default();
+    s.engine_timing = EngineTiming::Legacy;
+    EffectiveSettings::from_settings(&s)
 }
 
 fn effective_with(
@@ -23,6 +27,7 @@ fn effective_with(
     s.easing_mode = easing_mode;
     s.tail_to_head_ratio = tail_to_head_ratio;
     s.animation_easing = animation_easing;
+    s.engine_timing = EngineTiming::Legacy;
     EffectiveSettings::from_settings(&s)
 }
 fn on_wheel(e: &mut SmoothScrollEngine, delta: i32, now_ms: u64, eff: &EffectiveSettings) {
@@ -271,6 +276,11 @@ fn animated_clamp_carries_overflow_without_losing_total_distance() {
     settings.max_velocity = 20.0;
     settings.animation_time_ms = 1;
     settings.animation_easing = false;
+    // Pinned to the legacy scheduler: animated==instant exact equality is a
+    // legacy contract. Under Windows timing the animated path applies the
+    // end-of-gesture round-to-nearest pulse (spec §6.3) that the instant
+    // flush does not, so the two may differ by up to half a pulse.
+    settings.engine_timing = EngineTiming::Legacy;
 
     let animated = EffectiveSettings::from_settings(&settings);
     let mut instant = animated.clone();
@@ -1122,4 +1132,142 @@ fn reset_axes_clears_all_pending_batches() {
         engine.step(1000.0 / 120.0, &settings),
         EngineOutput::default()
     );
+}
+
+fn eff_windows() -> EffectiveSettings {
+    let mut s = eff();
+    s.engine_timing = EngineTiming::Windows;
+    s
+}
+
+#[test]
+fn windows_single_notch_conserves_travel() {
+    let settings = eff_windows();
+    let mut eng = SmoothScrollEngine::new();
+    on_wheel(&mut eng, 120, 0, &settings);
+    let mut total = 0i32;
+    for _ in 0..400 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    // 144 px at accel 1 (first notch: zero velocity history) = 12×12 delta.
+    assert_eq!(total, 144);
+    assert!(!eng.has_pending_work());
+}
+
+#[test]
+fn windows_overlapping_roll_conserves_travel() {
+    let mut settings = eff_windows();
+    settings.acceleration_max = 1; // isolate the scheduler from feel shaping
+    let mut eng = SmoothScrollEngine::new();
+    for i in 0..10 {
+        on_wheel(&mut eng, 120, i * 30, &settings);
+    }
+    let mut total = 0i32;
+    for _ in 0..600 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    assert_eq!(total, 1440); // 10 notches × 144 px, exactly — what goes in comes out
+}
+
+#[test]
+fn windows_acceleration_still_shapes_amount() {
+    let settings = eff_windows(); // default acceleration_max = 10
+    let mut eng = SmoothScrollEngine::new();
+    for i in 0..10 {
+        on_wheel(&mut eng, 120, i * 30, &settings);
+    }
+    let mut total = 0i32;
+    for _ in 0..600 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    assert!(total > 1440, "accelerated roll must exceed base travel, got {total}");
+}
+
+#[test]
+fn windows_nothing_after_duration_ends() {
+    let settings = eff_windows();
+    let mut eng = SmoothScrollEngine::new();
+    on_wheel(&mut eng, 120, 0, &settings);
+    for _ in 0..220 {
+        eng.step(1.0, &settings);
+    }
+    assert!(!eng.has_pending_work());
+    assert!(eng.step(1.0, &settings).vertical.is_none());
+}
+
+#[test]
+fn windows_rounding_emits_half_pulse_at_gesture_end() {
+    let mut settings = eff_windows();
+    // 151 delta = 12.58 pulses: strictly inside the emit side of the
+    // round-to-nearest boundary. (150 would be exactly 12.5 — the fp sum at
+    // drain lands at 0.4999999999999777, on the wrong side of the >= 0.5 rule.)
+    settings.step_size_px = 151;
+    let mut eng = SmoothScrollEngine::new();
+    on_wheel(&mut eng, 120, 0, &settings);
+    let mut total = 0i32;
+    for _ in 0..400 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    assert_eq!(total, 156); // 12 full pulses (144) + one rounding pulse (12)
+}
+
+#[test]
+fn windows_rounding_drops_below_half_pulse() {
+    let mut settings = eff_windows();
+    settings.step_size_px = 146; // 146 delta = 12.17 pulses
+    let mut eng = SmoothScrollEngine::new();
+    on_wheel(&mut eng, 120, 0, &settings);
+    let mut total = 0i32;
+    for _ in 0..400 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    assert_eq!(total, 144);
+}
+
+#[test]
+fn windows_instant_mode_flushes_everything_at_once() {
+    let mut settings = eff_windows();
+    settings.instant_mode = true;
+    let mut eng = SmoothScrollEngine::new();
+    on_wheel(&mut eng, 120, 0, &settings);
+    let p = eng
+        .step(1.0, &settings)
+        .vertical
+        .expect("instant flush emits");
+    assert_eq!(p.units, 144);
+    assert!(!eng.has_pending_work());
+}
+
+#[test]
+fn windows_direction_reversal_pays_signed_total() {
+    let mut settings = eff_windows();
+    settings.acceleration_max = 1; // exact cancellation
+    let mut eng = SmoothScrollEngine::new();
+    on_wheel(&mut eng, 120, 0, &settings);
+    // Count from the first frame: the +144 px window starts paying
+    // immediately, so the pulses emitted during the lead-in belong to the
+    // gesture's signed total just as much as the reversal's do.
+    let mut total = 0i32;
+    for _ in 0..50 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    on_wheel(&mut eng, -120, 60, &settings);
+    for _ in 0..500 {
+        if let Some(p) = eng.step(1.0, &settings).vertical {
+            total += p.units;
+        }
+    }
+    assert_eq!(total, 0); // +144 and −144 px, exactly
 }

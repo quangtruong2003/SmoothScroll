@@ -11,11 +11,12 @@
 use crate::constants::{BASE_STEP_PX, EMIT_UNIT, PULSE_CLAMP_MAX, PULSE_CLAMP_MIN, WHEEL_DELTA};
 use crate::easing::{compute_easing_fraction, EasingMode};
 use crate::input_source::InputSource;
-use crate::settings::EffectiveSettings;
+use crate::settings::{EffectiveSettings, EngineTiming};
 use crate::wheel::{
     DeltaTransform, ModifierKeys, SemanticPulse, SmoothingStrategy, WheelAxis, WheelInputEvent,
     WheelSemantic, WheelSequence, WheelTransport,
 };
+use crate::window_model::{PayoutParams, WindowGlide};
 use std::collections::VecDeque;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -51,7 +52,7 @@ struct PendingBatch {
     easing: EasingSnapshot,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 struct Axis {
     pending: VecDeque<PendingBatch>,
     last_notch_ms: u64,
@@ -61,6 +62,8 @@ struct Axis {
     sequence: Option<WheelSequence>,
     discrete_notches: VecDeque<i8>,
     discrete_remainder: i32,
+    /// In-flight windows for the Windows timing; empty on the legacy timing.
+    windows: WindowGlide,
 }
 
 impl Axis {
@@ -80,12 +83,14 @@ impl Axis {
         self.sequence = None;
         self.discrete_notches.clear();
         self.discrete_remainder = 0;
+        self.windows.reset();
     }
 
     fn has_pending(&self) -> bool {
         !self.pending.is_empty()
             || self.clamp_carry_pulses != 0
             || !self.discrete_notches.is_empty()
+            || !self.windows.is_empty()
     }
 
     fn flush_instant(&mut self) -> i32 {
@@ -146,13 +151,18 @@ impl Axis {
     ) {
         let notches = delta as f64 / WHEEL_DELTA as f64;
 
-        let instant_velocity = if self.last_notch_ms > 0 {
+        let gap_ms = if self.last_notch_ms > 0 {
             // Saturating: wall-clock sources (macOS hook) can step backwards
             // across NTP corrections/resume, and a u64 underflow here would
             // panic in debug builds inside the hook callback.
-            let dt = now_ms.saturating_sub(self.last_notch_ms);
-            if (1..500).contains(&dt) {
-                1000.0 / dt as f64
+            now_ms.saturating_sub(self.last_notch_ms)
+        } else {
+            0
+        };
+
+        let instant_velocity = if self.last_notch_ms > 0 {
+            if (1..500).contains(&gap_ms) {
+                1000.0 / gap_ms as f64
             } else {
                 0.0
             }
@@ -167,16 +177,37 @@ impl Axis {
         let velocity_ratio = (self.velocity / settings.max_velocity).min(1.0);
         let accel_factor =
             1.0 + velocity_ratio * velocity_ratio * (settings.acceleration_max as f64 - 1.0);
-        self.add_pending(
-            notches * settings.step_size_px as f64 * accel_factor,
-            easing,
-        );
+        let amount = notches * settings.step_size_px as f64 * accel_factor;
+        if settings.engine_timing == EngineTiming::Windows {
+            self.windows
+                .feed(amount, gap_ms as f64, payout_params(easing));
+        } else {
+            self.add_pending(amount, easing);
+        }
     }
 
-    fn register_pixels(&mut self, px: f64, now_ms: u64, multiplier: f64, easing: EasingSnapshot) {
+    fn register_pixels(
+        &mut self,
+        px: f64,
+        now_ms: u64,
+        multiplier: f64,
+        easing: EasingSnapshot,
+        timing: EngineTiming,
+    ) {
+        let gap_ms = if self.last_notch_ms > 0 {
+            now_ms.saturating_sub(self.last_notch_ms)
+        } else {
+            0
+        };
         self.last_notch_ms = now_ms;
         self.velocity = 0.0;
-        self.add_pending(px * multiplier, easing);
+        let amount = px * multiplier;
+        if timing == EngineTiming::Windows {
+            self.windows
+                .feed(amount, gap_ms as f64, payout_params(easing));
+        } else {
+            self.add_pending(amount, easing);
+        }
     }
 
     fn register_discrete(&mut self, delta: i32) {
@@ -258,6 +289,72 @@ impl Axis {
         self.clamp_carry_pulses = pulses.saturating_sub(emitted);
         emitted * EMIT_UNIT
     }
+
+    /// Windows-timing frame step. Velocity decays on the same cadence as the
+    /// legacy path so future notches see the same acceleration history.
+    fn step_windows(&mut self, dt_ms: f64) -> i32 {
+        const DECAY_HALF_LIFE_MS: f64 = 200.0;
+        if dt_ms > 0.0 {
+            self.velocity *= (-0.693 * dt_ms / DECAY_HALF_LIFE_MS).exp();
+            if self.velocity < 0.1 {
+                self.velocity = 0.0;
+            }
+        }
+
+        let emitted_px = self.windows.tick(dt_ms);
+        let wheel_units = (emitted_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+        self.unit_accum += wheel_units / EMIT_UNIT as f64;
+
+        let drained = self.windows.is_empty() && self.clamp_carry_pulses == 0;
+        let mut pulses = self.clamp_carry_pulses;
+        self.clamp_carry_pulses = 0;
+        let mut fresh = 0i32;
+        if self.unit_accum.abs() >= 1.0 {
+            fresh = self.unit_accum.trunc() as i32;
+            self.unit_accum -= fresh as f64;
+        }
+        if drained {
+            // End-of-gesture round-to-nearest: bounded error <= half a pulse.
+            if self.unit_accum.abs() >= 0.5 {
+                fresh += self.unit_accum.signum() as i32;
+            }
+            self.unit_accum = 0.0;
+        }
+        pulses += fresh;
+
+        if pulses == 0 {
+            return 0;
+        }
+        let emitted = pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX);
+        self.clamp_carry_pulses = pulses.saturating_sub(emitted);
+        emitted * EMIT_UNIT
+    }
+
+    fn flush_instant_windows(&mut self) -> i32 {
+        let remaining_px = self.windows.pending_px();
+        self.windows.reset();
+        let mut pulses = self.clamp_carry_pulses;
+        self.clamp_carry_pulses = 0;
+        if remaining_px.abs() >= 0.1 {
+            let wheel_units = (remaining_px / BASE_STEP_PX) * WHEEL_DELTA as f64;
+            self.unit_accum += wheel_units / EMIT_UNIT as f64;
+            let fresh = self.unit_accum.trunc() as i32;
+            self.unit_accum -= fresh as f64;
+            pulses = pulses.saturating_add(fresh);
+        } else {
+            self.unit_accum = 0.0;
+        }
+        #[cfg(windows)]
+        {
+            // The Windows emitter synchronously chunks oversized instant output.
+            pulses.saturating_mul(EMIT_UNIT)
+        }
+        #[cfg(not(windows))]
+        {
+            // Preserve the legacy clamp/drop behavior on other platforms.
+            pulses.clamp(PULSE_CLAMP_MIN, PULSE_CLAMP_MAX) * EMIT_UNIT
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -297,6 +394,7 @@ impl SmoothScrollEngine {
                         now_ms,
                         settings.touchpad_pixel_multiplier,
                         settings.into(),
+                        settings.engine_timing,
                     );
                 }
                 InputSource::Touchpad => axis.register_notch(now_ms, delta, settings),
@@ -379,8 +477,8 @@ impl SmoothScrollEngine {
 
     pub fn step(&mut self, dt_ms: f64, settings: &EffectiveSettings) -> EngineOutput {
         EngineOutput {
-            vertical: self.step_axis(WheelAxis::Vertical, dt_ms, settings.instant_mode),
-            horizontal: self.step_axis(WheelAxis::Horizontal, dt_ms, settings.instant_mode),
+            vertical: self.step_axis(WheelAxis::Vertical, dt_ms, settings),
+            horizontal: self.step_axis(WheelAxis::Horizontal, dt_ms, settings),
         }
     }
 
@@ -438,14 +536,26 @@ impl SmoothScrollEngine {
         &mut self,
         axis: WheelAxis,
         dt_ms: f64,
-        instant_mode: bool,
+        settings: &EffectiveSettings,
     ) -> Option<SemanticPulse> {
         let axis_state = self.axis_mut(axis);
         let sequence = axis_state.sequence?;
         let units = match sequence.strategy {
-            SmoothingStrategy::Continuous if instant_mode => axis_state.flush_instant(),
-            SmoothingStrategy::Continuous => axis_state.step_continuous(dt_ms),
-            SmoothingStrategy::DiscreteNotchPreserving if instant_mode => {
+            SmoothingStrategy::Continuous if settings.instant_mode => {
+                if settings.engine_timing == EngineTiming::Windows {
+                    axis_state.flush_instant_windows()
+                } else {
+                    axis_state.flush_instant()
+                }
+            }
+            SmoothingStrategy::Continuous => {
+                if settings.engine_timing == EngineTiming::Windows {
+                    axis_state.step_windows(dt_ms)
+                } else {
+                    axis_state.step_continuous(dt_ms)
+                }
+            }
+            SmoothingStrategy::DiscreteNotchPreserving if settings.instant_mode => {
                 axis_state.flush_discrete_instant()
             }
             SmoothingStrategy::DiscreteNotchPreserving => axis_state.flush_discrete(),
@@ -473,6 +583,15 @@ impl SmoothScrollEngine {
             WheelAxis::Vertical => &mut self.v,
             WheelAxis::Horizontal => &mut self.h,
         }
+    }
+}
+
+fn payout_params(s: EasingSnapshot) -> PayoutParams {
+    PayoutParams {
+        duration_ms: s.animation_time_ms.max(1) as f64,
+        easing_mode: s.easing_mode,
+        tail_to_head_ratio: s.tail_to_head_ratio as f64,
+        easing_enabled: s.animation_easing,
     }
 }
 
