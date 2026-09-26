@@ -410,7 +410,9 @@
     "status_active": "🎮 已启用 — 已暂停平滑滚动",
     "status_inactive": "未启用",
     "known_games": "已知游戏",
-    "placeholder": "game.exe"
+    "search_placeholder": "搜索游戏或输入 .exe 名称…",
+    "loading": "正在扫描应用…",
+    "empty_state": "没有找到？输入 .exe 名称后按 Enter。"
   },
   "errors": {
     "autostart_failed": "无法更改开机启动设置",

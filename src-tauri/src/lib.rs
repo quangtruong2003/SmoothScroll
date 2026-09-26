@@ -385,6 +385,8 @@ pub fn run() {
             commands::suggest_profile_for_app,
             // Game mode
             commands::add_known_game,
+            commands::get_game_catalog,
+            commands::get_known_game_icons,
             commands::remove_known_game,
             commands::get_game_mode_status,
             commands::get_input_source,

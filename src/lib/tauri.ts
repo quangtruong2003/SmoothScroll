@@ -101,6 +101,11 @@ export interface ProcessInfo {
   window_title: string;
 }
 
+export interface GameCatalogEntry {
+  exe_name: string;
+  display_name: string | null;
+}
+
 export interface MonitorInfo {
   device_name: string;
   friendly_name: string;
@@ -212,6 +217,9 @@ export const tauri = {
   removeKnownGame: (name: string) =>
     invoke<null>("remove_known_game", { name }),
   getGameModeStatus: () => invoke<boolean>("get_game_mode_status"),
+  getGameCatalog: () => invoke<GameCatalogEntry[]>("get_game_catalog"),
+  getKnownGameIcons: (names: string[]) =>
+    invoke<Record<string, string | null>>("get_known_game_icons", { names }),
 
   async getInputSource(): Promise<InputSourceLabel> {
     return invoke<InputSourceLabel>("get_input_source");

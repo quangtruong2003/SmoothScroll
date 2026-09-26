@@ -410,7 +410,9 @@
     "status_active": "🎮 Activo — desplazamiento suave en pausa",
     "status_inactive": "Inactivo",
     "known_games": "Juegos conocidos",
-    "placeholder": "game.exe"
+    "search_placeholder": "Buscar juegos o escribir un nombre .exe…",
+    "loading": "Escaneando aplicaciones…",
+    "empty_state": "¿Sin resultados? Escribe el nombre .exe y pulsa Enter."
   },
   "errors": {
     "autostart_failed": "No se pudo cambiar la configuración de inicio automático",

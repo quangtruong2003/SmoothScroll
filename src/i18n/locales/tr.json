@@ -410,7 +410,9 @@
     "status_active": "🎮 Aktif — yumuşak kaydırma duraklatıldı",
     "status_inactive": "Pasif",
     "known_games": "Bilinen oyunlar",
-    "placeholder": "game.exe"
+    "search_placeholder": "Oyun ara veya .exe adı yaz…",
+    "loading": "Uygulamalar taranıyor…",
+    "empty_state": "Sonuç yok mu? .exe adını yazıp Enter'a basın."
   },
   "errors": {
     "autostart_failed": "Otomatik başlatma ayarı değiştirilemedi",

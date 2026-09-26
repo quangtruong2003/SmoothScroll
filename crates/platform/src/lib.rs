@@ -1,6 +1,7 @@
 //! OS-abstraction layer for SmoothScroll.
 
 pub mod icon;
+pub mod installed_apps;
 pub mod traits;
 pub mod types;
 

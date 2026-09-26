@@ -410,7 +410,9 @@
     "status_active": "🎮 Attivo — scorrimento fluido in pausa",
     "status_inactive": "Inattivo",
     "known_games": "Giochi noti",
-    "placeholder": "game.exe"
+    "search_placeholder": "Cerca giochi o digita un nome .exe…",
+    "loading": "Scansione app in corso…",
+    "empty_state": "Nessun risultato? Digita il nome .exe e premi Invio."
   },
   "errors": {
     "autostart_failed": "Impossibile modificare l'avvio automatico",

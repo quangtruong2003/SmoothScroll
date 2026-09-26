@@ -410,7 +410,9 @@
     "status_active": "🎮 Aktif — smooth scrolling dijeda",
     "status_inactive": "Nonaktif",
     "known_games": "Game yang dikenal",
-    "placeholder": "game.exe"
+    "search_placeholder": "Cari game atau ketik nama .exe…",
+    "loading": "Memindai aplikasi…",
+    "empty_state": "Tidak ketemu? Ketik nama .exe lalu tekan Enter."
   },
   "errors": {
     "autostart_failed": "Gagal mengubah pengaturan autostart",

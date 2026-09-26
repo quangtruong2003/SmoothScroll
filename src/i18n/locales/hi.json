@@ -410,7 +410,9 @@
     "status_active": "🎮 सक्रिय — स्मूथ स्क्रॉलिंग रुकी हुई",
     "status_inactive": "निष्क्रिय",
     "known_games": "ज्ञात गेम्स",
-    "placeholder": "game.exe"
+    "search_placeholder": "गेम खोजें या .exe नाम टाइप करें…",
+    "loading": "ऐप्स स्कैन हो रहे हैं…",
+    "empty_state": "कोई मैच नहीं? .exe नाम टाइप करें और Enter दबाएँ।"
   },
   "errors": {
     "autostart_failed": "ऑटोस्टार्ट सेटिंग बदलने में विफल",

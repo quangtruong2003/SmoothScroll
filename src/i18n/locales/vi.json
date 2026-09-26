@@ -410,7 +410,9 @@
     "status_active": "🎮 Đang hoạt động — đã tạm dừng cuộn mượt",
     "status_inactive": "Không hoạt động",
     "known_games": "Danh sách game",
-    "placeholder": "game.exe"
+    "search_placeholder": "Tìm game hoặc nhập tên .exe…",
+    "loading": "Đang quét ứng dụng…",
+    "empty_state": "Không thấy? Nhập tên .exe rồi nhấn Enter."
   },
   "errors": {
     "autostart_failed": "Không thể thay đổi cài đặt tự khởi động",

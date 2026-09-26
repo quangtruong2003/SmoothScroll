@@ -35,6 +35,8 @@ windows = { version = "0.58", features = [
     "Win32_System_Com",
 ] }
 windows-icons = "0.3"
+lnk = "0.5"
+winreg = "0.55"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = { version = "0.6", default-features = false, features = ["std"] }

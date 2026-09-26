@@ -410,7 +410,9 @@
     "status_active": "🎮 Active — smooth scrolling paused",
     "status_inactive": "Inactive",
     "known_games": "Known games",
-    "placeholder": "game.exe"
+    "search_placeholder": "Search games or type a .exe name…",
+    "loading": "Scanning apps…",
+    "empty_state": "No match? Type the .exe name and press Enter."
   },
   "errors": {
     "autostart_failed": "Failed to change autostart setting",

@@ -410,7 +410,9 @@
     "status_active": "🎮 Actif — défilement fluide en pause",
     "status_inactive": "Inactif",
     "known_games": "Jeux connus",
-    "placeholder": "game.exe"
+    "search_placeholder": "Rechercher des jeux ou saisir un nom .exe…",
+    "loading": "Analyse des applications…",
+    "empty_state": "Aucun résultat ? Saisissez le nom .exe et appuyez sur Entrée."
   },
   "errors": {
     "autostart_failed": "Échec de la modification du démarrage automatique",

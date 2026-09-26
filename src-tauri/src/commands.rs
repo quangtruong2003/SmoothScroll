@@ -6,10 +6,13 @@ use smoothscroll_core::app_categories::{
 };
 use smoothscroll_core::engine::SmoothScrollEngine;
 use smoothscroll_core::settings::{self, is_valid_accelerator, AppSettings, ScrollProfile};
+use smoothscroll_platform::installed_apps::InstalledApp;
 use smoothscroll_platform::traits::ProcessInfo;
 use smoothscroll_platform::types::Accelerator;
+use std::collections::HashMap;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
+use std::sync::LazyLock;
 use tauri::{AppHandle, Emitter, Manager, State};
 
 /// Emit the canonical `enabled-changed` event so any open windows pick up
@@ -898,5 +901,217 @@ pub fn get_foreground_app_context(state: State<'_, Arc<AppState>>) -> Foreground
         current_profile_id,
         is_excluded,
         app_icon_base64,
+    }
+}
+
+// ---- Game Mode: game catalog + chip icons --------------------------------
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct GameCatalogEntry {
+    /// exe file name, e.g. "GTA5.exe" — same shape `game_mode_known_apps` stores.
+    pub exe_name: String,
+    /// Shortcut name / window title when known; secondary label in the picker.
+    pub display_name: Option<String>,
+}
+
+/// Session cache of the installed-apps scan: built once on first catalog or
+/// icon request, process-lifetime. A game installed mid-session appears in
+/// the next app launch (accepted spec trade-off).
+static INSTALLED_APPS: LazyLock<parking_lot::Mutex<Option<Vec<InstalledApp>>>> =
+    LazyLock::new(|| parking_lot::Mutex::new(None));
+
+/// Positive-only icon cache: canonical exe name -> base64 PNG (no data:
+/// prefix). Failed lookups are cheap hash-miss retries, so they are not
+/// cached.
+static GAME_ICONS: LazyLock<parking_lot::Mutex<HashMap<String, String>>> =
+    LazyLock::new(|| parking_lot::Mutex::new(HashMap::new()));
+
+fn canonical_exe_key(name: &str) -> String {
+    smoothscroll_core::settings::AppSettings::canonicalize_process_name(name)
+}
+
+/// Running-process entries come first (live-verified), installed entries fill
+/// the rest; dedup is case-insensitive on the canonical exe name.
+fn merge_game_catalog(installed: &[InstalledApp], running: &[ProcessInfo]) -> Vec<GameCatalogEntry> {
+    let mut out: Vec<GameCatalogEntry> = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+    for p in running {
+        let key = canonical_exe_key(&p.name);
+        if key.is_empty() || !seen.insert(key) {
+            continue;
+        }
+        let title = p.window_title.trim();
+        out.push(GameCatalogEntry {
+            exe_name: p.name.clone(),
+            display_name: (!title.is_empty()).then(|| title.to_string()),
+        });
+    }
+    for a in installed {
+        let key = canonical_exe_key(&a.exe_name);
+        if key.is_empty() || !seen.insert(key) {
+            continue;
+        }
+        out.push(GameCatalogEntry {
+            exe_name: a.exe_name.clone(),
+            display_name: a.display_name.clone(),
+        });
+    }
+    out
+}
+
+/// Resolves a known-game name to an on-disk exe: running processes first
+/// (they carry `exe_path`), then the installed-apps scan.
+fn resolve_exe_path(
+    name: &str,
+    installed: &[InstalledApp],
+    running: &[ProcessInfo],
+) -> Option<std::path::PathBuf> {
+    let key = canonical_exe_key(name);
+    if key.is_empty() {
+        return None;
+    }
+    running
+        .iter()
+        .find(|p| canonical_exe_key(&p.name) == key)
+        .and_then(|p| p.exe_path.as_deref())
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            installed
+                .iter()
+                .find(|a| canonical_exe_key(&a.exe_name) == key)
+                .map(|a| a.exe_path.clone())
+        })
+}
+
+fn ensure_installed_apps() -> Vec<InstalledApp> {
+    let mut guard = INSTALLED_APPS.lock();
+    if guard.is_none() {
+        *guard = Some(smoothscroll_platform::installed_apps::scan_installed_apps());
+        tracing::info!(
+            count = guard.as_ref().map_or(0, |v| v.len()),
+            "installed-apps scan complete"
+        );
+    }
+    guard.clone().unwrap_or_default()
+}
+
+/// Picker catalog: installed apps (session-cached scan) + currently running
+/// visible apps (fresh per call), deduped.
+#[tauri::command]
+pub fn get_game_catalog(state: State<'_, Arc<AppState>>) -> Vec<GameCatalogEntry> {
+    let running = state.processes.list_visible_processes();
+    let installed = ensure_installed_apps();
+    merge_game_catalog(&installed, &running)
+}
+
+/// Chip icons for known games. Keys of the response mirror the requested
+/// names; misses resolve to `null` and the frontend falls back to its
+/// generic icon. Successes are cached by canonical name.
+#[tauri::command]
+pub fn get_known_game_icons(
+    state: State<'_, Arc<AppState>>,
+    names: Vec<String>,
+) -> HashMap<String, Option<String>> {
+    let running = state.processes.list_visible_processes();
+    let installed = ensure_installed_apps();
+    let mut icons = GAME_ICONS.lock();
+    let mut out: HashMap<String, Option<String>> = HashMap::new();
+    for name in names {
+        let key = canonical_exe_key(&name);
+        if key.is_empty() {
+            continue;
+        }
+        let icon = match icons.get(&key) {
+            Some(b64) => Some(b64.clone()),
+            None => resolve_exe_path(&name, &installed, &running)
+                .and_then(|path| smoothscroll_platform::icon::extract_for_exe(&path))
+                .inspect(|b64| {
+                    icons.insert(key.clone(), b64.clone());
+                }),
+        };
+        out.insert(name, icon);
+    }
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    mod game_catalog_tests {
+        use super::super::{merge_game_catalog, resolve_exe_path};
+        use smoothscroll_platform::installed_apps::InstalledApp;
+        use smoothscroll_platform::traits::ProcessInfo;
+        use std::path::PathBuf;
+
+        fn installed(name: &str, path: &str) -> InstalledApp {
+            InstalledApp {
+                exe_name: name.into(),
+                display_name: None,
+                exe_path: PathBuf::from(path),
+            }
+        }
+
+        fn running(name: &str, exe_path: Option<&str>) -> ProcessInfo {
+            ProcessInfo {
+                pid: 1,
+                name: name.into(),
+                window_title: String::new(),
+                exe_path: exe_path.map(|s| s.to_string()),
+            }
+        }
+
+        #[test]
+        fn merge_puts_running_first_and_dedups_case_insensitively() {
+            let installed = vec![installed("hades.exe", r"C:\g\hades.exe")];
+            let running = vec![running("HadesII.exe", Some(r"C:\g\hades2.exe"))];
+            let got = merge_game_catalog(&installed, &running);
+            // Running first, then the not-yet-seen installed entry.
+            assert_eq!(got[0].exe_name, "HadesII.exe");
+            assert_eq!(got[1].exe_name, "hades.exe");
+        }
+
+        #[test]
+        fn merge_hides_installed_entry_duplicate_of_running() {
+            let installed = vec![installed("cs2.exe", r"C:\s\cs2.exe")];
+            let running = vec![running("CS2.EXE", Some(r"C:\s\cs2.exe"))];
+            let got = merge_game_catalog(&installed, &running);
+            assert_eq!(got.len(), 1);
+            assert_eq!(got[0].exe_name, "CS2.EXE");
+            // window_title empty -> display_name stays None
+            assert_eq!(got[0].display_name, None);
+        }
+
+        #[test]
+        fn merge_drops_empty_names() {
+            let installed = vec![InstalledApp {
+                exe_name: String::new(),
+                display_name: None,
+                exe_path: PathBuf::from(r"C:\x"),
+            }];
+            let running = vec![running("   ", None)];
+            assert!(merge_game_catalog(&installed, &running).is_empty());
+        }
+
+        #[test]
+        fn resolve_prefers_running_exe_path_then_installed() {
+            let installed = vec![installed("hades.exe", r"C:\g\hades.exe")];
+            // Named `running_procs` so the `running(..)` helper stays callable below.
+            let running_procs = vec![running("cs2.exe", Some(r"C:\s\cs2.exe"))];
+
+            assert_eq!(
+                resolve_exe_path("cs2.EXE", &installed, &running_procs),
+                Some(PathBuf::from(r"C:\s\cs2.exe"))
+            );
+            assert_eq!(
+                resolve_exe_path("Hades.exe", &installed, &running_procs),
+                Some(PathBuf::from(r"C:\g\hades.exe"))
+            );
+            // Running process without an exe_path falls through to the scan.
+            let no_path = vec![running("hades.exe", None)];
+            assert_eq!(
+                resolve_exe_path("hades.exe", &installed, &no_path),
+                Some(PathBuf::from(r"C:\g\hades.exe"))
+            );
+            assert_eq!(resolve_exe_path("missing.exe", &installed, &running_procs), None);
+        }
     }
 }

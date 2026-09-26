@@ -410,7 +410,9 @@
     "status_active": "🎮 Ativo — rolagem suave em pausa",
     "status_inactive": "Inativo",
     "known_games": "Jogos conhecidos",
-    "placeholder": "game.exe"
+    "search_placeholder": "Pesquisar jogos ou digitar um nome .exe…",
+    "loading": "Escaneando aplicativos…",
+    "empty_state": "Sem resultados? Digite o nome .exe e pressione Enter."
   },
   "errors": {
     "autostart_failed": "Falha ao alterar a configuração de inicialização automática",

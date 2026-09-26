@@ -410,7 +410,9 @@
     "status_active": "🎮 Активно — плавная прокрутка приостановлена",
     "status_inactive": "Неактивно",
     "known_games": "Известные игры",
-    "placeholder": "game.exe"
+    "search_placeholder": "Поиск игр или введите имя .exe…",
+    "loading": "Сканирование приложений…",
+    "empty_state": "Ничего не найдено? Введите имя .exe и нажмите Enter."
   },
   "errors": {
     "autostart_failed": "Не удалось изменить настройку автозапуска",

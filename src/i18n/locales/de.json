@@ -410,7 +410,9 @@
     "status_active": "🎮 Aktiv — sanftes Scrollen pausiert",
     "status_inactive": "Inaktiv",
     "known_games": "Bekannte Spiele",
-    "placeholder": "game.exe"
+    "search_placeholder": "Spiele suchen oder .exe-Namen eingeben…",
+    "loading": "Apps werden gescannt…",
+    "empty_state": "Nicht gefunden? Gib den .exe-Namen ein und drücke Enter."
   },
   "errors": {
     "autostart_failed": "Autostart-Einstellung konnte nicht geändert werden",

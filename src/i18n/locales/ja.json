@@ -410,7 +410,9 @@
     "status_active": "🎮 アクティブ — スムーススクロールを一時停止中",
     "status_inactive": "非アクティブ",
     "known_games": "既知のゲーム",
-    "placeholder": "game.exe"
+    "search_placeholder": "ゲームを検索または .exe 名を入力…",
+    "loading": "アプリをスキャン中…",
+    "empty_state": "見つからない？.exe 名を入力して Enter を押してください。"
   },
   "errors": {
     "autostart_failed": "自動起動の設定変更に失敗しました",

@@ -410,7 +410,9 @@
     "status_active": "🎮 활성 — 부드러운 스크롤 일시중지됨",
     "status_inactive": "비활성",
     "known_games": "알려진 게임",
-    "placeholder": "game.exe"
+    "search_placeholder": "게임 검색 또는 .exe 이름 입력…",
+    "loading": "앱 검색 중…",
+    "empty_state": "결과가 없나요? .exe 이름을 입력하고 Enter를 누르세요."
   },
   "errors": {
     "autostart_failed": "자동 시작 설정 변경 실패",
