@@ -42,7 +42,17 @@ pub enum WheelOutputMode {
     Raw,
 }
 
-pub const CURRENT_SETTINGS_SCHEMA_VERSION: u32 = 1;
+/// Scroll timing scheduler. `Windows` = per-message window model (default);
+/// `Legacy` = pre-window running-total scheduler (hidden kill-switch).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum EngineTiming {
+    #[default]
+    Windows,
+    Legacy,
+}
+
+pub const CURRENT_SETTINGS_SCHEMA_VERSION: u32 = 2;
 
 fn default_games_list() -> Vec<String> {
     [
@@ -146,6 +156,40 @@ mod tests {
         assert!(!profile.smooth_zoom);
         assert!(profile.zoom_invert);
         assert_eq!(profile.zoom_sensitivity, 2.5);
+    }
+
+    #[test]
+    fn engine_timing_defaults_when_missing_from_json() {
+        let mut v = serde_json::to_value(AppSettings::default()).unwrap();
+        v.as_object_mut().unwrap().remove("engine_timing");
+        v.as_object_mut().unwrap().remove("discrete_wheel_apps");
+        let s: AppSettings = serde_json::from_value(v).unwrap();
+        assert_eq!(s.engine_timing, EngineTiming::Windows);
+        assert!(s.discrete_wheel_apps.is_empty());
+    }
+
+    #[test]
+    fn engine_timing_serializes_lowercase() {
+        assert_eq!(
+            serde_json::to_value(EngineTiming::Windows).unwrap(),
+            serde_json::json!("windows")
+        );
+        assert_eq!(
+            serde_json::to_value(EngineTiming::Legacy).unwrap(),
+            serde_json::json!("legacy")
+        );
+    }
+
+    #[test]
+    fn builtin_and_user_discrete_apps_canonicalize() {
+        let mut s = AppSettings::default();
+        s.discrete_wheel_apps = vec!["Cubase12".into()];
+        assert!(s.is_discrete_wheel_app(Some("reaper.EXE")));
+        assert!(s.is_discrete_wheel_app(Some("reaper")));
+        assert!(s.is_discrete_wheel_app(Some("Cubase12.exe")));
+        assert!(!s.is_discrete_wheel_app(Some("notepad.exe")));
+        assert!(!s.is_discrete_wheel_app(None));
+        assert!(!s.is_discrete_wheel_app(Some("   ")));
     }
 }
 
@@ -274,6 +318,12 @@ pub struct AppSettings {
     // App management
     pub excluded_apps: Vec<String>,
 
+    // Engine timing & discrete-wheel apps
+    #[serde(default)]
+    pub engine_timing: EngineTiming,
+    #[serde(default)]
+    pub discrete_wheel_apps: Vec<String>,
+
     // Per-app profiles
     pub profiles: Vec<ScrollProfile>,
     pub app_profiles: HashMap<String, String>, // process_name -> profile_id
@@ -349,6 +399,8 @@ impl Default for AppSettings {
             hotkey_accelerator: "Ctrl+Alt+S".to_string(),
             show_tray_icon_state: true,
             excluded_apps: Vec::new(),
+            engine_timing: EngineTiming::default(),
+            discrete_wheel_apps: Vec::new(),
             profiles: Vec::new(),
             app_profiles: HashMap::new(),
             game_mode_enabled: true,
@@ -469,6 +521,30 @@ impl AppSettings {
             .collect::<Vec<_>>()
             .join(" ")
             .to_lowercase()
+    }
+
+    /// Apps whose wheel receivers act only on whole wheel units (REAPER-class);
+    /// these always get whole-notch output regardless of the selected mode.
+    pub fn builtin_discrete_wheel_apps() -> &'static [&'static str] {
+        &["reaper.exe"]
+    }
+
+    /// Case-insensitive match against builtin + user discrete-wheel apps.
+    pub fn is_discrete_wheel_app(&self, process: Option<&str>) -> bool {
+        let Some(process) = process else {
+            return false;
+        };
+        let canon = Self::canonicalize_process_name(process);
+        if canon.is_empty() {
+            return false;
+        }
+        Self::builtin_discrete_wheel_apps()
+            .iter()
+            .any(|b| Self::canonicalize_process_name(b) == canon)
+            || self
+                .discrete_wheel_apps
+                .iter()
+                .any(|a| Self::canonicalize_process_name(a) == canon)
     }
 
     /// Special profile ID for disabled (pass-through) apps.
@@ -661,6 +737,10 @@ pub struct EffectiveSettings {
     pub horizontal_smoothness: bool,
     pub shift_wheel_behavior: ShiftWheelBehavior,
     pub wheel_output_mode: WheelOutputMode,
+    pub engine_timing: EngineTiming,
+    /// Per-event: the under-cursor/foreground process is a discrete-wheel app.
+    /// Always false from `from_settings`; the hook resolver sets it per event.
+    pub discrete_app_override: bool,
     pub horizontal_invert: bool,
     pub direction_sync_enabled: bool,
     pub touchpad_smoothing_enabled: bool,
@@ -690,6 +770,8 @@ impl EffectiveSettings {
             horizontal_smoothness: s.horizontal_smoothness,
             shift_wheel_behavior: s.shift_wheel_behavior,
             wheel_output_mode: s.wheel_output_mode,
+            engine_timing: s.engine_timing,
+            discrete_app_override: false,
             horizontal_invert: s.horizontal_invert,
             direction_sync_enabled: s.direction_sync_enabled,
             touchpad_smoothing_enabled: s.touchpad_smoothing_enabled,
@@ -719,6 +801,8 @@ impl EffectiveSettings {
             horizontal_smoothness: profile.horizontal_smoothness,
             shift_wheel_behavior: profile.shift_wheel_behavior,
             wheel_output_mode: profile.wheel_output_mode,
+            engine_timing: base.engine_timing,
+            discrete_app_override: false,
             horizontal_invert: base.horizontal_invert,
             direction_sync_enabled: base.direction_sync_enabled,
             touchpad_smoothing_enabled: base.touchpad_smoothing_enabled,
