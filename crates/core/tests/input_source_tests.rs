@@ -1,70 +1,54 @@
 use smoothscroll_core::input_source::{InputClassifier, InputSource};
 
 #[test]
-fn standard_wheel_event_is_wheel() {
+fn whole_notch_is_wheel_and_clears_evidence() {
     let mut c = InputClassifier::new();
-    assert_eq!(c.classify(120, 1000), InputSource::Wheel);
-    assert_eq!(c.classify(-120, 1100), InputSource::Wheel);
+    assert_eq!(c.classify(120, false), InputSource::Wheel);
+    assert_eq!(c.classify(-240, false), InputSource::Wheel);
 }
 
 #[test]
-fn small_delta_alone_is_high_res_wheel() {
+fn touch_marker_wins_per_message() {
     let mut c = InputClassifier::new();
-    assert_eq!(c.classify(30, 1000), InputSource::HighResWheel);
+    assert_eq!(c.classify(120, true), InputSource::Touchpad);
+    // The next unmarked message is judged on its own evidence.
+    assert_eq!(c.classify(120, false), InputSource::Wheel);
 }
 
 #[test]
-fn high_frequency_small_delta_is_touchpad() {
+fn two_magnitudes_lock_touchpad_for_the_gesture() {
     let mut c = InputClassifier::new();
-    // Touchpad: 4+ events, 20ms intervals (50 events/sec, avg < 50ms)
-    for i in 0..4 {
-        c.classify(20, 1000 + i * 20);
+    for i in 0..3 {
+        c.classify(20 + i, false); // 20, 21, 22 → distinct magnitudes
     }
-    assert_eq!(c.classify(20, 1080), InputSource::Touchpad);
+    assert_eq!(c.classify(20, false), InputSource::Touchpad);
+    // Even a now-regular value stays touchpad until a whole notch resets.
+    assert_eq!(c.classify(20, false), InputSource::Touchpad);
+    assert_eq!(c.classify(120, false), InputSource::Wheel);
 }
 
 #[test]
-fn rapid_touchpad_detection() {
+fn fixed_magnitude_is_free_spin_and_smooths_like_high_res() {
     let mut c = InputClassifier::new();
-    // Rapid touchpad: 6 events at 15ms intervals
-    for i in 0..6 {
-        c.classify(30, 1000 + i * 15);
-    }
-    assert_eq!(c.classify(30, 1075), InputSource::Touchpad);
+    // Fewer than 3 samples: not enough evidence — keep the previous verdict.
+    c.classify(15, false);
+    c.classify(15, false);
+    // One fixed magnitude = flywheel through detents = free-spinning wheel.
+    assert_eq!(c.classify(15, false), InputSource::HighResWheel);
+    assert_eq!(c.classify(15, false), InputSource::HighResWheel);
 }
 
 #[test]
-fn slow_events_not_touchpad() {
+fn too_few_samples_keeps_the_previous_verdict() {
     let mut c = InputClassifier::new();
-    // Slow scrolling: 4 events at 100ms intervals (10 events/sec < 30)
-    for i in 0..4 {
-        c.classify(20, 1000 + i * 100);
-    }
-    assert_eq!(c.classify(20, 1300), InputSource::HighResWheel);
+    assert_eq!(c.classify(120, false), InputSource::Wheel);
+    assert_eq!(c.classify(15, false), InputSource::Wheel); // 1 sub-notch sample
 }
 
 #[test]
-fn old_events_drop_out_of_window() {
+fn zero_delta_repeats_the_last_verdict() {
     let mut c = InputClassifier::new();
-    for i in 0..6 {
-        c.classify(20, 1000 + i * 20);
-    }
-    // After 300ms window, events have expired
-    assert_eq!(c.classify(20, 2000), InputSource::HighResWheel);
-}
-
-#[test]
-fn zero_delta_is_wheel_default() {
-    let mut c = InputClassifier::new();
-    assert_eq!(c.classify(0, 1000), InputSource::Wheel);
-}
-
-#[test]
-fn exact_notch_delta_is_wheel() {
-    let mut c = InputClassifier::new();
-    // Even with many rapid events, exact 120 delta = mouse wheel
-    for i in 0..6 {
-        c.classify(120, 1000 + i * 20);
-    }
-    assert_eq!(c.classify(120, 1100), InputSource::Wheel);
+    assert_eq!(c.classify(0, false), InputSource::Wheel);
+    assert_eq!(c.classify(120, true), InputSource::Touchpad);
+    assert_eq!(c.classify(0, false), InputSource::Touchpad);
 }

@@ -1,8 +1,8 @@
-//! Classifies wheel events as Wheel / HighResWheel / Touchpad based on
-//! delta magnitude, event frequency, and inter-event timing patterns.
+//! Classifies wheel events as Wheel / HighResWheel / Touchpad from the OS
+//! touch/pen marker and delta-magnitude evidence.
 
+use crate::constants::WHEEL_DELTA;
 use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InputSource {
@@ -11,13 +11,19 @@ pub enum InputSource {
     Touchpad,
 }
 
-const HISTORY_WINDOW_MS: u64 = 300;
-const TOUCHPAD_EVENT_THRESHOLD: usize = 4;
-const TOUCHPAD_MAX_INTERVAL_MS: u64 = 50;
-const STANDARD_NOTCH_DELTA: i32 = 120;
+/// Evidence window: recent sub-notch magnitudes. A free-spinning wheel counts
+/// a flywheel through hardware detents, so it reports exactly ONE magnitude;
+/// any variation means the value follows a finger (touchpad). Once a gesture
+/// has varied it stays touchpad until a whole notch starts a new gesture —
+/// the safe direction (over-missing smoothing never breaks scrolling).
+const MAG_WINDOW: usize = 8;
+const MIN_SAMPLES: usize = 3;
 
 pub struct InputClassifier {
-    recent: VecDeque<(u64, i32)>,
+    mags: [i32; MAG_WINDOW],
+    n: usize,
+    varied: bool,
+    last: InputSource,
 }
 
 impl Default for InputClassifier {
@@ -28,54 +34,63 @@ impl Default for InputClassifier {
 
 impl InputClassifier {
     pub fn new() -> Self {
-        Self {
-            recent: VecDeque::with_capacity(32),
-        }
+        Self { mags: [0; MAG_WINDOW], n: 0, varied: false, last: InputSource::Wheel }
     }
 
-    pub fn classify(&mut self, delta: i32, now_ms: u64) -> InputSource {
-        while let Some(&(t, _)) = self.recent.front() {
-            if now_ms.saturating_sub(t) > HISTORY_WINDOW_MS {
-                self.recent.pop_front();
-            } else {
-                break;
-            }
+    /// `touch_injected` is the OS touch/pen marker (MI_WP_SIGNATURE) computed
+    /// by the Windows hook; it wins outright for that message.
+    pub fn classify(&mut self, delta: i32, touch_injected: bool) -> InputSource {
+        if delta == 0 {
+            return self.last;
         }
-        self.recent.push_back((now_ms, delta));
-
-        let abs_delta = delta.unsigned_abs() as i32;
-        let event_count = self.recent.len();
-
-        if abs_delta == 0 {
-            return InputSource::Wheel;
+        if touch_injected {
+            self.last = InputSource::Touchpad;
+            return self.last;
         }
-
-        if abs_delta == STANDARD_NOTCH_DELTA {
-            return InputSource::Wheel;
+        let mag = delta.abs();
+        if mag % WHEEL_DELTA == 0 {
+            self.n = 0;
+            self.varied = false;
+            self.last = InputSource::Wheel;
+            return self.last;
         }
 
-        if event_count >= 2 {
-            let first_time = self.recent.front().map(|(t, _)| *t).unwrap_or(now_ms);
-            let window_duration = now_ms.saturating_sub(first_time);
+        self.mags.copy_within(1.., 0);
+        self.mags[MAG_WINDOW - 1] = mag;
+        if self.n < MAG_WINDOW {
+            self.n += 1;
+        }
+        if self.n >= MIN_SAMPLES && self.distinct_magnitudes() >= 2 {
+            self.varied = true;
+        }
 
-            if window_duration > 0 {
-                let events_per_second = (event_count as f64) * 1000.0 / (window_duration as f64);
-                let avg_interval_ms =
-                    window_duration as f64 / (event_count.saturating_sub(1) as f64);
+        self.last = if self.n < MIN_SAMPLES {
+            self.last // not enough evidence yet — keep the previous verdict
+        } else if self.varied {
+            InputSource::Touchpad
+        } else {
+            // One fixed magnitude = flywheel through detents = free-spinning
+            // wheel; smooth it like any high-resolution wheel.
+            InputSource::HighResWheel
+        };
+        self.last
+    }
 
-                if event_count >= TOUCHPAD_EVENT_THRESHOLD
-                    && abs_delta < STANDARD_NOTCH_DELTA
-                    && avg_interval_ms <= TOUCHPAD_MAX_INTERVAL_MS as f64
-                    && events_per_second >= 30.0
-                {
-                    return InputSource::Touchpad;
+    fn distinct_magnitudes(&self) -> usize {
+        let start = MAG_WINDOW - self.n;
+        let mut levels = 0;
+        for i in start..MAG_WINDOW {
+            let mut seen = false;
+            for j in start..i {
+                if self.mags[j] == self.mags[i] {
+                    seen = true;
+                    break;
                 }
             }
+            if !seen {
+                levels += 1;
+            }
         }
-
-        if abs_delta < STANDARD_NOTCH_DELTA {
-            return InputSource::HighResWheel;
-        }
-        InputSource::Wheel
+        levels
     }
 }

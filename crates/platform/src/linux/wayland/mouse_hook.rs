@@ -14,7 +14,7 @@ use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use super::keyboard::WaylandKeyboardState;
 
@@ -120,8 +120,6 @@ impl MouseHook for WaylandMouseHook {
                     smoothscroll_core::input_source::InputClassifier::new(),
                 ));
 
-                let epoch = Instant::now();
-
                 // Event loop. We check BOTH the per-instance `alive`
                 // (normal shutdown via HookHandle drop) and the
                 // global SIG_SHUTDOWN (process signal). The latter
@@ -137,7 +135,6 @@ impl MouseHook for WaylandMouseHook {
                                     &classifier_h,
                                     &sink,
                                     &keyboard_state,
-                                    epoch,
                                 );
                             }
                         }
@@ -170,7 +167,6 @@ impl WaylandMouseHook {
         classifier_h: &Arc<Mutex<smoothscroll_core::input_source::InputClassifier>>,
         sink: &Arc<dyn HookEventSink>,
         keyboard_state: &WaylandKeyboardState,
-        epoch: Instant,
     ) {
         // Skip if we're emitting (feedback loop prevention)
         if wheel_emitter::is_suppressing() {
@@ -183,13 +179,12 @@ impl WaylandMouseHook {
             return;
         }
 
-        let now_ms = epoch.elapsed().as_millis() as u64;
         let mods = keyboard_state.snapshot();
 
         match event.destructure() {
             evdev::EventSummary::RelativeAxis(_ev, code, value) => match code {
                 evdev::RelativeAxisCode::REL_WHEEL => {
-                    let source = classifier_v.lock().classify(value, now_ms);
+                    let source = classifier_v.lock().classify(value, false);
                     sink.on_wheel_event(WheelInputEvent {
                         delta: value,
                         semantic: WheelSemantic {
@@ -200,7 +195,7 @@ impl WaylandMouseHook {
                     });
                 }
                 evdev::RelativeAxisCode::REL_HWHEEL => {
-                    let source = classifier_h.lock().classify(value, now_ms);
+                    let source = classifier_h.lock().classify(value, false);
                     sink.on_wheel_event(WheelInputEvent {
                         delta: value,
                         semantic: WheelSemantic {

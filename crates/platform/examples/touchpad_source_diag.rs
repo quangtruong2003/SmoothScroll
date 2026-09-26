@@ -6,7 +6,7 @@ use std::io::Write;
 use std::ptr::null_mut;
 use std::sync::{Mutex, OnceLock};
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use windows_sys::Win32::Foundation::{LPARAM, LRESULT, WPARAM};
 use windows_sys::Win32::System::LibraryLoader::{GetModuleHandleA, GetModuleHandleW, GetProcAddress};
 use windows_sys::Win32::System::Threading::GetCurrentThreadId;
@@ -56,7 +56,6 @@ struct NativeApis {
 }
 
 static APIS: OnceLock<NativeApis> = OnceLock::new();
-static EPOCH: OnceLock<Instant> = OnceLock::new();
 static CLASSIFIER_V: OnceLock<Mutex<InputClassifier>> = OnceLock::new();
 static CLASSIFIER_H: OnceLock<Mutex<InputClassifier>> = OnceLock::new();
 static LOG_FILE: OnceLock<Mutex<File>> = OnceLock::new();
@@ -142,22 +141,11 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
 
     let data = &*(l_param as *const MsllHookStruct);
     let delta = (((data.mouse_data >> 16) & 0xffff) as i16) as i32;
-    let now_ms = EPOCH.get().unwrap().elapsed().as_millis() as u64;
 
     let heuristic = if msg == WM_MOUSEWHEEL {
-        CLASSIFIER_V
-            .get()
-            .unwrap()
-            .lock()
-            .unwrap()
-            .classify(delta, now_ms)
+        CLASSIFIER_V.get().unwrap().lock().unwrap().classify(delta, false)
     } else {
-        CLASSIFIER_H
-            .get()
-            .unwrap()
-            .lock()
-            .unwrap()
-            .classify(delta, now_ms)
+        CLASSIFIER_H.get().unwrap().lock().unwrap().classify(delta, false)
     };
 
     let apis = *APIS.get().unwrap();
@@ -220,7 +208,6 @@ fn main() {
 
     let apis = unsafe { load_apis() };
     APIS.set(apis).ok();
-    EPOCH.set(Instant::now()).ok();
     CLASSIFIER_V.set(Mutex::new(InputClassifier::new())).ok();
     CLASSIFIER_H.set(Mutex::new(InputClassifier::new())).ok();
 

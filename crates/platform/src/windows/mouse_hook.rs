@@ -45,6 +45,15 @@ struct MsllHookStruct {
 const LLMHF_INJECTED: u32 = 0x00000001;
 const LLMHF_LOWER_IL_INJECTED: u32 = 0x00000002;
 
+/// Windows sets MI_WP_SIGNATURE in GetMessageExtraInfo for touch/pen-injected
+/// messages; the low byte carries the contact count and is masked off.
+const MI_WP_SIGNATURE: usize = 0xFF515700;
+const MI_WP_SIGNATURE_MASK: usize = 0xFFFFFF00;
+
+fn is_touch_injected(extra_info: usize) -> bool {
+    extra_info & MI_WP_SIGNATURE_MASK == MI_WP_SIGNATURE
+}
+
 fn should_ignore_injected(flags: u32, extra_info: usize) -> bool {
     let injected = (flags & (LLMHF_INJECTED | LLMHF_LOWER_IL_INJECTED)) != 0;
     injected && extra_info == super::SMOOTHSCROLL_INPUT_MARKER
@@ -74,7 +83,6 @@ struct HookContext {
     modifiers: Arc<ModifierState>,
     classifier_v: Mutex<smoothscroll_core::input_source::InputClassifier>,
     classifier_h: Mutex<smoothscroll_core::input_source::InputClassifier>,
-    epoch: std::time::Instant,
 }
 
 static HOOK_CONTEXT: Mutex<Option<Arc<HookContext>>> = Mutex::new(None);
@@ -125,7 +133,6 @@ impl MouseHook for WindowsMouseHook {
             modifiers: modifier_state,
             classifier_v: Mutex::new(smoothscroll_core::input_source::InputClassifier::new()),
             classifier_h: Mutex::new(smoothscroll_core::input_source::InputClassifier::new()),
-            epoch: std::time::Instant::now(),
         }));
 
         let (tx, rx) = std::sync::mpsc::sync_channel::<Result<u32>>(1);
@@ -189,17 +196,17 @@ unsafe extern "system" fn low_level_proc(n_code: i32, w_param: WPARAM, l_param: 
     let msg = w_param as u32;
     let raw_delta = ((data.mouse_data >> 16) & 0xFFFF) as i16;
     let delta = raw_delta as i32;
-    let now_ms = ctx.epoch.elapsed().as_millis() as u64;
+    let touch = is_touch_injected(data.dw_extra_info);
     let decision = match msg {
         x if x == WM_MOUSEWHEEL => {
             let modifiers = ctx.modifiers.snapshot_for_wheel();
-            let source = ctx.classifier_v.lock().classify(delta, now_ms);
+            let source = ctx.classifier_v.lock().classify(delta, touch);
             ctx.sink
                 .on_wheel_event(wheel_event(msg, delta, modifiers, source))
         }
         x if x == WM_MOUSEHWHEEL => {
             let modifiers = ctx.modifiers.snapshot_for_wheel();
-            let source = ctx.classifier_h.lock().classify(delta, now_ms);
+            let source = ctx.classifier_h.lock().classify(delta, touch);
             ctx.sink
                 .on_wheel_event(wheel_event(msg, delta, modifiers, source))
         }
@@ -252,6 +259,14 @@ mod tests {
                 modifiers: mods,
             }
         );
+    }
+
+    #[test]
+    fn touch_marker_matches_only_the_os_signature() {
+        assert!(is_touch_injected(0xFF515700)); // exact marker
+        assert!(is_touch_injected(0xFF515707)); // low byte = contact count
+        assert!(!is_touch_injected(0x5353_4F46)); // non-marker extra info
+        assert!(!is_touch_injected(0));
     }
 
     #[test]

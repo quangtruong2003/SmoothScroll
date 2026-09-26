@@ -87,7 +87,6 @@ impl MouseHook for LinuxMouseHook {
                     event_base + xlib::GenericEvent as c_int
                 };
 
-                let epoch = std::time::Instant::now();
                 let classifier_v =
                     Mutex::new(smoothscroll_core::input_source::InputClassifier::new());
                 let classifier_h =
@@ -124,12 +123,11 @@ impl MouseHook for LinuxMouseHook {
                             continue;
                         }
 
-                        let now_ms = epoch.elapsed().as_millis() as u64;
                         let mods = modifiers.snapshot();
 
                         match button {
                             4 => {
-                                let source = classifier_v.lock().classify(120, now_ms);
+                                let source = classifier_v.lock().classify(120, false);
                                 sink.on_wheel_event(WheelInputEvent {
                                     delta: 120,
                                     semantic: WheelSemantic {
@@ -140,7 +138,7 @@ impl MouseHook for LinuxMouseHook {
                                 });
                             }
                             5 => {
-                                let source = classifier_v.lock().classify(-120, now_ms);
+                                let source = classifier_v.lock().classify(-120, false);
                                 sink.on_wheel_event(WheelInputEvent {
                                     delta: -120,
                                     semantic: WheelSemantic {
@@ -151,7 +149,7 @@ impl MouseHook for LinuxMouseHook {
                                 });
                             }
                             6 => {
-                                let source = classifier_h.lock().classify(-120, now_ms);
+                                let source = classifier_h.lock().classify(-120, false);
                                 sink.on_wheel_event(WheelInputEvent {
                                     delta: -120,
                                     semantic: WheelSemantic {
@@ -162,7 +160,7 @@ impl MouseHook for LinuxMouseHook {
                                 });
                             }
                             7 => {
-                                let source = classifier_h.lock().classify(120, now_ms);
+                                let source = classifier_h.lock().classify(120, false);
                                 sink.on_wheel_event(WheelInputEvent {
                                     delta: 120,
                                     semantic: WheelSemantic {
