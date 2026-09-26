@@ -126,7 +126,7 @@ Same pipeline as today (`px → wheel units → EMIT_UNIT pulses → PULSE_CLAMP
 
 Two layers, OS truth first (port of their `device.h` reasoning):
 
-1. **OS marker wins outright.** The WH_MOUSE_LL hook already reads `dwExtraInfo` (`mouse_hook.rs:42`); expose it to the sink event and classify `(extra_info & 0xFFFFFF00) == 0xFF515700` (`MI_WP_SIGNATURE`) as `Touchpad`. Non-Windows callers pass `false`.
+1. **OS marker wins outright.** The WH_MOUSE_LL hook already reads `dwExtraInfo` (`mouse_hook.rs:42`); the hook computes `touch_injected = (extra_info & 0xFFFFFF00) == 0xFF515700` (`MI_WP_SIGNATURE` — Win32 knowledge stays in the platform crate) and carries it as a new `touch_injected: bool` field on the core-owned `WheelInputEvent`. Non-Windows hooks set `false`. The classifier signature becomes `classify(delta, now_ms, touch_injected)`; a marked event is `Touchpad` outright.
 2. **Magnitude evidence replaces the rate heuristic.** Keep the last 8 sub-notch (non-multiple-of-120) magnitudes per gesture:
    - whole notch (`|delta| % 120 == 0`) → `Wheel`, clears gesture evidence;
    - ≥ 2 distinct magnitudes in the window → `Touchpad`, **locked for the rest of the gesture** (a touchpad coasting can emit identical values; a real free-spinner never varies — lock direction is safe: over-missing smoothing beats breaking scroll);
@@ -139,14 +139,15 @@ The rate-based branch (`events_per_second`, `avg_interval_ms`, `TOUCHPAD_*` cons
 
 - `BUILTIN_DISCRETE_WHEEL_APPS: &["reaper.exe"]` — a constant in `hook_wiring.rs` (not settings).
 - `AppSettings.discrete_wheel_apps: Vec<String>` (default `[]`), canonicalized with the existing `canonicalize_process_name` (case-insensitive, `.exe` normalization — same as `game_mode`).
-- Precedence in the strategy resolver (`hook_wiring.rs:110` region): `excluded_apps` (full pass-through) **>** discrete list (→ `SmoothingStrategy::DiscreteNotchPreserving`) **>** `wheel_output_mode`. Windows-only (process query availability); other platforms unchanged.
-- Effect: matched apps receive whole 120-delta notches spaced per frame (engine + emitter paths already exist from the semantic plan, incl. modifier capture). One notch = one whole unit — exactly what REAPER's whole-unit receivers act on; a single notch releases within ~8 ms and fast rolls release at up to 120 notches/s, so parameter wheels (faders/knobs) feel effectively native. Scope is per-app only — never global (the issue-14 revert constraint).
+- **Mechanism: override the resolved output mode, no new routing.** In `resolve_active` (`hook_wiring.rs`), after the existing `excluded_apps` / auto-disable pass-through checks, if the under-cursor or foreground process matches builtin ∪ user list, treat `wheel_output_mode` as `WheelOutputMode::PreserveWholeNotches` for that event. The existing resolver branch then produces `SmoothingStrategy::DiscreteNotchPreserving` for wheel/high-res sources — engine + emitter paths already exist (incl. modifier capture) — and produces its existing **raw pass-through for touchpads**, so REAPER's parameter wheels and touchpad gestures stay native for free. The `ProcessNameCache` (~20 Hz) already fetching under-cursor/foreground names is reused; no new syscalls.
+- Precedence: `excluded_apps` / auto-disable (full pass-through) **>** discrete list (→ PreserveWholeNotches behavior) **>** the user's configured `wheel_output_mode`. Windows-only (process query availability); other platforms unchanged.
+- Effect: matched apps receive whole 120-delta notches spaced per frame. One notch = one whole unit — exactly what REAPER's whole-unit receivers act on; a single notch releases within ~8 ms and fast rolls release at up to 120 notches/s, so parameter wheels (faders/knobs) feel effectively native. Scope is per-app only — never global (the issue-14 revert constraint).
 
 ## 9. Settings & migration
 
 - `engine_timing: EngineTiming` (`"windows"` | `"legacy"`, serde lowercase, default `"windows"`) — top-level on `AppSettings`, no UI; mirrored into `EffectiveSettings` so the engine keeps reading settings from its existing parameter.
 - `discrete_wheel_apps: Vec<String>` (default `[]`) — top-level, no UI.
-- `settings_schema_version` bump; migration = serde defaults only (no field removals/renames). Verify round-trip through `migrate_raw_settings` (save path) so the new fields survive backup/restore.
+- `CURRENT_SETTINGS_SCHEMA_VERSION` bump 1 → 2; migration = serde defaults only (no field removals/renames). Verify round-trip through `migrate_raw_settings` (save path) so the new fields survive backup/restore.
 
 ## 10. Testing plan
 
@@ -158,7 +159,7 @@ The rate-based branch (`events_per_second`, `avg_interval_ms`, `TOUCHPAD_*` cons
    - End-of-gesture rounding: `|accum| ≥ 0.5` emits one pulse, `< 0.5` drops; ≤ 6 delta error.
 2. `engine.rs`: accel factor applied at feed; instant flush; reset/ownership parity across both timings; pulse clamp carry.
 3. `input_source.rs` + `mouse_hook.rs`: marker wins; varied-magnitude lock; fixed-magnitude → HighResWheel; notch clears evidence; `dwExtraInfo` propagated from hook event to classifier.
-4. `hook_wiring.rs`: `reaper.exe` (mixed case / without `.exe`) → discrete; user-list entry; `excluded_apps` precedence; unlisted app unchanged.
+4. `hook_wiring.rs`: `reaper.exe` (mixed case / without `.exe`) → PreserveWholeNotches override; user-list entry; `excluded_apps` precedence; unlisted app unchanged; touchpad + listed app → existing raw pass-through branch.
 5. Suite: `cargo test -p smoothscroll-core -p smoothscroll-platform` plus the app crate's Rust tests (landing vitest failures are pre-existing on master, out of scope).
 
 ## 11. Rollout
