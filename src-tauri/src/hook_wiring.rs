@@ -2190,7 +2190,7 @@ mod tests {
 
     #[test]
     fn compute_discrete_override_matches_under_cursor_or_foreground() {
-        let s = AppSettings::default();
+        let mut s = AppSettings::default();
         assert!(!compute_discrete_override(&s, None, None));
         assert!(compute_discrete_override(&s, Some("REAPER.exe"), None));
         assert!(compute_discrete_override(&s, None, Some("reaper.exe")));
@@ -2199,6 +2199,9 @@ mod tests {
             Some("notepad.exe"),
             Some("notepad.exe")
         ));
+        // A user-list entry drives the override through the same helper.
+        s.discrete_wheel_apps = vec!["Cubase12".into()];
+        assert!(compute_discrete_override(&s, Some("Cubase12.exe"), None));
     }
 
     fn drain_engine(state: &Arc<AppState>) -> (i32, i32) {
