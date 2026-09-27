@@ -10,7 +10,7 @@
 use crate::state::AppState;
 use parking_lot::Mutex;
 use smoothscroll_core::input_source::InputSource;
-use smoothscroll_core::settings::{EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
+use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
 #[cfg(any(not(windows), test))]
 use smoothscroll_core::wheel::WheelSemantic;
 use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
@@ -61,7 +61,15 @@ fn resolve_wheel_action(
     if event.source == InputSource::Touchpad && !settings.touchpad_smoothing_enabled {
         return raw(true);
     }
-    if settings.wheel_output_mode == WheelOutputMode::Raw || detected_discrete {
+    // A discrete-wheel app (e.g. REAPER) gets whole-notch output regardless of
+    // the selected mode; detected_discrete (cursor over a real discrete
+    // control) still wins — per-message geometric truth beats a per-app rule.
+    let output_mode = if settings.discrete_app_override {
+        WheelOutputMode::PreserveWholeNotches
+    } else {
+        settings.wheel_output_mode
+    };
+    if output_mode == WheelOutputMode::Raw || detected_discrete {
         return raw(true);
     }
 
@@ -103,7 +111,7 @@ fn resolve_wheel_action(
         )
     };
 
-    let strategy = match settings.wheel_output_mode {
+    let strategy = match output_mode {
         WheelOutputMode::PreserveWholeNotches
             if matches!(event.source, InputSource::Wheel | InputSource::HighResWheel) =>
         {
@@ -122,6 +130,17 @@ fn resolve_wheel_action(
             delta_transform,
         },
     }
+}
+
+/// Per-event discrete-wheel override: the under-cursor OR foreground process
+/// is a builtin/user discrete-wheel app. Pure for testability.
+#[cfg_attr(not(test), allow(dead_code))]
+fn compute_discrete_override(
+    s: &AppSettings,
+    under_cursor: Option<&str>,
+    foreground: Option<&str>,
+) -> bool {
+    s.is_discrete_wheel_app(under_cursor) || s.is_discrete_wheel_app(foreground)
 }
 
 /// Throttled process-name cache — caps Win32 syscall rate at ~20 Hz.
@@ -530,10 +549,30 @@ impl EngineSink {
         }
         // 3. effective settings (global/app/monitor) — includes
         // elevation/exclusion/auto-disable (resolve_active returns None).
-        let eff = match self.resolve_active() {
-            Some(e) => e,
+        // EffectiveSettings is Copy, so the resolved Arc is dereferenced to
+        // let the per-event override below be set without cloning shared state.
+        let mut eff = match self.resolve_active() {
+            Some(e) => *e,
             None => return HookDecision::Pass,
         };
+        // 4. per-event discrete-wheel app override (e.g. REAPER): the
+        // under-cursor OR foreground process is a builtin/user discrete-wheel
+        // app. The throttled process cache makes the extra lookup free
+        // (50 ms TTL); resolve_active is deliberately untouched.
+        if !eff.discrete_app_override {
+            let (under_cursor, foreground) = {
+                let mut cache = self.process_cache.lock();
+                cache.get(|| {
+                    (
+                        self.state.processes.process_name_under_cursor(),
+                        self.state.processes.foreground_process_name(),
+                    )
+                })
+            };
+            let s = self.state.settings.read();
+            eff.discrete_app_override =
+                compute_discrete_override(&s, under_cursor.as_deref(), foreground.as_deref());
+        }
         // 5. one bounded discrete-target check.
         let detected_discrete = self.state.window_geom.cursor_over_discrete_control();
         // 6. pure policy resolution.
@@ -1476,6 +1515,12 @@ mod tests {
         EffectiveSettings::from_settings(&AppSettings::default())
     }
 
+    fn override_eff() -> EffectiveSettings {
+        let mut eff = EffectiveSettings::from_settings(&AppSettings::default());
+        eff.discrete_app_override = true;
+        eff
+    }
+
     #[cfg(windows)]
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     enum DiagnosticPath {
@@ -1720,7 +1765,10 @@ mod tests {
                     assert!(counters.engine_frames < 8_192);
 
                     if path == DiagnosticPath::CtrlZoom {
-                        assert_eq!(counters.process_name_lookups, 0);
+                        // The discrete-app override consults the throttled
+                        // process cache per event: at most one fetch round
+                        // (2 names) per 50 ms TTL — never per-event lookups.
+                        assert!(counters.process_name_lookups <= counters.physical_inputs);
                         assert_eq!(counters.ctrl_syntheses, 0);
                         assert_eq!(counters.keyboard_modifier_records, 0);
                     } else {
@@ -1775,7 +1823,10 @@ mod tests {
         assert!(counters.wheel_records > counters.send_input_batches);
         assert_eq!(counters.post_input_tail_frames, 1);
         assert_eq!(counters.ctrl_syntheses, 0);
-        assert_eq!(counters.process_name_lookups, 0);
+        // The discrete-app override consults the throttled process cache per
+        // event: at most one fetch round (2 names) per 50 ms TTL — never
+        // per-event lookups.
+        assert!(counters.process_name_lookups <= counters.physical_inputs);
         assert_eq!(counters.root_lookups, 0);
     }
 
@@ -1792,8 +1843,11 @@ mod tests {
             counters.post_input_tail_frames
         );
         assert!(counters.semantic_pulses > 0);
-        assert_eq!(counters.process_name_lookups, 0);
         assert_eq!(counters.ctrl_syntheses, 0);
+        // The discrete-app override consults the throttled process cache per
+        // event: at most one fetch round (2 names) per 50 ms TTL — never
+        // per-event lookups.
+        assert!(counters.process_name_lookups <= counters.physical_inputs);
         assert_eq!(
             counters.root_lookups,
             counters.physical_inputs + counters.emitted_frames,
@@ -2063,6 +2117,87 @@ mod tests {
                 cancel_active: true,
                 ..
             }
+        ));
+    }
+
+    #[test]
+    fn discrete_app_override_routes_to_notch_preserving() {
+        let action = resolve_wheel_action(
+            vertical(120, ModifierKeys::default(), InputSource::Wheel),
+            &override_eff(),
+            false,
+        );
+        match action {
+            ResolvedWheelAction::Smooth { sequence, .. } => {
+                assert_eq!(sequence.strategy, SmoothingStrategy::DiscreteNotchPreserving)
+            }
+            ResolvedWheelAction::RawPass { .. } => panic!("expected Smooth"),
+        }
+    }
+
+    #[test]
+    fn discrete_app_override_beats_raw_output_mode() {
+        let mut eff = override_eff();
+        eff.wheel_output_mode = WheelOutputMode::Raw;
+        let action = resolve_wheel_action(
+            vertical(120, ModifierKeys::default(), InputSource::Wheel),
+            &eff,
+            false,
+        );
+        match action {
+            ResolvedWheelAction::Smooth { sequence, .. } => {
+                assert_eq!(sequence.strategy, SmoothingStrategy::DiscreteNotchPreserving)
+            }
+            ResolvedWheelAction::RawPass { .. } => panic!("override must beat Raw mode"),
+        }
+    }
+
+    #[test]
+    fn touchpad_in_discrete_app_passes_through_raw() {
+        let action = resolve_wheel_action(
+            vertical(120, ModifierKeys::default(), InputSource::Touchpad),
+            &override_eff(),
+            false,
+        );
+        assert!(matches!(action, ResolvedWheelAction::RawPass { .. }));
+    }
+
+    #[test]
+    fn detected_discrete_control_still_wins_over_the_app_rule() {
+        let action = resolve_wheel_action(
+            vertical(120, ModifierKeys::default(), InputSource::Wheel),
+            &override_eff(),
+            true, // cursor is over a real discrete control (e.g. REAPER's scrollbar)
+        );
+        assert!(matches!(action, ResolvedWheelAction::RawPass { .. }));
+    }
+
+    #[test]
+    fn no_override_keeps_the_selected_mode() {
+        let eff = EffectiveSettings::from_settings(&AppSettings::default());
+        let action = resolve_wheel_action(
+            vertical(120, ModifierKeys::default(), InputSource::Wheel),
+            &eff,
+            false,
+        );
+        match action {
+            ResolvedWheelAction::Smooth { sequence, .. } => {
+                assert_eq!(sequence.strategy, SmoothingStrategy::Continuous)
+            }
+            ResolvedWheelAction::RawPass { .. } => panic!("expected Smooth"),
+        }
+    }
+
+    #[test]
+    fn compute_discrete_override_matches_under_cursor_or_foreground() {
+        let s = AppSettings::default();
+        assert!(!compute_discrete_override(&s, None, None));
+        assert!(compute_discrete_override(&s, Some("REAPER.exe"), None));
+        assert!(compute_discrete_override(&s, None, Some("reaper.exe")));
+        assert!(!compute_discrete_override(
+            &s,
+            Some("notepad.exe"),
+            Some("notepad.exe")
         ));
     }
 
