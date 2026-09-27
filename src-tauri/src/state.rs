@@ -290,12 +290,17 @@ impl AppState {
                 (p.id.clone(), Arc::new(eff))
             })
             .collect();
+        // A scheduler swap strands the other timing path's in-flight state, so axes reset on engine_timing change.
+        let timing_changed = self.settings.read().engine_timing != new.engine_timing;
         {
             let mut w = self.settings.write();
             *w = new.clone();
         }
         self.effective.store(Arc::new(new_eff));
         *self.effective_per_profile.write() = new_per_profile;
+        if timing_changed {
+            self.engine.lock().reset_axes();
+        }
         if persist {
             self.persistor.submit(new);
         }

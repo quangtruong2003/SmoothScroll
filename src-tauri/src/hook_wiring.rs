@@ -3215,6 +3215,29 @@ mod tests {
     }
 
     #[test]
+    fn commit_settings_timing_change_resets_engine_axes() {
+        use smoothscroll_core::settings::EngineTiming;
+        let mut s = AppSettings::default();
+        s.engine_timing = EngineTiming::Windows;
+        let state = make_state(s.clone());
+
+        state.engine.lock().on_wheel_with_source(
+            120,
+            0,
+            InputSource::Wheel,
+            &EffectiveSettings::from_settings(&s),
+        );
+        assert!(state.engine.lock().has_pending_work());
+
+        // A scheduler swap strands the old timing's in-flight state, so the
+        // axes must reset or has_pending_work() never clears.
+        s.engine_timing = EngineTiming::Legacy;
+        state.commit_settings(s);
+
+        assert!(!state.engine.lock().has_pending_work());
+    }
+
+    #[test]
     fn ctrl_wheel_passes_through_when_passthrough_enabled() {
         let mut s = AppSettings::default();
         s.modifier_passthrough.ctrl = true;
