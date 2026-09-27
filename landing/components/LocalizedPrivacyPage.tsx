@@ -1,9 +1,8 @@
-import Link from 'next/link'
+import { BackToHome } from '@/components/BackToHome'
 import { BackgroundDotGrid } from '@/components/BackgroundDotGrid'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
-import { localePath } from '@/lib/i18n/routing'
 
 interface LocalizedPrivacyPageProps {
   locale: Locale
@@ -18,15 +17,11 @@ export function LocalizedPrivacyPage({ locale, dictionary: d }: LocalizedPrivacy
       <BackgroundDotGrid />
       <Navigation locale={locale} pageKind="privacy" />
       <main id="main-content" className="flex-1">
-        <article className="px-4 pt-32 pb-16">
+        <article className="px-4 pt-28 pb-16">
           <div className="container">
             <div className="mx-auto max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                <Link href={localePath(locale, 'home')} className="hover:text-foreground transition-colors">
-                  {p?.backToHome ?? 'Back to home'}
-                </Link>
-              </p>
-              <h1 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight text-balance">
+              <BackToHome locale={locale} label={p?.backToHome ?? 'Back to home'} className="mb-8" />
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance">
                 {p?.title ?? 'Privacy Policy'}
               </h1>
               {p?.subtitle && (

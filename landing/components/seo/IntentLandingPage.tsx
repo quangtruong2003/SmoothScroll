@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BackToHome } from '@/components/BackToHome'
 import { BackgroundDotGrid } from '@/components/BackgroundDotGrid'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { Footer } from '@/components/Footer'
@@ -80,13 +81,9 @@ export function IntentLandingPage({ page }: { page: IntentPage }) {
       <BackgroundDotGrid />
       <Navigation locale="en" />
       <main id="main-content" className="relative flex-1">
-        <section className="container pb-16 pt-28 sm:pb-20 sm:pt-36">
+        <section className="container pb-16 pt-28 sm:pb-20">
           <div className="mx-auto max-w-4xl">
-            <nav aria-label="Breadcrumb" className="mb-8 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground">SmoothScroll</Link>
-              <span aria-hidden="true" className="px-2">/</span>
-              <span>{page.eyebrow}</span>
-            </nav>
+            <BackToHome locale="en" label="Back to home" className="mb-8" />
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">{page.eyebrow}</p>
             <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">{page.heading}</h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">{page.lead}</p>

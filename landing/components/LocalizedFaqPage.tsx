@@ -1,14 +1,13 @@
 'use client'
 
-import Link from 'next/link'
 import { JsonLd } from '@/app/JsonLd'
+import { BackToHome } from '@/components/BackToHome'
 import { BackgroundDotGrid } from '@/components/BackgroundDotGrid'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
-import { localePath } from '@/lib/i18n/routing'
 import { faqAnchorId, faqQuestions } from '@/lib/seo/faq'
 
 interface LocalizedFaqPageProps {
@@ -25,20 +24,18 @@ export function LocalizedFaqPage({ locale, dictionary: d }: LocalizedFaqPageProp
       <BackgroundDotGrid />
       <Navigation locale={locale} pageKind="faq" />
       <main id="main-content" className="flex-1">
-        <section className="px-4 pt-32 pb-8">
+        <section className="px-4 pt-28 pb-8">
           <div className="container">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                <Link href={localePath(locale, 'home')} className="hover:text-foreground transition-colors">
-                  {d.faq?.backToHome ?? 'Back to home'}
-                </Link>
-              </p>
-              <h1 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight text-balance">
-                {d.faq?.title}
-              </h1>
-              {d.faq?.subtitle && (
-                <p className="mt-4 text-lg text-muted-foreground text-pretty">{d.faq.subtitle}</p>
-              )}
+            <div className="mx-auto max-w-3xl">
+              <BackToHome locale={locale} label={d.faq?.backToHome ?? 'Back to home'} className="mb-8" />
+              <div className="text-center">
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance">
+                  {d.faq?.title}
+                </h1>
+                {d.faq?.subtitle && (
+                  <p className="mt-4 text-lg text-muted-foreground text-pretty">{d.faq.subtitle}</p>
+                )}
+              </div>
             </div>
           </div>
         </section>

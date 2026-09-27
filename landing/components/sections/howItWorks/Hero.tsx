@@ -1,12 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { ArrowLeft, Keyboard } from 'lucide-react'
+import { Keyboard } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { BackToHome } from '@/components/BackToHome'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { FadeUp } from '@/components/motion/FadeUp'
 import { type Dictionary, type Locale } from '@/lib/i18n/dict'
-import { localePath } from '@/lib/i18n/routing'
 
 interface HowItWorksHeroProps {
   locale: Locale
@@ -21,15 +20,7 @@ export function HowItWorksHero({ locale, hero, ctaLinuxLabel, ctaMacLabel, betaB
   return (
     <section className="relative pt-28 pb-12 px-4 overflow-hidden">
       <div className="container max-w-5xl">
-        <FadeUp>
-          <Link
-            href={localePath(locale, 'home')}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {hero.backToHome}
-          </Link>
-        </FadeUp>
+        <BackToHome locale={locale} label={hero.backToHome ?? 'Back to home'} className="mb-8" />
 
         <div className="flex flex-col items-center text-center gap-6">
           <FadeUp delay={0.05}>
