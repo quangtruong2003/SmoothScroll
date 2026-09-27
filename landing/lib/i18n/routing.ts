@@ -2,7 +2,7 @@ import type { Locale } from './dict'
 
 export const BASE_URL = 'https://smoothscroll.top'
 export const CONTENT_UPDATED = '2026-08-12'
-export type PageKind = 'home' | 'how-it-works' | 'faq'
+export type PageKind = 'home' | 'how-it-works' | 'faq' | 'privacy'
 
 const localePrefixes: Record<Locale, string> = { en: '', vi: '/vi', zh: '/zh' }
 const languageTags: Record<Locale, 'en' | 'vi' | 'zh-Hans'> = {
@@ -12,7 +12,7 @@ const languageTags: Record<Locale, 'en' | 'vi' | 'zh-Hans'> = {
 }
 
 export function localePath(locale: Locale, page: PageKind): string {
-  const suffix = page === 'home' ? '/' : page === 'faq' ? '/faq/' : '/how-it-works/'
+  const suffix = page === 'home' ? '/' : page === 'faq' ? '/faq/' : page === 'privacy' ? '/privacy/' : '/how-it-works/'
   return `${localePrefixes[locale]}${suffix}`
 }
 

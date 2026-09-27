@@ -129,6 +129,15 @@ export interface Dictionary {
     reportPrefix?: string
     reportLink?: string
   }
+  privacy?: {
+    title?: string
+    subtitle?: string
+    updated?: string
+    backToHome?: string
+    intro?: string
+    seo?: { title?: string; description?: string }
+    sections?: { heading?: string; paragraphs?: string[]; bullets?: string[]; outro?: string }[]
+  }
   footer?: {
     tagline?: string
     taglineWindows?: string
@@ -138,6 +147,7 @@ export interface Dictionary {
     links?: {
       github?: string
       license?: string
+      privacy?: string
     }
   }
   howItWorks?: {

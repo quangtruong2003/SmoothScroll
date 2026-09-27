@@ -167,6 +167,124 @@
     "reportPrefix": "Found an issue?",
     "reportLink": "Report it on GitHub"
   },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "SmoothScroll collects no personal data. This page explains in detail what the app and this website handle, why, and what your choices are.",
+    "updated": "Last updated: September 27, 2026",
+    "backToHome": "Back to home",
+    "seo": {
+      "title": "Privacy Policy — SmoothScroll",
+      "description": "SmoothScroll collects no personal data: no account, no telemetry, no analytics, no ads. Settings and logs stay on your device. We may update this policy at any time."
+    },
+    "intro": "This Privacy Policy explains what information SmoothScroll (\"we\", \"the app\") and the website smoothscroll.top (\"the website\") handle, why, and what choices you have. In short: the app is designed to work entirely offline on your device. We run no server that receives your personal data, and we do not collect, sell, or share personal information.",
+    "sections": [
+      {
+        "heading": "Scope",
+        "paragraphs": [
+          "This policy applies to the SmoothScroll application for Windows, macOS and Linux, whether you obtained it from our website, GitHub, or the Microsoft Store, and to the smoothscroll.top website. It does not cover third-party services, which are governed by their own policies (see \"Third-party services\" below)."
+        ]
+      },
+      {
+        "heading": "Information we do not collect",
+        "paragraphs": [
+          "The app is built so that your activity never reaches us:"
+        ],
+        "bullets": [
+          "No account or registration — the app works without sign-up.",
+          "No analytics or usage statistics — we never learn which apps you use, which files you open, or which websites you visit.",
+          "No telemetry or crash reporting — error reports are never sent automatically.",
+          "No advertising or ad trackers.",
+          "No cookies set by us — the website is static and sets no tracking cookies."
+        ]
+      },
+      {
+        "heading": "Data stored on your device (local data)",
+        "paragraphs": [
+          "Like almost every desktop application, the app keeps everything it needs on your machine:"
+        ],
+        "bullets": [
+          "Settings: your scroll preferences and per-app profiles, saved to %APPDATA%\\SmoothScroll\\settings.json (Windows) or the equivalent configuration folder on macOS/Linux.",
+          "Logs: diagnostic logs written to a local folder; you can open it from the app's Support section."
+        ],
+        "outro": "This data is never transmitted to us. You can view, edit, or delete it at any time; uninstalling the app or deleting these files removes all data the app has created."
+      },
+      {
+        "heading": "Update checks",
+        "paragraphs": [
+          "The app periodically contacts GitHub (github.com) to check whether a new version is available. This is a standard HTTPS request that downloads a small version file; as with any web request, GitHub receives your IP address and standard technical headers (such as your operating system version). No other information about you or your usage is included.",
+          "If you installed the app through the Microsoft Store, updates are delivered by the Store itself."
+        ]
+      },
+      {
+        "heading": "Third-party services",
+        "paragraphs": [
+          "The app and website link to or embed a small number of third-party services. When you interact with them, their own privacy policies apply:"
+        ],
+        "bullets": [
+          "Update files on GitHub — version checks and downloads are served by GitHub (see their Privacy Policy).",
+          "Buy Me a Coffee — the donation link opens in your web browser. If you choose to donate, your payment details are handled by Buy Me a Coffee under their privacy policy.",
+          "VietQR — the app's Support section may display a bank QR image loaded from img.vietqr.io. Loading this image is a standard image request to that service.",
+          "GitHub Issues — when you report a problem or contact us publicly on GitHub, the content you post is visible on GitHub and handled under GitHub's terms."
+        ]
+      },
+      {
+        "heading": "Microsoft Store",
+        "paragraphs": [
+          "When you obtain the app through the Microsoft Store, Microsoft is an independent controller of data such as your Microsoft account, purchases, and device information, processed under the Microsoft Privacy Statement. We do not receive your personal data from Microsoft; we only see aggregate, non-identifying information such as download counts."
+        ]
+      },
+      {
+        "heading": "Website and server logs",
+        "paragraphs": [
+          "The website is a static site. Our hosting provider may automatically process standard technical logs (for example your IP address, browser type, and pages requested) for security and operational purposes. We do not use these logs to build profiles about you."
+        ]
+      },
+      {
+        "heading": "Legal bases (GDPR)",
+        "paragraphs": [
+          "For visitors in the EU/EEA: we do not process your personal data on our own behalf, so there is no processing that requires a legal basis. The parties described above (GitHub, Microsoft, and our hosting provider) process limited technical data as independent controllers under their own policies."
+        ]
+      },
+      {
+        "heading": "Children's privacy",
+        "paragraphs": [
+          "The app and website are not directed at children, and we do not knowingly collect personal data from anyone — including children under 13 (or the equivalent minimum age in your jurisdiction) — because we do not collect personal data at all."
+        ]
+      },
+      {
+        "heading": "Data security",
+        "paragraphs": [
+          "Because your data stays on your device, we store nothing that could leak from us. Your local settings file is stored unencrypted in your user profile, protected by your operating system's user permissions. Please keep your device secure."
+        ]
+      },
+      {
+        "heading": "International data transfers",
+        "paragraphs": [
+          "The third parties described above (for example GitHub and Microsoft) operate globally and may process technical data in countries other than your own, including the United States. Their policies describe the safeguards they apply."
+        ]
+      },
+      {
+        "heading": "Your rights",
+        "paragraphs": [
+          "Depending on where you live, you may have rights such as access, correction, deletion, portability, and objection (for example under the GDPR or CCPA). Because we hold no personal data about you, there is generally nothing for us to act on — requests sent to us will be answered with confirmation that no personal data is held.",
+          "You remain in full control of the local files described above; deleting them achieves complete erasure of your app data."
+        ]
+      },
+      {
+        "heading": "Changes to this policy",
+        "paragraphs": [
+          "We may change this policy at any time. The current version is always published on this page, and the \"Last updated\" date at the top reflects the latest revision. Changes take effect when they are posted.",
+          "If a change is material, we may also announce it in the app's release notes. Your continued use of the app or website after a change takes effect means you accept the updated policy."
+        ]
+      },
+      {
+        "heading": "Contact",
+        "paragraphs": [
+          "Questions, requests, or complaints? Email nguyentruongk530042003@gmail.com or open an issue at github.com/quangtruong2003/SmoothScroll. We usually reply within a few days."
+        ]
+      }
+    ]
+  },
   "footer": {
     "taglineWindows": "Smooth scroll for Windows.",
     "taglineMac": "Smooth scroll for macOS.",
@@ -174,7 +292,8 @@
     "taglineFallback": "Smooth scroll for any platform.",
     "links": {
       "github": "GitHub",
-      "license": "License"
+      "license": "License",
+      "privacy": "Privacy"
     }
   },
   "exitIntent": {

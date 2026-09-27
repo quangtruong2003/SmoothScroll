@@ -11,6 +11,9 @@ describe('locale routing', () => {
     ['en', 'how-it-works', '/how-it-works/'],
     ['vi', 'how-it-works', '/vi/how-it-works/'],
     ['zh', 'how-it-works', '/zh/how-it-works/'],
+    ['en', 'privacy', '/privacy/'],
+    ['vi', 'privacy', '/vi/privacy/'],
+    ['zh', 'privacy', '/zh/privacy/'],
   ] as const)('maps %s %s to %s', (locale, page, expected) => {
     expect(localePath(locale, page)).toBe(expected)
   })

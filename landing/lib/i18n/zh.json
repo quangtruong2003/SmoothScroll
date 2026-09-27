@@ -84,7 +84,125 @@
   ]},
   "finalCta": { "title": "准备好感受不同了吗？", "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。", "cta": "下载 SmoothScroll", "ctaLinux": "下载 Linux 版", "ctaMac": "下载 SmoothScroll Beta", "ctaSub": "目前免费。源代码可见许可。", "comingSoon": "即将推出" },
   "beta": { "badge": "BETA", "notice": "此版本仍处于 Beta 阶段 - 可能随时崩溃。", "reportPrefix": "发现问题？", "reportLink": "在 GitHub 上反馈" },
-  "footer": { "tagline": "Windows 流畅滚动。", "links": { "github": "GitHub", "license": "许可证" } },
+  "privacy": {
+    "title": "隐私政策",
+    "subtitle": "SmoothScroll 不收集任何个人数据。本页详细说明应用和本网站处理哪些信息、原因，以及您拥有的选择。",
+    "updated": "最后更新：2026年9月27日",
+    "backToHome": "返回首页",
+    "seo": {
+      "title": "隐私政策 — SmoothScroll",
+      "description": "SmoothScroll 不收集个人数据：无账号、无遥测、无分析、无广告。设置和日志仅保存在您的设备上。"
+    },
+    "intro": "本隐私政策说明 SmoothScroll（\"我们\"、\"应用\"）及网站 smoothscroll.top（\"本网站\"）处理哪些信息、原因，以及您拥有的选择。简而言之：应用设计为完全在您的设备上离线运行。我们不运营任何接收您个人数据的服务器，也不收集、出售或共享个人信息。",
+    "sections": [
+      {
+        "heading": "适用范围",
+        "paragraphs": [
+          "本政策适用于通过我们的网站、GitHub 或 Microsoft Store 获取的 SmoothScroll 应用（Windows、macOS 与 Linux），以及 smoothscroll.top 网站。本政策不涵盖第三方服务——这些服务受其自身政策约束（见下方\"第三方服务\"）。"
+        ]
+      },
+      {
+        "heading": "我们不收集的信息",
+        "paragraphs": [
+          "应用的设计确保您的活动永远不会到达我们这里："
+        ],
+        "bullets": [
+          "无账号或注册——应用无需登录即可使用。",
+          "无分析或使用统计——我们永远不会知道您使用哪些应用、打开哪些文件或访问哪些网站。",
+          "无遥测或崩溃报告——不会自动发送任何错误报告。",
+          "无广告或广告跟踪器。",
+          "我们不设置任何 cookie——本网站为静态站点，不设置跟踪 cookie。"
+        ]
+      },
+      {
+        "heading": "保存在您设备上的数据（本地数据）",
+        "paragraphs": [
+          "与几乎所有桌面应用一样，应用将所需的一切都保存在您的电脑上："
+        ],
+        "bullets": [
+          "设置：您的滚动偏好和按应用配置，保存于 %APPDATA%\\SmoothScroll\\settings.json（Windows）或 macOS/Linux 上对应的配置文件夹。",
+          "日志：诊断日志写入本地文件夹；可从应用的\"支持\"部分打开。"
+        ],
+        "outro": "这些数据绝不会传输给我们。您可以随时查看、修改或删除；卸载应用或删除这些文件即可清除应用创建的全部数据。"
+      },
+      {
+        "heading": "更新检查",
+        "paragraphs": [
+          "应用会定期联系 GitHub（github.com）检查是否有新版本。这是下载一个小型版本文件的普通 HTTPS 请求；与任何网络请求一样，GitHub 会收到您的 IP 地址和标准技术标头（如操作系统版本）。除此之外不会发送任何关于您或您使用情况的信息。",
+          "如果您通过 Microsoft Store 安装应用，更新由 Store 自行提供。"
+        ]
+      },
+      {
+        "heading": "第三方服务",
+        "paragraphs": [
+          "应用和网站链接或嵌入了少量第三方服务。当您与它们交互时，适用其各自的隐私政策："
+        ],
+        "bullets": [
+          "GitHub 上的更新文件——版本检查与下载由 GitHub 提供（见其隐私政策）。",
+          "Buy Me a Coffee——捐赠链接会在您的浏览器中打开。如果您选择捐赠，付款信息由 Buy Me a Coffee 依其政策处理。",
+          "VietQR——应用的\"支持\"部分可能会显示从 img.vietqr.io 加载的银行二维码图片。这是向该服务发出的普通图片请求。",
+          "GitHub Issues——当您在 GitHub 上报告问题或公开联系我们时，您发布的内容会显示在 GitHub 上并受其条款约束。"
+        ]
+      },
+      {
+        "heading": "Microsoft Store",
+        "paragraphs": [
+          "当您通过 Microsoft Store 获取应用时，微软是您的微软账号、购买记录和设备信息等数据的独立控制者，依《Microsoft 隐私声明》处理。我们不会从微软收到您的个人数据；我们只能看到下载量等汇总的、非身份识别信息。"
+        ]
+      },
+      {
+        "heading": "网站与服务器日志",
+        "paragraphs": [
+          "本网站为静态站点。我们的托管服务商可能会自动处理标准技术日志（例如您的 IP 地址、浏览器类型和所请求的页面），用于安全与运营目的。我们不会使用这些日志构建关于您的用户画像。"
+        ]
+      },
+      {
+        "heading": "法律依据（GDPR）",
+        "paragraphs": [
+          "对于欧盟/欧洲经济区的访客：我们不基于自身目的处理您的个人数据，因此不存在需要法律依据的处理行为。上述各方（GitHub、微软及托管服务商）作为独立控制者，依其自身政策处理有限的技术数据。"
+        ]
+      },
+      {
+        "heading": "儿童隐私",
+        "paragraphs": [
+          "应用和网站并非面向儿童，我们也不会故意收集任何人的个人数据——包括 13 岁以下儿童（或您所在司法辖区的同等最低年龄）——因为我们根本不收集个人数据。"
+        ]
+      },
+      {
+        "heading": "数据安全",
+        "paragraphs": [
+          "由于您的数据保留在您的设备上，我们不存储任何可能从我方泄露的内容。本地设置文件以未加密形式存储在您的用户目录中，受操作系统用户权限保护。请妥善保管您的设备。"
+        ]
+      },
+      {
+        "heading": "国际数据传输",
+        "paragraphs": [
+          "上述第三方（例如 GitHub 和微软）在全球运营，可能在与您不同的国家/地区（包括美国）处理技术数据。其政策说明了所适用的保障措施。"
+        ]
+      },
+      {
+        "heading": "您的权利",
+        "paragraphs": [
+          "视您所在地区而定，您可能享有访问、更正、删除、可携带性和反对等权利（例如依据 GDPR 或 CCPA）。由于我们不持有您的任何个人数据，通常没有可供我们处理的内容——发送给我们的请求将获得\"未持有任何个人数据\"的确认。",
+          "您仍可完全控制上述本地文件；删除它们即彻底清除您的应用数据。"
+        ]
+      },
+      {
+        "heading": "政策变更",
+        "paragraphs": [
+          "我们可能随时更改本政策。当前版本始终发布在本页面，页面顶部的\"最后更新\"日期反映最新修订。更改发布后即生效。",
+          "如有重大变更，我们也可能在应用的发布说明中公告。更改生效后您继续使用应用或网站，即表示您接受更新后的政策。"
+        ]
+      },
+      {
+        "heading": "联系我们",
+        "paragraphs": [
+          "有问题、请求或投诉？请发送电子邮件至 nguyentruongk530042003@gmail.com，或在 github.com/quangtruong2003/SmoothScroll 提交 issue。我们通常会在几天内回复。"
+        ]
+      }
+    ]
+  },
+  "footer": { "tagline": "Windows 流畅滚动。", "links": { "github": "GitHub", "license": "许可证", "privacy": "隐私" } },
   "exitIntent": { "title": "等等，先别走！", "message": "下载 SmoothScroll，让每次滚动都自然流畅。", "cta": "免费下载", "ctaLinux": "免费下载 Linux 版", "ctaMac": "免费下载 Beta" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },
   "howItWorks": {

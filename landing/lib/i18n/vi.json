@@ -109,7 +109,125 @@
     "comingSoon": "Coming Soon"
   },
   "beta": { "badge": "BETA", "notice": "Bản này vẫn đang trong giai đoạn Beta - có thể crash bất cứ lúc nào.", "reportPrefix": "Gặp lỗi?", "reportLink": "Báo cáo trên GitHub" },
-  "footer": { "taglineWindows": "Cuộn mượt cho Windows.", "taglineMac": "Cuộn mượt cho macOS.", "taglineLinux": "Cuộn mượt cho Linux.", "taglineFallback": "Cuộn mượt cho mọi nền tảng.", "links": { "github": "GitHub", "license": "Giấy phép" } },
+  "privacy": {
+    "title": "Chính sách quyền riêng tư",
+    "subtitle": "SmoothScroll không thu thập dữ liệu cá nhân. Trang này giải thích chi tiết ứng dụng và website xử lý gì, tại sao, và bạn có những lựa chọn nào.",
+    "updated": "Cập nhật lần cuối: 27 tháng 9, 2026",
+    "backToHome": "Về trang chủ",
+    "seo": {
+      "title": "Chính sách quyền riêng tư — SmoothScroll",
+      "description": "SmoothScroll không thu thập dữ liệu cá nhân: không tài khoản, không telemetry, không analytics, không quảng cáo. Cài đặt và log nằm trên thiết bị của bạn."
+    },
+    "intro": "Chính sách quyền riêng tư này giải thích ứng dụng SmoothScroll (\"chúng tôi\", \"ứng dụng\") và website smoothscroll.top (\"website\") xử lý thông tin gì, tại sao, và bạn có những lựa chọn nào. Tóm tắt: ứng dụng được thiết kế để chạy hoàn toàn ngoại tuyến trên thiết bị của bạn. Chúng tôi không vận hành máy chủ nào nhận dữ liệu cá nhân của bạn, và không thu thập, bán hay chia sẻ thông tin cá nhân.",
+    "sections": [
+      {
+        "heading": "Phạm vi áp dụng",
+        "paragraphs": [
+          "Chính sách này áp dụng cho ứng dụng SmoothScroll trên Windows, macOS và Linux, bất kể bạn tải từ website, GitHub hay Microsoft Store, và cho website smoothscroll.top. Chính sách không áp dụng cho dịch vụ bên thứ ba — các dịch vụ đó chịu sự điều chỉnh của chính sách riêng của họ (xem phần \"Dịch vụ bên thứ ba\" bên dưới)."
+        ]
+      },
+      {
+        "heading": "Thông tin chúng tôi không thu thập",
+        "paragraphs": [
+          "Ứng dụng được thiết kế để hoạt động của bạn không bao giờ tới được chúng tôi:"
+        ],
+        "bullets": [
+          "Không tài khoản hay đăng ký — ứng dụng hoạt động không cần đăng nhập.",
+          "Không analytics hay thống kê sử dụng — chúng tôi không hề biết bạn dùng ứng dụng nào, mở tệp nào hay truy cập website nào.",
+          "Không telemetry hay báo cáo crash — không có báo cáo lỗi nào được gửi đi tự động.",
+          "Không quảng cáo hay trình theo dõi quảng cáo.",
+          "Không cookie do chúng tôi đặt — website là trang tĩnh và không đặt cookie theo dõi."
+        ]
+      },
+      {
+        "heading": "Dữ liệu lưu trên thiết bị của bạn (dữ liệu local)",
+        "paragraphs": [
+          "Giống hầu hết các ứng dụng desktop, ứng dụng lưu mọi thứ cần thiết ngay trên máy của bạn:"
+        ],
+        "bullets": [
+          "Cài đặt: tùy chọn cuộn và cấu hình theo từng ứng dụng, lưu tại %APPDATA%\\SmoothScroll\\settings.json (Windows) hoặc thư mục cấu hình tương ứng trên macOS/Linux.",
+          "Log: log chẩn đoán được ghi vào thư mục local; bạn có thể mở từ phần Hỗ trợ của ứng dụng."
+        ],
+        "outro": "Dữ liệu này không bao giờ được truyền tới chúng tôi. Bạn có thể xem, sửa hoặc xóa bất cứ lúc nào; gỡ ứng dụng hoặc xóa các tệp này sẽ xóa sạch toàn bộ dữ liệu mà ứng dụng đã tạo."
+      },
+      {
+        "heading": "Kiểm tra cập nhật",
+        "paragraphs": [
+          "Ứng dụng định kỳ liên hệ GitHub (github.com) để kiểm tra phiên bản mới. Đây là yêu cầu HTTPS chuẩn tải một tệp phiên bản nhỏ; như bất kỳ yêu cầu web nào, GitHub nhận được địa chỉ IP và các header kỹ thuật tiêu chuẩn của bạn (như phiên bản hệ điều hành). Không có thông tin nào khác về bạn hoặc cách bạn sử dụng được gửi kèm.",
+          "Nếu bạn cài ứng dụng qua Microsoft Store, bản cập nhật do chính Store phân phối."
+        ]
+      },
+      {
+        "heading": "Dịch vụ bên thứ ba",
+        "paragraphs": [
+          "Ứng dụng và website liên kết hoặc nhúng một số ít dịch vụ bên thứ ba. Khi bạn tương tác với họ, chính sách riêng của họ sẽ áp dụng:"
+        ],
+        "bullets": [
+          "Tệp cập nhật trên GitHub — việc kiểm tra phiên bản và tải xuống do GitHub phục vụ (xem Privacy Policy của họ).",
+          "Buy Me a Coffee — link ủng hộ mở trong trình duyệt của bạn. Nếu bạn ủng hộ, thông tin thanh toán do Buy Me a Coffee xử lý theo chính sách của họ.",
+          "VietQR — phần Hỗ trợ của ứng dụng có thể hiển thị ảnh QR ngân hàng tải từ img.vietqr.io. Đây là yêu cầu tải ảnh chuẩn tới dịch vụ đó.",
+          "GitHub Issues — khi bạn báo lỗi hoặc liên hệ công khai trên GitHub, nội dung bạn đăng hiển thị trên GitHub và chịu điều khoản của GitHub."
+        ]
+      },
+      {
+        "heading": "Microsoft Store",
+        "paragraphs": [
+          "Khi bạn cài ứng dụng qua Microsoft Store, Microsoft là bên kiểm soát độc lập đối với các thông tin như tài khoản Microsoft, giao dịch mua và thông tin thiết bị, xử lý theo Microsoft Privacy Statement. Chúng tôi không nhận dữ liệu cá nhân của bạn từ Microsoft; chúng tôi chỉ thấy thông tin tổng hợp, không định danh như số lượt tải."
+        ]
+      },
+      {
+        "heading": "Website và log máy chủ",
+        "paragraphs": [
+          "Website là trang tĩnh. Nhà cung cấp lưu trữ của chúng tôi có thể tự động xử lý log kỹ thuật tiêu chuẩn (ví dụ địa chỉ IP, loại trình duyệt, trang được yêu cầu) cho mục đích bảo mật và vận hành. Chúng tôi không dùng các log này để dựng hồ sơ về bạn."
+        ]
+      },
+      {
+        "heading": "Cơ sở pháp lý (GDPR)",
+        "paragraphs": [
+          "Với khách truy cập ở EU/EEA: chúng tôi không xử lý dữ liệu cá nhân của bạn với tư cách chủ dữ liệu, nên không có xử lý nào cần cơ sở pháp lý. Các bên nêu trên (GitHub, Microsoft và nhà cung cấp lưu trữ) xử lý một lượng dữ liệu kỹ thuật hạn chế với tư cách bên kiểm soát độc lập theo chính sách của họ."
+        ]
+      },
+      {
+        "heading": "Quyền riêng tư của trẻ em",
+        "paragraphs": [
+          "Ứng dụng và website không nhắm tới trẻ em, và chúng tôi không cố ý thu thập dữ liệu cá nhân của bất kỳ ai — kể cả trẻ em dưới 13 tuổi (hoặc độ tuổi tối thiểu tương đương nơi bạn sống) — vì chúng tôi không thu thập dữ liệu cá nhân ngay từ đầu."
+        ]
+      },
+      {
+        "heading": "Bảo mật dữ liệu",
+        "paragraphs": [
+          "Vì dữ liệu của bạn nằm ngay trên thiết bị, chúng tôi không lưu thứ gì có thể bị rò rỉ từ phía mình. Tệp cài đặt local lưu dưới dạng không mã hóa trong thư mục người dùng, được bảo vệ bởi quyền người dùng của hệ điều hành. Hãy giữ thiết bị của bạn an toàn."
+        ]
+      },
+      {
+        "heading": "Chuyển dữ liệu quốc tế",
+        "paragraphs": [
+          "Các bên thứ ba nêu trên (ví dụ GitHub và Microsoft) hoạt động toàn cầu và có thể xử lý dữ liệu kỹ thuật tại quốc gia khác của bạn, kể cả Hoa Kỳ. Chính sách của họ mô tả các biện pháp bảo vệ mà họ áp dụng."
+        ]
+      },
+      {
+        "heading": "Quyền của bạn",
+        "paragraphs": [
+          "Tùy nơi bạn sống, bạn có thể có các quyền như truy cập, sửa, xóa, xuất dữ liệu, phản đối xử lý (ví dụ theo GDPR hoặc CCPA). Vì chúng tôi không lưu dữ liệu cá nhân nào của bạn, thông thường không có gì để chúng tôi xử lý — yêu cầu gửi tới chúng tôi sẽ được trả lời xác nhận rằng không có dữ liệu cá nhân nào được lưu giữ.",
+          "Bạn toàn quyền kiểm soát các tệp local nêu trên; xóa chúng là xóa sạch dữ liệu ứng dụng của bạn."
+        ]
+      },
+      {
+        "heading": "Thay đổi chính sách",
+        "paragraphs": [
+          "Chúng tôi có thể thay đổi chính sách này bất cứ lúc nào. Phiên bản hiện hành luôn được đăng tại trang này, và dòng \"Cập nhật lần cuối\" ở đầu trang thể hiện bản mới nhất. Thay đổi có hiệu lực kể từ khi được đăng.",
+          "Nếu thay đổi quan trọng, chúng tôi có thể công bố thêm trong release notes của ứng dụng. Việc bạn tiếp tục dùng ứng dụng hoặc website sau khi thay đổi có hiệu lực đồng nghĩa với việc bạn chấp nhận chính sách đã cập nhật."
+        ]
+      },
+      {
+        "heading": "Liên hệ",
+        "paragraphs": [
+          "Câu hỏi, yêu cầu hay khiếu nại? Gửi email tới nguyentruongk530042003@gmail.com hoặc mở issue tại github.com/quangtruong2003/SmoothScroll. Chúng tôi thường trả lời trong vài ngày."
+        ]
+      }
+    ]
+  },
+  "footer": { "taglineWindows": "Cuộn mượt cho Windows.", "taglineMac": "Cuộn mượt cho macOS.", "taglineLinux": "Cuộn mượt cho Linux.", "taglineFallback": "Cuộn mượt cho mọi nền tảng.", "links": { "github": "GitHub", "license": "Giấy phép", "privacy": "Quyền riêng tư" } },
   "exitIntent": { "title": "Đợi đã - trước khi bạn đi!", "message": "Tải SmoothScroll và cảm nhận cuộn tự nhiên.", "cta": "Tải miễn phí", "ctaLinux": "Tải Linux miễn phí", "ctaMac": "Tải bản Beta miễn phí" },
   "langSwitcher": { "en": "English", "vi": "Tiếng Việt", "zh": "中文" },
   "howItWorks": {

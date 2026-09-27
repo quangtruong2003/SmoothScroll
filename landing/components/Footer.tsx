@@ -36,6 +36,11 @@ export function Footer() {
           >
             {d?.faq?.title ?? 'FAQ'}
           </Link>          <Link
+            href={localePath(locale, 'privacy')}
+            className="hover:text-foreground transition-colors"
+          >
+            {f?.links?.privacy ?? 'Privacy'}
+          </Link>          <Link
             href="https://github.com/quangtruong2003/SmoothScroll"
             target="_blank"
             rel="noopener noreferrer"
