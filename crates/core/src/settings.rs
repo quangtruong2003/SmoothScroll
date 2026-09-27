@@ -52,7 +52,7 @@ pub enum EngineTiming {
     Legacy,
 }
 
-pub const CURRENT_SETTINGS_SCHEMA_VERSION: u32 = 2;
+pub const CURRENT_SETTINGS_SCHEMA_VERSION: u32 = 3;
 
 fn default_games_list() -> Vec<String> {
     [
@@ -110,7 +110,7 @@ pub struct ScrollProfile {
     pub wheel_output_mode: WheelOutputMode,
     #[serde(default = "default_max_velocity")]
     pub max_velocity: i32,
-    #[serde(default = "default_true")]
+    #[serde(default = "default_false")]
     pub smooth_zoom: bool,
     #[serde(default = "default_false")]
     pub zoom_invert: bool,
@@ -191,6 +191,45 @@ mod tests {
         assert!(!s.is_discrete_wheel_app(None));
         assert!(!s.is_discrete_wheel_app(Some("   ")));
     }
+
+    fn profile_raw(smooth_zoom: bool) -> serde_json::Value {
+        serde_json::json!({
+            "id": "p", "name": "P", "step_size_px": 144, "animation_time_ms": 220,
+            "acceleration_max": 10, "tail_to_head_ratio": 5, "animation_easing": true,
+            "easing_mode": "QuinticOut", "reverse_wheel_direction": false,
+            "horizontal_smoothness": true, "smooth_zoom": smooth_zoom
+        })
+    }
+
+    #[test]
+    fn schema2_update_forces_horizontal_and_zoom_smoothing_off() {
+        let raw = serde_json::json!({
+            "settings_schema_version": 2,
+            "horizontal_smoothness": true,
+            "smooth_zoom": true,
+            "profiles": [profile_raw(true)]
+        });
+        let (settings, migrated) = migrate_raw_settings(raw).unwrap();
+        assert!(migrated);
+        assert_eq!(settings.settings_schema_version, 3);
+        assert!(!settings.horizontal_smoothness);
+        assert!(!settings.smooth_zoom);
+        let profile = &settings.profiles[0];
+        assert!(!profile.horizontal_smoothness);
+        assert!(!profile.smooth_zoom);
+    }
+
+    #[test]
+    fn schema3_keeps_user_reenabled_smoothing() {
+        let raw = serde_json::json!({
+            "settings_schema_version": 3,
+            "profiles": [profile_raw(true)]
+        });
+        let (settings, migrated) = migrate_raw_settings(raw).unwrap();
+        assert!(!migrated);
+        assert!(settings.profiles[0].smooth_zoom);
+        assert!(settings.profiles[0].horizontal_smoothness);
+    }
 }
 
 impl ScrollProfile {
@@ -206,11 +245,11 @@ impl ScrollProfile {
             animation_easing: true,
             easing_mode: EasingMode::QuinticOut,
             reverse_wheel_direction: false,
-            horizontal_smoothness: true,
+            horizontal_smoothness: false,
             shift_wheel_behavior: ShiftWheelBehavior::Preserve,
             wheel_output_mode: WheelOutputMode::SmoothPulses,
             max_velocity: default_max_velocity(),
-            smooth_zoom: true,
+            smooth_zoom: false,
             zoom_invert: false,
             zoom_sensitivity: default_zoom_sensitivity(),
         }
@@ -415,7 +454,7 @@ impl Default for AppSettings {
             touchpad_acceleration_factor: 1.0,
             respect_reduce_motion: RespectReduceMotion::default(),
             modifier_passthrough: ModifierPassthrough::default(),
-            smooth_zoom: true,
+            smooth_zoom: false,
             zoom_invert: false,
             zoom_sensitivity: 1.0,
             onboarding_completed_at: None,
@@ -475,6 +514,23 @@ impl AppSettings {
                 self.app_profiles
                     .insert(app, Self::DISABLED_PROFILE_ID.to_string());
             }
+        }
+    }
+
+    /// Schema 3: horizontal-wheel and zoom smoothing ship off (they smooth
+    /// surfaces that are often already smooth or discrete, e.g. design-app
+    /// Ctrl+Wheel zoom). Forced once at the update boundary — stored version
+    /// below 3 has both turned off everywhere; afterwards the user's own
+    /// choice persists.
+    fn migrate_v3_force_wheel_smoothing_off(&mut self) {
+        if self.settings_schema_version >= 3 {
+            return;
+        }
+        self.horizontal_smoothness = false;
+        self.smooth_zoom = false;
+        for profile in &mut self.profiles {
+            profile.horizontal_smoothness = false;
+            profile.smooth_zoom = false;
         }
     }
 
@@ -950,6 +1006,10 @@ pub fn migrate_raw_settings(
     let mut settings: AppSettings = serde_json::from_value(raw.clone())?;
     settings.migrate_missing_profile_zoom_settings(&raw);
     settings.migrate_from_v1();
+    settings.migrate_v3_force_wheel_smoothing_off();
+    if version < 3 {
+        migrated = true;
+    }
     settings.canonicalize_app_profile_keys_on_load();
     settings.seed_native_smooth_excludes();
     settings.clamp();

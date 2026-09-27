@@ -1946,6 +1946,7 @@ mod tests {
     #[test]
     fn policy_applies_ctrl_zoom_only_to_ctrl_only_vertical() {
         let mut settings = eff();
+        settings.smooth_zoom = true;
         settings.zoom_invert = true;
         settings.zoom_sensitivity = 2.5;
         let action = resolve_wheel_action(

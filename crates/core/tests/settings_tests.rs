@@ -333,7 +333,7 @@ fn effective_settings_with_profile_overrides_zoom_settings() {
 }
 
 #[test]
-fn old_profile_without_zoom_settings_uses_defaults() {
+fn old_profile_without_zoom_settings_defaults_smoothing_off() {
     let profile: ScrollProfile = serde_json::from_str(
         r#"{
             "id":"test","name":"Test","step_size_px":144,"animation_time_ms":220,
@@ -344,7 +344,7 @@ fn old_profile_without_zoom_settings_uses_defaults() {
     )
     .unwrap();
 
-    assert!(profile.smooth_zoom);
+    assert!(!profile.smooth_zoom);
     assert!(!profile.zoom_invert);
     assert_eq!(profile.zoom_sensitivity, 1.0);
 }
