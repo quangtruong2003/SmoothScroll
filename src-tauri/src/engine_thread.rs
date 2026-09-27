@@ -341,7 +341,9 @@ mod tests {
     use parking_lot::{Mutex, RwLock};
     use smoothscroll_core::engine::SmoothScrollEngine;
     use smoothscroll_core::input_source::InputSource;
-    use smoothscroll_core::settings::{AppSettings, EffectiveSettings, RespectReduceMotion};
+    use smoothscroll_core::settings::{
+        AppSettings, EffectiveSettings, EngineTiming, RespectReduceMotion,
+    };
     use smoothscroll_platform::icon::IconCache;
     use smoothscroll_platform::traits::{
         AccessibilitySignals, Autostart, FullscreenDetector, HookEventSink, HookHandle, Hotkey,
@@ -541,6 +543,16 @@ mod tests {
         (settings, eff)
     }
 
+    /// Legacy scheduler contract — see window-model plan Task 3: these tests
+    /// assert first-frame animated emission and cancel-during-emitting-frame
+    /// behavior that only the legacy scheduler's eased fraction provides.
+    fn legacy_animated_settings() -> (AppSettings, EffectiveSettings) {
+        let (mut settings, _) = animated_settings();
+        settings.engine_timing = EngineTiming::Legacy;
+        let eff = EffectiveSettings::from_settings(&settings);
+        (settings, eff)
+    }
+
     fn make_state(
         settings: AppSettings,
         eff: EffectiveSettings,
@@ -680,7 +692,7 @@ mod tests {
 
     #[test]
     fn ctrl_tail_emits_with_captured_semantic_after_ctrl_release() {
-        let (settings, eff) = animated_settings();
+        let (settings, eff) = legacy_animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
         let geom = Arc::new(RootWindowGeom::new(Some(A)));
         let state = make_state(settings, eff.clone(), recorder.clone(), geom);
@@ -727,7 +739,7 @@ mod tests {
 
     #[test]
     fn semantic_emit_failure_stops_only_matching_axis_tail() {
-        let (settings, eff) = animated_settings();
+        let (settings, eff) = legacy_animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
         recorder.fail_axis(WheelAxis::Vertical);
         let geom = Arc::new(RootWindowGeom::new(Some(A)));
@@ -751,7 +763,7 @@ mod tests {
 
     #[test]
     fn same_window_emits_animated_frame() {
-        let (settings, eff) = animated_settings();
+        let (settings, eff) = legacy_animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
         let geom = Arc::new(RootWindowGeom::new(Some(A)));
         let state = make_state(settings, eff, recorder.clone(), geom.clone());
@@ -767,7 +779,7 @@ mod tests {
 
     #[test]
     fn changed_window_cancels_before_emission() {
-        let (settings, eff) = animated_settings();
+        let (settings, eff) = legacy_animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
         let geom = Arc::new(RootWindowGeom::new(Some(B)));
         let state = make_state(settings, eff, recorder.clone(), geom);
@@ -784,7 +796,7 @@ mod tests {
 
     #[test]
     fn owner_change_during_validation_discards_stale_frame_without_resetting_new_sequence() {
-        let (settings, eff) = animated_settings();
+        let (settings, eff) = legacy_animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
         let geom = Arc::new(RootWindowGeom::new(Some(B)));
         let state = make_state(settings, eff, recorder.clone(), geom.clone());
@@ -816,7 +828,7 @@ mod tests {
 
     #[test]
     fn unknown_root_does_not_cancel_animated_frame() {
-        let (settings, eff) = animated_settings();
+        let (settings, eff) = legacy_animated_settings();
         let recorder = Arc::new(RecordingEmitter::default());
         let geom = Arc::new(RootWindowGeom::new(None));
         let state = make_state(settings, eff, recorder.clone(), geom.clone());
