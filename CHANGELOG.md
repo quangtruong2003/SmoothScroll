@@ -7,6 +7,25 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.34.0] - 2026-09-27
+
+### Added
+- turn horizontal-wheel and zoom smoothing off by default on update
+- route discrete-wheel apps like REAPER to whole-notch output
+- classify touchpads by OS marker and delta-magnitude evidence
+- default window timing scheduler with legacy kill-switch
+- add exactly-conservative window payout model
+- add engine timing switch and discrete-wheel app settings
+- picker dropdown rows show app icons
+- game icons and game picker in Game Mode
+- expand FAQ to 31 questions with dedicated faq pages
+
+### Fixed
+- reset scroll axes when the timing scheduler changes
+- game picker no longer crashes on malformed shortcuts
+
+### Performance
+- instant picker icons via disk cache and chunked loading
 ## [1.33.1] - 2026-09-14
 
 ### Fixed
