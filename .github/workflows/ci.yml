@@ -130,7 +130,7 @@ jobs:
           path: src/lib/engine-wasm/
 
       - name: Build Tauri app (no signing)
-        run: pnpm tauri build -- --no-bundle
+        run: pnpm tauri build --no-bundle
 
   build-macos:
     strategy:
@@ -221,4 +221,4 @@ jobs:
           path: src/lib/engine-wasm/
 
       - name: Build Tauri app (no signing)
-        run: pnpm tauri build -- --no-bundle
+        run: pnpm tauri build --no-bundle
