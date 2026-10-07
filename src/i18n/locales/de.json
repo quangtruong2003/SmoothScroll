@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Profil konnte der App nicht zugewiesen werden",
     "app_profile_remove_failed": "App-Überschreibung konnte nicht entfernt werden",
     "save_failed": "Einstellungen konnten nicht gespeichert werden. Änderungen bleiben im Speicher, sind aber nicht persistent.",
+    "save_ok_hotkey_failed": "Die Einstellungen wurden gespeichert, aber die globale Tastenkombination konnte nicht registriert werden: {{error}}",
     "profile_update_failed": "Profil konnte nicht gespeichert werden",
     "profile_delete_failed": "Profil konnte nicht gelöscht werden"
   },

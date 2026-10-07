@@ -158,19 +158,34 @@ pub fn export_settings(state: State<'_, Arc<AppState>>, path: String) -> Result<
     Ok(path)
 }
 
+/// Outcome of a successful settings save. `hotkey_error` is `Some` when the
+/// settings were persisted to disk but re-registering the global hotkey
+/// failed (e.g. the combo is claimed by another app) — the UI must report
+/// that separately from an actual save failure.
+#[derive(Debug, serde::Serialize)]
+pub struct SaveSettingsReport {
+    pub hotkey_error: Option<String>,
+}
+
 #[tauri::command]
 pub fn save_settings<R: tauri::Runtime>(
     app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     settings: serde_json::Value,
-) -> Result<(), String> {
+) -> Result<SaveSettingsReport, String> {
     // Migrate through the same pipeline as disk loads so importing an old
     // backup yields exactly what a restart would load (v0 field insertions,
     // profile zoom inheritance, v1→v2 app profiles, key canonicalization).
-    let (clamped, _) = settings::migrate_raw_settings(settings).map_err(|e| e.to_string())?;
+    let (clamped, _) = settings::migrate_raw_settings(settings).map_err(|e| {
+        tracing::warn!(error = %e, "settings migration rejected incoming payload");
+        e.to_string()
+    })?;
 
     // Synchronous save — frontend's explicit Save action requires disk state.
-    settings::save(&clamped).map_err(|e| e.to_string())?;
+    settings::save(&clamped).map_err(|e| {
+        tracing::warn!(error = %e, "settings save to disk failed");
+        e.to_string()
+    })?;
 
     state.commit_settings(clamped.clone());
     state.enabled.store(clamped.enabled, Ordering::Relaxed);
@@ -180,16 +195,20 @@ pub fn save_settings<R: tauri::Runtime>(
     emit_settings_changed(&app, &clamped);
 
     // Re-register the hotkey after the new settings are live. A failure here
-    // (e.g. the combo is claimed by another app) must reach the UI — showing
-    // a hotkey that is not actually registered is worse than failing the save.
+    // (e.g. the combo is claimed by another app) must reach the UI — but the
+    // settings are already persisted, so report it as a hotkey problem instead
+    // of a save failure (issue #23: "won't persist" toast was false).
     let state_arc: Arc<AppState> = (*state).clone();
-    if let Err(e) = refresh_hotkey(&state_arc) {
-        tracing::warn!(error = %e, "hotkey re-registration failed after save");
-        return Err(format!("hotkey registration failed: {e}"));
-    }
+    let hotkey_error = match refresh_hotkey(&state_arc) {
+        Ok(()) => None,
+        Err(e) => {
+            tracing::warn!(error = %e, "hotkey re-registration failed after save");
+            Some(e)
+        }
+    };
 
     tracing::debug!("settings saved");
-    Ok(())
+    Ok(SaveSettingsReport { hotkey_error })
 }
 
 /// Toggle the global hotkey on/off without restarting. Persists to settings.

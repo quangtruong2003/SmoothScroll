@@ -269,6 +269,31 @@ describe("settingsStore", () => {
 
       expect(mocks.mockToastError).toHaveBeenCalledWith("errors.save_failed");
     });
+
+    it("reports hotkey registration failure distinctly when settings did save (issue #23)", async () => {
+      await act(async () => {
+        await useSettingsStore.getState().load();
+      });
+      mocks.mockToastError.mockClear();
+      // Settings reached disk; only hotkey re-registration failed.
+      mocks.mockSaveSettings.mockResolvedValue({
+        hotkey_error: "hotkey registration failed: already in use",
+      });
+
+      await act(async () => {
+        await useSettingsStore.getState().saveNow();
+      });
+
+      // Distinct message, not the false "won't persist" save failure.
+      expect(mocks.mockToastError).toHaveBeenCalledWith(
+        "errors.save_ok_hotkey_failed",
+      );
+      expect(mocks.mockToastError).not.toHaveBeenCalledWith(
+        "errors.save_failed",
+      );
+      // saveNow must not throw: the settings themselves were persisted.
+      expect(useSettingsStore.getState().settings).not.toBeNull();
+    });
   });
 
   describe("setEnabledFromEvent", () => {

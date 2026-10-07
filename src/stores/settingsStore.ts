@@ -140,7 +140,14 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const current = get().settings;
     if (!current) return;
     try {
-      await tauri.saveSettings(current);
+      const report = await tauri.saveSettings(current);
+      // Saved to disk — report a hotkey registration failure separately so
+      // the UI does not claim the changes were lost (issue #23).
+      if (report?.hotkey_error) {
+        toast.error(
+          i18n.t("errors.save_ok_hotkey_failed", { error: report.hotkey_error }),
+        );
+      }
     } catch (e) {
       toast.error(i18n.t("errors.save_failed"));
       throw e;

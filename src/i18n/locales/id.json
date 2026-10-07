@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Gagal menugaskan profil ke aplikasi",
     "app_profile_remove_failed": "Gagal menghapus penggantian aplikasi",
     "save_failed": "Gagal menyimpan pengaturan. Perubahan disimpan di memori tetapi tidak akan persisten.",
+    "save_ok_hotkey_failed": "Pengaturan berhasil disimpan, tetapi hotkey global tidak dapat didaftarkan: {{error}}",
     "profile_update_failed": "Profil gagal disimpan",
     "profile_delete_failed": "Profil gagal dihapus"
   },

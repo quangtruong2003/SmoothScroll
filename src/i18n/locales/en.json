@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Failed to assign profile to app",
     "app_profile_remove_failed": "Failed to remove app override",
     "save_failed": "Failed to save settings. Changes are kept in memory but won't persist.",
+    "save_ok_hotkey_failed": "Settings were saved, but the global hotkey could not be registered: {{error}}",
     "profile_update_failed": "Failed to save profile",
     "profile_delete_failed": "Failed to delete profile"
   },

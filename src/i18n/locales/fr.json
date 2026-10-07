@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Échec de l'affectation du profil",
     "app_profile_remove_failed": "Échec de la suppression du remplacement",
     "save_failed": "Échec de l'enregistrement. Les changements sont conservés en mémoire mais ne seront pas persistés.",
+    "save_ok_hotkey_failed": "Les paramètres ont été enregistrés, mais le raccourci global n'a pas pu être enregistré : {{error}}",
     "profile_update_failed": "Impossible d’enregistrer le profil",
     "profile_delete_failed": "Impossible de supprimer le profil"
   },

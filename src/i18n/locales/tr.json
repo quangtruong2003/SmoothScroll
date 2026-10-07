@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Profil uygulamaya atanamadı",
     "app_profile_remove_failed": "Uygulama geçersiz kılması kaldırılamadı",
     "save_failed": "Ayarlar kaydedilemedi. Değişiklikler bellekte tutulur ancak kalıcı olmayacak.",
+    "save_ok_hotkey_failed": "Ayarlar kaydedildi, ancak genel kısayol kaydedilemedi: {{error}}",
     "profile_update_failed": "Profil kaydedilemedi",
     "profile_delete_failed": "Profil silinemedi"
   },

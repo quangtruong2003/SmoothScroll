@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "No se pudo asignar el perfil a la aplicación",
     "app_profile_remove_failed": "No se pudo eliminar la sustitución de la aplicación",
     "save_failed": "No se pudieron guardar los ajustes. Los cambios se mantienen en memoria pero no se conservarán.",
+    "save_ok_hotkey_failed": "Los ajustes se guardaron, pero no se pudo registrar el atajo global: {{error}}",
     "profile_update_failed": "No se pudo guardar el perfil",
     "profile_delete_failed": "No se pudo eliminar el perfil"
   },
