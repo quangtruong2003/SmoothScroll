@@ -132,6 +132,14 @@ jobs:
       - name: Build Tauri app (no signing)
         run: pnpm tauri build --no-bundle
 
+      # Runs #[cfg(test)] modules (e.g. hook_retry_tests) that plain
+      # `cargo build` never compiles. After the build so ../dist exists for
+      # tauri::generate_context!. --lib --bins --tests skips examples
+      # (touchpad_source_diag is windows-only) and benches.
+      - name: Run Rust tests
+        # Full suite — Windows is the reference platform for hook routing.
+        run: cargo test --workspace --exclude smoothscroll-engine-macos --lib --bins --tests
+
   build-macos:
     strategy:
       fail-fast: false
@@ -222,3 +230,16 @@ jobs:
 
       - name: Build Tauri app (no signing)
         run: pnpm tauri build --no-bundle
+
+      # Runs #[cfg(test)] modules (e.g. hook_retry_tests) that plain
+      # `cargo build` never compiles. After the build so ../dist exists for
+      # tauri::generate_context!. --lib --bins --tests skips examples
+      # (touchpad_source_diag is windows-only) and benches.
+      - name: Run Rust tests
+        # Skips 4 pre-existing Linux failures (issue #28), not touched by this
+        # branch: 3 hook_wiring wheel tests assert modifier capture the
+        # non-Windows route_wheel_event never implemented, and
+        # disk_cache_round_trips_and_invalidates_on_source_change needs
+        # load_cached_icon to return Some (Windows/macOS only). Windows runs
+        # the full suite.
+        run: cargo test --workspace --exclude smoothscroll-engine-macos --lib --bins --tests -- --skip hook_wiring::tests::alt_and_ctrl_alt_wheel_preserve_semantics --skip hook_wiring::tests::ctrl_wheel_smooths_with_captured_ctrl_semantic --skip hook_wiring::tests::ctrl_shift_wheel_uses_generic_vertical_semantic --skip commands::tests::game_icon_disk_cache_tests::disk_cache_round_trips_and_invalidates_on_source_change

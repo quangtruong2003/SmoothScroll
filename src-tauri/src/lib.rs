@@ -158,14 +158,62 @@ pub fn run() {
     #[cfg(not(target_os = "macos"))]
     let trusted = true;
 
-    let hook_result: Result<HookHandle, _> = if trusted {
-        app_state
-            .mouse_hook
-            .install(sink as Arc<dyn smoothscroll_platform::traits::HookEventSink>)
-    } else {
-        tracing::warn!("Accessibility not granted on macOS; hook not installed");
-        Err(smoothscroll_platform::types::PlatformError::PermissionDenied)
+    // Backoff schedule for background hook re-install attempts after a failed
+    // install. Boot-time races (auto-start before the session is ready) can
+    // outlast a few seconds — cover roughly the first three minutes.
+    const HOOK_RETRY_DELAYS_SECS: [u64; 6] = [2, 5, 10, 30, 60, 60];
+
+    let attempt_install = {
+        let mouse_hook = app_state.mouse_hook.clone();
+        let sink = sink.clone();
+        move || {
+            if trusted {
+                mouse_hook
+                    .install(sink.clone() as Arc<dyn smoothscroll_platform::traits::HookEventSink>)
+            } else {
+                Err(smoothscroll_platform::types::PlatformError::PermissionDenied)
+            }
+        }
     };
+
+    // Hook handle lives in a shared slot: the initial install fills it, and a
+    // background retry thread may fill it later if the first attempt failed.
+    let hook_slot: Arc<Mutex<Option<HookHandle>>> = Arc::new(Mutex::new(None));
+    let hook_retry_stop = Arc::new(AtomicBool::new(false));
+
+    match attempt_install() {
+        Ok(handle) => {
+            *hook_slot.lock() = Some(handle);
+            tracing::info!("mouse hook installed");
+        }
+        Err(e) => {
+            if !trusted {
+                tracing::warn!("Accessibility not granted on macOS; hook not installed");
+            }
+            // Issue #24: this failure used to be swallowed silently, leaving
+            // the app running with no smoothing and nothing in the log.
+            tracing::warn!(error = %e, "mouse hook install failed; retrying in background");
+            let slot = hook_slot.clone();
+            let stop = hook_retry_stop.clone();
+            let spawn_result = std::thread::Builder::new()
+                .name("hook-retry".into())
+                .spawn(move || {
+                    if !run_hook_retry(
+                        &HOOK_RETRY_DELAYS_SECS,
+                        &stop,
+                        attempt_install,
+                        |handle| *slot.lock() = Some(handle),
+                    ) {
+                        tracing::error!(
+                            "mouse hook install failed after all retries; smooth scrolling stays disabled"
+                        );
+                    }
+                });
+            if let Err(e) = spawn_result {
+                tracing::warn!(error = %e, "could not spawn hook retry thread");
+            }
+        }
+    }
 
     // Register global hotkey from settings if enabled.
     if app_state.settings.read().enable_global_hotkey {
@@ -186,16 +234,29 @@ pub fn run() {
     struct OwnedHandles {
         #[allow(dead_code)]
         _engine: EngineThread,
+        /// Kept alive so the installed hook is uninstalled on teardown.
+        /// Shared with the hook retry thread — see `run_hook_retry`.
         #[allow(dead_code)]
-        _hook: Option<HookHandle>,
+        hook_slot: Arc<Mutex<Option<HookHandle>>>,
+        /// Set on teardown so an in-flight retry stops before it can install
+        /// a fresh hook while the app is exiting (residual race window: the
+        /// retry thread checks this right before storing the handle).
+        hook_retry_stop: Arc<AtomicBool>,
         #[cfg(windows)]
         #[allow(dead_code)]
         _timer: smoothscroll_platform::windows::HighResTimerGuard,
     }
 
+    impl Drop for OwnedHandles {
+        fn drop(&mut self) {
+            self.hook_retry_stop.store(true, Ordering::Relaxed);
+        }
+    }
+
     let owned = OwnedHandles {
         _engine: engine_thread,
-        _hook: hook_result.ok(),
+        hook_slot,
+        hook_retry_stop,
         #[cfg(windows)]
         _timer: smoothscroll_platform::windows::HighResTimerGuard::begin(timer_period),
     };
@@ -520,5 +581,101 @@ fn prune_old_logs() {
         if modified < cutoff {
             let _ = std::fs::remove_file(entry.path());
         }
+    }
+}
+
+/// Retry `attempt` once per entry in `delays_secs` until it succeeds or
+/// `stop` is set. Returns `true` when the last attempt succeeded and
+/// `on_success` received the value. Each failed attempt is logged.
+fn run_hook_retry<H, E: std::fmt::Display>(
+    delays_secs: &[u64],
+    stop: &AtomicBool,
+    mut attempt: impl FnMut() -> Result<H, E>,
+    mut on_success: impl FnMut(H),
+) -> bool {
+    for &delay in delays_secs {
+        std::thread::sleep(std::time::Duration::from_secs(delay));
+        if stop.load(Ordering::Relaxed) {
+            return false;
+        }
+        match attempt() {
+            Ok(handle) => {
+                if stop.load(Ordering::Relaxed) {
+                    return false;
+                }
+                on_success(handle);
+                tracing::info!("mouse hook installed after retry");
+                return true;
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, "mouse hook install retry failed");
+            }
+        }
+    }
+    false
+}
+
+#[cfg(test)]
+mod hook_retry_tests {
+    use super::run_hook_retry;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+
+    #[test]
+    fn retries_until_success_then_stops() {
+        let stop = AtomicBool::new(false);
+        let calls = AtomicUsize::new(0);
+        let successes = AtomicUsize::new(0);
+        let installed = run_hook_retry(
+            &[0, 0, 0],
+            &stop,
+            || {
+                if calls.fetch_add(1, Ordering::SeqCst) < 2 {
+                    Err("not ready")
+                } else {
+                    Ok(42u8)
+                }
+            },
+            |handle| {
+                assert_eq!(handle, 42u8);
+                successes.fetch_add(1, Ordering::SeqCst);
+            },
+        );
+        assert!(installed);
+        assert_eq!(calls.load(Ordering::SeqCst), 3);
+        assert_eq!(successes.load(Ordering::SeqCst), 1);
+    }
+
+    #[test]
+    fn stops_without_attempting_when_flag_is_set() {
+        let stop = AtomicBool::new(true);
+        let calls = AtomicUsize::new(0);
+        let installed = run_hook_retry(
+            &[0, 0],
+            &stop,
+            || {
+                calls.fetch_add(1, Ordering::SeqCst);
+                Ok::<(), &str>(())
+            },
+            |_| unreachable!("must not install after teardown"),
+        );
+        assert!(!installed);
+        assert_eq!(calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[test]
+    fn gives_up_after_all_delays() {
+        let stop = AtomicBool::new(false);
+        let calls = AtomicUsize::new(0);
+        let installed = run_hook_retry(
+            &[0, 0],
+            &stop,
+            || {
+                calls.fetch_add(1, Ordering::SeqCst);
+                Err::<(), _>("still failing")
+            },
+            |_| unreachable!("must not install when every attempt failed"),
+        );
+        assert!(!installed);
+        assert_eq!(calls.load(Ordering::SeqCst), 2);
     }
 }
