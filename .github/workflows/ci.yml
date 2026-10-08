@@ -105,9 +105,10 @@ jobs:
 
       # Runs #[cfg(test)] modules (e.g. hook_retry_tests) that plain
       # `cargo build` never compiles. After the build so ../dist exists for
-      # tauri::generate_context!. Mirrors release-windows.
+      # tauri::generate_context!. --lib --bins --tests skips examples
+      # (touchpad_source_diag is windows-only) and benches.
       - name: Run Rust tests
-        run: cargo test --workspace --exclude smoothscroll-engine-macos
+        run: cargo test --workspace --exclude smoothscroll-engine-macos --lib --bins --tests
 
   build-macos:
     strategy:
@@ -202,6 +203,7 @@ jobs:
 
       # Runs #[cfg(test)] modules (e.g. hook_retry_tests) that plain
       # `cargo build` never compiles. After the build so ../dist exists for
-      # tauri::generate_context!. Mirrors release-windows.
+      # tauri::generate_context!. --lib --bins --tests skips examples
+      # (touchpad_source_diag is windows-only) and benches.
       - name: Run Rust tests
-        run: cargo test --workspace --exclude smoothscroll-engine-macos
+        run: cargo test --workspace --exclude smoothscroll-engine-macos --lib --bins --tests
