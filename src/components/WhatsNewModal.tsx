@@ -54,7 +54,7 @@ export function WhatsNewModal() {
 
   if (!open || !version) return null;
 
-  let entry: ChangelogEntry | null = null;
+  let entry: ChangelogEntry | null;
   try {
     entry = parseChangelog(rawChangelog, version);
   } catch (e) {

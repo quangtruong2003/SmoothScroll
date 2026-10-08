@@ -83,12 +83,19 @@ export function BackupSection() {
       if (!isValidSettings(parsed)) {
         throw new Error("invalid schema");
       }
-      await tauri.saveSettings(parsed);
+      const report = await tauri.saveSettings(parsed);
       await reload();
       showStatus({
         kind: "ok",
         message: t("backup.imported"),
       });
+      // Imported settings were persisted — surface a hotkey registration
+      // failure separately instead of hiding it (issue #23).
+      if (report?.hotkey_error) {
+        toast.error(
+          t("errors.save_ok_hotkey_failed", { error: report.hotkey_error }),
+        );
+      }
     } catch {
       showStatus({
         kind: "error",

@@ -18,6 +18,35 @@ permissions:
   contents: read
 
 jobs:
+  # Fast feedback: lint + tests (reuses the WASM artifact, same as builds)
+  quality:
+    name: Lint + Test
+    runs-on: ubuntu-latest
+    needs: build-wasm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-engine
+          path: src/lib/engine-wasm/
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests (node --test + vitest)
+        run: pnpm test
+
   # Build WASM once and share as artifact
   build-wasm:
     name: Build WASM
