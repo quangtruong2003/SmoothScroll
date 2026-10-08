@@ -261,8 +261,10 @@ mod tests {
 
     #[test]
     fn exe_file_name_returns_file_name_with_extension() {
+        // Forward slashes parse as separators on both Unix and Windows, so the
+        // assertion holds on every CI platform (backslashes are literal on Unix).
         assert_eq!(
-            exe_file_name(Path::new(r"C:\Games\Hades\Hades.exe")),
+            exe_file_name(Path::new("C:/Games/Hades/Hades.exe")),
             Some("Hades.exe".to_string())
         );
         assert_eq!(exe_file_name(Path::new("cs2.exe")), Some("cs2.exe".to_string()));
