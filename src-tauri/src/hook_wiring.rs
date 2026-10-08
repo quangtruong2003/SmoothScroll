@@ -752,24 +752,12 @@ fn reconcile_animation_owner(
 
 impl HookEventSink for EngineSink {
     fn on_wheel_event(&self, event: WheelInputEvent) -> HookDecision {
-        #[cfg(windows)]
-        {
-            // One semantic route for both physical axes on Windows.
-            self.route_wheel_event(event)
-        }
-        #[cfg(not(windows))]
-        {
-            match event.semantic.axis {
-                WheelAxis::Vertical => self.route_vertical_with_source(
-                    event.delta,
-                    event.semantic.modifiers,
-                    event.source,
-                ),
-                WheelAxis::Horizontal => {
-                    self.route_horizontal_with_source(event.delta, event.source)
-                }
-            }
-        }
+        // One semantic route per platform: Windows uses the unified policy,
+        // other platforms keep the per-axis route. Both live behind
+        // `route_wheel_event`; the old `route_{vertical,horizontal}_with_source`
+        // helpers were removed in d4a2948, which left this non-Windows branch
+        // calling methods that no longer exist (build break on Linux).
+        self.route_wheel_event(event)
     }
 }
 
