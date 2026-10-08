@@ -78,7 +78,7 @@ export function Install({ dict }: InstallProps) {
     tabs: { windows: { label: '', steps: [] }, macos: { label: '', steps: [] }, linux: { label: '', steps: [] } },
     filename: '',
     note: { windows: '', macos: '', linux: '' },
-    supportNotice: 'SmoothScroll currently supports Windows and Linux. macOS support is coming soon.',
+    supportNotice: 'SmoothScroll currently supports Windows. macOS and Linux support are coming soon.',
     cta: 'Download for Windows',
     ctaLinux: '',
     ctaMac: '',
@@ -91,14 +91,18 @@ export function Install({ dict }: InstallProps) {
       return <InstallSteps steps={i.tabs?.macos?.steps ?? []} note={i.note?.macos ?? ''} />
     }
     if (os === 'linux') {
+      // No Linux build ships yet — same treatment as unknown OS: point at the
+      // support notice instead of AppImage steps that would dead-end at a 404.
       return (
-        <InstallSteps steps={i.tabs?.linux?.steps ?? []} note={i.note?.linux ?? ''} />
+        <div className="rounded-md border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
+          {i.supportNotice ?? 'SmoothScroll currently supports Windows. macOS and Linux support are coming soon.'}
+        </div>
       )
     }
     if (os === 'other') {
       return (
         <div className="rounded-md border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
-          {i.supportNotice ?? 'SmoothScroll currently supports Windows and Linux. macOS support is coming soon.'}
+          {i.supportNotice ?? 'SmoothScroll currently supports Windows. macOS and Linux support are coming soon.'}
         </div>
       )
     }

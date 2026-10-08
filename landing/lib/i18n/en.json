@@ -104,7 +104,7 @@
       "linux": "AppImage works on Ubuntu, Debian, Fedora, and most other distros",
       "macos": "Accessibility permission is required for global input interception"
     },
-    "supportNotice": "SmoothScroll currently supports Windows and Linux. macOS support is coming soon.",
+    "supportNotice": "SmoothScroll currently supports Windows. macOS and Linux support are coming soon.",
     "cta": "Download SmoothScroll for Windows",
     "ctaMac": "Download Beta for macOS",
     "ctaLinux": "Download for Linux"
