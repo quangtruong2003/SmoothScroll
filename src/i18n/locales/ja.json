@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "アプリにプロファイルを割り当てられませんでした",
     "app_profile_remove_failed": "アプリの上書きを削除できませんでした",
     "save_failed": "設定の保存に失敗しました。変更はメモリには残りますが、保持されません。",
+    "save_ok_hotkey_failed": "設定は保存されましたが、グローバルホットキーを登録できませんでした: {{error}}",
     "profile_update_failed": "プロファイルを保存できませんでした",
     "profile_delete_failed": "プロファイルを削除できませんでした"
   },

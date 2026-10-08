@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Không thể gán hồ sơ cho ứng dụng",
     "app_profile_remove_failed": "Không thể xoá ghi đè ứng dụng",
     "save_failed": "Lưu cài đặt thất bại. Thay đổi vẫn còn trong bộ nhớ nhưng sẽ không được lưu.",
+    "save_ok_hotkey_failed": "Đã lưu cài đặt, nhưng không thể đăng ký phím tắt toàn cục: {{error}}",
     "profile_update_failed": "Không thể lưu hồ sơ",
     "profile_delete_failed": "Không thể xóa hồ sơ"
   },

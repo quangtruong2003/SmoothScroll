@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "앱에 프로필을 할당하지 못했습니다",
     "app_profile_remove_failed": "앱 재정의를 제거하지 못했습니다",
     "save_failed": "설정 저장에 실패했습니다. 변경 사항은 메모리에 유지되지만 영구 저장되지 않습니다.",
+    "save_ok_hotkey_failed": "설정은 저장되었지만 전역 단축키를 등록하지 못했습니다: {{error}}",
     "profile_update_failed": "프로필을 저장하지 못했습니다",
     "profile_delete_failed": "프로필을 삭제하지 못했습니다"
   },

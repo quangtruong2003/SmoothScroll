@@ -42,6 +42,12 @@ export interface ScrollProfile {
   zoom_sensitivity: number;
 }
 
+/** Result of a successful settings save: settings reached disk, but global
+ *  hotkey re-registration may have failed (`hotkey_error`). */
+export interface SaveSettingsReport {
+  hotkey_error?: string | null;
+}
+
 export interface AppSettings {
   settings_schema_version: number;
   enabled: boolean;
@@ -161,7 +167,7 @@ export const tauri = {
   getSettings: () => invoke<AppSettings>("get_settings"),
   getDefaultSettings: () => invoke<AppSettings>("get_default_settings"),
   saveSettings: (settings: AppSettings) =>
-    invoke<null>("save_settings", { settings }),
+    invoke<SaveSettingsReport | null>("save_settings", { settings }),
   exportSettings: (path: string) => invoke<string>("export_settings", { path }),
 
   setHotkeyEnabled: (enabled: boolean) =>

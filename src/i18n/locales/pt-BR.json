@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Falha ao atribuir perfil ao aplicativo",
     "app_profile_remove_failed": "Falha ao remover substituição do aplicativo",
     "save_failed": "Falha ao salvar configurações. As alterações ficam na memória, mas não serão persistidas.",
+    "save_ok_hotkey_failed": "As configurações foram salvas, mas o atalho global não pôde ser registrado: {{error}}",
     "profile_update_failed": "Não foi possível salvar o perfil",
     "profile_delete_failed": "Não foi possível excluir o perfil"
   },

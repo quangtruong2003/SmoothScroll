@@ -426,6 +426,7 @@
     "app_profile_assign_failed": "Impossibile assegnare il profilo all'app",
     "app_profile_remove_failed": "Impossibile rimuovere la sostituzione",
     "save_failed": "Impossibile salvare le impostazioni. Le modifiche restano in memoria ma non saranno persistenti.",
+    "save_ok_hotkey_failed": "Le impostazioni sono state salvate, ma la scorciatoia globale non è stata registrata: {{error}}",
     "profile_update_failed": "Impossibile salvare il profilo",
     "profile_delete_failed": "Impossibile eliminare il profilo"
   },
