@@ -7,6 +7,19 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.35.0] - 2026-10-08
+
+### Added
+- unify back-to-home navigation across landing pages
+- add localized privacy policy pages
+
+### Fixed
+- surface hotkey_error on import and debounced saves
+- route non-Windows wheel events through route_wheel_event
+- route non-Windows wheel events through route_wheel_event
+- stop forwarding --no-bundle to cargo instead of tauri CLI
+- stop forwarding --no-bundle to cargo instead of tauri CLI
+- stop reporting persisted settings as unsaved when hotkey registration fails
 ## [1.34.0] - 2026-09-27
 
 ### Added
