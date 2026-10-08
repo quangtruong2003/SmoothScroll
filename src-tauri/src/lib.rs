@@ -234,7 +234,9 @@ pub fn run() {
     struct OwnedHandles {
         #[allow(dead_code)]
         _engine: EngineThread,
+        /// Kept alive so the installed hook is uninstalled on teardown.
         /// Shared with the hook retry thread — see `run_hook_retry`.
+        #[allow(dead_code)]
         hook_slot: Arc<Mutex<Option<HookHandle>>>,
         /// Set on teardown so an in-flight retry stops before it can install
         /// a fresh hook while the app is exiting (residual race window: the

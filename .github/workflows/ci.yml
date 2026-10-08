@@ -103,6 +103,12 @@ jobs:
       - name: Build Tauri app (no signing)
         run: pnpm tauri build --no-bundle
 
+      # Runs #[cfg(test)] modules (e.g. hook_retry_tests) that plain
+      # `cargo build` never compiles. After the build so ../dist exists for
+      # tauri::generate_context!. Mirrors release-windows.
+      - name: Run Rust tests
+        run: cargo test --workspace --exclude smoothscroll-engine-macos
+
   build-macos:
     strategy:
       fail-fast: false
@@ -193,3 +199,9 @@ jobs:
 
       - name: Build Tauri app (no signing)
         run: pnpm tauri build --no-bundle
+
+      # Runs #[cfg(test)] modules (e.g. hook_retry_tests) that plain
+      # `cargo build` never compiles. After the build so ../dist exists for
+      # tauri::generate_context!. Mirrors release-windows.
+      - name: Run Rust tests
+        run: cargo test --workspace --exclude smoothscroll-engine-macos
