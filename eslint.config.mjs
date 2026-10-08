@@ -49,7 +49,6 @@ export default tseslint.config(
       "src/**/*.test.{ts,tsx}",
       "src/**/__tests__/**",
       "src/**/__mocks__/**",
-      "src/test/**",
     ],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
