@@ -33,14 +33,16 @@ export function DownloadCTA({
   const displayLabel = isLinux && labelLinux ? labelLinux : isBeta && labelMac ? labelMac : label
   const downloadCount = !downloads.loading && downloads.value !== null ? formatDownloadCount(downloads.value) : null
 
-  if (isMac) {
+  // macOS and Linux builds don't exist yet — block the download like any
+  // unreleased platform instead of linking to a 404 asset. Visible label stays
+  // as the accessible name (e2e + a11y "label in name" both rely on it).
+  if (isMac || isLinux) {
     return (
       <Button
         variant={variant}
         size={size}
         className={className}
         disabled
-        aria-label="macOS support coming soon"
       >
         <Download className="h-5 w-5 mr-2" />
         {displayLabel}
@@ -70,11 +72,6 @@ export function DownloadCTA({
         {downloadCount && (
           <span data-testid="download-cta-count" className="ml-2 inline-flex items-center rounded-md bg-primary-foreground/15 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider">
             {downloadCount}
-          </span>
-        )}
-        {isLinux && (
-          <span className="ml-2 inline-flex items-center rounded-md bg-green-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-green-500 ring-1 ring-inset ring-green-500/40">
-            NEW
           </span>
         )}
         {isBeta && !isLinux && (

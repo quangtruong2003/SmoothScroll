@@ -44,7 +44,7 @@ export function ExitIntentModal({ dict, betaBadge = 'BETA' }: ExitIntentModalPro
           <DialogDescription>{dict.message}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-center">
-          {isMac ? (
+          {isMac || isLinux ? (
             <Button
               variant="brand"
               size="lg"
@@ -68,11 +68,6 @@ export function ExitIntentModal({ dict, betaBadge = 'BETA' }: ExitIntentModalPro
             >
               <Download className="h-4 w-4 mr-2" />
               {displayLabel}
-              {isLinux && (
-                <span className="ml-2 inline-flex items-center rounded-md bg-green-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-green-500 ring-1 ring-inset ring-green-500/40">
-                  NEW
-                </span>
-              )}
               {isBeta && !isLinux && (
                 <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
                   {betaBadge}
