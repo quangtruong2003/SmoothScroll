@@ -43,4 +43,16 @@ export default tseslint.config(
       "react-hooks/exhaustive-deps": "off",
     },
   },
+  {
+    // Test doubles legitimately use `any` and no-op stubs.
+    files: [
+      "src/**/*.test.{ts,tsx}",
+      "src/**/__tests__/**",
+      "src/**/__mocks__/**",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-function": "off",
+    },
+  },
 );

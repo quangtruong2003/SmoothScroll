@@ -30,7 +30,7 @@ export function useForegroundApp(): {
     const interval = window.setInterval(() => void refresh(), POLL_INTERVAL_MS);
 
     return () => {
-      void unlisten.then((u) => u()).catch(() => {});
+      void unlisten.then((u) => u()).catch(() => undefined);
       window.clearInterval(interval);
     };
   }, [refresh]);

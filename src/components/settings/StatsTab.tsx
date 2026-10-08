@@ -18,7 +18,7 @@ export function StatsTab() {
   useEffect(() => {
     tauri.getDailyStats().then(setStats).catch(() => setStats(null));
     const interval = setInterval(() => {
-      tauri.getDailyStats().then(setStats).catch(() => {});
+      tauri.getDailyStats().then(setStats).catch(() => undefined);
     }, 60_000);
     return () => clearInterval(interval);
   }, []);

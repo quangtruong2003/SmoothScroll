@@ -51,7 +51,7 @@ function GameModeSectionInner() {
       .then((map) => {
         if (!cancelled) setBackendIcons((prev) => ({ ...prev, ...map }));
       })
-      .catch(() => {});
+      .catch(() => undefined);
     return () => {
       cancelled = true;
     };
@@ -92,7 +92,7 @@ function GameModeSectionInner() {
         .then((map) => setBackendIcons((prev) => ({ ...prev, ...map })))
         .then(next);
     };
-    next().catch(() => {});
+    next().catch(() => undefined);
   };
 
   const openPicker = () => {
