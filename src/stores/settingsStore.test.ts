@@ -294,6 +294,44 @@ describe("settingsStore", () => {
       // saveNow must not throw: the settings themselves were persisted.
       expect(useSettingsStore.getState().settings).not.toBeNull();
     });
+
+    it("dedupes repeated hotkey errors and resets after a clean save (issue #23)", async () => {
+      await act(async () => {
+        await useSettingsStore.getState().load();
+      });
+      mocks.mockToastError.mockClear();
+      // Reset the cross-test dedupe state with one clean save, then use a
+      // message unique to this test.
+      mocks.mockSaveSettings.mockResolvedValue({ hotkey_error: null });
+      await act(async () => {
+        await useSettingsStore.getState().saveNow();
+      });
+      mocks.mockToastError.mockClear();
+      const failing = {
+        hotkey_error: "hotkey registration failed: dedupe probe",
+      };
+
+      // Two consecutive failures with the same message -> one toast.
+      mocks.mockSaveSettings.mockResolvedValue(failing);
+      await act(async () => {
+        await useSettingsStore.getState().saveNow();
+      });
+      await act(async () => {
+        await useSettingsStore.getState().saveNow();
+      });
+      expect(mocks.mockToastError).toHaveBeenCalledTimes(1);
+
+      // A clean save resets the dedupe, so the same failure toasts again.
+      mocks.mockSaveSettings.mockResolvedValue({ hotkey_error: null });
+      await act(async () => {
+        await useSettingsStore.getState().saveNow();
+      });
+      mocks.mockSaveSettings.mockResolvedValue(failing);
+      await act(async () => {
+        await useSettingsStore.getState().saveNow();
+      });
+      expect(mocks.mockToastError).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("setEnabledFromEvent", () => {

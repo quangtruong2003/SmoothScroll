@@ -54,6 +54,16 @@ const SAVE_DEBOUNCE_MS = 350;
 // or the stale snapshot would overwrite the backend change on disk.
 let persistCounter = 0;
 
+// Debounced saves fire every 350ms during a drag; the same hotkey
+// registration failure would otherwise toast on every tick. Show it only
+// when the message changes (issue #23).
+let lastHotkeyError = "";
+const reportHotkeyError = (error: string) => {
+  if (error === lastHotkeyError) return;
+  lastHotkeyError = error;
+  toast.error(i18n.t("errors.save_ok_hotkey_failed", { error }));
+};
+
 // The persist reads the CURRENT store state at fire time (not the snapshot
 // captured at patch time), so writes queued during the debounce window that
 // were superseded by backend events still persist the freshest truth.
@@ -62,7 +72,9 @@ const debouncedPersist = debounce(async (scheduledAt: number) => {
   const current = useSettingsStore.getState().settings;
   if (!current) return;
   try {
-    await tauri.saveSettings(current);
+    const report = await tauri.saveSettings(current);
+    if (report?.hotkey_error) reportHotkeyError(report.hotkey_error);
+    else lastHotkeyError = "";
   } catch (e) {
     console.error("save_settings failed", e);
     toast.error(i18n.t("errors.save_failed"));
@@ -144,9 +156,9 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       // Saved to disk — report a hotkey registration failure separately so
       // the UI does not claim the changes were lost (issue #23).
       if (report?.hotkey_error) {
-        toast.error(
-          i18n.t("errors.save_ok_hotkey_failed", { error: report.hotkey_error }),
-        );
+        reportHotkeyError(report.hotkey_error);
+      } else {
+        lastHotkeyError = "";
       }
     } catch (e) {
       toast.error(i18n.t("errors.save_failed"));
