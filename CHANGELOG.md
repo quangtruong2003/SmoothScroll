@@ -7,6 +7,14 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.35.1] - 2026-10-08
+
+### Fixed
+- skip windows-only examples in cargo test
+- re-check macOS permission per retry, gate hook tests in CI
+- route non-Windows wheel events through route_wheel_event
+- stop forwarding --no-bundle to cargo instead of tauri CLI
+- log and retry mouse hook install failures instead of swallowing them
 ## [1.35.0] - 2026-10-08
 
 ### Added
