@@ -9,7 +9,7 @@ function LogoCell({ brand }: { brand: Brand }) {
     >
       <img
         src={brand.src}
-        alt=""
+        alt={`${brand.name} logo`}
         width={24}
         height={24}
         decoding="async"

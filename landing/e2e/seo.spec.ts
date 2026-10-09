@@ -240,8 +240,8 @@ test('localized home pages publish visible citable answers', async ({ request })
     expect(html).toContain(page.answer)
     expect(html).toContain('https://github.com/quangtruong2003/SmoothScroll')
     expect(html).toContain('/how-it-works/')
-    expect(html).toContain('2026-08-12')
-    expect(html).toContain(getDictionarySync(page.locale).install?.supportNotice)
+    expect(html).toContain('2026-10-09')
+    expect(html).toContain(getDictionarySync(page.locale).install?.cta)
     expect(html).toMatch(/maintained by|duy trì bởi|由.*维护/i)
   }
 })
@@ -255,7 +255,7 @@ test('raw home HTML exposes locale links and page evidence', async ({ request })
   expect(html).toMatch(/href="\/vi\/?"/)
   expect(html).toMatch(/href="\/zh\/?"/)
   expect(webPage.author).toEqual({ '@id': 'https://smoothscroll.top/#organization' })
-  expect(webPage.dateModified).toBe('2026-08-12')
+  expect(webPage.dateModified).toBe('2026-10-09')
 })
 
 test('sitemap lists every localized canonical page', async ({ request }) => {
@@ -263,7 +263,7 @@ test('sitemap lists every localized canonical page', async ({ request }) => {
   for (const url of canonicalCases.map(([, url]) => url)) {
     expect(xml).toContain(`<loc>${url}</loc>`)
   }
-  expect(xml).toContain('<lastmod>2026-08-12</lastmod>')
+  expect(xml).toContain('<lastmod>2026-10-09</lastmod>')
   expect(xml).not.toContain('marquee-debug')
 })
 

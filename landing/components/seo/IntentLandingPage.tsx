@@ -88,12 +88,7 @@ export function IntentLandingPage({ page }: { page: IntentPage }) {
             <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">{page.heading}</h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">{page.lead}</p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <DownloadCTA
-                label="Download for Windows"
-                labelLinux="Download for Linux"
-                labelMac="Download for macOS"
-                comingSoonLabel="Coming Soon"
-              />
+              <DownloadCTA label="Download for Windows" />
               <Link href="/how-it-works/" className="text-sm font-semibold text-primary hover:underline">
                 See how SmoothScroll works →
               </Link>

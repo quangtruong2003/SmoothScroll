@@ -9,10 +9,6 @@ import { Download } from 'lucide-react'
 
 interface DownloadCTAProps {
   label: string
-  labelLinux?: string
-  labelMac?: string
-  betaBadge?: string
-  comingSoonLabel?: string
   variant?: 'brand' | 'default' | 'outline'
   size?: 'default' | 'lg' | 'xl'
   className?: string
@@ -20,38 +16,13 @@ interface DownloadCTAProps {
 
 export function DownloadCTA({
   label,
-  labelLinux,
-  labelMac,
-  betaBadge = 'BETA',
-  comingSoonLabel = 'Coming Soon',
   variant = 'brand',
   size = 'xl',
   className,
 }: DownloadCTAProps) {
-  const { url, filename, isBeta, isMac, isLinux } = useDownloadUrl()
+  const { url, filename } = useDownloadUrl()
   const downloads = useGitHubDownloads()
-  const displayLabel = isLinux && labelLinux ? labelLinux : isBeta && labelMac ? labelMac : label
   const downloadCount = !downloads.loading && downloads.value !== null ? formatDownloadCount(downloads.value) : null
-
-  // macOS and Linux builds don't exist yet — block the download like any
-  // unreleased platform instead of linking to a 404 asset. Visible label stays
-  // as the accessible name (e2e + a11y "label in name" both rely on it).
-  if (isMac || isLinux) {
-    return (
-      <Button
-        variant={variant}
-        size={size}
-        className={className}
-        disabled
-      >
-        <Download className="h-5 w-5 mr-2" />
-        {displayLabel}
-        <span className="ml-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
-          {comingSoonLabel}
-        </span>
-      </Button>
-    )
-  }
 
   return (
     <Button
@@ -59,7 +30,7 @@ export function DownloadCTA({
       size={size}
       className={className}
       asChild
-      aria-label={displayLabel}
+      aria-label={label}
     >
       <a
         href={url}
@@ -68,15 +39,10 @@ export function DownloadCTA({
         onClick={() => recordDownloadIntent(url)}
       >
         <Download className="h-5 w-5 mr-2" />
-        {displayLabel}
+        {label}
         {downloadCount && (
           <span data-testid="download-cta-count" className="ml-2 inline-flex items-center rounded-md bg-primary-foreground/15 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider">
             {downloadCount}
-          </span>
-        )}
-        {isBeta && !isLinux && (
-          <span className="ml-2 inline-flex items-center rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-orange-500 ring-1 ring-inset ring-orange-500/40">
-            {betaBadge}
           </span>
         )}
       </a>

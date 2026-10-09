@@ -63,7 +63,7 @@ test('sitemap includes all English search-intent pages', async ({ request }) => 
   for (const intentPage of intentPages) {
     expect(xml).toContain(`<loc>${intentUrl(intentPage.slug)}</loc>`)
   }
-  expect(xml).toContain('<lastmod>2026-08-29</lastmod>')
+  expect(xml).toContain('<lastmod>2026-10-09</lastmod>')
 })
 
 test('English homepage and guide link to the search-intent cluster', async ({ request }) => {

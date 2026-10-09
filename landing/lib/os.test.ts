@@ -19,6 +19,24 @@ describe('os.ts', () => {
     expect(detectOS()).toBe('mac')
   })
 
+  it('returns other for iPhone UA (contains Mac)', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15', maxTouchPoints: 5 }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('other')
+  })
+
+  it('returns other for iPad UA (contains Mac)', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15', maxTouchPoints: 5 }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('other')
+  })
+
+  it('returns other for Android UA (contains Linux)', () => {
+    const mockNavigator = { userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36', maxTouchPoints: 5 }
+    vi.stubGlobal('navigator', mockNavigator)
+    expect(detectOS()).toBe('other')
+  })
+
   it('returns linux for Linux UA (x86_64)', () => {
     const mockNavigator = { userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' }
     vi.stubGlobal('navigator', mockNavigator)

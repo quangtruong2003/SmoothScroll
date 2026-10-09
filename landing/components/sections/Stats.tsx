@@ -48,11 +48,14 @@ export function Stats({ dict }: StatsProps) {
 
   const liveStars = useGitHubStars()
   const liveDownloads = useGitHubDownloads()
-  const [version, setVersion] = useState<string>(fb.version ?? '-')
+  const buildVersion = process.env.NEXT_PUBLIC_APP_VERSION
+    ? `v${process.env.NEXT_PUBLIC_APP_VERSION.replace(/^v/, '')}`
+    : null
+  const [version, setVersion] = useState<string>(buildVersion ?? fb.version ?? '-')
   const [loadingVersion, setLoadingVersion] = useState(true)
 
   useEffect(() => {
-    const fallbackVersion = fb.version ?? '-'
+    const fallbackVersion = buildVersion ?? fb.version ?? '-'
 
     fetchLatestRelease()
       .then((releaseData) => {
@@ -63,7 +66,7 @@ export function Stats({ dict }: StatsProps) {
         setVersion(fallbackVersion)
         setLoadingVersion(false)
       })
-  }, [fb])
+  }, [fb, buildVersion])
 
   const starsDisplay = liveStars !== null ? liveStars.toLocaleString() : (fb.stars ?? '-')
   const downloadsDisplay = liveDownloads.value !== null ? formatDownloadCount(liveDownloads.value) : (fb.downloads ?? '-')

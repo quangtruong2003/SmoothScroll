@@ -29,7 +29,7 @@ export function LocalizedHowItWorksPage({ locale, dictionary: d }: LocalizedHowI
       <JsonLd locale={locale} page="how-it-works" dictionary={d} />
       <Navigation locale={locale} pageKind="how-it-works" />
       <main id="main-content">
-        <HowItWorksHero locale={locale} hero={h.hero} ctaLinuxLabel={d.hero?.ctaLinux} ctaMacLabel={d.hero?.ctaMac} betaBadge={d.beta?.badge} comingSoonLabel={d.finalCta?.comingSoon ?? 'Coming Soon'} />
+        <HowItWorksHero locale={locale} hero={h.hero} />
         <DemoFrame demo={h.demo} />
         <BigPicture bigPicture={h.bigPicture} />
         <TabSections tabs={h.tabs} dict={d} />
@@ -38,7 +38,7 @@ export function LocalizedHowItWorksPage({ locale, dictionary: d }: LocalizedHowI
         <Recipes recipes={h.recipes} />
         <Privacy privacy={h.privacy} />
         {locale === 'en' && <SearchIntentGuides />}
-        <FinalCTA finalCta={h.finalCta} ctaLinuxLabel={d.hero?.ctaLinux} ctaMacLabel={d.hero?.ctaMac} betaBadge={d.beta?.badge} comingSoonLabel={d.finalCta?.comingSoon ?? 'Coming Soon'} />
+        <FinalCTA finalCta={h.finalCta} />
       </main>
       <Footer />
     </>

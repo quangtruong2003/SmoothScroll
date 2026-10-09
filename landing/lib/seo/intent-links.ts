@@ -5,7 +5,7 @@ export type IntentSlug =
   | 'smooth-scrolling-chrome-windows'
   | 'smooth-scrolling-vscode-windows'
 
-export const INTENT_CONTENT_UPDATED = '2026-08-29'
+export const INTENT_CONTENT_UPDATED = '2026-10-09'
 
 export const intentLinks: ReadonlyArray<{
   slug: IntentSlug

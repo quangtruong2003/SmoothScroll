@@ -16,7 +16,7 @@ export function SolutionBridge({ dict }: SolutionBridgeProps) {
         <FadeUp>
           <p className="text-3xl sm:text-4xl font-bold text-center leading-snug max-w-3xl mx-auto">
             <span aria-hidden="true" className="mr-2 inline-flex align-middle">
-              <Image src={`${BASE_PATH}/assets/icon-128.png`} alt="" width={36} height={36} className="h-8 w-8 rounded-lg" />
+              <Image src={`${BASE_PATH}/assets/icon-128.png`} alt="SmoothScroll logo" width={36} height={36} className="h-8 w-8 rounded-lg" />
             </span>
             <span>{dict?.solutionBridge?.line ?? ''}</span>
           </p>
