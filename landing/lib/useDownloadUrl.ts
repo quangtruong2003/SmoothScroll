@@ -13,9 +13,6 @@ export interface DownloadInfo {
   ctaLabel: string
   totalDownloads: string
   release: Release | null
-  isBeta: boolean
-  isMac: boolean
-  isLinux: boolean
   loading: boolean
   error: string | null
 }
@@ -30,60 +27,27 @@ function isInstallable(asset: ReleaseAsset): boolean {
   return !NON_INSTALLER_EXT.test(asset.name)
 }
 
-function buildDefaultUrl(os: OS, version: string): { url: string; filename: string } {
+function buildDefaultUrl(version: string): { url: string; filename: string } {
   if (!version) return { url: FALLBACK_URL, filename: '' }
   const tag = version.startsWith('v') ? version : `v${version}`
   const ver = version.replace(/^v/, '')
-  if (os === 'win') {
-    const filename = `SmoothScroll_${ver}_x64-setup.exe`
-    return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
-  }
-  if (os === 'mac') {
-    const filename = `SmoothScroll_${ver}_aarch64.dmg`
-    return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
-  }
-  if (os === 'linux') {
-    const filename = `SmoothScroll_${ver}_amd64.AppImage`
-    return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
-  }
-  return { url: FALLBACK_URL, filename: '' }
+  const filename = `SmoothScroll_${ver}_x64-setup.exe`
+  return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
 }
 
 export function findInstallerUrl(release: Release, os: OS): string | null {
   const installables = release.assets.filter(isInstallable)
-
-  if (os === 'mac') {
-    const dmgs = installables.filter((a) => a.name.toLowerCase().endsWith('.dmg'))
-    const arm = dmgs.find((a) => /aarch64|arm64/i.test(a.name))
-    const intel = dmgs.find((a) => /x64|x86_64|intel/i.test(a.name))
-    const arch = (navigator as Navigator & { userAgentData?: { architecture?: string } }).userAgentData?.architecture ?? ''
-    const isAppleSilicon = /arm|aarch/i.test(arch)
-    const pick = isAppleSilicon ? arm ?? intel : intel ?? arm ?? dmgs[0]
-    return pick?.browser_download_url ?? null
-  }
-
-  if (os === 'win') {
-    const exe = installables.find((a) => a.name.toLowerCase().endsWith('.exe'))
-    if (exe) return exe.browser_download_url
-    const msi = installables.find((a) => a.name.toLowerCase().endsWith('.msi'))
-    if (msi) return msi.browser_download_url
-    return null
-  }
-
-  if (os === 'linux') {
-    const appimage = installables.find((a) => a.name.toLowerCase().endsWith('.appimage'))
-    if (appimage) return appimage.browser_download_url
-    const deb = installables.find((a) => a.name.toLowerCase().endsWith('.deb'))
-    if (deb) return deb.browser_download_url
-    return null
-  }
-
+  // Windows-only product: always prefer the .exe, fall back to .msi.
+  const exe = installables.find((a) => a.name.toLowerCase().endsWith('.exe'))
+  if (exe) return exe.browser_download_url
+  const msi = installables.find((a) => a.name.toLowerCase().endsWith('.msi'))
+  if (msi) return msi.browser_download_url
   return null
 }
 
 export function useDownloadUrl(): DownloadInfo {
   const [data, setData] = useState<DownloadInfo>(() => {
-    const initial = buildDefaultUrl('other', APP_VERSION)
+    const initial = buildDefaultUrl(APP_VERSION)
     return {
       url: initial.url,
       filename: initial.filename,
@@ -93,9 +57,6 @@ export function useDownloadUrl(): DownloadInfo {
       ctaLabel: 'Download',
       totalDownloads: '',
       release: null,
-      isBeta: false,
-      isMac: false,
-      isLinux: false,
       loading: true,
       error: null,
     }
@@ -103,8 +64,7 @@ export function useDownloadUrl(): DownloadInfo {
 
   useEffect(() => {
     const os = detectOS()
-    const built = buildDefaultUrl(os, APP_VERSION)
-    const isBeta = os === 'mac'
+    const built = buildDefaultUrl(APP_VERSION)
 
     setData((prev) => ({
       ...prev,
@@ -112,9 +72,6 @@ export function useDownloadUrl(): DownloadInfo {
       filename: built.filename,
       os,
       ctaLabel: `Download for ${getOSLabel(os)}`,
-      isBeta,
-      isMac: os === 'mac',
-      isLinux: os === 'linux',
     }))
 
     fetchLatestRelease()
@@ -147,9 +104,6 @@ export function useDownloadUrl(): DownloadInfo {
           ctaLabel: `Download for ${getOSLabel(os)}`,
           totalDownloads: totalDownloads > 0 ? formatDownloadCount(totalDownloads) : '',
           release,
-          isBeta,
-          isMac: os === 'mac',
-          isLinux: os === 'linux',
           loading: false,
           error: null,
         })

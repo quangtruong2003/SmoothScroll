@@ -13,8 +13,6 @@ export function FinalCTA({ dict }: FinalCTAProps) {
     subtitle: '',
     cta: 'Download for Windows',
     ctaSub: '',
-    ctaLinux: '',
-    ctaMac: '',
   }
 
   return (
@@ -27,8 +25,6 @@ export function FinalCTA({ dict }: FinalCTAProps) {
           <p className="text-lg text-muted-foreground">{f.subtitle}</p>
           <DownloadCTA
             label={f.cta ?? 'Download'}
-            labelLinux={f.ctaLinux}
-            labelMac={f.ctaMac}
             variant="default"
             size="xl"
             className="w-full sm:w-auto"

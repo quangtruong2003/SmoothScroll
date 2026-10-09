@@ -34,15 +34,10 @@ export interface Dictionary {
   }
   hero?: {
     eyebrow?: string
-    eyebrowLinux?: string
-    eyebrowMac?: string
     title?: string
     titleAccent?: string
     subtitle?: string
     cta?: string
-    ctaLinux?: string
-    ctaMac?: string
-    ctaFallback?: string
     trustLine?: string
     seeHow?: string
     demoPrompt?: string
@@ -89,15 +84,10 @@ export interface Dictionary {
     subtitle?: string
     tabs?: {
       windows?: { label?: string; steps?: string[] }
-      macos?: { label?: string; steps?: string[] }
-      linux?: { label?: string; steps?: string[] }
     }
     filename?: string
-    note?: { windows?: string; macos?: string; linux?: string }
-    supportNotice?: string
+    note?: { windows?: string }
     cta?: string
-    ctaMac?: string
-    ctaLinux?: string
   }
   faq?: {
     title?: string
@@ -111,23 +101,7 @@ export interface Dictionary {
     title?: string
     subtitle?: string
     cta?: string
-    ctaLinux?: string
-    ctaMac?: string
     ctaSub?: string
-    comingSoon?: string
-  }
-  exitIntent?: {
-    title?: string
-    message?: string
-    cta?: string
-    ctaLinux?: string
-    ctaMac?: string
-  }
-  beta?: {
-    badge?: string
-    notice?: string
-    reportPrefix?: string
-    reportLink?: string
   }
   privacy?: {
     title?: string
@@ -141,9 +115,6 @@ export interface Dictionary {
   footer?: {
     tagline?: string
     taglineWindows?: string
-    taglineMac?: string
-    taglineLinux?: string
-    taglineFallback?: string
     links?: {
       github?: string
       license?: string

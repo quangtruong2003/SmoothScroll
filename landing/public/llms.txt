@@ -11,6 +11,9 @@
 - [FAQ](https://smoothscroll.top/faq/)
 - [Vietnamese FAQ](https://smoothscroll.top/vi/faq/)
 - [Chinese FAQ](https://smoothscroll.top/zh/faq/)
+- [Privacy](https://smoothscroll.top/privacy/)
+- [Vietnamese privacy](https://smoothscroll.top/vi/privacy/)
+- [Chinese privacy](https://smoothscroll.top/zh/privacy/)
 
 ## Windows scrolling guides
 - [Mac-like scrolling on Windows](https://smoothscroll.top/mac-like-scrolling-windows/)

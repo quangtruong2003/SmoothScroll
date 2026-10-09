@@ -2,6 +2,7 @@ import { BackToHome } from '@/components/BackToHome'
 import { BackgroundDotGrid } from '@/components/BackgroundDotGrid'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
+import { JsonLd } from '@/app/JsonLd'
 import type { Dictionary, Locale } from '@/lib/i18n/dict'
 
 interface LocalizedPrivacyPageProps {
@@ -14,6 +15,7 @@ export function LocalizedPrivacyPage({ locale, dictionary: d }: LocalizedPrivacy
 
   return (
     <>
+      <JsonLd locale={locale} page="privacy" dictionary={d} />
       <BackgroundDotGrid />
       <Navigation locale={locale} pageKind="privacy" />
       <main id="main-content" className="flex-1">

@@ -4,10 +4,8 @@ import Link from 'next/link'
 import { DownloadCTA } from '@/components/DownloadCTA'
 import { LogoWall } from '@/components/LogoWall'
 import { HeroBackground3D } from '@/components/sections/HeroBackground3D'
-import { useDownloadUrl } from '@/lib/useDownloadUrl'
 import { type Dictionary, type Locale } from '@/lib/i18n/dict'
 import { localePath } from '@/lib/i18n/routing'
-
 
 interface HeroProps {
   locale: Locale
@@ -15,9 +13,7 @@ interface HeroProps {
 }
 
 export function Hero({ locale, dict }: HeroProps) {
-  const h = dict?.hero ?? { eyebrow: '', eyebrowLinux: '', eyebrowMac: '', title: '', titleAccent: '', subtitle: '', cta: 'Download for Windows', ctaLinux: 'Download for Linux', ctaMac: 'Download for macOS', trustLine: '', seeHow: '', demoPrompt: '', demoToast: '' }
-  const { isMac, isLinux } = useDownloadUrl()
-  const eyebrow = isMac ? h.eyebrowMac : isLinux ? h.eyebrowLinux : h.eyebrow
+  const h = dict?.hero ?? { eyebrow: '', title: '', titleAccent: '', subtitle: '', cta: 'Download for Windows', trustLine: '', seeHow: '' }
 
   return (
     <section data-hero-layout="editorial-split" className="relative min-h-[100dvh] px-4">
@@ -30,12 +26,12 @@ export function Hero({ locale, dict }: HeroProps) {
           <div data-hero-copy className="mx-auto flex w-full min-w-0 max-w-5xl flex-col items-center gap-6 text-center">
             <p data-hero-eyebrow className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground backdrop-blur-sm transition-colors duration-150">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-foreground" />
-              {eyebrow}
+              {h.eyebrow}
             </p>
 
-            <h1 className="max-w-5xl text-balance text-[clamp(3.25rem,6.5vw,6.25rem)] font-bold leading-[0.98] tracking-tight transition-colors duration-150">
+            <h1 className="max-w-5xl text-balance text-[clamp(3.25rem,6.5vw,6.25rem)] font-bold leading-[0.98] tracking-tight text-foreground transition-colors duration-150 [color:hsl(var(--foreground))]">
               {h.title}{' '}
-              <span className="text-primary italic">{h.titleAccent}</span>
+              <span className="italic text-foreground [color:hsl(var(--foreground))]">{h.titleAccent}</span>
             </h1>
 
             <p className="max-w-[40rem] text-pretty text-lg leading-relaxed text-muted-foreground transition-colors duration-150 sm:text-xl">
@@ -46,8 +42,6 @@ export function Hero({ locale, dict }: HeroProps) {
               <div data-hero-cta>
                 <DownloadCTA
                   label={h.cta ?? 'Download for Windows'}
-                  labelLinux={h.ctaLinux}
-                  labelMac={h.ctaMac}
                   variant="brand"
                   size="xl"
                   className="w-full sm:w-auto"

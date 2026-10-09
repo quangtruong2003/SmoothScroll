@@ -14,12 +14,16 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
     ? dictionary.seo?.title ?? dictionary.hero?.title ?? 'SmoothScroll'
     : page === 'faq'
       ? dictionary.faq?.seo?.title ?? dictionary.faq?.title ?? 'SmoothScroll FAQ'
-      : dictionary.howItWorks?.seo?.title ?? 'How SmoothScroll Works'
+      : page === 'privacy'
+        ? dictionary.privacy?.seo?.title ?? dictionary.privacy?.title ?? 'Privacy Policy'
+        : dictionary.howItWorks?.seo?.title ?? 'How SmoothScroll Works'
   const description = page === 'home'
     ? dictionary.seo?.description ?? dictionary.hero?.subtitle ?? ''
     : page === 'faq'
       ? dictionary.faq?.seo?.description ?? ''
-      : dictionary.howItWorks?.seo?.description ?? ''
+      : page === 'privacy'
+        ? dictionary.privacy?.seo?.description ?? ''
+        : dictionary.howItWorks?.seo?.description ?? ''
   const organizationId = `${BASE_URL}/#organization`
   const websiteId = `${BASE_URL}/#website`
   const softwareId = `${BASE_URL}/#software`
@@ -55,7 +59,7 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
       dateModified: CONTENT_UPDATED, inLanguage: htmlLang(locale),
     },
     {
-      '@type': 'SoftwareApplication', '@id': softwareId, name: 'SmoothScroll', operatingSystem: 'Windows, Linux',
+      '@type': 'SoftwareApplication', '@id': softwareId, name: 'SmoothScroll', operatingSystem: 'Windows',
       applicationCategory: 'UtilitiesApplication', description, url: `${BASE_URL}/`, publisher: { '@id': organizationId },
       isAccessibleForFree: true, downloadUrl: releaseUrl, featureList,
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: releaseUrl }, softwareVersion: process.env.NEXT_PUBLIC_APP_VERSION || 'latest',
@@ -67,7 +71,7 @@ export function JsonLd({ locale, page, dictionary }: JsonLdProps) {
     ...(page === 'faq' && faqEntities.length ? [{
       '@type': 'FAQPage', '@id': `${url}#faq`, mainEntity: faqEntities,
     }] : []),
-    ...(page === 'how-it-works' || page === 'faq' ? [{
+    ...(page === 'how-it-works' || page === 'faq' || page === 'privacy' ? [{
       '@type': 'BreadcrumbList',
       '@id': `${url}#breadcrumb`,
       itemListElement: [

@@ -15,8 +15,8 @@
 SmoothScroll turns discrete mouse-wheel input into configurable, eased motion. It works at the platform input layer, so the same scrolling feel can follow you across browsers, editors, file managers, and other wheel-driven applications.
 
 <p align="center">
-  <img src="landing/public/assets/before.gif" alt="Scrolling before SmoothScroll" width="420" />
-  <img src="landing/public/assets/after.gif" alt="Scrolling with SmoothScroll" width="420" />
+  <video src="landing/public/assets/before.webm" width="420" autoplay loop muted playsinline></video>
+  <video src="landing/public/assets/after.webm" width="420" autoplay loop muted playsinline></video>
 </p>
 
 ## Why SmoothScroll

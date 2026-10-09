@@ -31,7 +31,7 @@ export default function MarqueeDebug() {
               >
                 <img
                   src={b.src}
-                  alt=""
+                  alt={`${b.name} logo`}
                   width={24}
                   height={24}
                   decoding="async"
@@ -54,7 +54,7 @@ export default function MarqueeDebug() {
               >
                 <img
                   src={b.src}
-                  alt=""
+                  alt={`${b.name} logo`}
                   width={24}
                   height={24}
                   decoding="async"

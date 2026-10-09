@@ -2,28 +2,17 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/provider'
-import { detectOS } from '@/lib/os'
 import { localePath } from '@/lib/i18n/routing'
-import { useEffect, useState } from 'react'
 import type { Dictionary } from '@/lib/i18n/dict'
 
 export function Footer() {
   const { dict, locale } = useLanguage()
   const d = dict as Dictionary | null
   const { footer: f } = d ?? {}
-  const [os, setOs] = useState<'win' | 'mac' | 'linux' | 'other'>('other')
 
-  useEffect(() => {
-    setOs(detectOS())
-  }, [])
-
-  const tagline = os === 'mac'
-    ? (f?.taglineMac ?? f?.tagline ?? '')
-    : os === 'linux'
-    ? (f?.taglineLinux ?? f?.tagline ?? '')
-    : os === 'win'
-    ? (f?.taglineWindows ?? f?.tagline ?? '')
-    : (f?.taglineFallback ?? f?.tagline ?? '')
+  // Windows-only product: every visitor sees the Windows tagline so crawlers
+  // and mobile users never get a macOS/Linux promise we cannot keep.
+  const tagline = f?.taglineWindows ?? f?.tagline ?? ''
 
   return (
     <footer className="mt-16 border-t px-4 py-8 sm:px-0">

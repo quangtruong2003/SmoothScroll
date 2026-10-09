@@ -6,13 +6,9 @@ import type { Dictionary } from '@/lib/i18n/dict'
 
 interface FinalCTAProps {
   finalCta: NonNullable<NonNullable<Dictionary['howItWorks']>['finalCta']>
-  ctaLinuxLabel?: string
-  ctaMacLabel?: string
-  betaBadge?: string
-  comingSoonLabel?: string
 }
 
-export function FinalCTA({ finalCta, ctaLinuxLabel, ctaMacLabel, betaBadge, comingSoonLabel }: FinalCTAProps) {
+export function FinalCTA({ finalCta }: FinalCTAProps) {
   return (
     <section className="py-20 sm:py-28 px-4 border-t">
       <div className="container max-w-3xl text-center">
@@ -30,10 +26,6 @@ export function FinalCTA({ finalCta, ctaLinuxLabel, ctaMacLabel, betaBadge, comi
           <div className="mt-8 inline-flex">
             <DownloadCTA
               label={finalCta.cta ?? 'Download'}
-              labelLinux={ctaLinuxLabel}
-              labelMac={ctaMacLabel}
-              betaBadge={betaBadge}
-              comingSoonLabel={comingSoonLabel}
               variant="brand"
               size="xl"
             />
