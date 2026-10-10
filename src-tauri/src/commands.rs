@@ -614,18 +614,32 @@ pub fn delete_profile<R: tauri::Runtime>(
     {
         let mut s = state.settings.write();
 
-        // Check if any apps are assigned to this profile
-        let assigned_apps: Vec<_> = s
+        // Check if any apps are assigned to this profile. A profile can be
+        // bound app-wide, per monitor, or per app-on-monitor; removing it
+        // while any of those still point at it would leave a dangling binding.
+        let mut assigned: Vec<String> = s
             .app_profiles
             .iter()
             .filter(|(_, id)| **id == profile_id)
             .map(|(name, _)| name.clone())
             .collect();
+        assigned.extend(
+            s.monitor_profiles
+                .iter()
+                .filter(|mp| mp.profile_id == profile_id)
+                .map(|mp| mp.friendly_name.clone()),
+        );
+        assigned.extend(
+            s.app_monitor_profiles
+                .iter()
+                .filter(|amp| amp.profile_id == profile_id)
+                .map(|amp| format!("{} ({})", amp.process_name, amp.friendly_name)),
+        );
 
-        if !assigned_apps.is_empty() {
+        if !assigned.is_empty() {
             return Err(format!(
                 "Cannot delete: apps assigned to this profile: {}",
-                assigned_apps.join(", ")
+                assigned.join(", ")
             ));
         }
 
@@ -645,12 +659,16 @@ pub fn delete_profile<R: tauri::Runtime>(
 }
 
 /// Assign a profile to an app. Use profile_id = None to remove assignment.
+/// Passing `device_name` scopes the binding to that monitor, so one app can
+/// carry a different profile on each screen.
 #[tauri::command]
 pub fn assign_app_profile<R: tauri::Runtime>(
     app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     process_name: String,
     profile_id: Option<String>,
+    device_name: Option<String>,
+    friendly_name: Option<String>,
 ) -> Result<(), String> {
     {
         let mut s = state.settings.write();
@@ -662,7 +680,15 @@ pub fn assign_app_profile<R: tauri::Runtime>(
             }
         }
 
-        s.assign_profile(process_name, profile_id);
+        match device_name {
+            Some(device) => s.assign_app_monitor_profile(
+                &process_name,
+                &device,
+                &friendly_name.unwrap_or_default(),
+                profile_id,
+            ),
+            None => s.assign_profile(process_name, profile_id),
+        }
     }
 
     let snapshot = state.settings.read().clone();
@@ -672,16 +698,21 @@ pub fn assign_app_profile<R: tauri::Runtime>(
     Ok(())
 }
 
-/// Remove profile assignment from an app.
+/// Remove profile assignment from an app. Passing `device_name` removes only
+/// the binding for that app on that monitor.
 #[tauri::command]
 pub fn unassign_app_profile<R: tauri::Runtime>(
     app: AppHandle<R>,
     state: State<'_, Arc<AppState>>,
     process_name: String,
+    device_name: Option<String>,
 ) -> Result<(), String> {
     {
         let mut s = state.settings.write();
-        s.assign_profile(process_name.clone(), None);
+        match device_name {
+            Some(device) => s.assign_app_monitor_profile(&process_name, &device, "", None),
+            None => s.assign_profile(process_name.clone(), None),
+        }
     }
 
     let snapshot = state.settings.read().clone();

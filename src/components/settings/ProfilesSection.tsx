@@ -34,8 +34,12 @@ export function ProfilesSection() {
   const profiles = settings.profiles;
   const appProfiles = settings.app_profiles;
 
+  // Mirrors the backend delete guard: a profile in use on any of the three
+  // binding kinds must be refused before the request goes out.
   const usageCount = (profileId: string) =>
-    Object.values(appProfiles).filter((id) => id === profileId).length;
+    Object.values(appProfiles).filter((id) => id === profileId).length +
+    settings.monitor_profiles.filter((mp) => mp.profile_id === profileId).length +
+    settings.app_monitor_profiles.filter((amp) => amp.profile_id === profileId).length;
 
   const handleCreate = async () => {
     const name = newName.trim();

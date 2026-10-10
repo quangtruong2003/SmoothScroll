@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Assign profile to app",
       "desc": "Pick the profile to use, then choose which app to assign it to.",
-      "select_profile": "Profile to assign"
+      "select_profile": "Profile to assign",
+      "select_monitor": "Monitor",
+      "all_monitors": "All monitors"
     }
   },
   "monitor_profiles": {

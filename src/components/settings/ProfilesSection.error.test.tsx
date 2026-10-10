@@ -14,6 +14,8 @@ vi.mock("@/stores/settingsStore", () => ({
       settings: {
         profiles: [{ id: "profile-1", name: "Test profile" }],
         app_profiles: {},
+        monitor_profiles: [],
+        app_monitor_profiles: [],
       },
       createProfile: vi.fn(),
       deleteProfile: mocks.deleteProfile,

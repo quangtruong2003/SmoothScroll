@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Profil einer App zuweisen",
       "desc": "Wählen Sie das Profil und dann die App, der es zugewiesen werden soll.",
-      "select_profile": "Zuzuweisendes Profil"
+      "select_profile": "Zuzuweisendes Profil",
+      "select_monitor": "Monitor",
+      "all_monitors": "Alle Monitore"
     }
   },
   "monitor_profiles": {

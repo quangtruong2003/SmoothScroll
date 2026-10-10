@@ -92,6 +92,7 @@ export interface AppSettings {
   onboarding_completed_at: number | null;
   auto_disable_windows_apps: boolean;
   monitor_profiles: MonitorProfileEntry[];
+  app_monitor_profiles: AppMonitorProfileEntry[];
   force_enable_all_apps: boolean;
 }
 
@@ -113,6 +114,14 @@ export interface MonitorInfo {
 }
 
 export interface MonitorProfileEntry {
+  device_name: string;
+  friendly_name: string;
+  profile_id: string;
+}
+
+/** A profile bound to one application on one monitor; outranks `app_profiles`. */
+export interface AppMonitorProfileEntry {
+  process_name: string;
   device_name: string;
   friendly_name: string;
   profile_id: string;
@@ -200,10 +209,25 @@ export const tauri = {
   createProfile: (name: string) => invoke<ScrollProfile>("create_profile", { name }),
   updateProfile: (profile: ScrollProfile) => invoke<null>("update_profile", { profile }),
   deleteProfile: (profileId: string) => invoke<null>("delete_profile", { profileId }),
-  assignAppProfile: (processName: string, profileId: string | null) =>
-    invoke<null>("assign_app_profile", { processName, profileId }),
-  unassignAppProfile: (processName: string) =>
-    invoke<null>("unassign_app_profile", { processName }),
+  // Passing a deviceName scopes the binding to that monitor; omitting it
+  // binds the profile to the application on every monitor.
+  assignAppProfile: (
+    processName: string,
+    profileId: string | null,
+    deviceName?: string | null,
+    friendlyName?: string | null,
+  ) =>
+    invoke<null>("assign_app_profile", {
+      processName,
+      profileId,
+      deviceName: deviceName ?? null,
+      friendlyName: friendlyName ?? null,
+    }),
+  unassignAppProfile: (processName: string, deviceName?: string | null) =>
+    invoke<null>("unassign_app_profile", {
+      processName,
+      deviceName: deviceName ?? null,
+    }),
 
   suggestProfileForApp: (name: string) =>
     invoke<ProfileSuggestion>("suggest_profile_for_app", { name }),

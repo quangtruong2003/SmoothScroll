@@ -397,7 +397,9 @@
     "dialog": {
       "title": "앱에 프로필 할당",
       "desc": "사용할 프로필을 선택한 다음 할당할 앱을 선택하세요.",
-      "select_profile": "할당할 프로필"
+      "select_profile": "할당할 프로필",
+      "select_monitor": "모니터",
+      "all_monitors": "모든 모니터"
     }
   },
   "monitor_profiles": {

@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Tugaskan profil ke aplikasi",
       "desc": "Pilih profil yang akan digunakan, lalu pilih aplikasi yang akan ditugaskan.",
-      "select_profile": "Profil yang akan ditugaskan"
+      "select_profile": "Profil yang akan ditugaskan",
+      "select_monitor": "Monitor",
+      "all_monitors": "Semua monitor"
     }
   },
   "monitor_profiles": {

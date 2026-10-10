@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Gán hồ sơ cho ứng dụng",
       "desc": "Chọn hồ sơ muốn dùng, sau đó chọn ứng dụng để gán.",
-      "select_profile": "Hồ sơ áp dụng"
+      "select_profile": "Hồ sơ áp dụng",
+      "select_monitor": "Màn hình",
+      "all_monitors": "Tất cả màn hình"
     }
   },
   "monitor_profiles": {

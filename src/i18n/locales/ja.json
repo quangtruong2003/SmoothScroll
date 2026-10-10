@@ -397,7 +397,9 @@
     "dialog": {
       "title": "アプリにプロファイルを割り当て",
       "desc": "使用するプロファイルを選び、割り当てるアプリを選択してください。",
-      "select_profile": "割り当てるプロファイル"
+      "select_profile": "割り当てるプロファイル",
+      "select_monitor": "モニター",
+      "all_monitors": "すべてのモニター"
     }
   },
   "monitor_profiles": {

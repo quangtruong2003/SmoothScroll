@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Asignar perfil a una aplicación",
       "desc": "Elige el perfil a usar y luego selecciona la aplicación a asignar.",
-      "select_profile": "Perfil a asignar"
+      "select_profile": "Perfil a asignar",
+      "select_monitor": "Monitor",
+      "all_monitors": "Todos los monitores"
     }
   },
   "monitor_profiles": {

@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Atribuir perfil ao aplicativo",
       "desc": "Escolha o perfil a ser usado e, em seguida, o aplicativo a ser atribuído.",
-      "select_profile": "Perfil a atribuir"
+      "select_profile": "Perfil a atribuir",
+      "select_monitor": "Monitor",
+      "all_monitors": "Todos os monitores"
     }
   },
   "monitor_profiles": {

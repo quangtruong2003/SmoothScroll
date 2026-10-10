@@ -101,6 +101,7 @@ const mockSettings: AppSettings = {
   onboarding_completed_at: null,
   auto_disable_windows_apps: true,
   monitor_profiles: [],
+  app_monitor_profiles: [],
   force_enable_all_apps: false,
 };
 
@@ -370,7 +371,12 @@ describe("settingsStore", () => {
           await useSettingsStore.getState().assignAppProfile("chrome.exe", "profile-1");
         });
 
-        expect(mocks.mockAssignAppProfile).toHaveBeenCalledWith("chrome.exe", "profile-1");
+        expect(mocks.mockAssignAppProfile).toHaveBeenCalledWith(
+          "chrome.exe",
+          "profile-1",
+          null,
+          null,
+        );
         // Keys are stored canonicalized (lowercase, no .exe), mirroring the backend.
         expect(useSettingsStore.getState().settings?.app_profiles["chrome"]).toBe("profile-1");
       });
@@ -534,10 +540,10 @@ describe("settingsStore", () => {
         await Promise.resolve();
       });
 
-      expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("Notepad.exe");
-      expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("SystemSettings.exe");
-      expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("msedge.exe");
-      expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("chrome.exe");
+      expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("Notepad.exe", null);
+      expect(mocks.mockUnassignAppProfile).toHaveBeenCalledWith("SystemSettings.exe", null);
+      expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("msedge.exe", null);
+      expect(mocks.mockUnassignAppProfile).not.toHaveBeenCalledWith("chrome.exe", null);
 
       // After cleanup runs, only native-app leftovers are removed. A manual
       // Edge assignment is user intent and must remain untouched.

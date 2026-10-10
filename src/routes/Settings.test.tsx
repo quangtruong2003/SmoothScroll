@@ -112,6 +112,7 @@ const settings: AppSettings = {
   onboarding_completed_at: 1,
   auto_disable_windows_apps: true,
   monitor_profiles: [],
+  app_monitor_profiles: [],
   force_enable_all_apps: false,
 };
 

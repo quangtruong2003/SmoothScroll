@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Affecter un profil à une application",
       "desc": "Choisissez le profil à utiliser, puis l'application à affecter.",
-      "select_profile": "Profil à affecter"
+      "select_profile": "Profil à affecter",
+      "select_monitor": "Écran",
+      "all_monitors": "Tous les écrans"
     }
   },
   "monitor_profiles": {

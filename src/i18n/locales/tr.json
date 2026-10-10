@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Uygulamaya profil ata",
       "desc": "Kullanılacak profili seçin, ardından atanacak uygulamayı seçin.",
-      "select_profile": "Atanacak profil"
+      "select_profile": "Atanacak profil",
+      "select_monitor": "Monitör",
+      "all_monitors": "Tüm monitörler"
     }
   },
   "monitor_profiles": {

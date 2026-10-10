@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Assegna profilo a un'app",
       "desc": "Scegli il profilo da usare, poi seleziona l'app da assegnare.",
-      "select_profile": "Profilo da assegnare"
+      "select_profile": "Profilo da assegnare",
+      "select_monitor": "Monitor",
+      "all_monitors": "Tutti i monitor"
     }
   },
   "monitor_profiles": {

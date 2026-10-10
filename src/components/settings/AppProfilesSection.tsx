@@ -10,10 +10,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSettingsStore } from "@/stores/settingsStore";
-import { AppProfileAssignDialog } from "./AppProfileAssignDialog";
+import { AppProfileAssignDialog, type MonitorChoice } from "./AppProfileAssignDialog";
 import { toast } from "@/components/ui/toast";
 
 const DISABLED_PROFILE_ID = "__disabled__";
+
+/** One row of the assignments list: an app-wide binding, or one scoped to a monitor. */
+interface BindingRow {
+  key: string;
+  displayName: string;
+  profileId: string;
+  processName: string;
+  monitor?: MonitorChoice;
+}
 
 export function ExcludedAppsSection() {
   const { t } = useTranslation();
@@ -27,34 +36,72 @@ export function ExcludedAppsSection() {
   const profiles = settings.profiles;
   const assignedNames = Object.keys(appProfiles);
 
+  // Per-monitor bindings live in a separate field and outrank app-wide ones,
+  // so they need their own rows or they would be invisible and unremovable.
+  const rows: BindingRow[] = [
+    ...assignedNames.map((name) => ({
+      key: name,
+      displayName: name,
+      profileId: appProfiles[name],
+      processName: name,
+      monitor: undefined,
+    })),
+    ...settings.app_monitor_profiles.map((binding) => ({
+      // JSON-encoded so a process name containing spaces cannot collide with
+      // a different (process, monitor) pair.
+      key: JSON.stringify([binding.process_name, binding.device_name]),
+      displayName: `${binding.process_name} · ${
+        binding.friendly_name || binding.device_name
+      }`,
+      profileId: binding.profile_id,
+      processName: binding.process_name,
+      monitor: {
+        deviceName: binding.device_name,
+        friendlyName: binding.friendly_name || binding.device_name,
+      },
+    })),
+  ];
+
   const profileLabel = (profileId: string): string => {
     if (profileId === DISABLED_PROFILE_ID) return t("app_profiles.disabled");
     const profile = profiles.find((p) => p.id === profileId);
     return profile?.name ?? t("app_profiles.unknown_profile");
   };
 
-  const handleAssign = async (name: string, profileId: string) => {
+  const handleAssign = async (
+    name: string,
+    profileId: string,
+    monitor?: MonitorChoice,
+  ) => {
+    const label = monitor ? `${name} · ${monitor.friendlyName}` : name;
     try {
-      await assignAppProfile(name, profileId);
-      toast.success(t("app_profiles.assigned", { name, profile: profileLabel(profileId) }));
+      await assignAppProfile(name, profileId, monitor);
+      toast.success(
+        t("app_profiles.assigned", { name: label, profile: profileLabel(profileId) }),
+      );
     } catch {
       toast.error(t("errors.app_profile_assign_failed"));
     }
   };
 
-  const handleChangeProfile = async (name: string, profileId: string) => {
+  const handleChangeProfile = async (row: BindingRow, profileId: string) => {
     try {
-      await assignAppProfile(name, profileId);
-      toast.success(t("app_profiles.assigned", { name, profile: profileLabel(profileId) }));
+      await assignAppProfile(row.processName, profileId, row.monitor);
+      toast.success(
+        t("app_profiles.assigned", {
+          name: row.displayName,
+          profile: profileLabel(profileId),
+        }),
+      );
     } catch {
       toast.error(t("errors.app_profile_assign_failed"));
     }
   };
 
-  const handleRemove = async (name: string) => {
+  const handleRemove = async (row: BindingRow) => {
     try {
-      await unassignAppProfile(name);
-      toast.success(t("app_profiles.removed", { name }));
+      await unassignAppProfile(row.processName, row.monitor?.deviceName ?? null);
+      toast.success(t("app_profiles.removed", { name: row.displayName }));
     } catch {
       toast.error(t("errors.app_profile_remove_failed"));
     }
@@ -75,49 +122,46 @@ export function ExcludedAppsSection() {
         />
       </CardHeader>
       <CardContent>
-        {assignedNames.length === 0 ? (
+        {rows.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             {t("app_profiles.empty")}
           </p>
         ) : (
           <ul className="divide-y rounded-md border">
-            {assignedNames.map((name) => {
-              const currentProfileId = appProfiles[name];
-              return (
-                <li
-                  key={name}
-                  className="flex items-center justify-between gap-3 px-3 py-2"
+            {rows.map((row) => (
+              <li
+                key={row.key}
+                className="flex items-center justify-between gap-3 px-3 py-2"
+              >
+                <span className="font-medium truncate flex-1">{row.displayName}</span>
+                <Select
+                  value={row.profileId}
+                  onValueChange={(v) => handleChangeProfile(row, v)}
                 >
-                  <span className="font-medium truncate flex-1">{name}</span>
-                  <Select
-                    value={currentProfileId}
-                    onValueChange={(v) => handleChangeProfile(name, v)}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={DISABLED_PROFILE_ID}>
-                        {t("app_profiles.disabled")}
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={DISABLED_PROFILE_ID}>
+                      {t("app_profiles.disabled")}
+                    </SelectItem>
+                    {profiles.map((profile) => (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        {profile.name}
                       </SelectItem>
-                      {profiles.map((profile) => (
-                        <SelectItem key={profile.id} value={profile.id}>
-                          {profile.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t("app_profiles.remove_aria", { name })}
-                    onClick={() => handleRemove(name)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </li>
-              );
-            })}
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("app_profiles.remove_aria", { name: row.displayName })}
+                  onClick={() => handleRemove(row)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </li>
+            ))}
           </ul>
         )}
       </CardContent>

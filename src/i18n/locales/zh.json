@@ -397,7 +397,9 @@
     "dialog": {
       "title": "为应用分配配置",
       "desc": "选择要使用的配置，然后选择要分配的应用。",
-      "select_profile": "要分配的配置"
+      "select_profile": "要分配的配置",
+      "select_monitor": "显示器",
+      "all_monitors": "所有显示器"
     }
   },
   "monitor_profiles": {
