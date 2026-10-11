@@ -494,7 +494,12 @@
     "qr_zoom_title": "スキャンして送金",
     "qr_alt": "銀行送金用 VietQR",
     "donate_button": "タップして寄付",
-    "bank_vietnam": "ベトナムの銀行"
+    "bank_vietnam": "ベトナムの銀行",
+    "nudge_title": "SmoothScrollをご利用いただきありがとうございます",
+    "nudge_body_milestone": "SmoothScrollは一人で開発・保守しています。広告なし、サブスクリプションなし、追跡なし。役に立ったらコーヒーをおごってください ☕",
+    "nudge_body_update": "バージョン{{version}}へ更新されました。ご愛顧ありがとうございます。役に立ったらコーヒーをおごってください ☕",
+    "nudge_later": "また今度",
+    "nudge_never": "今後通知しない"
   },
   "forced_update": {
     "title": "アップデートが必要です",

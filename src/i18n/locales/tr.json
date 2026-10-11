@@ -494,7 +494,12 @@
     "qr_zoom_title": "Havale için tara",
     "qr_alt": "Banka havalesi için VietQR",
     "donate_button": "Bağış yapmak için dokun",
-    "bank_vietnam": "Vietnam bankası"
+    "bank_vietnam": "Vietnam bankası",
+    "nudge_title": "SmoothScroll'ı kullandığınız için teşekkürler",
+    "nudge_body_milestone": "SmoothScroll tek bir kişi tarafından yazılıyor ve bakımı yapılıyor — reklam yok, abonelik yok, izleme yok. Uygulama işinize yaradıysa bir kahve ısmarlayın ☕",
+    "nudge_body_update": "{{version}} sürümüne güncellediniz. Yanımızda kaldığınız için teşekkürler — SmoothScroll size faydalıysa bir kahve ısmarlayın ☕",
+    "nudge_later": "Belki sonra",
+    "nudge_never": "Bir daha sorma"
   },
   "forced_update": {
     "title": "Güncelleme gerekli",

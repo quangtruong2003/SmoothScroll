@@ -494,7 +494,12 @@
     "qr_zoom_title": "Pindai untuk transfer",
     "qr_alt": "VietQR untuk transfer bank",
     "donate_button": "Ketuk di sini untuk donasi",
-    "bank_vietnam": "Bank Vietnam"
+    "bank_vietnam": "Bank Vietnam",
+    "nudge_title": "Terima kasih sudah memakai SmoothScroll",
+    "nudge_body_milestone": "SmoothScroll ditulis dan dirawat sendirian — tanpa iklan, tanpa langganan, tanpa pelacakan. Kalau aplikasinya bermanfaat, traktir saya kopi ☕",
+    "nudge_body_update": "Anda baru saja memperbarui ke versi {{version}}. Terima kasih sudah tetap di sini — kalau SmoothScroll bermanfaat, traktir saya kopi ☕",
+    "nudge_later": "Nanti saja",
+    "nudge_never": "Jangan tanya lagi"
   },
   "forced_update": {
     "title": "Pembaruan diperlukan",

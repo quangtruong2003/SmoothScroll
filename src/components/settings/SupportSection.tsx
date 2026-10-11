@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { QrImage } from "@/components/QrImage";
 import bmcQrUrl from "@/assets/donate/bmc-qr.png";
 import { BANK_QR_URL, BMC_URL } from "@/lib/donate";
 
@@ -18,10 +19,8 @@ type QrDialog = "bmc" | "bank";
 export function SupportSection() {
   const { t } = useTranslation();
   const [qrDialog, setQrDialog] = useState<QrDialog | null>(null);
-  const [qrFailed, setQrFailed] = useState(false);
 
   const showQr = (kind: QrDialog) => {
-    setQrFailed(false);
     setQrDialog(kind);
   };
 
@@ -36,7 +35,6 @@ export function SupportSection() {
   const handleDialogChange = (open: boolean) => {
     if (!open) {
       setQrDialog(null);
-      setQrFailed(false);
     }
   };
 
@@ -71,23 +69,9 @@ export function SupportSection() {
               <DialogTitle>{t("support.qr_zoom_title")}</DialogTitle>
             </DialogHeader>
             <div className="flex justify-center">
-              {qrFailed ? (
-                <div className="flex h-[320px] w-[320px] flex-col items-center justify-center bg-muted text-muted-foreground rounded-md">
-                  <QrCode className="h-12 w-12 mb-2" />
-                  <span className="text-sm text-center px-2">
-                    {t("support.qr_load_failed")}
-                  </span>
-                </div>
-              ) : (
-                <img
-                  src={qrUrl}
-                  alt={t("support.qr_alt")}
-                  width={480}
-                  height={480}
-                  className="rounded-md"
-                  onError={() => setQrFailed(true)}
-                />
-              )}
+              {/* key: failure state is internal to QrImage, so a src change
+                  must remount or the placeholder would stick forever. */}
+              <QrImage key={qrUrl} src={qrUrl} />
             </div>
           </DialogContent>
         </Dialog>

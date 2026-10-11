@@ -494,7 +494,12 @@
     "qr_zoom_title": "Escaneie para transferir",
     "qr_alt": "VietQR para transferência bancária",
     "donate_button": "Toque aqui para doar",
-    "bank_vietnam": "Banco do Vietnã"
+    "bank_vietnam": "Banco do Vietnã",
+    "nudge_title": "Obrigado por usar o SmoothScroll",
+    "nudge_body_milestone": "O SmoothScroll é feito e mantido por uma única pessoa — sem anúncios, sem assinatura, sem rastreamento. Se o app te ajuda, me pague um café ☕",
+    "nudge_body_update": "Você acabou de atualizar para a versão {{version}}. Obrigado por continuar aqui — se o SmoothScroll é útil para você, me pague um café ☕",
+    "nudge_later": "Talvez mais tarde",
+    "nudge_never": "Não perguntar de novo"
   },
   "forced_update": {
     "title": "Atualização necessária",
