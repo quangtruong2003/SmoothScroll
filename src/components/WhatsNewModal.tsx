@@ -78,6 +78,7 @@ export function WhatsNewModal() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="whatsnew-title"
+      data-whatsnew=""
       className="fixed inset-0 z-[55] flex items-center justify-center bg-background/80 backdrop-blur"
     >
       <div className="w-[520px] max-w-[92vw] rounded-xl border border-border bg-background p-6 shadow-2xl">

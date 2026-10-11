@@ -494,7 +494,12 @@
     "qr_zoom_title": "扫码转账",
     "qr_alt": "用于银行转账的 VietQR",
     "donate_button": "点击此处捐赠",
-    "bank_vietnam": "越南银行"
+    "bank_vietnam": "越南银行",
+    "nudge_title": "感谢你使用 SmoothScroll",
+    "nudge_body_milestone": "SmoothScroll 由一个人独立开发和维护——没有广告，没有订阅，没有跟踪。如果这个应用对你有帮助，请我喝杯咖啡吧 ☕",
+    "nudge_body_update": "你刚刚更新到了 {{version}} 版。感谢一路相伴——如果 SmoothScroll 对你有帮助，请我喝杯咖啡吧 ☕",
+    "nudge_later": "以后再说",
+    "nudge_never": "不再询问"
   },
   "forced_update": {
     "title": "必须更新",

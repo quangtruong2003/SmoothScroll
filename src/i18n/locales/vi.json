@@ -494,7 +494,12 @@
     "qr_zoom_title": "Quét để chuyển khoản",
     "qr_alt": "Mã VietQR để chuyển khoản",
     "donate_button": "Nhấn vào đây để Donate",
-    "bank_vietnam": "Ngân hàng Việt Nam"
+    "bank_vietnam": "Ngân hàng Việt Nam",
+    "nudge_title": "Cảm ơn bạn đã dùng SmoothScroll",
+    "nudge_body_milestone": "SmoothScroll do mình viết và duy trì một mình — không quảng cáo, không thu phí, không theo dõi. Nếu app hữu ích với bạn, mời mình một ly café ☕",
+    "nudge_body_update": "Bạn vừa cập nhật lên bản {{version}}. Cảm ơn đã đồng hành — nếu SmoothScroll hữu ích, mời mình một ly café ☕",
+    "nudge_later": "Để sau",
+    "nudge_never": "Đừng nhắc nữa"
   },
   "forced_update": {
     "title": "Bắt buộc cập nhật",

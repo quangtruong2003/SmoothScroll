@@ -494,7 +494,12 @@
     "qr_zoom_title": "스캔하여 송금",
     "qr_alt": "은행 송금용 VietQR",
     "donate_button": "여기를 눌러 후원하기",
-    "bank_vietnam": "베트남 은행"
+    "bank_vietnam": "베트남 은행",
+    "nudge_title": "SmoothScroll를 사용해 주셔서 감사합니다",
+    "nudge_body_milestone": "SmoothScroll는 한 사람이 직접 만들고 유지합니다. 광고도, 구독도, 추적도 없습니다. 앱이 유용했다면 커피 한 잔 사 주세요 ☕",
+    "nudge_body_update": "{{version}} 버전으로 업데이트되었습니다. 함께해 주셔서 감사합니다. SmoothScroll가 유용했다면 커피 한 잔 사 주세요 ☕",
+    "nudge_later": "나중에",
+    "nudge_never": "다시 묻지 않기"
   },
   "forced_update": {
     "title": "업데이트 필요",

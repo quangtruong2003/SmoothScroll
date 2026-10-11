@@ -5,6 +5,7 @@ import { SettingsPage } from "./routes/Settings";
 import { PermissionGate } from "./components/PermissionGate";
 import { TrayPanel } from "./components/TrayPanel";
 import { ForcedUpdateModal } from "./components/ForcedUpdateModal";
+import { DonateNudge } from "./components/DonateNudge";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { tauri } from "./lib/tauri";
 import { checkForUpdate } from "./lib/updater";
@@ -136,7 +137,12 @@ function AppContent({ state, showSplash, dispatch }: AppContentProps) {
       );
 
     case "ready":
-      return <SettingsPage />;
+      return (
+        <>
+          <SettingsPage />
+          <DonateNudge />
+        </>
+      );
   }
 }
 
