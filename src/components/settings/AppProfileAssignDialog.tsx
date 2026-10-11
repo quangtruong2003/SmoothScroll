@@ -81,6 +81,18 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
       monitors.find((m) => m.device_name === deviceName)?.friendly_name ?? deviceName,
   });
 
+  const monitorDisplayLabel = (monitor: MonitorInfo): string => {
+    const name = monitor.friendly_name || monitor.device_name;
+    if (monitor.rect) {
+      const width = monitor.rect.right - monitor.rect.left;
+      const height = monitor.rect.bottom - monitor.rect.top;
+      if (width > 0 && height > 0) {
+        return `${name} (${width}x${height})`;
+      }
+    }
+    return name;
+  };
+
   useEffect(() => {
     if (!open) {
       setSuggestion(null);
@@ -245,7 +257,7 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
                 </SelectItem>
                 {monitors.map((monitor) => (
                   <SelectItem key={monitor.device_name} value={monitor.device_name}>
-                    {monitor.friendly_name || monitor.device_name}
+                    {monitorDisplayLabel(monitor)}
                   </SelectItem>
                 ))}
               </SelectContent>

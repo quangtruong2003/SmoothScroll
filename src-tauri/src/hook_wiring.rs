@@ -10,7 +10,9 @@
 use crate::state::AppState;
 use parking_lot::Mutex;
 use smoothscroll_core::input_source::InputSource;
-use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
+use smoothscroll_core::settings::{
+    AppSettings, EffectiveSettings, ShiftWheelBehavior, WheelOutputMode,
+};
 #[cfg(any(not(windows), test))]
 use smoothscroll_core::wheel::WheelSemantic;
 use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
@@ -293,7 +295,7 @@ impl EngineSink {
         } else {
             self.cursor_monitor_name()
         };
-        let monitor_name = if s.monitor_profiles.is_empty() {
+        let fg_monitor_name = if s.monitor_profiles.is_empty() {
             None
         } else {
             self.foreground_monitor_name()
@@ -304,12 +306,18 @@ impl EngineSink {
             // application can carry a different profile on each screen. It runs
             // before the exclusion checks because an app-wide pass-through must
             // not silence a profile bound to that app on this monitor.
-            if let Some(monitor_name) = cursor_monitor_name.as_deref() {
-                if let Some(profile_id) = s.app_monitor_profiles_lookup(process_name, monitor_name)
+            if let Some(cursor_monitor) = cursor_monitor_name.as_deref() {
+                if let Some(profile_id) =
+                    s.app_monitor_profiles_lookup(process_name, cursor_monitor)
                 {
                     if profile_id == AppSettings::DISABLED_PROFILE_ID {
                         if tracing::enabled!(tracing::Level::DEBUG) {
-                            tracing::debug!(process = %process_name, "resolve_active app-monitor pass-through");
+                            tracing::debug!(
+                                process = %process_name,
+                                monitor = %cursor_monitor,
+                                tier = "app_monitor",
+                                "resolve_active app-monitor pass-through"
+                            );
                         }
                         return None;
                     }
@@ -319,7 +327,12 @@ impl EngineSink {
                         drop(per_profile);
                         drop(s);
                         if tracing::enabled!(tracing::Level::DEBUG) {
-                            tracing::debug!(process = %process_name, "resolve_active app-monitor profile");
+                            tracing::debug!(
+                                process = %process_name,
+                                monitor = %cursor_monitor,
+                                tier = "app_monitor",
+                                "resolve_active app-monitor profile"
+                            );
                         }
                         return Some(result);
                     }
@@ -380,7 +393,7 @@ impl EngineSink {
         }
 
         // Per-monitor profile resolution (priority: per-app > per-monitor > global)
-        if let Some(monitor_name) = monitor_name.as_deref() {
+        if let Some(monitor_name) = fg_monitor_name.as_deref() {
             if let Some(mp) = s
                 .monitor_profiles
                 .iter()
@@ -394,6 +407,13 @@ impl EngineSink {
                     let eff =
                         smoothscroll_core::settings::EffectiveSettings::with_profile(&s, profile);
                     drop(s);
+                    if tracing::enabled!(tracing::Level::DEBUG) {
+                        tracing::debug!(
+                            monitor = %monitor_name,
+                            tier = "monitor",
+                            "resolve_active monitor profile"
+                        );
+                    }
                     return Some(Arc::new(eff));
                 }
             }
@@ -403,7 +423,7 @@ impl EngineSink {
         if tracing::enabled!(tracing::Level::DEBUG) {
             let elapsed = start.elapsed();
             if elapsed > Duration::from_millis(2) {
-                tracing::debug!(?elapsed, "resolve_active global");
+                tracing::debug!(?elapsed, tier = "global", "resolve_active global");
             }
         }
         Some(self.state.effective.load_full())
@@ -2241,7 +2261,10 @@ mod tests {
         );
         match action {
             ResolvedWheelAction::Smooth { sequence, .. } => {
-                assert_eq!(sequence.strategy, SmoothingStrategy::DiscreteNotchPreserving)
+                assert_eq!(
+                    sequence.strategy,
+                    SmoothingStrategy::DiscreteNotchPreserving
+                )
             }
             ResolvedWheelAction::RawPass { .. } => panic!("expected Smooth"),
         }
@@ -2258,7 +2281,10 @@ mod tests {
         );
         match action {
             ResolvedWheelAction::Smooth { sequence, .. } => {
-                assert_eq!(sequence.strategy, SmoothingStrategy::DiscreteNotchPreserving)
+                assert_eq!(
+                    sequence.strategy,
+                    SmoothingStrategy::DiscreteNotchPreserving
+                )
             }
             ResolvedWheelAction::RawPass { .. } => panic!("override must beat Raw mode"),
         }

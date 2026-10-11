@@ -638,7 +638,7 @@ pub fn delete_profile<R: tauri::Runtime>(
 
         if !assigned.is_empty() {
             return Err(format!(
-                "Cannot delete: apps assigned to this profile: {}",
+                "Cannot delete: profile is in use by: {}",
                 assigned.join(", ")
             ));
         }
@@ -963,7 +963,10 @@ fn canonical_exe_key(name: &str) -> String {
 
 /// Running-process entries come first (live-verified), installed entries fill
 /// the rest; dedup is case-insensitive on the canonical exe name.
-fn merge_game_catalog(installed: &[InstalledApp], running: &[ProcessInfo]) -> Vec<GameCatalogEntry> {
+fn merge_game_catalog(
+    installed: &[InstalledApp],
+    running: &[ProcessInfo],
+) -> Vec<GameCatalogEntry> {
     let mut out: Vec<GameCatalogEntry> = Vec::new();
     let mut seen = std::collections::HashSet::new();
     for p in running {
@@ -1217,7 +1220,10 @@ mod tests {
                 resolve_exe_path("hades.exe", &installed, &no_path),
                 Some(PathBuf::from(r"C:\g\hades.exe"))
             );
-            assert_eq!(resolve_exe_path("missing.exe", &installed, &running_procs), None);
+            assert_eq!(
+                resolve_exe_path("missing.exe", &installed, &running_procs),
+                None
+            );
         }
     }
 
@@ -1230,7 +1236,10 @@ mod tests {
             let dir = std::env::temp_dir().join(format!(
                 "ss-icon-cache-test-{}-{}",
                 std::process::id(),
-                SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
             ));
             std::fs::create_dir_all(&dir).unwrap();
             dir
@@ -1255,7 +1264,10 @@ mod tests {
             );
 
             // Same key but a different (missing) source exe: mtime unreadable.
-            assert_eq!(load_cached_icon(&dir, &dir.join("missing.exe"), "game.exe"), None);
+            assert_eq!(
+                load_cached_icon(&dir, &dir.join("missing.exe"), "game.exe"),
+                None
+            );
 
             // Corrupted payload without the PNG base64 prefix is rejected.
             std::fs::write(
