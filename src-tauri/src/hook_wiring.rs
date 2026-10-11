@@ -284,10 +284,16 @@ impl EngineSink {
         let start = Instant::now();
         let s = self.state.settings.read();
 
-        // The monitor dimension feeds both the (app × monitor) tier and the
-        // monitor-only tier, so it is resolved once and only when one of them
-        // can actually apply.
-        let monitor_name = if s.monitor_profiles.is_empty() && s.app_monitor_profiles.is_empty() {
+        // Each monitor-scoped tier resolves its own monitor, and only when it
+        // can actually apply. The (app × monitor) tier keys off the window
+        // under the cursor so the process and the monitor describe the same
+        // window — the foreground window can sit on a different screen.
+        let cursor_monitor_name = if s.app_monitor_profiles.is_empty() {
+            None
+        } else {
+            self.cursor_monitor_name()
+        };
+        let monitor_name = if s.monitor_profiles.is_empty() {
             None
         } else {
             self.foreground_monitor_name()
@@ -298,7 +304,7 @@ impl EngineSink {
             // application can carry a different profile on each screen. It runs
             // before the exclusion checks because an app-wide pass-through must
             // not silence a profile bound to that app on this monitor.
-            if let Some(monitor_name) = monitor_name.as_deref() {
+            if let Some(monitor_name) = cursor_monitor_name.as_deref() {
                 if let Some(profile_id) = s.app_monitor_profiles_lookup(process_name, monitor_name)
                 {
                     if profile_id == AppSettings::DISABLED_PROFILE_ID {
@@ -403,10 +409,27 @@ impl EngineSink {
         Some(self.state.effective.load_full())
     }
 
-    /// Monitor device name for the foreground window. Resolution keys off the
-    /// foreground window rather than the window under the cursor because the
-    /// platform trait only reports a monitor for a window handle, and the
-    /// foreground window is the one a scrolled view lives in.
+    /// Monitor device name for the window under the cursor. Serves the
+    /// (app × monitor) tier, whose key pairs a process — already resolved
+    /// under the cursor — with a monitor, so both halves must come from the
+    /// same window.
+    #[cfg(windows)]
+    fn cursor_monitor_name(&self) -> Option<String> {
+        self.state
+            .window_geom
+            .root_window_under_cursor()
+            .and_then(|hwnd| self.state.window_geom.monitor_for_hwnd(hwnd))
+    }
+
+    #[cfg(not(windows))]
+    fn cursor_monitor_name(&self) -> Option<String> {
+        None
+    }
+
+    /// Monitor device name for the foreground window. Serves the
+    /// monitor-only tier, which has always resolved the screen this way. Kept
+    /// separate from [`Self::cursor_monitor_name`] so changing one tier's
+    /// pairing cannot move the other.
     #[cfg(windows)]
     fn foreground_monitor_name(&self) -> Option<String> {
         use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
@@ -1158,6 +1181,13 @@ mod tests {
     #[cfg(windows)]
     struct MonitorProfileWindowGeom {
         monitor_name: &'static str,
+        /// Window handle the cursor sits in. `None` simulates a window whose
+        /// root ownership cannot be resolved.
+        root: Option<isize>,
+        /// Monitor reported for the cursor window specifically. Lets a test
+        /// put the cursor window and every other window on different screens,
+        /// which is what the (app × monitor) tier has to tell apart.
+        cursor_monitor_name: Option<&'static str>,
     }
     #[cfg(windows)]
     impl WindowGeometry for MonitorProfileWindowGeom {
@@ -1166,11 +1196,14 @@ mod tests {
         }
 
         fn root_window_under_cursor(&self) -> Option<isize> {
-            Some(0x1000)
+            self.root
         }
 
-        fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
-            Some(self.monitor_name.to_string())
+        fn monitor_for_hwnd(&self, hwnd: isize) -> Option<String> {
+            match (self.cursor_monitor_name, self.root) {
+                (Some(cursor), Some(root)) if hwnd == root => Some(cursor.to_string()),
+                _ => Some(self.monitor_name.to_string()),
+            }
         }
     }
     #[cfg(windows)]
@@ -1467,7 +1500,11 @@ mod tests {
     ) -> Arc<AppState> {
         let mut state = make_state_with_window_geom(
             settings,
-            Arc::new(MonitorProfileWindowGeom { monitor_name }),
+            Arc::new(MonitorProfileWindowGeom {
+                monitor_name,
+                root: Some(0x1000),
+                cursor_monitor_name: None,
+            }),
         );
         Arc::get_mut(&mut state).unwrap().processes = Arc::new(StaticProcessQuery {
             under_cursor: process_name.map(|s| s.to_string()),
@@ -3078,6 +3115,8 @@ mod tests {
             settings,
             Arc::new(MonitorProfileWindowGeom {
                 monitor_name: MONITOR,
+                root: Some(0x1000),
+                cursor_monitor_name: None,
             }),
         );
         let sink = EngineSink::new(state.clone());
@@ -3276,6 +3315,52 @@ mod tests {
         let sink = EngineSink::new(on_secondary.clone());
         assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
         assert!(!on_secondary.engine.lock().has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_binding_keys_off_the_window_under_the_cursor() {
+        // The cursor window sits on DISPLAY2 while every other window — the
+        // foreground one included — sits on DISPLAY1. The binding names the
+        // cursor window's screen, so it must apply even though the two
+        // windows disagree about which screen they are on.
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut app_wide = ScrollProfile::new("app-wide", "App wide");
+        app_wide.horizontal_smoothness = false;
+        let mut cursor_screen = ScrollProfile::new("cursor-screen", "Cursor screen");
+        cursor_screen.horizontal_smoothness = true;
+        settings.profiles.push(app_wide.clone());
+        settings.profiles.push(cursor_screen.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(app_wide.id.clone()));
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY2",
+            "Secondary",
+            Some(cursor_screen.id.clone()),
+        );
+
+        let mut state = make_state_with_window_geom(
+            settings,
+            Arc::new(MonitorProfileWindowGeom {
+                monitor_name: "DISPLAY1",
+                root: Some(0x2000),
+                cursor_monitor_name: Some("DISPLAY2"),
+            }),
+        );
+        Arc::get_mut(&mut state).unwrap().processes = Arc::new(StaticProcessQuery {
+            under_cursor: Some("blender.exe".to_string()),
+            foreground: Some("blender.exe".to_string()),
+        });
+        seed_profile(&state, &app_wide);
+        seed_profile(&state, &cursor_screen);
+
+        assert_eq!(
+            hwheel(&EngineSink::new(state.clone()), 120),
+            HookDecision::Swallow,
+            "binding must key off the cursor window's monitor, not the foreground window's"
+        );
     }
 
     #[test]
