@@ -386,7 +386,7 @@
     "preset_desc": "Remplacez le comportement avec un préréglage en un clic. Ajustez les curseurs ci-dessous pour affiner."
   },
   "app_profiles": {
-    "description": "Choisissez le comportement de SmoothScroll pour chaque application.",
+    "description": "Choisissez le comportement de SmoothScroll pour chaque application. Une liaison sur un écran remplace celle de l'application ; celle de l'application remplace celle de l'écran ; celle de l'écran remplace les réglages généraux.",
     "empty": "Aucun remplacement par application. Toutes les applications utilisent vos réglages globaux.",
     "assign": "Affecter une application",
     "assigned": "{{name}} → {{profile}}",

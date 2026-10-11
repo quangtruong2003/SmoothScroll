@@ -386,7 +386,7 @@
     "preset_desc": "Sostituisci la sensazione di scorrimento con un preset in un clic. Regola i cursori qui sotto per rifinire."
   },
   "app_profiles": {
-    "description": "Scegli come si comporta SmoothScroll in app specifiche.",
+    "description": "Scegli come SmoothScroll si comporta in app specifiche. Un'associazione su un singolo monitor prevale su quella dell'app; quella dell'app prevale su quella del monitor; quella del monitor prevale sulle impostazioni globali.",
     "empty": "Nessuna sostituzione per app. Tutte le app usano le impostazioni globali.",
     "assign": "Assegna app",
     "assigned": "{{name}} → {{profile}}",

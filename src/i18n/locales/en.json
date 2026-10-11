@@ -386,7 +386,7 @@
     "apply_preset_confirm": "Replace"
   },
   "app_profiles": {
-    "description": "Choose how SmoothScroll behaves in specific apps.",
+    "description": "Choose how SmoothScroll behaves in specific apps. A binding on one monitor overrides the app's binding; the app's binding overrides the monitor's; the monitor's overrides the global default.",
     "empty": "No per-app overrides. All apps use your global settings.",
     "assign": "Assign app",
     "assigned": "{{name}} → {{profile}}",

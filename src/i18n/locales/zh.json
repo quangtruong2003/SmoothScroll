@@ -386,7 +386,7 @@
     "preset_desc": "一键使用预设覆盖滚动手感。可通过下方滑块进行微调。"
   },
   "app_profiles": {
-    "description": "选择 SmoothScroll 在特定应用中的行为方式。",
+    "description": "选择 SmoothScroll 在特定应用中的行为方式。单个显示器上的绑定优先于应用绑定；应用绑定优先于显示器绑定；显示器绑定优先于全局默认设置。",
     "empty": "尚无应用覆盖。所有应用都使用全局设置。",
     "assign": "分配应用",
     "assigned": "{{name}} → {{profile}}",

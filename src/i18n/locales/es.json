@@ -386,7 +386,7 @@
     "preset_desc": "Sustituye el comportamiento con un preajuste de un clic. Ajusta los controles de abajo para afinarlo."
   },
   "app_profiles": {
-    "description": "Elige cómo se comporta SmoothScroll en aplicaciones específicas.",
+    "description": "Elige cómo se comporta SmoothScroll en aplicaciones específicas. Una asignación en un monitor prevalece sobre la de la aplicación; la de la aplicación prevalece sobre la del monitor; la del monitor prevalece sobre los ajustes globales.",
     "empty": "Sin sustituciones por aplicación. Todas las aplicaciones usan tus ajustes globales.",
     "assign": "Asignar aplicación",
     "assigned": "{{name}} → {{profile}}",

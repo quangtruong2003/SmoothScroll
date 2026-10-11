@@ -386,7 +386,7 @@
     "preset_desc": "Ganti nuansa scroll dengan preset sekali klik. Sesuaikan slider di bawah untuk penyetelan lebih lanjut."
   },
   "app_profiles": {
-    "description": "Pilih bagaimana SmoothScroll berperilaku di aplikasi tertentu.",
+    "description": "Pilih perilaku SmoothScroll di aplikasi tertentu. Binding pada satu monitor mengalahkan binding aplikasi; binding aplikasi mengalahkan binding monitor; binding monitor mengalahkan bawaan global.",
     "empty": "Tidak ada penggantian per aplikasi. Semua aplikasi menggunakan pengaturan global Anda.",
     "assign": "Tugaskan aplikasi",
     "assigned": "{{name}} → {{profile}}",

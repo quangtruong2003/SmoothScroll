@@ -133,7 +133,18 @@ export function ExcludedAppsSection() {
                 key={row.key}
                 className="flex items-center justify-between gap-3 px-3 py-2"
               >
-                <span className="font-medium truncate flex-1">{row.displayName}</span>
+                <span className="font-medium truncate flex-1">
+                  {row.monitor ? (
+                    <>
+                      {row.processName}{" "}
+                      <span className="inline-block rounded border px-1.5 py-0.5 align-middle text-xs font-normal text-muted-foreground">
+                        {row.monitor.friendlyName}
+                      </span>
+                    </>
+                  ) : (
+                    row.displayName
+                  )}
+                </span>
                 <Select
                   value={row.profileId}
                   onValueChange={(v) => handleChangeProfile(row, v)}
