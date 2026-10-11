@@ -7,6 +7,17 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [1.36.0] - 2026-10-11
+
+### Added
+- add monitor priority explanation and monitor badges
+- scope per-app profile assignments to a monitor
+
+### Fixed
+- dismiss toasts by clicking them instead of an x button
+- resolve app-monitor binding against cursor window monitor
+- full SEO audit pass, windows-only truth
+- block download CTA on Linux like macOS
 ## [1.35.1] - 2026-10-08
 
 ### Fixed
