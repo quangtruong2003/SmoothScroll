@@ -37,4 +37,20 @@ describe("Toaster", () => {
     await waitFor(() => expect(document.body.contains(firstToast)).toBe(false));
     expect(document.body.contains(secondToast)).toBe(true);
   });
+
+  it("keeps the close button mounted but hidden", async () => {
+    render(<Toaster />);
+
+    toast("Only dismissable by click", { duration: Infinity });
+
+    const toastEl = (await screen.findByText("Only dismissable by click")).closest(
+      "[data-sonner-toast]",
+    );
+    const closeButton = toastEl?.querySelector("[data-close-button]");
+
+    // Sonner exposes no toast id on the DOM, so the button is the only
+    // per-toast dismiss channel and must stay mounted for click-to-dismiss.
+    expect(closeButton).not.toBeNull();
+    expect(closeButton?.className).toContain("!hidden");
+  });
 });

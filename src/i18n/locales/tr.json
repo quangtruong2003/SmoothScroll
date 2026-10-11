@@ -386,7 +386,7 @@
     "preset_desc": "Tek tıklamayla bir ön ayar kullanın. İnce ayar için aşağıdaki kaydırıcıları düzenleyin."
   },
   "app_profiles": {
-    "description": "SmoothScroll'un belirli uygulamalarda nasıl davranacağını seçin.",
+    "description": "SmoothScroll'un belirli uygulamalarda nasıl davranacağını seçin. Tek bir monitördeki bağlama, uygulama bağlamasından üstündür; uygulama bağlaması monitör bağlamasından üstündür; monitör bağlaması genel varsayılandan üstündür.",
     "empty": "Uygulama başına geçersiz kılma yok. Tüm uygulamalar global ayarlarınızı kullanır.",
     "assign": "Uygulama ata",
     "assigned": "{{name}} → {{profile}}",
@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Uygulamaya profil ata",
       "desc": "Kullanılacak profili seçin, ardından atanacak uygulamayı seçin.",
-      "select_profile": "Atanacak profil"
+      "select_profile": "Atanacak profil",
+      "select_monitor": "Monitör",
+      "all_monitors": "Tüm monitörler"
     }
   },
   "monitor_profiles": {

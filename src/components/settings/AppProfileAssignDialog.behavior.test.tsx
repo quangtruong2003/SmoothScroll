@@ -20,6 +20,8 @@ const mockSuggest = vi.fn();
 vi.mock('@/lib/tauri', () => ({
   tauri: {
     listRunningProcesses: () => mockListProcesses(),
+    // Empty: one monitor hides the monitor selector, which these tests do not cover.
+    listMonitors: async () => [],
     suggestProfileForApp: (name: string) => mockSuggest(name),
     createProfile: (name: string) => mockCreateProfile(name),
     assignAppProfile: (...args: any[]) => mockAssign(...args),

@@ -2,8 +2,8 @@
 
 use smoothscroll_core::easing::EasingMode;
 use smoothscroll_core::settings::{
-    migrate_raw_settings, save_to, try_load_from, AppSettings, SettingsError, ShiftWheelBehavior,
-    WheelOutputMode, CURRENT_SETTINGS_SCHEMA_VERSION,
+    migrate_raw_settings, save_to, try_load_from, AppMonitorProfile, AppSettings, SettingsError,
+    ShiftWheelBehavior, WheelOutputMode, CURRENT_SETTINGS_SCHEMA_VERSION,
 };
 
 #[test]
@@ -814,4 +814,139 @@ fn concurrent_saves_never_produce_a_torn_file() {
         assert!(!name.contains("json.tmp"), "leftover tmp file: {name}");
     }
     let _ = std::fs::remove_file(&path);
+}
+
+// --- App × monitor bindings ---
+
+fn app_monitor_binding(process: &str, device: &str, profile: &str) -> AppMonitorProfile {
+    AppMonitorProfile {
+        process_name: process.to_string(),
+        device_name: device.to_string(),
+        friendly_name: String::new(),
+        profile_id: profile.to_string(),
+    }
+}
+
+#[test]
+fn app_monitor_profiles_defaults_when_missing_from_json() {
+    let mut v = serde_json::to_value(AppSettings::default()).unwrap();
+    v.as_object_mut().unwrap().remove("app_monitor_profiles");
+    let s: AppSettings = serde_json::from_value(v).unwrap();
+    assert!(s.app_monitor_profiles.is_empty());
+}
+
+#[test]
+fn app_monitor_profiles_lookup_matches_exact_monitor_only() {
+    let mut s = AppSettings::default();
+    s.app_monitor_profiles
+        .push(app_monitor_binding("blender", "DISPLAY1", "fast"));
+    assert_eq!(
+        s.app_monitor_profiles_lookup("blender", "DISPLAY1"),
+        Some("fast")
+    );
+    assert_eq!(s.app_monitor_profiles_lookup("blender", "DISPLAY2"), None);
+}
+
+#[test]
+fn assign_app_monitor_profile_canonicalizes_process_name() {
+    let mut s = AppSettings::default();
+    s.assign_app_monitor_profile("Blender.EXE", "DISPLAY1", "Primary", Some("fast".into()));
+    assert_eq!(s.app_monitor_profiles[0].process_name, "blender");
+    assert_eq!(
+        s.app_monitor_profiles_lookup("blender", "DISPLAY1"),
+        Some("fast")
+    );
+    assert_eq!(
+        s.app_monitor_profiles_lookup("BLENDER", "DISPLAY1"),
+        Some("fast")
+    );
+}
+
+#[test]
+fn app_monitor_profiles_lookup_ignores_empty_inputs() {
+    let mut s = AppSettings::default();
+    s.app_monitor_profiles
+        .push(app_monitor_binding("blender", "DISPLAY1", "fast"));
+    assert_eq!(s.app_monitor_profiles_lookup("", "DISPLAY1"), None);
+    assert_eq!(s.app_monitor_profiles_lookup("blender", ""), None);
+}
+
+#[test]
+fn assign_app_monitor_profile_replaces_same_pair_only() {
+    let mut s = AppSettings::default();
+    s.assign_app_monitor_profile("Blender.exe", "DISPLAY1", "Primary", Some("slow".into()));
+    s.assign_app_monitor_profile("blender", "DISPLAY1", "Primary", Some("fast".into()));
+    // Same (app, monitor) pair is replaced, never duplicated.
+    assert_eq!(s.app_monitor_profiles.len(), 1);
+    assert_eq!(
+        s.app_monitor_profiles_lookup("blender", "DISPLAY1"),
+        Some("fast")
+    );
+    // A second monitor is a distinct pair and must coexist.
+    s.assign_app_monitor_profile("blender", "DISPLAY2", "Secondary", Some("snappy".into()));
+    assert_eq!(s.app_monitor_profiles.len(), 2);
+    assert_eq!(
+        s.app_monitor_profiles_lookup("blender", "DISPLAY2"),
+        Some("snappy")
+    );
+}
+
+#[test]
+fn assign_app_monitor_profile_none_removes_pair() {
+    let mut s = AppSettings::default();
+    s.assign_app_monitor_profile("blender", "DISPLAY1", "Primary", Some("fast".into()));
+    s.assign_app_monitor_profile("blender", "DISPLAY1", "Primary", None);
+    assert!(s.app_monitor_profiles.is_empty());
+}
+
+#[test]
+fn assign_app_monitor_profile_rejects_empty_canonical_key() {
+    let mut s = AppSettings::default();
+    s.assign_app_monitor_profile("   ", "DISPLAY1", "Primary", Some("fast".into()));
+    assert!(s.app_monitor_profiles.is_empty());
+}
+
+#[test]
+fn assign_app_monitor_profile_rejects_empty_device_name() {
+    let mut s = AppSettings::default();
+    s.assign_app_monitor_profile("blender", "   ", "Primary", Some("fast".into()));
+    // An entry with no device could never match a monitor.
+    assert!(s.app_monitor_profiles.is_empty());
+}
+
+#[test]
+fn canonicalize_app_monitor_profiles_on_load_rewrites_and_dedupes() {
+    let mut s = AppSettings::default();
+    s.app_monitor_profiles.push(AppMonitorProfile {
+        process_name: "Blender.EXE".to_string(),
+        device_name: "DISPLAY1".to_string(),
+        friendly_name: "Primary".to_string(),
+        profile_id: "fast".to_string(),
+    });
+    // Hand-edited file spelling the same pair twice under different cases.
+    s.app_monitor_profiles.push(AppMonitorProfile {
+        process_name: "blender".to_string(),
+        device_name: "DISPLAY1".to_string(),
+        friendly_name: "Primary".to_string(),
+        profile_id: "slow".to_string(),
+    });
+
+    s.canonicalize_app_monitor_profiles_on_load();
+
+    assert_eq!(s.app_monitor_profiles.len(), 1);
+    assert_eq!(s.app_monitor_profiles[0].process_name, "blender");
+    assert_eq!(
+        s.app_monitor_profiles_lookup("blender", "DISPLAY1"),
+        Some("fast"),
+        "first entry wins when canonicalization collapses a pair"
+    );
+}
+
+#[test]
+fn canonicalize_app_monitor_profiles_on_load_is_a_noop_when_canonical() {
+    let mut s = AppSettings::default();
+    s.assign_app_monitor_profile("blender", "DISPLAY1", "Primary", Some("fast".into()));
+    let before = s.app_monitor_profiles.clone();
+    s.canonicalize_app_monitor_profiles_on_load();
+    assert_eq!(s.app_monitor_profiles, before);
 }

@@ -386,7 +386,7 @@
     "preset_desc": "Substitua a sensação de rolagem com uma predefinição de um clique. Ajuste os controles abaixo para refinar."
   },
   "app_profiles": {
-    "description": "Escolha como o SmoothScroll se comporta em aplicativos específicos.",
+    "description": "Escolha como o SmoothScroll se comporta em aplicativos específicos. Uma vinculação em um monitor prevalece sobre a do aplicativo; a do aplicativo prevalece sobre a do monitor; a do monitor prevalece sobre o padrão global.",
     "empty": "Sem substituições por aplicativo. Todos os aplicativos usam suas configurações globais.",
     "assign": "Atribuir aplicativo",
     "assigned": "{{name}} → {{profile}}",
@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Atribuir perfil ao aplicativo",
       "desc": "Escolha o perfil a ser usado e, em seguida, o aplicativo a ser atribuído.",
-      "select_profile": "Perfil a atribuir"
+      "select_profile": "Perfil a atribuir",
+      "select_monitor": "Monitor",
+      "all_monitors": "Todos os monitores"
     }
   },
   "monitor_profiles": {

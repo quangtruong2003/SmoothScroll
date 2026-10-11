@@ -19,15 +19,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { tauri, type ProcessInfo, type ProfileSuggestion } from "@/lib/tauri";
+import { tauri, type MonitorInfo, type ProcessInfo, type ProfileSuggestion } from "@/lib/tauri";
 import { Plus } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 
 const DISABLED_PROFILE_ID = "__disabled__";
+/** Sentinel for "this binding applies to the app on every monitor". */
+const ALL_MONITORS = "__all__";
+
+/** Omitted entirely when the binding should apply on every monitor. */
+export interface MonitorChoice {
+  deviceName: string;
+  friendlyName: string;
+}
 
 interface Props {
   alreadyAssignedNames: string[];
-  onAssign: (name: string, profileId: string) => void;
+  onAssign: (name: string, profileId: string, monitor?: MonitorChoice) => void;
 }
 
 export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props) {
@@ -39,6 +47,8 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const [processes, setProcesses] = useState<ProcessInfo[]>([]);
+  const [monitors, setMonitors] = useState<MonitorInfo[]>([]);
+  const [selectedMonitor, setSelectedMonitor] = useState<string>(ALL_MONITORS);
   const [loading, setLoading] = useState(false);
   const [manualName, setManualName] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState<string>(
@@ -57,12 +67,37 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
         // ignore
       })
       .finally(() => setLoading(false));
+    tauri
+      .listMonitors()
+      .then(setMonitors)
+      .catch(() => {
+        // ignore
+      });
   }, [open]);
+
+  const choiceForMonitor = (deviceName: string): MonitorChoice => ({
+    deviceName,
+    friendlyName:
+      monitors.find((m) => m.device_name === deviceName)?.friendly_name ?? deviceName,
+  });
+
+  const monitorDisplayLabel = (monitor: MonitorInfo): string => {
+    const name = monitor.friendly_name || monitor.device_name;
+    if (monitor.rect) {
+      const width = monitor.rect.right - monitor.rect.left;
+      const height = monitor.rect.bottom - monitor.rect.top;
+      if (width > 0 && height > 0) {
+        return `${name} (${width}x${height})`;
+      }
+    }
+    return name;
+  };
 
   useEffect(() => {
     if (!open) {
       setSuggestion(null);
       setShowSuggestion(true);
+      setSelectedMonitor(ALL_MONITORS);
     }
   }, [open]);
 
@@ -106,8 +141,11 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
 
   const profiles = settings?.profiles ?? [];
 
+  const selectedMonitorChoice =
+    selectedMonitor === ALL_MONITORS ? undefined : choiceForMonitor(selectedMonitor);
+
   const handleAssign = (name: string) => {
-    onAssign(name, selectedProfileId);
+    onAssign(name, selectedProfileId, selectedMonitorChoice);
     setOpen(false);
     setManualName("");
   };
@@ -121,7 +159,7 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
   const handleUseSuggestion = async (s: ProfileSuggestion) => {
     if (!selectedApp) return;
     if (s.preset.kind === "Disabled") {
-      await assignAppProfile(selectedApp, DISABLED_PROFILE_ID);
+      await assignAppProfile(selectedApp, DISABLED_PROFILE_ID, selectedMonitorChoice);
       setOpen(false);
       setManualName("");
       return;
@@ -135,7 +173,7 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
       name: baseName,
     };
     await updateProfile(merged);
-    await assignAppProfile(selectedApp, newProfile.id);
+    await assignAppProfile(selectedApp, newProfile.id, selectedMonitorChoice);
     setOpen(false);
     setManualName("");
   };
@@ -202,6 +240,30 @@ export function AppProfileAssignDialog({ alreadyAssignedNames, onAssign }: Props
             </SelectContent>
           </Select>
         </div>
+
+        {/* Hidden with one monitor: the choice would have exactly one value. */}
+        {monitors.length > 1 && (
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              {t("app_profiles.dialog.select_monitor")}
+            </label>
+            <Select value={selectedMonitor} onValueChange={setSelectedMonitor}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_MONITORS}>
+                  {t("app_profiles.dialog.all_monitors")}
+                </SelectItem>
+                {monitors.map((monitor) => (
+                  <SelectItem key={monitor.device_name} value={monitor.device_name}>
+                    {monitorDisplayLabel(monitor)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <Input
           placeholder={t("excluded.dialog.filter")}

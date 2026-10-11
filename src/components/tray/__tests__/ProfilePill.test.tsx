@@ -83,6 +83,8 @@ describe('ProfilePill', () => {
     expect(mockInvoke).toHaveBeenCalledWith('assign_app_profile', {
       processName: 'Notepad.exe',
       profileId: '__disabled__',
+      deviceName: null,
+      friendlyName: null,
     });
   });
 
@@ -97,6 +99,7 @@ describe('ProfilePill', () => {
     );
     expect(mockInvoke).toHaveBeenCalledWith('unassign_app_profile', {
       processName: 'Notepad.exe',
+      deviceName: null,
     });
   });
 
@@ -139,6 +142,8 @@ describe('ProfilePill', () => {
     expect(mockInvoke).toHaveBeenCalledWith('assign_app_profile', {
       processName: 'Notepad.exe',
       profileId: 'p2',
+      deviceName: null,
+      friendlyName: null,
     });
   });
 
@@ -259,6 +264,8 @@ describe('ProfilePill', () => {
       expect(mockInvoke).toHaveBeenCalledWith('assign_app_profile', {
         processName: 'Notepad.exe',
         profileId: 'p2',
+        deviceName: null,
+        friendlyName: null,
       });
     });
     expect(screen.getByText('tray.profile_label: Reading')).toBeInTheDocument();

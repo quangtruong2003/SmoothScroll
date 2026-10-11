@@ -386,7 +386,7 @@
     "preset_desc": "Überschreiben Sie das Scrollgefühl mit einer Voreinstellung. Mit den Reglern unten können Sie feinjustieren."
   },
   "app_profiles": {
-    "description": "Wählen Sie, wie sich SmoothScroll in bestimmten Apps verhält.",
+    "description": "Legt fest, wie sich SmoothScroll in bestimmten Apps verhält. Eine Bindung auf einem Monitor schlägt die App-Bindung; die App-Bindung schlägt die Monitor-Bindung; die Monitor-Bindung schlägt die globalen Einstellungen.",
     "empty": "Keine Pro-App-Überschreibungen. Alle Apps verwenden Ihre globalen Einstellungen.",
     "assign": "App zuweisen",
     "assigned": "{{name}} → {{profile}}",
@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Profil einer App zuweisen",
       "desc": "Wählen Sie das Profil und dann die App, der es zugewiesen werden soll.",
-      "select_profile": "Zuzuweisendes Profil"
+      "select_profile": "Zuzuweisendes Profil",
+      "select_monitor": "Monitor",
+      "all_monitors": "Alle Monitore"
     }
   },
   "monitor_profiles": {

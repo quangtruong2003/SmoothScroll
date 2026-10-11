@@ -32,8 +32,13 @@ interface SettingsStore {
   createProfile: (name: string) => Promise<ScrollProfile>;
   updateProfile: (profile: ScrollProfile) => Promise<void>;
   deleteProfile: (profileId: string) => Promise<void>;
-  assignAppProfile: (processName: string, profileId: string | null) => Promise<void>;
-  unassignAppProfile: (processName: string) => Promise<void>;
+  /** `monitor` scopes the binding to one screen; omit it to bind the app everywhere. */
+  assignAppProfile: (
+    processName: string,
+    profileId: string | null,
+    monitor?: { deviceName: string; friendlyName: string },
+  ) => Promise<void>;
+  unassignAppProfile: (processName: string, deviceName?: string | null) => Promise<void>;
   /** Cleanup stale __disabled__ entries for Windows native-smooth apps
    *  (legacy leftover from before seed_native_smooth_excludes became a no-op).
    *  No-op when auto_disable_windows_apps is true. */
@@ -212,13 +217,39 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     }
   },
 
-  assignAppProfile: async (processName, profileId) => {
-    await tauri.assignAppProfile(processName, profileId);
+  assignAppProfile: async (processName, profileId, monitor) => {
+    await tauri.assignAppProfile(
+      processName,
+      profileId,
+      monitor?.deviceName ?? null,
+      monitor?.friendlyName ?? null,
+    );
     const current = get().settings;
     if (current) {
       // Backend canonicalizes the key (lowercase, no .exe); mirror that here
       // so optimistic updates land under the same key the backend writes.
       const canonical = canonicalizeProcessName(processName);
+      if (monitor) {
+        // A monitor-scoped binding replaces the binding for the same pair and
+        // leaves the app-only binding untouched.
+        const rest = current.app_monitor_profiles.filter(
+          (b) => !(b.process_name === canonical && b.device_name === monitor.deviceName),
+        );
+        const app_monitor_profiles =
+          profileId === null
+            ? rest
+            : [
+                ...rest,
+                {
+                  process_name: canonical,
+                  device_name: monitor.deviceName,
+                  friendly_name: monitor.friendlyName,
+                  profile_id: profileId,
+                },
+              ];
+        set({ settings: { ...current, app_monitor_profiles } });
+        return;
+      }
       const app_profiles = { ...current.app_profiles };
       if (profileId === null) {
         delete app_profiles[canonical];
@@ -229,11 +260,18 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     }
   },
 
-  unassignAppProfile: async (processName) => {
-    await tauri.unassignAppProfile(processName);
+  unassignAppProfile: async (processName, deviceName) => {
+    await tauri.unassignAppProfile(processName, deviceName ?? null);
     const current = get().settings;
     if (current) {
       const canonical = canonicalizeProcessName(processName);
+      if (deviceName) {
+        const app_monitor_profiles = current.app_monitor_profiles.filter(
+          (b) => !(b.process_name === canonical && b.device_name === deviceName),
+        );
+        set({ settings: { ...current, app_monitor_profiles } });
+        return;
+      }
       const app_profiles = { ...current.app_profiles };
       delete app_profiles[canonical];
       set({ settings: { ...current, app_profiles } });

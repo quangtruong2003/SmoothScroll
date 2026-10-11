@@ -315,6 +315,19 @@ impl Default for MonitorProfile {
     }
 }
 
+/// Assignment of a scroll profile to one application on one monitor.
+///
+/// `process_name` is stored in canonical form, the same form
+/// [`AppSettings::assign_profile`] writes into `app_profiles`, so that one
+/// application can carry a different profile on each of several monitors.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AppMonitorProfile {
+    pub process_name: String,
+    pub device_name: String,
+    pub friendly_name: String,
+    pub profile_id: String,
+}
+
 /// Persisted user settings.
 ///
 /// Field defaults are produced via `Default::default()` and apply when
@@ -403,6 +416,10 @@ pub struct AppSettings {
     // Per-monitor scroll profiles
     pub monitor_profiles: Vec<MonitorProfile>,
 
+    // Per-app profiles, scoped to a monitor: outranks `app_profiles`
+    #[serde(default)]
+    pub app_monitor_profiles: Vec<AppMonitorProfile>,
+
     // UWP force enable: override auto-disable for Windows native apps
     pub force_enable_all_apps: bool,
 
@@ -460,6 +477,7 @@ impl Default for AppSettings {
             onboarding_completed_at: None,
             auto_disable_windows_apps: true,
             monitor_profiles: Vec::new(),
+            app_monitor_profiles: Vec::new(),
             force_enable_all_apps: false,
             active_profile: "default".into(),
         }
@@ -720,6 +738,65 @@ impl AppSettings {
         }
     }
 
+    /// O(n) scan over the app × monitor bindings. `n` is small — a handful of
+    /// overrides — and the caller only reaches this after the O(1) app-only
+    /// lookup has missed, so a linear scan is the right shape here.
+    ///
+    /// Assumes `process_name` was stored canonical, which
+    /// [`Self::assign_app_monitor_profile`] guarantees on write and
+    /// [`Self::canonicalize_app_monitor_profiles_on_load`] restores on load.
+    pub fn app_monitor_profiles_lookup(
+        &self,
+        process_name: &str,
+        monitor_name: &str,
+    ) -> Option<&str> {
+        if process_name.is_empty() || monitor_name.is_empty() {
+            return None;
+        }
+        let target = Self::canonicalize_process_name(process_name);
+        if target.is_empty() {
+            return None;
+        }
+        self.app_monitor_profiles
+            .iter()
+            .find(|binding| binding.device_name == monitor_name && binding.process_name == target)
+            .map(|binding| binding.profile_id.as_str())
+    }
+
+    /// Assign a profile to an app on one monitor. Use None to remove the
+    /// binding. Canonicalizes the process name and replaces any existing
+    /// binding for the same (app, monitor) pair, so a pair is never ambiguous.
+    pub fn assign_app_monitor_profile(
+        &mut self,
+        process_name: &str,
+        device_name: &str,
+        friendly_name: &str,
+        profile_id: Option<String>,
+    ) {
+        let canonical = Self::canonicalize_process_name(process_name);
+        if canonical.is_empty() {
+            tracing::warn!(input = %process_name, "rejecting empty canonical app-monitor key");
+            return;
+        }
+        // An entry with no device can never match a monitor, so storing it
+        // would leave a permanent dead binding.
+        if device_name.trim().is_empty() {
+            tracing::warn!(process = %process_name, "rejecting app-monitor binding with empty device");
+            return;
+        }
+        self.app_monitor_profiles.retain(|binding| {
+            !(binding.process_name == canonical && binding.device_name == device_name)
+        });
+        if let Some(id) = profile_id {
+            self.app_monitor_profiles.push(AppMonitorProfile {
+                process_name: canonical,
+                device_name: device_name.to_string(),
+                friendly_name: friendly_name.to_string(),
+                profile_id: id,
+            });
+        }
+    }
+
     /// In-place: rename keys to canonical form. Collision = keep existing entry,
     /// drop new one. Keys are processed in sorted order so that collision outcomes
     /// are deterministic across runs (independent of `HashMap` iteration order).
@@ -775,6 +852,30 @@ impl AppSettings {
                 self.app_profiles.len()
             );
         }
+    }
+
+    /// Rewrites every app × monitor binding's process name to canonical form.
+    ///
+    /// `assign_app_monitor_profile` already writes canonical names, so this
+    /// only ever fires on a hand-edited settings file — the one way a stored
+    /// name can disagree with the lookup's canonicalized input. Idempotent.
+    pub fn canonicalize_app_monitor_profiles_on_load(&mut self) {
+        let needs_migration = self
+            .app_monitor_profiles
+            .iter()
+            .any(|b| Self::canonicalize_process_name(&b.process_name) != b.process_name);
+        if !needs_migration {
+            return;
+        }
+        for binding in &mut self.app_monitor_profiles {
+            binding.process_name = Self::canonicalize_process_name(&binding.process_name);
+        }
+        // Collapsing two hand-written entries onto one pair would make the
+        // effective binding ambiguous; keep the first.
+        let mut seen = std::collections::HashSet::new();
+        self.app_monitor_profiles
+            .retain(|b| seen.insert((b.process_name.clone(), b.device_name.clone())));
+        tracing::info!("canonicalized app-monitor binding process names");
     }
 }
 
@@ -1011,6 +1112,7 @@ pub fn migrate_raw_settings(
         migrated = true;
     }
     settings.canonicalize_app_profile_keys_on_load();
+    settings.canonicalize_app_monitor_profiles_on_load();
     settings.seed_native_smooth_excludes();
     settings.clamp();
     settings.settings_schema_version = CURRENT_SETTINGS_SCHEMA_VERSION;

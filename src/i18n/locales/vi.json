@@ -386,7 +386,7 @@
     "preset_desc": "Ghi đè cảm giác cuộn bằng preset một chạm. Tinh chỉnh thêm bằng các thanh trượt bên dưới."
   },
   "app_profiles": {
-    "description": "Chọn cách SmoothScroll hoạt động trong từng ứng dụng.",
+    "description": "Chọn cách SmoothScroll hoạt động trong từng ứng dụng. Gán hồ sơ cho ứng dụng trên một màn hình sẽ thắng gán cho cả ứng dụng; gán cho cả ứng dụng thắng gán cho màn hình; gán cho màn hình thắng cài đặt chung.",
     "empty": "Chưa có ghi đè theo ứng dụng. Mọi ứng dụng đang dùng cài đặt chung.",
     "assign": "Gán ứng dụng",
     "assigned": "{{name}} → {{profile}}",
@@ -397,7 +397,9 @@
     "dialog": {
       "title": "Gán hồ sơ cho ứng dụng",
       "desc": "Chọn hồ sơ muốn dùng, sau đó chọn ứng dụng để gán.",
-      "select_profile": "Hồ sơ áp dụng"
+      "select_profile": "Hồ sơ áp dụng",
+      "select_monitor": "Màn hình",
+      "all_monitors": "Tất cả màn hình"
     }
   },
   "monitor_profiles": {

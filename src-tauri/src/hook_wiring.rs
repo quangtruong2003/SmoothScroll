@@ -10,7 +10,9 @@
 use crate::state::AppState;
 use parking_lot::Mutex;
 use smoothscroll_core::input_source::InputSource;
-use smoothscroll_core::settings::{AppSettings, EffectiveSettings, ShiftWheelBehavior, WheelOutputMode};
+use smoothscroll_core::settings::{
+    AppSettings, EffectiveSettings, ShiftWheelBehavior, WheelOutputMode,
+};
 #[cfg(any(not(windows), test))]
 use smoothscroll_core::wheel::WheelSemantic;
 use smoothscroll_core::wheel::{DeltaTransform, SmoothingStrategy, WheelSequence, WheelTransport};
@@ -263,6 +265,7 @@ impl EngineSink {
                 || !s.app_profiles.is_empty()
                 || s.auto_disable_windows_apps
                 || !s.monitor_profiles.is_empty()
+                || !s.app_monitor_profiles.is_empty()
                 || s.force_enable_all_apps
         };
 
@@ -283,7 +286,61 @@ impl EngineSink {
         let start = Instant::now();
         let s = self.state.settings.read();
 
+        // Each monitor-scoped tier resolves its own monitor, and only when it
+        // can actually apply. The (app × monitor) tier keys off the window
+        // under the cursor so the process and the monitor describe the same
+        // window — the foreground window can sit on a different screen.
+        let cursor_monitor_name = if s.app_monitor_profiles.is_empty() {
+            None
+        } else {
+            self.cursor_monitor_name()
+        };
+        let fg_monitor_name = if s.monitor_profiles.is_empty() {
+            None
+        } else {
+            self.foreground_monitor_name()
+        };
+
         if let Some(process_name) = under_cursor.as_deref() {
+            // (app × monitor) outranks every other per-app rule so one
+            // application can carry a different profile on each screen. It runs
+            // before the exclusion checks because an app-wide pass-through must
+            // not silence a profile bound to that app on this monitor.
+            if let Some(cursor_monitor) = cursor_monitor_name.as_deref() {
+                if let Some(profile_id) =
+                    s.app_monitor_profiles_lookup(process_name, cursor_monitor)
+                {
+                    if profile_id == AppSettings::DISABLED_PROFILE_ID {
+                        if tracing::enabled!(tracing::Level::DEBUG) {
+                            tracing::debug!(
+                                process = %process_name,
+                                monitor = %cursor_monitor,
+                                tier = "app_monitor",
+                                "resolve_active app-monitor pass-through"
+                            );
+                        }
+                        return None;
+                    }
+                    let per_profile = self.state.effective_per_profile.read();
+                    if let Some(eff) = per_profile.get(profile_id) {
+                        let result = eff.clone();
+                        drop(per_profile);
+                        drop(s);
+                        if tracing::enabled!(tracing::Level::DEBUG) {
+                            tracing::debug!(
+                                process = %process_name,
+                                monitor = %cursor_monitor,
+                                tier = "app_monitor",
+                                "resolve_active app-monitor profile"
+                            );
+                        }
+                        return Some(result);
+                    }
+                    // A binding naming a profile that is no longer loaded falls
+                    // through to the lower tiers rather than going silent.
+                }
+            }
+
             if s.is_excluded(process_name) {
                 if tracing::enabled!(tracing::Level::DEBUG) {
                     let elapsed = start.elapsed();
@@ -336,35 +393,28 @@ impl EngineSink {
         }
 
         // Per-monitor profile resolution (priority: per-app > per-monitor > global)
-        if !s.monitor_profiles.is_empty() {
-            #[cfg(windows)]
+        if let Some(monitor_name) = fg_monitor_name.as_deref() {
+            if let Some(mp) = s
+                .monitor_profiles
+                .iter()
+                .find(|mp| mp.device_name == monitor_name)
             {
-                use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
-                let fg_hwnd = unsafe { GetForegroundWindow() };
-                if !fg_hwnd.is_null() {
-                    if let Some(monitor_name) =
-                        self.state.window_geom.monitor_for_hwnd(fg_hwnd as isize)
-                    {
-                        if let Some(mp) = s
-                            .monitor_profiles
-                            .iter()
-                            .find(|mp| mp.device_name == monitor_name)
-                        {
-                            if mp.profile_id == "__default__" {
-                                drop(s);
-                                return Some(self.state.effective.load_full());
-                            }
-                            if let Some(profile) = s.profiles.iter().find(|p| p.id == mp.profile_id)
-                            {
-                                let eff =
-                                    smoothscroll_core::settings::EffectiveSettings::with_profile(
-                                        &s, profile,
-                                    );
-                                drop(s);
-                                return Some(Arc::new(eff));
-                            }
-                        }
+                if mp.profile_id == "__default__" {
+                    drop(s);
+                    return Some(self.state.effective.load_full());
+                }
+                if let Some(profile) = s.profiles.iter().find(|p| p.id == mp.profile_id) {
+                    let eff =
+                        smoothscroll_core::settings::EffectiveSettings::with_profile(&s, profile);
+                    drop(s);
+                    if tracing::enabled!(tracing::Level::DEBUG) {
+                        tracing::debug!(
+                            monitor = %monitor_name,
+                            tier = "monitor",
+                            "resolve_active monitor profile"
+                        );
                     }
+                    return Some(Arc::new(eff));
                 }
             }
         }
@@ -373,10 +423,46 @@ impl EngineSink {
         if tracing::enabled!(tracing::Level::DEBUG) {
             let elapsed = start.elapsed();
             if elapsed > Duration::from_millis(2) {
-                tracing::debug!(?elapsed, "resolve_active global");
+                tracing::debug!(?elapsed, tier = "global", "resolve_active global");
             }
         }
         Some(self.state.effective.load_full())
+    }
+
+    /// Monitor device name for the window under the cursor. Serves the
+    /// (app × monitor) tier, whose key pairs a process — already resolved
+    /// under the cursor — with a monitor, so both halves must come from the
+    /// same window.
+    #[cfg(windows)]
+    fn cursor_monitor_name(&self) -> Option<String> {
+        self.state
+            .window_geom
+            .root_window_under_cursor()
+            .and_then(|hwnd| self.state.window_geom.monitor_for_hwnd(hwnd))
+    }
+
+    #[cfg(not(windows))]
+    fn cursor_monitor_name(&self) -> Option<String> {
+        None
+    }
+
+    /// Monitor device name for the foreground window. Serves the
+    /// monitor-only tier, which has always resolved the screen this way. Kept
+    /// separate from [`Self::cursor_monitor_name`] so changing one tier's
+    /// pairing cannot move the other.
+    #[cfg(windows)]
+    fn foreground_monitor_name(&self) -> Option<String> {
+        use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+        let fg_hwnd = unsafe { GetForegroundWindow() };
+        if fg_hwnd.is_null() {
+            return None;
+        }
+        self.state.window_geom.monitor_for_hwnd(fg_hwnd as isize)
+    }
+
+    #[cfg(not(windows))]
+    fn foreground_monitor_name(&self) -> Option<String> {
+        None
     }
 
     #[cfg(windows)]
@@ -1103,6 +1189,13 @@ mod tests {
     #[cfg(windows)]
     struct MonitorProfileWindowGeom {
         monitor_name: &'static str,
+        /// Window handle the cursor sits in. `None` simulates a window whose
+        /// root ownership cannot be resolved.
+        root: Option<isize>,
+        /// Monitor reported for the cursor window specifically. Lets a test
+        /// put the cursor window and every other window on different screens,
+        /// which is what the (app × monitor) tier has to tell apart.
+        cursor_monitor_name: Option<&'static str>,
     }
     #[cfg(windows)]
     impl WindowGeometry for MonitorProfileWindowGeom {
@@ -1111,11 +1204,14 @@ mod tests {
         }
 
         fn root_window_under_cursor(&self) -> Option<isize> {
-            Some(0x1000)
+            self.root
         }
 
-        fn monitor_for_hwnd(&self, _hwnd: isize) -> Option<String> {
-            Some(self.monitor_name.to_string())
+        fn monitor_for_hwnd(&self, hwnd: isize) -> Option<String> {
+            match (self.cursor_monitor_name, self.root) {
+                (Some(cursor), Some(root)) if hwnd == root => Some(cursor.to_string()),
+                _ => Some(self.monitor_name.to_string()),
+            }
         }
     }
     #[cfg(windows)]
@@ -1399,6 +1495,41 @@ mod tests {
 
     fn make_state_with_process(settings: AppSettings, process_name: Option<&str>) -> Arc<AppState> {
         make_state_with_processes(settings, process_name, None)
+    }
+
+    /// Both resolution dimensions at once: a fixed process under the cursor
+    /// and a fixed monitor for the foreground window, so the (app × monitor)
+    /// tier can be driven independently of the app-only and monitor-only tiers.
+    #[cfg(windows)]
+    fn make_state_with_process_and_monitor(
+        settings: AppSettings,
+        process_name: Option<&str>,
+        monitor_name: &'static str,
+    ) -> Arc<AppState> {
+        let mut state = make_state_with_window_geom(
+            settings,
+            Arc::new(MonitorProfileWindowGeom {
+                monitor_name,
+                root: Some(0x1000),
+                cursor_monitor_name: None,
+            }),
+        );
+        Arc::get_mut(&mut state).unwrap().processes = Arc::new(StaticProcessQuery {
+            under_cursor: process_name.map(|s| s.to_string()),
+            foreground: process_name.map(|s| s.to_string()),
+        });
+        state
+    }
+
+    /// Registers a profile's effective settings so the profile-bearing tiers
+    /// can resolve it, mirroring how production populates the map on commit.
+    #[cfg(windows)]
+    fn seed_profile(state: &Arc<AppState>, profile: &ScrollProfile) {
+        let eff = EffectiveSettings::with_profile(&state.settings.read(), profile);
+        state
+            .effective_per_profile
+            .write()
+            .insert(profile.id.clone(), Arc::new(eff));
     }
 
     fn make_state_with_processes(
@@ -2118,7 +2249,10 @@ mod tests {
         );
         match action {
             ResolvedWheelAction::Smooth { sequence, .. } => {
-                assert_eq!(sequence.strategy, SmoothingStrategy::DiscreteNotchPreserving)
+                assert_eq!(
+                    sequence.strategy,
+                    SmoothingStrategy::DiscreteNotchPreserving
+                )
             }
             ResolvedWheelAction::RawPass { .. } => panic!("expected Smooth"),
         }
@@ -2135,7 +2269,10 @@ mod tests {
         );
         match action {
             ResolvedWheelAction::Smooth { sequence, .. } => {
-                assert_eq!(sequence.strategy, SmoothingStrategy::DiscreteNotchPreserving)
+                assert_eq!(
+                    sequence.strategy,
+                    SmoothingStrategy::DiscreteNotchPreserving
+                )
             }
             ResolvedWheelAction::RawPass { .. } => panic!("override must beat Raw mode"),
         }
@@ -2992,6 +3129,8 @@ mod tests {
             settings,
             Arc::new(MonitorProfileWindowGeom {
                 monitor_name: MONITOR,
+                root: Some(0x1000),
+                cursor_monitor_name: None,
             }),
         );
         let sink = EngineSink::new(state.clone());
@@ -3004,6 +3143,237 @@ mod tests {
                 .active_sequence(WheelAxis::Horizontal)
                 .map(|sequence| sequence.semantic.axis),
             Some(WheelAxis::Horizontal)
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_binding_outranks_app_only_binding() {
+        // horizontal_smoothness is the observable: on makes the hook swallow.
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut app_wide = ScrollProfile::new("app-wide", "App wide");
+        app_wide.horizontal_smoothness = false;
+        let mut primary_only = ScrollProfile::new("primary-only", "Primary only");
+        primary_only.horizontal_smoothness = true;
+        settings.profiles.push(app_wide.clone());
+        settings.profiles.push(primary_only.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(app_wide.id.clone()));
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY1",
+            "Primary",
+            Some(primary_only.id.clone()),
+        );
+
+        let on_primary =
+            make_state_with_process_and_monitor(settings.clone(), Some("blender.exe"), "DISPLAY1");
+        seed_profile(&on_primary, &app_wide);
+        seed_profile(&on_primary, &primary_only);
+        assert_eq!(
+            hwheel(&EngineSink::new(on_primary.clone()), 120),
+            HookDecision::Swallow
+        );
+
+        let on_secondary =
+            make_state_with_process_and_monitor(settings, Some("blender.exe"), "DISPLAY2");
+        seed_profile(&on_secondary, &app_wide);
+        seed_profile(&on_secondary, &primary_only);
+        let sink = EngineSink::new(on_secondary.clone());
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
+        assert!(!on_secondary.engine.lock().has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_binding_outranks_monitor_only_binding() {
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut monitor_wide = ScrollProfile::new("monitor-wide", "Monitor wide");
+        monitor_wide.horizontal_smoothness = false;
+        let mut primary_only = ScrollProfile::new("primary-only", "Primary only");
+        primary_only.horizontal_smoothness = true;
+        settings.profiles.push(monitor_wide.clone());
+        settings.profiles.push(primary_only.clone());
+        settings.monitor_profiles.push(MonitorProfile {
+            device_name: "DISPLAY1".to_string(),
+            friendly_name: "Primary".to_string(),
+            profile_id: monitor_wide.id.clone(),
+        });
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY1",
+            "Primary",
+            Some(primary_only.id.clone()),
+        );
+
+        let state = make_state_with_process_and_monitor(settings, Some("blender.exe"), "DISPLAY1");
+        seed_profile(&state, &monitor_wide);
+        seed_profile(&state, &primary_only);
+        assert_eq!(
+            hwheel(&EngineSink::new(state.clone()), 120),
+            HookDecision::Swallow
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_disabled_passes_through_only_on_that_monitor() {
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut app_wide = ScrollProfile::new("app-wide", "App wide");
+        app_wide.horizontal_smoothness = true;
+        settings.profiles.push(app_wide.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(app_wide.id.clone()));
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY1",
+            "Primary",
+            Some(AppSettings::DISABLED_PROFILE_ID.to_string()),
+        );
+
+        let on_primary =
+            make_state_with_process_and_monitor(settings.clone(), Some("blender.exe"), "DISPLAY1");
+        seed_profile(&on_primary, &app_wide);
+        let sink = EngineSink::new(on_primary.clone());
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
+        assert!(!on_primary.engine.lock().has_pending_work());
+
+        let on_secondary =
+            make_state_with_process_and_monitor(settings, Some("blender.exe"), "DISPLAY2");
+        seed_profile(&on_secondary, &app_wide);
+        assert_eq!(
+            hwheel(&EngineSink::new(on_secondary.clone()), 120),
+            HookDecision::Swallow
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_miss_falls_through_to_monitor_only_binding() {
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut secondary = ScrollProfile::new("secondary", "Secondary");
+        secondary.horizontal_smoothness = true;
+        let mut primary = ScrollProfile::new("primary", "Primary");
+        primary.horizontal_smoothness = false;
+        settings.profiles.push(secondary.clone());
+        settings.profiles.push(primary.clone());
+        settings.monitor_profiles.push(MonitorProfile {
+            device_name: "DISPLAY2".to_string(),
+            friendly_name: "Secondary".to_string(),
+            profile_id: secondary.id.clone(),
+        });
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY1",
+            "Primary",
+            Some(primary.id.clone()),
+        );
+
+        let on_secondary =
+            make_state_with_process_and_monitor(settings.clone(), Some("blender.exe"), "DISPLAY2");
+        seed_profile(&on_secondary, &secondary);
+        seed_profile(&on_secondary, &primary);
+        assert_eq!(
+            hwheel(&EngineSink::new(on_secondary.clone()), 120),
+            HookDecision::Swallow
+        );
+
+        let on_primary =
+            make_state_with_process_and_monitor(settings, Some("blender.exe"), "DISPLAY1");
+        seed_profile(&on_primary, &secondary);
+        seed_profile(&on_primary, &primary);
+        let sink = EngineSink::new(on_primary.clone());
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_profile_outranks_app_wide_pass_through() {
+        // An app-wide pass-through must not silence a profile bound to that
+        // app on this monitor — the (app × monitor) tier outranks it, while
+        // the pass-through still holds on every other screen.
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut primary_only = ScrollProfile::new("primary-only", "Primary only");
+        primary_only.horizontal_smoothness = true;
+        settings.profiles.push(primary_only.clone());
+        settings.assign_profile(
+            "blender.exe".to_string(),
+            Some(AppSettings::DISABLED_PROFILE_ID.to_string()),
+        );
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY1",
+            "Primary",
+            Some(primary_only.id.clone()),
+        );
+
+        let on_primary =
+            make_state_with_process_and_monitor(settings.clone(), Some("blender.exe"), "DISPLAY1");
+        seed_profile(&on_primary, &primary_only);
+        assert_eq!(
+            hwheel(&EngineSink::new(on_primary.clone()), 120),
+            HookDecision::Swallow
+        );
+
+        let on_secondary =
+            make_state_with_process_and_monitor(settings, Some("blender.exe"), "DISPLAY2");
+        seed_profile(&on_secondary, &primary_only);
+        let sink = EngineSink::new(on_secondary.clone());
+        assert_eq!(hwheel(&sink, 120), HookDecision::Pass);
+        assert!(!on_secondary.engine.lock().has_pending_work());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn app_monitor_binding_keys_off_the_window_under_the_cursor() {
+        // The cursor window sits on DISPLAY2 while every other window — the
+        // foreground one included — sits on DISPLAY1. The binding names the
+        // cursor window's screen, so it must apply even though the two
+        // windows disagree about which screen they are on.
+        let mut settings = AppSettings::default();
+        settings.auto_disable_windows_apps = false;
+        settings.horizontal_smoothness = false;
+        let mut app_wide = ScrollProfile::new("app-wide", "App wide");
+        app_wide.horizontal_smoothness = false;
+        let mut cursor_screen = ScrollProfile::new("cursor-screen", "Cursor screen");
+        cursor_screen.horizontal_smoothness = true;
+        settings.profiles.push(app_wide.clone());
+        settings.profiles.push(cursor_screen.clone());
+        settings.assign_profile("blender.exe".to_string(), Some(app_wide.id.clone()));
+        settings.assign_app_monitor_profile(
+            "blender.exe",
+            "DISPLAY2",
+            "Secondary",
+            Some(cursor_screen.id.clone()),
+        );
+
+        let mut state = make_state_with_window_geom(
+            settings,
+            Arc::new(MonitorProfileWindowGeom {
+                monitor_name: "DISPLAY1",
+                root: Some(0x2000),
+                cursor_monitor_name: Some("DISPLAY2"),
+            }),
+        );
+        Arc::get_mut(&mut state).unwrap().processes = Arc::new(StaticProcessQuery {
+            under_cursor: Some("blender.exe".to_string()),
+            foreground: Some("blender.exe".to_string()),
+        });
+        seed_profile(&state, &app_wide);
+        seed_profile(&state, &cursor_screen);
+
+        assert_eq!(
+            hwheel(&EngineSink::new(state.clone()), 120),
+            HookDecision::Swallow,
+            "binding must key off the cursor window's monitor, not the foreground window's"
         );
     }
 
