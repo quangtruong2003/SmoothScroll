@@ -7,6 +7,9 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+- add coffee donation nudge at usage milestones
+
 ## [1.35.1] - 2026-10-08
 
 ### Fixed
