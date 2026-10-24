@@ -724,7 +724,22 @@ fn schema_one_preserves_explicit_semantic_policy_values() {
     assert_eq!(settings.wheel_output_mode, WheelOutputMode::Raw);
     assert!(settings.modifier_passthrough.ctrl);
     assert!(!settings.modifier_passthrough.alt);
+    assert!(!settings.modifier_passthrough.shift);
     assert!(!settings.modifier_passthrough.clear_inertia_on_press);
+}
+
+#[test]
+fn explicit_shift_passthrough_round_trips() {
+    let raw = serde_json::json!({
+        "settings_schema_version": CURRENT_SETTINGS_SCHEMA_VERSION,
+        "modifier_passthrough": { "shift": true }
+    });
+    let (settings, _) = migrate_raw_settings(raw).unwrap();
+
+    assert!(settings.modifier_passthrough.shift);
+    assert!(!settings.modifier_passthrough.ctrl);
+    assert!(!settings.modifier_passthrough.alt);
+    assert!(EffectiveSettings::from_settings(&settings).modifier_shift_passthrough);
 }
 
 #[test]

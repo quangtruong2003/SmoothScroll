@@ -36,7 +36,8 @@ impl HookEventSink for EngineSink {
         match event.semantic.axis {
             WheelAxis::Vertical => {
                 let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
-                    || (mods.alt && eff.modifier_alt_passthrough);
+                    || (mods.alt && eff.modifier_alt_passthrough)
+                    || (mods.shift && eff.modifier_shift_passthrough);
                 if precision {
                     if eff.modifier_clear_inertia {
                         engine.reset_axes();

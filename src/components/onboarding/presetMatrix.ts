@@ -43,6 +43,7 @@ export function applyPresetUI(
     s.modifier_passthrough = {
       ctrl: true,
       alt: true,
+      shift: false,
       clear_inertia_on_press: true,
     };
   };

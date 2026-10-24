@@ -57,6 +57,7 @@ fn resolve_wheel_action(
 
     if (event.semantic.modifiers.ctrl && settings.modifier_ctrl_passthrough)
         || (event.semantic.modifiers.alt && settings.modifier_alt_passthrough)
+        || (event.semantic.modifiers.shift && settings.modifier_shift_passthrough)
     {
         return raw(true);
     }
@@ -544,10 +545,12 @@ impl EngineSink {
 
                 #[cfg(target_os = "macos")]
                 let precision = (mods.cmd && eff.modifier_ctrl_passthrough)
-                    || (mods.alt && eff.modifier_alt_passthrough);
+                    || (mods.alt && eff.modifier_alt_passthrough)
+                    || (mods.shift && eff.modifier_shift_passthrough);
                 #[cfg(not(target_os = "macos"))]
                 let precision = (mods.ctrl && eff.modifier_ctrl_passthrough)
-                    || (mods.alt && eff.modifier_alt_passthrough);
+                    || (mods.alt && eff.modifier_alt_passthrough)
+                    || (mods.shift && eff.modifier_shift_passthrough);
 
                 if precision {
                     if eff.modifier_clear_inertia {
@@ -2162,6 +2165,40 @@ mod tests {
                 cancel_active: true,
                 ..
             }
+        ));
+    }
+
+    #[test]
+    fn policy_raw_passes_shift_wheel_only_with_shift_passthrough() {
+        let shift_event = vertical(
+            120,
+            ModifierKeys {
+                shift: true,
+                ..ModifierKeys::default()
+            },
+            InputSource::Wheel,
+        );
+        assert!(matches!(
+            resolve_wheel_action(shift_event, &eff(), false),
+            ResolvedWheelAction::Smooth { .. }
+        ));
+
+        let mut settings = eff();
+        settings.modifier_shift_passthrough = true;
+        assert!(matches!(
+            resolve_wheel_action(shift_event, &settings, false),
+            ResolvedWheelAction::RawPass {
+                axis: WheelAxis::Vertical,
+                cancel_active: true,
+            }
+        ));
+
+        // Passthrough wins over Shift+wheel conversion: the app gets the raw
+        // event and does its own horizontal scroll.
+        settings.shift_wheel_behavior = ShiftWheelBehavior::ConvertToHorizontal;
+        assert!(matches!(
+            resolve_wheel_action(shift_event, &settings, false),
+            ResolvedWheelAction::RawPass { .. }
         ));
     }
 
