@@ -98,6 +98,7 @@ fn enable_mp(s: &mut AppSettings) {
     s.modifier_passthrough = ModifierPassthrough {
         ctrl: true,
         alt: true,
+        shift: false,
         clear_inertia_on_press: true,
     };
 }

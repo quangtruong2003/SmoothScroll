@@ -275,6 +275,8 @@ pub struct ModifierPassthrough {
     pub ctrl: bool,
     #[serde(default = "default_false")]
     pub alt: bool,
+    #[serde(default = "default_false")]
+    pub shift: bool,
     #[serde(default = "default_true")]
     pub clear_inertia_on_press: bool,
 }
@@ -292,6 +294,7 @@ impl Default for ModifierPassthrough {
         Self {
             ctrl: false,
             alt: false,
+            shift: false,
             clear_inertia_on_press: true,
         }
     }
@@ -906,6 +909,7 @@ pub struct EffectiveSettings {
     pub instant_mode: bool,
     pub modifier_ctrl_passthrough: bool,
     pub modifier_alt_passthrough: bool,
+    pub modifier_shift_passthrough: bool,
     pub modifier_clear_inertia: bool,
     pub smooth_zoom: bool,
     pub zoom_invert: bool,
@@ -937,6 +941,7 @@ impl EffectiveSettings {
             instant_mode: false,
             modifier_ctrl_passthrough: s.modifier_passthrough.ctrl,
             modifier_alt_passthrough: s.modifier_passthrough.alt,
+            modifier_shift_passthrough: s.modifier_passthrough.shift,
             modifier_clear_inertia: s.modifier_passthrough.clear_inertia_on_press,
             smooth_zoom: s.smooth_zoom,
             zoom_invert: s.zoom_invert,
@@ -968,6 +973,7 @@ impl EffectiveSettings {
             instant_mode: false,
             modifier_ctrl_passthrough: base.modifier_passthrough.ctrl,
             modifier_alt_passthrough: base.modifier_passthrough.alt,
+            modifier_shift_passthrough: base.modifier_passthrough.shift,
             modifier_clear_inertia: base.modifier_passthrough.clear_inertia_on_press,
             smooth_zoom: profile.smooth_zoom,
             zoom_invert: profile.zoom_invert,

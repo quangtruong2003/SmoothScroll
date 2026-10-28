@@ -94,7 +94,7 @@ const mockSettings: AppSettings = {
   touchpad_pixel_multiplier: 1,
   touchpad_acceleration_factor: 1,
   respect_reduce_motion: "Auto",
-  modifier_passthrough: { ctrl: false, alt: false, clear_inertia_on_press: false },
+  modifier_passthrough: { ctrl: false, alt: false, shift: false, clear_inertia_on_press: false },
   smooth_zoom: false,
   zoom_invert: false,
   zoom_sensitivity: 1,

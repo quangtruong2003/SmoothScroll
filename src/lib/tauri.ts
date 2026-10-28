@@ -15,6 +15,7 @@ export type WheelOutputMode = "SmoothPulses" | "PreserveWholeNotches" | "Raw";
 export interface ModifierPassthrough {
   ctrl: boolean;
   alt: boolean;
+  shift: boolean;
   clear_inertia_on_press: boolean;
 }
 
