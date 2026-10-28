@@ -50,14 +50,14 @@ export const intentPages: readonly IntentPage[] = [
       {
         title: 'Tune the feel instead of chasing one magic preset',
         paragraphs: [
-          'A Mac-like feel is subjective, so SmoothScroll exposes the controls that matter: step size, animation time, easing curve, acceleration window, maximum acceleration, and reverse direction. Quintic Out gives a long deceleration tail, while shorter animation times keep the response tighter.',
+          'A Mac-like feel is subjective, so SmoothScroll exposes the controls that matter: step size, animation time, easing curve, maximum acceleration, and reverse direction. Quintic Out gives a long deceleration tail, while shorter animation times keep the response tighter.',
           'Per-app profiles matter because a long reading page and a code editor do not need the same motion. You can keep a slower, softer profile for browsers or documents and a shorter profile for VS Code without changing the global Windows mouse setting each time.',
         ],
       },
       {
         title: 'Keep zoom, games, and special apps responsive',
         paragraphs: [
-          'SmoothScroll includes modifier pass-through so Ctrl + wheel can remain raw for browser, design-tool, and editor zoom. Apps can also be excluded completely, and Game mode can bypass smoothing when raw wheel input is the better choice.',
+          'Ctrl + wheel can pass through raw when Ctrl passthrough is enabled. Otherwise, smoothing preserves Ctrl so apps can still recognize zoom; the optional Smooth zoom switch applies dedicated handling. Exclude apps whose wheel shortcuts require untouched input.',
           'That makes the goal narrower than copying macOS: keep the Windows workflow, while making ordinary wheel scrolling more continuous where you want it.',
         ],
       },
@@ -66,7 +66,7 @@ export const intentPages: readonly IntentPage[] = [
       'Start with the default profile and confirm that ordinary vertical wheel scrolling feels smooth in the apps you use most.',
       'For a longer glide, try Quintic Out and increase animation time gradually. Reduce step size if the page travels too far per notch.',
       'Create per-app profiles for browsers, reading apps, and code editors instead of forcing one slow or fast curve everywhere.',
-      'Leave Ctrl + wheel pass-through enabled when you use wheel zoom, and exclude games or specialty apps that should receive raw wheel ticks.',
+      'Leave Scroll → Smooth zoom off for regular Ctrl + wheel smoothing, unless Ctrl passthrough is active. Exclude apps that need untouched wheel ticks.',
     ],
     faq: [
       {
@@ -88,7 +88,7 @@ export const intentPages: readonly IntentPage[] = [
     slug: 'smooth-mouse-wheel-windows',
     primaryQuery: 'smooth mouse wheel windows',
     title: 'Smooth Mouse Wheel Scrolling on Windows | SmoothScroll',
-    description: 'Smooth mouse-wheel scrolling across Windows 10 and 11 apps with configurable easing, acceleration, per-app profiles, exclusions, and modifier pass-through.',
+    description: 'Smooth mouse-wheel scrolling across Windows 10 and 11 apps with configurable easing, acceleration, zoom, per-app profiles, and exclusions.',
     eyebrow: 'System-wide mouse wheel smoothing',
     heading: 'Smooth mouse-wheel scrolling across Windows apps',
     lead: 'One wheel can feel completely different in Chrome, File Explorer, VS Code, and desktop tools. SmoothScroll gives those wheel ticks one configurable smoothing engine.',
@@ -111,7 +111,7 @@ export const intentPages: readonly IntentPage[] = [
       {
         title: 'Use system-wide smoothing without forcing it everywhere',
         paragraphs: [
-          'Per-app profiles and exclusions let you opt out where smoothing is unwanted. Modifier pass-through keeps Ctrl + wheel or Alt + wheel raw for apps that use the wheel for zooming, scrubbing, or other commands.',
+          'Per-app profiles and exclusions let you opt out where smoothing is unwanted. Ctrl + wheel passes through raw if Ctrl passthrough is enabled, or keeps its modifier during smoothing otherwise. Smooth zoom enables dedicated zoom handling when passthrough is off.',
           'The tray controls and global hotkey also make A/B testing immediate: toggle SmoothScroll off, compare native scrolling, then turn it back on without uninstalling or changing Windows settings.',
         ],
       },
@@ -120,7 +120,7 @@ export const intentPages: readonly IntentPage[] = [
       'Install SmoothScroll and test the default profile in two or three apps that currently feel different from each other.',
       'Adjust step size first so each notch travels the right distance, then tune animation time and easing for the motion you prefer.',
       'Use per-app profiles when an editor needs a tighter response than a browser or long-form reading app.',
-      'Add exclusions or modifier pass-through for workflows that depend on raw wheel events.',
+      'Use per-app exclusions for workflows that depend on raw wheel events.',
     ],
     faq: [
       {
@@ -166,7 +166,7 @@ export const intentPages: readonly IntentPage[] = [
         title: 'Avoid turning a scroll fix into input lag',
         paragraphs: [
           'Very long animation times can feel floaty in editors or dense interfaces. Start near the default behavior, then make one change at a time. If you overshoot content, reduce step size before adding more duration.',
-          'Keep raw pass-through available for Ctrl + wheel zoom, games, elevated targets, and other contexts where immediate wheel ticks matter more than animation.',
+          'With Ctrl passthrough off, leaving Smooth zoom off uses regular Ctrl + wheel smoothing. Choose Native/raw wheel compatibility, exclude apps, or use Game mode where immediate wheel ticks matter more than animation.',
         ],
       },
     ],
@@ -200,7 +200,7 @@ export const intentPages: readonly IntentPage[] = [
     eyebrow: 'Chrome on Windows',
     heading: 'Smooth Chrome mouse-wheel scrolling without changing every app',
     lead: 'Chrome can animate scrolling on its own, but a Windows-level profile gives you one place to tune wheel distance, easing, acceleration, and modifier behavior.',
-    answer: 'SmoothScroll can smooth mouse-wheel input in Chrome on Windows by processing wheel ticks before Chrome receives them. You can assign Chrome its own profile and keep Ctrl + wheel pass-through enabled so browser zoom remains immediate instead of being stretched across the smoothing animation.',
+    answer: 'SmoothScroll can smooth mouse-wheel input in Chrome on Windows by processing wheel ticks before Chrome receives them. You can assign Chrome its own profile. Ctrl + wheel may pass through raw when Ctrl passthrough is enabled; otherwise smoothing preserves its zoom shortcut. Exclude Chrome when its zoom must receive untouched wheel events.',
     sections: [
       {
         title: 'Browser smooth scrolling and system-level smoothing solve different problems',
@@ -210,10 +210,10 @@ export const intentPages: readonly IntentPage[] = [
         ],
       },
       {
-        title: 'Keep Ctrl + wheel zoom raw',
+        title: 'Keep Ctrl + wheel zoom responsive',
         paragraphs: [
-          'Chrome uses Ctrl + wheel for page zoom. Smoothing those command-style wheel ticks can make zoom feel delayed, so SmoothScroll includes Ctrl + wheel pass-through and an option to clear pending inertia when a modifier is pressed.',
-          'That means ordinary page scrolling can remain eased while zoom stays immediate. The same idea applies to design tools and editors that attach commands to modifier-plus-wheel input.',
+          'Chrome uses Ctrl + wheel for page zoom. When Ctrl passthrough is enabled, SmoothScroll forwards the input raw. Otherwise it preserves Ctrl during smoothing: Smooth zoom enables dedicated zoom handling, while turning it off uses regular wheel smoothing.',
+          'To change Chrome alone, edit its profile in Apps → Wheel compatibility and select Native/raw, or exclude Chrome entirely. Advanced → Wheel compatibility sets the global mode; app-specific discrete-wheel compatibility can override Native/raw.',
         ],
       },
       {
@@ -226,7 +226,7 @@ export const intentPages: readonly IntentPage[] = [
     ],
     setup: [
       'Create or select a profile for Chrome and start with SmoothScroll’s default step size, animation time, and easing.',
-      'Keep Advanced → Pass-through Ctrl + wheel enabled so browser zoom receives raw wheel ticks.',
+      'In Scroll, leave Smooth zoom off for regular Ctrl + wheel smoothing unless Ctrl passthrough is active. For Chrome-specific Native/raw input, edit its profile in Apps → Wheel compatibility, or exclude Chrome.',
       'If Chrome feels too floaty, shorten animation time before increasing scroll distance.',
       'If you prefer Chrome’s native scrolling, exclude Chrome and use SmoothScroll only in the Windows apps that need it.',
     ],
@@ -237,7 +237,7 @@ export const intentPages: readonly IntentPage[] = [
       },
       {
         question: 'Will SmoothScroll make Ctrl + wheel zoom lag in Chrome?',
-        answer: 'It does not have to. SmoothScroll provides Ctrl + wheel pass-through so zoom can receive raw wheel ticks, and it can clear pending inertia when the modifier is pressed.',
+        answer: 'Ctrl + wheel passes through raw when Ctrl passthrough is active; otherwise the shortcut remains while wheel input may be smoothed, even with Smooth zoom off. Set Chrome’s Apps profile to Native/raw or exclude Chrome if raw ticks are essential; discrete-wheel compatibility rules may override the mode.',
       },
       {
         question: 'Can Chrome have different scroll settings from VS Code?',
@@ -250,11 +250,11 @@ export const intentPages: readonly IntentPage[] = [
     slug: 'smooth-scrolling-vscode-windows',
     primaryQuery: 'smooth scrolling vscode windows',
     title: 'Smooth Scrolling in VS Code on Windows | SmoothScroll',
-    description: 'Give VS Code a dedicated smooth-scroll profile on Windows with precise step size, short easing, acceleration controls, and Ctrl/Alt wheel pass-through.',
+    description: 'Give VS Code a dedicated smooth-scroll profile on Windows with precise step size, short easing, acceleration controls, and preserved Ctrl + wheel shortcuts.',
     eyebrow: 'VS Code on Windows',
     heading: 'Smooth VS Code scrolling while keeping code navigation precise',
     lead: 'A code editor needs a different scroll feel from a long article. SmoothScroll lets VS Code have its own Windows-level profile instead of forcing one global curve everywhere. VS Code also has an editor.smoothScrolling setting for editor-only behavior, while SmoothScroll adds a Windows-level mouse-wheel profile across desktop apps.',
-    answer: 'SmoothScroll can give VS Code a dedicated mouse-wheel profile on Windows. A shorter animation time and controlled step size can keep line navigation precise, while Ctrl + wheel and Alt + wheel pass-through remain available for zoom or editor commands that should receive raw wheel ticks.',
+    answer: 'SmoothScroll can give VS Code a dedicated mouse-wheel profile on Windows. A shorter animation time and controlled step size can keep line navigation precise. Ctrl + wheel passes through raw when Ctrl passthrough is active, or retains its shortcut meaning during smoothing otherwise. Exclude VS Code when wheel shortcuts need untouched input.',
     sections: [
       {
         title: 'Why code editors benefit from a tighter profile',
@@ -266,8 +266,8 @@ export const intentPages: readonly IntentPage[] = [
       {
         title: 'Preserve wheel shortcuts and zoom behavior',
         paragraphs: [
-          'Editors and extensions may use modifier-plus-wheel input for zooming or other commands. SmoothScroll can pass Ctrl + wheel and Alt + wheel through without smoothing and can clear existing inertia as soon as a modifier is pressed.',
-          'That avoids the common failure mode where a smoothing utility makes command-style wheel input feel delayed. Ordinary vertical navigation can stay eased while modifier gestures stay direct.',
+          'Editors and extensions may use modifier-plus-wheel input for zooming or other commands. If Ctrl passthrough is enabled, Ctrl + wheel goes through raw; otherwise SmoothScroll preserves Ctrl during smoothing, and Smooth zoom in the Scroll tab enables dedicated zoom handling. Exclude an editor in Apps if its shortcuts require original wheel input.',
+          'An excluded editor receives its native wheel input for every gesture. In Apps, a profile’s Wheel compatibility → Native/raw usually bypasses smoothing, but discrete-wheel compatibility rules can override that mode. Advanced → Wheel compatibility sets the global mode.',
         ],
       },
       {
@@ -280,7 +280,7 @@ export const intentPages: readonly IntentPage[] = [
     ],
     setup: [
       'Create a VS Code profile with a moderate step size and shorter animation time than your browser or reading profile.',
-      'Keep Ctrl + wheel pass-through enabled if you use mouse-wheel zoom. Enable Alt + wheel pass-through when your workflow or extensions bind that gesture.',
+      'Leave Scroll → Smooth zoom off for regular Ctrl + wheel smoothing unless Ctrl passthrough is active. For VS Code-specific Native/raw input, edit its profile under Apps → Wheel compatibility, or exclude VS Code.',
       'Use acceleration for deliberate fast navigation, but cap it if repeated notches make you overshoot code sections.',
       'A/B test with the global hotkey and keep the profile only if it makes navigation more predictable for your editor workflow.',
     ],
@@ -295,11 +295,11 @@ export const intentPages: readonly IntentPage[] = [
       },
       {
         question: 'Will Ctrl + wheel still work for zoom in VS Code?',
-        answer: 'Yes when Ctrl + wheel pass-through is enabled. SmoothScroll can send those modifier wheel ticks through raw instead of stretching them across the normal scroll animation.',
+        answer: 'Yes. Ctrl + wheel passes through raw when Ctrl passthrough is active, or keeps its shortcut meaning during smoothing otherwise. For VS Code-specific raw input, set Wheel compatibility to Native/raw in its Apps profile, or exclude VS Code.',
       },
       {
         question: 'What settings are a good starting point for coding?',
-        answer: 'Start near the default step size with a relatively short animation time, then reduce step size if you overshoot lines. Keep modifier pass-through enabled and tune acceleration only after basic navigation feels predictable.',
+        answer: 'Start near the default step size with a relatively short animation time, then reduce step size if you overshoot lines. Tune acceleration only after basic navigation feels predictable.',
       },
     ],
     related: ['smooth-scrolling-chrome-windows', 'smooth-mouse-wheel-windows'],

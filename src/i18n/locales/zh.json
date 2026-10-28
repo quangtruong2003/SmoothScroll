@@ -152,7 +152,7 @@
     "advanced": {
       "label": "高级",
       "title": "高级",
-      "description": "加速窗口、尾部比例、精确修饰键和边缘自动滚动。"
+      "description": "调整滚动距离、动画时长、加速度和滚轮兼容性。"
     },
     "apps": {
       "label": "应用",
@@ -218,9 +218,9 @@
       "title": "缓动曲线",
       "desc": "减速曲线的形状",
       "preview": "预览",
-      "ExponentialOut": "指数 Out（默认）",
+      "ExponentialOut": "指数 Out",
       "CubicOut": "三次 Out",
-      "QuinticOut": "五次 Out",
+      "QuinticOut": "五次 Out（默认）",
       "Linear": "线性"
     },
     "reverse_wheel": {

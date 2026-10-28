@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Nâng cao",
       "title": "Nâng cao",
-      "description": "Cửa sổ tăng tốc, tỉ lệ đuôi, phím bổ trợ chính xác và tự cuộn ở mép."
+      "description": "Điều chỉnh quãng cuộn, thời lượng hiệu ứng, gia tốc và chế độ tương thích con lăn."
     },
     "apps": {
       "label": "Ứng dụng",
@@ -218,9 +218,9 @@
       "title": "Đường cong easing",
       "desc": "Hình dạng của đường cong giảm tốc",
       "preview": "Xem trước",
-      "ExponentialOut": "Exponential Out (mặc định)",
+      "ExponentialOut": "Exponential Out",
       "CubicOut": "Suy giảm bậc ba",
-      "QuinticOut": "Suy giảm bậc năm",
+      "QuinticOut": "Suy giảm bậc năm (mặc định)",
       "Linear": "Tuyến tính"
     },
     "reverse_wheel": {

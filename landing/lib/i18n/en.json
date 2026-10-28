@@ -65,7 +65,7 @@
       },
       {
         "title": "UWP force-enable",
-        "description": "WinUI apps ignore synthetic wheel events by default. We force-enable so they actually scroll."
+        "description": "Force Smooth on All Apps can override automatic smoothing disablement for built-in Windows apps. Some WinUI apps may still ignore synthetic wheel events."
       },
       {
         "title": "Game mode auto-bypass",
@@ -174,7 +174,7 @@
       },
       {
         "q": "Does this work with UWP / WinUI apps?",
-        "a": "Yes. WinUI apps ignore synthetic wheel events by default; SmoothScroll uses a force-enable hook so scrolling actually reaches them. The toggle is in Settings → Scroll."
+        "a": "Support varies by app. Settings → Behavior → Force Smooth on All Apps overrides automatic smoothing disablement for built-in Windows apps, but some WinUI apps may still ignore synthetic wheel events."
       },
       {
         "q": "Will anti-cheat flag this?",
@@ -210,7 +210,7 @@
       },
       {
         "q": "What do acceleration and tail-to-head ratio do?",
-        "a": "Acceleration lets fast consecutive wheel ticks build momentum so flicks travel farther, capped by the max-acceleration setting. Tail-to-head ratio controls how sharp the deceleration is - higher means a quicker start with a longer slow tail."
+        "a": "Acceleration lets fast consecutive wheel ticks build momentum so flicks travel farther, capped by the max-acceleration setting. With Exponential Out easing, tail-to-head ratio controls how sharp the deceleration is - higher means a quicker start with a longer slow tail. Other easing curves do not use this ratio."
       },
       {
         "q": "Does SmoothScroll work with precision touchpads?",
@@ -230,7 +230,7 @@
       },
       {
         "q": "Will Ctrl + wheel zoom still work in browsers and design tools?",
-        "a": "Yes. Pass-through Ctrl + wheel sends raw wheel ticks for zoom in browsers, VS Code, Photoshop, and Figma-style tools, and pending inertia can be cleared the instant a modifier is pressed."
+        "a": "Yes. When Ctrl passthrough is enabled, Ctrl + Wheel is forwarded unchanged. Otherwise SmoothScroll preserves Ctrl during smoothing, and Smooth zoom can enable dedicated zoom handling. For app-specific raw input, choose Native/raw in its Apps profile or exclude the app; discrete-wheel compatibility may override Native/raw."
       },
       {
         "q": "Does SmoothScroll affect gaming performance or FPS?",
@@ -242,11 +242,11 @@
       },
       {
         "q": "How is SmoothScroll different from other free scrolling utilities?",
-        "a": "It works with any mouse Windows recognises, runs as a single lightweight executable with no drivers or services, keeps per-app profiles with modifier pass-through, and ships with zero telemetry under a source-available license you can audit."
+        "a": "It works with any mouse Windows recognises, runs as a single lightweight executable with no drivers or services, keeps per-app profiles and exclusions, and ships with zero telemetry under a source-available license you can audit."
       },
       {
         "q": "SmoothScroll isn't smoothing one app - how do I fix it?",
-        "a": "Check three things: the app isn't in your excluded-apps list, it isn't running elevated as administrator (raw input passes through there by design), and for WinUI apps the force-enable toggle in Settings → Scroll is on. Then toggle smoothing with the global hotkey to A/B test."
+        "a": "Check whether the app is excluded or running elevated as administrator (raw input passes through there by design). For built-in Windows apps, Settings → Behavior → Force Smooth on All Apps can override automatic smoothing disablement, although WinUI apps may still ignore synthetic wheel events. Toggle smoothing with the global hotkey to compare."
       },
       {
         "q": "How do I back up or move my settings to another PC?",
@@ -260,7 +260,7 @@
   },
   "finalCta": {
     "title": "Stop fighting your scroll wheel.",
-    "description": "One download. One toggle. You'll feel it in the first five seconds.",
+    "subtitle": "One download. One toggle. You'll feel it in the first five seconds.",
     "cta": "Download for Windows",
     "ctaSub": "Currently free. Source-available license."
   },
@@ -456,7 +456,7 @@
         {
           "id": "scroll",
           "label": "Scroll",
-          "intro": "The main feel controls. Six one-click presets cover 90% of use cases - or dive into the sliders for fine-tuning.",
+          "intro": "The Scroll tab has six one-click presets plus direction, zoom, and easing switches. For distance and speed sliders, open Advanced.",
           "settings": [
             {
               "name": "Enable",
@@ -467,20 +467,53 @@
               "tip": "Use the global hotkey (Ctrl+Alt+S) to flip this without leaving your keyboard."
             },
             {
-              "name": "Step size",
-              "what": "Pixels scrolled per wheel notch.",
-              "why": "Bigger = covers more page per click; smaller = finer control.",
-              "range": "10–500 px",
-              "defaultValue": "144 px",
-              "tip": "Drop to 96 for code review, raise to 200 for long PDFs."
+              "name": "Animation time",
+              "what": "Enable animation timing for smooth scrolling; adjust its duration in Advanced.",
+              "why": "Switch off if you prefer immediate movement.",
+              "range": "On / Off",
+              "defaultValue": "On"
             },
             {
-              "name": "Animation time",
-              "what": "How long each scroll movement takes to settle.",
-              "why": "Longer = silkier glide; shorter = snappier response.",
-              "range": "50–1500 ms",
-              "defaultValue": "220 ms",
-              "tip": "Anything under 120 ms feels almost native; over 300 ms feels mac-trackpad-y."
+              "name": "Reverse direction",
+              "what": "Inverts wheel direction (natural-style, like macOS).",
+              "why": "Match a Mac you also use, or just preference.",
+              "range": "On / Off",
+              "defaultValue": "Off"
+            },
+            {
+              "name": "Smooth horizontal scrolling",
+              "what": "Apply smoothing to physical horizontal or tilt-wheel input.",
+              "why": "Wide spreadsheets, timelines, image strips.",
+              "range": "On / Off",
+              "defaultValue": "Off"
+            },
+            {
+              "name": "Shift converts to horizontal",
+              "what": "Holding Shift while scrolling becomes horizontal scroll.",
+              "why": "Useful when your mouse has no tilt-wheel.",
+              "range": "On / Off",
+              "defaultValue": "Off"
+            },
+            {
+              "name": "Invert horizontal direction",
+              "what": "Reverse smoothed horizontal wheel input or Shift-to-horizontal conversion.",
+              "why": "Match horizontal movement to your preference.",
+              "range": "On / Off",
+              "defaultValue": "Off"
+            },
+            {
+              "name": "Smooth zoom",
+              "what": "Use dedicated smoothing for Ctrl + Wheel zoom rather than regular wheel smoothing.",
+              "why": "Turn on to tune zoom movement in apps that use Ctrl + Wheel.",
+              "range": "On / Off",
+              "defaultValue": "Off"
+            },
+            {
+              "name": "Invert zoom direction",
+              "what": "Reverse the direction of Ctrl + Wheel zoom when smooth zoom is enabled.",
+              "why": "Useful when a design tool's zoom direction feels backwards.",
+              "range": "On / Off",
+              "defaultValue": "Off"
             },
             {
               "name": "Smooth easing",
@@ -496,27 +529,6 @@
               "range": "Exponential / Cubic / Quintic / Linear",
               "defaultValue": "Quintic Out",
               "tip": "Try Quintic if you want the longest, smoothest tail."
-            },
-            {
-              "name": "Reverse direction",
-              "what": "Inverts wheel direction (natural-style, like macOS).",
-              "why": "Match a Mac you also use, or just preference.",
-              "range": "On / Off",
-              "defaultValue": "Off"
-            },
-            {
-              "name": "Smooth horizontal scrolling",
-              "what": "Apply smoothing to tilt-wheel and Shift+wheel scrolls.",
-              "why": "Wide spreadsheets, timelines, image strips.",
-              "range": "On / Off",
-              "defaultValue": "On"
-            },
-            {
-              "name": "Shift converts to horizontal",
-              "what": "Holding Shift while scrolling becomes horizontal scroll.",
-              "why": "Useful when your mouse has no tilt-wheel.",
-              "range": "On / Off",
-              "defaultValue": "On"
             }
           ]
         },
@@ -551,15 +563,23 @@
         {
           "id": "advanced",
           "label": "Advanced",
-          "intro": "The deep-tuning pane. Touch when defaults don't quite match your hand.",
+          "intro": "Fine-tune scroll distance, timing, acceleration, and wheel compatibility.",
           "settings": [
             {
-              "name": "Acceleration window",
-              "what": "Time window during which consecutive notches stack momentum.",
-              "why": "Lets quick flicks scroll farther without faster ticks.",
-              "range": "0–300 ms",
-              "defaultValue": "70 ms",
-              "tip": "Higher = more momentum buildup. Set to 0 to disable acceleration."
+              "name": "Step size",
+              "what": "Pixels scrolled per wheel notch.",
+              "why": "Bigger = covers more page per click; smaller = finer control.",
+              "range": "10–500 px",
+              "defaultValue": "144 px",
+              "tip": "Drop to 100 for code review, raise to 200 for long PDFs."
+            },
+            {
+              "name": "Animation time",
+              "what": "How long each scroll movement takes to settle.",
+              "why": "Longer = silkier glide; shorter = snappier response.",
+              "range": "50–1500 ms",
+              "defaultValue": "220 ms",
+              "tip": "Anything under 120 ms feels almost native; over 300 ms feels mac-trackpad-y."
             },
             {
               "name": "Max acceleration",
@@ -569,40 +589,25 @@
               "defaultValue": "10×"
             },
             {
+              "name": "Max velocity",
+              "what": "Limit the maximum scroll speed.",
+              "why": "Keep rapidly repeated wheel input from moving too fast.",
+              "range": "5–50",
+              "defaultValue": "20"
+            },
+            {
               "name": "Tail to head ratio",
-              "what": "How sharp the deceleration curve is.",
-              "why": "Higher = quicker initial speed, longer slow tail.",
+              "what": "Adjusts the deceleration curve when Easing curve is set to Exponential Out.",
+              "why": "Higher = quicker initial speed, longer slow tail with Exponential Out; other curves ignore this setting.",
               "range": "1–20",
-              "defaultValue": "3"
+              "defaultValue": "5"
             },
             {
-              "name": "Pass-through Ctrl + wheel",
-              "what": "When Ctrl is held, send raw wheel ticks (no smoothing).",
-              "why": "Photoshop, Figma, browsers, VS Code use Ctrl+wheel for zoom - smoothing would lag the zoom.",
-              "range": "On / Off",
-              "defaultValue": "On"
-            },
-            {
-              "name": "Pass-through Alt + wheel",
-              "what": "When Alt is held, send raw wheel ticks.",
-              "why": "Premiere, DAWs, and timeline editors zoom or scrub with Alt+wheel.",
-              "range": "On / Off",
-              "defaultValue": "Off"
-            },
-            {
-              "name": "Clear inertia on modifier",
-              "what": "Stop pending smooth scroll the instant Ctrl/Alt is pressed.",
-              "why": "Makes zoom feel instant after a smooth scroll.",
-              "range": "On / Off",
-              "defaultValue": "On"
-            },
-            {
-              "name": "Edge auto-scroll",
-              "what": "Auto-scroll when the cursor enters a screen-edge zone.",
-              "why": "Hands-free scrolling when you're already drag-and-dropping.",
-              "range": "On / Off + zone size + max speed",
-              "defaultValue": "Off",
-              "tip": "Pair with a modifier requirement to avoid accidental triggers."
+              "name": "Wheel compatibility",
+              "what": "Choose Smooth pulses, Preserve whole wheel steps, or Native/raw input; application-specific compatibility may override this choice.",
+              "why": "Use a more compatible output mode for apps that respond poorly to smooth pulses.",
+              "range": "Smooth pulses / Whole wheel steps / Native/raw",
+              "defaultValue": "Smooth pulses"
             }
           ]
         },
@@ -792,12 +797,12 @@
           "scope": "Settings window"
         },
         {
-          "action": "Pass-through zoom (no smoothing)",
+          "action": "Zoom with Ctrl + Wheel (raw with Ctrl passthrough; otherwise Ctrl is preserved during smoothing)",
           "keys": "Ctrl + wheel",
           "scope": "Any app"
         },
         {
-          "action": "Horizontal scroll",
+          "action": "Horizontal scroll when Shift conversion is enabled",
           "keys": "Shift + wheel",
           "scope": "Any app"
         }
@@ -854,34 +859,31 @@
         {
           "name": "Coding in VS Code / JetBrains",
           "scenario": "Navigate code without overshooting and losing your line.",
-          "suggestion": "Default preset + modifier passthrough",
+          "suggestion": "Default preset + shorter animation",
           "settings": [
             "Step size: 144 px",
-            "Animation time: 220 ms",
+            "Animation time: 180 ms",
             "Easing: Quintic Out",
             "Acceleration max: 10×",
-            "Advanced → Pass-through Ctrl+wheel: ON",
-            "Advanced → Pass-through Alt+wheel: ON",
-            "Advanced → Clear inertia on modifier: ON"
+            "Scroll → Smooth zoom: Off (regular Ctrl + Wheel smoothing unless Ctrl passthrough is active)"
           ]
         },
         {
           "name": "Photoshop / Figma / Illustrator",
           "scenario": "Frequent Ctrl+wheel zoom; smooth scroll within layer panels.",
-          "suggestion": "Default + Ctrl pass-through ON",
+          "suggestion": "Default + Smooth zoom Off",
           "settings": [
-            "Defaults are great",
-            "Advanced → Pass-through Ctrl+wheel: ON",
-            "Advanced → Clear inertia on modifier: ON"
+            "Keep the default profile",
+            "Scroll → Smooth zoom: Off for regular Ctrl + Wheel smoothing unless Ctrl passthrough is active; exclude the app for guaranteed untouched input"
           ]
         },
         {
           "name": "Premiere / DAWs",
           "scenario": "Timeline scrubbing with Alt+wheel.",
-          "suggestion": "Default + Alt pass-through ON",
+          "suggestion": "Snappy profile or native input",
           "settings": [
-            "Advanced → Pass-through Alt+wheel: ON",
-            "Apps → assign Snappy profile to your editor"
+            "Apps → assign a Snappy profile to your editor",
+            "Apps → exclude the editor if Alt + Wheel needs untouched input"
           ]
         },
         {

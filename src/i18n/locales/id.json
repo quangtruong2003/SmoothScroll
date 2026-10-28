@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Lanjutan",
       "title": "Lanjutan",
-      "description": "Jendela akselerasi, rasio ekor, modifier presisi, dan auto-scroll tepi."
+      "description": "Atur jarak gulir, durasi animasi, akselerasi, dan kompatibilitas roda mouse."
     },
     "apps": {
       "label": "Aplikasi",

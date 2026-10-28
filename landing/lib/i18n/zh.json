@@ -385,7 +385,7 @@
         {
           "id": "scroll",
           "label": "滚动",
-          "intro": "主要手感控制。六个一键预设覆盖 90% 的使用场景--也可以深入滑块微调。",
+          "intro": "滚动页提供六种一键预设，以及方向、缩放和缓动选项。距离和速度滑块位于高级页。",
           "settings": [
             {
               "name": "启用",
@@ -396,20 +396,53 @@
               "tip": "用全局快捷键 (Ctrl+Alt+S) 切换，无需离开键盘。"
             },
             {
-              "name": "步长",
-              "what": "每个滚轮 notch 滚动的像素数。",
-              "why": "越大每次点击覆盖越多页面；越小越精细。",
-              "range": "10–500 px",
-              "defaultValue": "144 px",
-              "tip": "代码审阅降到 96，长 PDF 升到 200。"
+              "name": "动画时长",
+              "what": "开关滚动动画时间；时长在高级页调整。",
+              "why": "关闭可获得即时响应。",
+              "range": "开 / 关",
+              "defaultValue": "开"
             },
             {
-              "name": "动画时间",
-              "what": "每次滚动稳定下来需要多久。",
-              "why": "越长越丝滑；越短反应越快。",
-              "range": "50–1500 ms",
-              "defaultValue": "220 ms",
-              "tip": "120 ms 以下几乎像原生；300 ms 以上有 Mac 触控板感。"
+              "name": "反向",
+              "what": "反转滚轮方向（自然式，类似 macOS）。",
+              "why": "与你也用的 Mac 保持一致，或个人偏好。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "平滑横向滚动",
+              "what": "对物理横向滚轮或倾斜滚轮输入应用平滑。",
+              "why": "宽表格、时间轴、图片条。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "Shift 转横向",
+              "what": "按住 Shift 滚动变为横向滚动。",
+              "why": "鼠标没有倾斜滚轮时有用。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "反转横向滚动方向",
+              "what": "反转经过平滑处理的横向滚轮输入或 Shift 转横向滚动的方向。",
+              "why": "按个人习惯调整横向方向。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "平滑缩放",
+              "what": "对 Ctrl + 滚轮缩放使用专用平滑处理，而非普通滚轮平滑。",
+              "why": "需要调整应用中 Ctrl + 滚轮缩放的平滑效果时开启。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "反转缩放方向",
+              "what": "开启平滑缩放时反转 Ctrl + 滚轮的缩放方向。",
+              "why": "适合缩放方向与习惯相反的设计软件。",
+              "range": "开 / 关",
+              "defaultValue": "关"
             },
             {
               "name": "平滑缓动",
@@ -425,27 +458,6 @@
               "range": "Exponential / Cubic / Quintic / Linear",
               "defaultValue": "Quintic Out",
               "tip": "想要最长最平滑的尾巴试 Quintic。"
-            },
-            {
-              "name": "反向",
-              "what": "反转滚轮方向（自然式，类似 macOS）。",
-              "why": "与你也用的 Mac 保持一致，或个人偏好。",
-              "range": "开 / 关",
-              "defaultValue": "关"
-            },
-            {
-              "name": "平滑横向滚动",
-              "what": "对倾斜滚轮和 Shift+滚轮应用平滑。",
-              "why": "宽表格、时间轴、图片条。",
-              "range": "开 / 关",
-              "defaultValue": "开"
-            },
-            {
-              "name": "Shift 转横向",
-              "what": "按住 Shift 滚动变为横向滚动。",
-              "why": "鼠标没有倾斜滚轮时有用。",
-              "range": "开 / 关",
-              "defaultValue": "开"
             }
           ]
         },
@@ -480,58 +492,51 @@
         {
           "id": "advanced",
           "label": "高级",
-          "intro": "深度调校面板。默认手感不合手时再来动。",
+          "intro": "微调滚动距离、时间、加速和滚轮兼容模式。",
           "settings": [
             {
-              "name": "加速窗口",
-              "what": "连续 notch 累积动量的时间窗口。",
-              "why": "让快速甩动滚得更远，无需更快的 tick。",
-              "range": "0–300 ms",
-              "defaultValue": "70 ms",
-              "tip": "越高动量积累越多。设为 0 禁用加速。"
+              "name": "步长",
+              "what": "每个滚轮 notch 滚动的像素数。",
+              "why": "越大每次点击覆盖越多页面；越小越精细。",
+              "range": "10–500 px",
+              "defaultValue": "144 px",
+              "tip": "代码审阅降到 100，长 PDF 升到 200。"
             },
             {
-              "name": "最大加速",
+              "name": "动画时长",
+              "what": "每次滚动稳定下来需要多久。",
+              "why": "越长越丝滑；越短反应越快。",
+              "range": "50–1500 ms",
+              "defaultValue": "220 ms",
+              "tip": "120 ms 以下几乎像原生；300 ms 以上有 Mac 触控板感。"
+            },
+            {
+              "name": "最大加速倍数",
               "what": "加速倍数的硬上限。",
               "why": "防止快速旋转时速度失控。",
               "range": "1–20×",
               "defaultValue": "10×"
             },
             {
+              "name": "最大速度",
+              "what": "限制最大滚动速度。",
+              "why": "避免连续滚轮输入产生过快的移动。",
+              "range": "5–50",
+              "defaultValue": "20"
+            },
+            {
               "name": "尾首比",
-              "what": "减速曲线有多陡。",
-              "why": "越高初始速度越快，慢尾越长。",
+              "what": "仅在缓动曲线为 Exponential Out 时调整减速曲线的陡峭程度。",
+              "why": "Exponential Out 下数值越高，初始速度越快、慢尾越长；其他缓动曲线不使用此设置。",
               "range": "1–20",
-              "defaultValue": "3"
+              "defaultValue": "5"
             },
             {
-              "name": "Ctrl + 滚轮直通",
-              "what": "按住 Ctrl 时发送原始 tick（无平滑）。",
-              "why": "Photoshop、Figma、浏览器、VS Code 用 Ctrl+滚轮缩放 - 平滑会让缩放卡顿。",
-              "range": "开 / 关",
-              "defaultValue": "开"
-            },
-            {
-              "name": "Alt + 滚轮直通",
-              "what": "按住 Alt 时发送原始 tick。",
-              "why": "Premiere、DAW 和时间轴编辑器用 Alt+滚轮缩放或拖动。",
-              "range": "开 / 关",
-              "defaultValue": "关"
-            },
-            {
-              "name": "按下 modifier 时清除惯性",
-              "what": "按下 Ctrl/Alt 时立即停止待处理的平滑滚动。",
-              "why": "让平滑滚动后的缩放感觉立即响应。",
-              "range": "开 / 关",
-              "defaultValue": "开"
-            },
-            {
-              "name": "边缘自动滚动",
-              "what": "光标进入屏幕边缘区域时自动滚动。",
-              "why": "拖放时空出手来滚动。",
-              "range": "开 / 关 + 区域大小 + 最大速度",
-              "defaultValue": "关",
-              "tip": "搭配 modifier 要求避免误触。"
+              "name": "滚轮兼容性",
+              "what": "选择平滑脉冲、保留完整滚轮步进或原生输入；应用专用的兼容性规则可能覆盖此选择。",
+              "why": "遇到不兼容平滑脉冲的应用时切换模式。",
+              "range": "平滑脉冲 / 完整步进 / 原生输入",
+              "defaultValue": "平滑脉冲"
             }
           ]
         },
@@ -721,12 +726,12 @@
           "scope": "设置窗口"
         },
         {
-          "action": "缩放直通（无平滑）",
+          "action": "Ctrl + 滚轮缩放（启用 Ctrl 直通时原样传递，否则平滑时保留 Ctrl）",
           "keys": "Ctrl + 滚轮",
           "scope": "任何应用"
         },
         {
-          "action": "横向滚动",
+          "action": "启用 Shift 转横向后进行横向滚动",
           "keys": "Shift + 滚轮",
           "scope": "任何应用"
         }
@@ -783,34 +788,31 @@
         {
           "name": "VS Code / JetBrains 编程",
           "scenario": "导航代码不会过冲丢行。",
-          "suggestion": "Default 预设 + modifier passthrough",
+          "suggestion": "Default 预设 + 缩短动画时间",
           "settings": [
             "步长：144 px",
-            "动画时间：220 ms",
+            "动画时间：180 ms",
             "缓动：Quintic Out",
             "最大加速：10×",
-            "高级 → Ctrl+滚轮直通：开",
-            "高级 → Alt+滚轮直通：开",
-            "高级 → modifier 时清除惯性：开"
+            "滚动 → 平滑缩放：关（未启用 Ctrl 直通时使用普通 Ctrl + 滚轮平滑）"
           ]
         },
         {
           "name": "Photoshop / Figma / Illustrator",
           "scenario": "频繁 Ctrl+滚轮缩放；图层面板内平滑滚动。",
-          "suggestion": "默认 + Ctrl 直通开",
+          "suggestion": "默认 + 关闭平滑缩放",
           "settings": [
-            "默认就很好",
-            "高级 → Ctrl+滚轮直通：开",
-            "高级 → modifier 时清除惯性：开"
+            "使用默认预设",
+            "滚动 → 平滑缩放：关，未启用 Ctrl 直通时使用普通 Ctrl + 滚轮处理；若需要原样输入，请排除该应用"
           ]
         },
         {
           "name": "Premiere / DAW",
           "scenario": "Alt+滚轮拖动时间轴。",
-          "suggestion": "默认 + Alt 直通开",
+          "suggestion": "Snappy 预设或原生输入",
           "settings": [
-            "高级 → Alt+滚轮直通：开",
-            "应用 → 给编辑器分配 Snappy 配置"
+            "应用 → 给编辑器分配 Snappy 配置",
+            "如果 Alt + 滚轮需要原生输入，在应用中排除编辑器"
           ]
         },
         {

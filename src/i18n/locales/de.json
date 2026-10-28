@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Erweitert",
       "title": "Erweitert",
-      "description": "Beschleunigungsfenster, Tail-Ratio, Präzisions-Modifikatoren und Rand-Autoscroll."
+      "description": "Scrollweite, Animationsdauer, Beschleunigung und Mausrad-Kompatibilität anpassen."
     },
     "apps": {
       "label": "Apps",

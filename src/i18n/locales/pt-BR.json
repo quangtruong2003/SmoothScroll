@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Avançado",
       "title": "Avançado",
-      "description": "Janela de aceleração, proporção de cauda, modificadores de precisão e rolagem automática de borda."
+      "description": "Ajuste a distância de rolagem, a duração da animação, a aceleração e a compatibilidade da roda do mouse."
     },
     "apps": {
       "label": "Aplicativos",

@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Avanzate",
       "title": "Avanzate",
-      "description": "Finestra di accelerazione, rapporto di coda, modificatori di precisione e auto-scorrimento ai bordi."
+      "description": "Regola distanza di scorrimento, durata dell'animazione, accelerazione e compatibilità della rotellina."
     },
     "apps": {
       "label": "App",

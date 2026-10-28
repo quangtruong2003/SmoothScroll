@@ -65,7 +65,7 @@
       },
       {
         "title": "UWP force-enable",
-        "description": "App WinUI mặc định bỏ qua wheel event tổng hợp. SmoothScroll ép bật nên chúng thực sự cuộn được."
+        "description": "Buộc bật mượt cho mọi ứng dụng ghi đè chế độ tự tắt trên app Windows tích hợp sẵn; một số app WinUI vẫn có thể bỏ qua sự kiện cuộn giả lập."
       },
       {
         "title": "Game mode tự bypass",
@@ -170,7 +170,7 @@
       },
       {
         "q": "SmoothScroll có hoạt động với app UWP / WinUI không?",
-        "a": "Có. App WinUI mặc định bỏ qua synthetic wheel event; SmoothScroll dùng force-enable hook nên scroll thực sự chạy tới. Toggle nằm trong Settings → Scroll."
+        "a": "Tùy ứng dụng. Cài đặt → Hành vi → Buộc bật mượt cho mọi ứng dụng ghi đè chế độ tự tắt với ứng dụng Windows tích hợp sẵn, nhưng một số app WinUI vẫn có thể bỏ qua sự kiện cuộn giả lập."
       },
       {
         "q": "Anti-cheat có nhận diện SmoothScroll không?",
@@ -188,7 +188,7 @@
   },
   "finalCta": {
     "title": "Thôi vật lộn với con lăn chuột.",
-    "description": "Một lượt tải. Một lượt bật. Bạn sẽ cảm nhận trong 5 giây đầu tiên.",
+    "subtitle": "Một lượt tải. Một lượt bật. Bạn sẽ cảm nhận trong 5 giây đầu tiên.",
     "cta": "Tải về cho Windows",
     "ctaSub": "Hiện miễn phí. Source-available license."
   },
@@ -384,7 +384,7 @@
         {
           "id": "scroll",
           "label": "Cuộn",
-          "intro": "Các điều khiển cảm giác chính. Sáu preset một click bao phủ 90% use case - hoặc đi sâu vào slider để tinh chỉnh.",
+          "intro": "Tab Cuộn có sáu preset và các tùy chọn hướng cuộn, zoom, easing. Các thanh chỉnh khoảng cách và tốc độ nằm ở tab Nâng cao.",
           "settings": [
             {
               "name": "Bật",
@@ -395,23 +395,56 @@
               "tip": "Dùng phím tắt toàn cục (Ctrl+Alt+S) để bật/tắt mà không cần rời bàn phím."
             },
             {
-              "name": "Kích thước bước",
-              "what": "Số pixel cuộn cho mỗi notch của chuột.",
-              "why": "Lớn hơn = cuộn được nhiều trang hơn mỗi click; nhỏ hơn = điều khiển tinh hơn.",
-              "range": "10–500 px",
-              "defaultValue": "144 px",
-              "tip": "Hạ xuống 96 khi review code, nâng lên 200 cho PDF dài."
+              "name": "Thời gian hoạt ảnh",
+              "what": "Bật hoặc tắt thời gian animation; chỉnh độ dài ở tab Nâng cao.",
+              "why": "Tắt nếu muốn cuộn phản hồi ngay.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
             },
             {
-              "name": "Thời gian animation",
-              "what": "Mỗi chuyển động cuộn mất bao lâu để dừng lại.",
-              "why": "Dài hơn = lướt mượt hơn; ngắn hơn = phản hồi nhanh hơn.",
-              "range": "50–1500 ms",
-              "defaultValue": "220 ms",
-              "tip": "Dưới 120 ms thì gần như không cảm thấy smoothing; trên 300 ms thì có cảm giác trackpad Mac."
+              "name": "Đảo ngược chiều",
+              "what": "Đảo chiều cuộn (kiểu natural như macOS).",
+              "why": "Khớp với Mac mà bạn cũng dùng, hoặc theo sở thích.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
             },
             {
-              "name": "Smooth easing",
+              "name": "Cuộn ngang mượt",
+              "what": "Làm mượt tín hiệu cuộn ngang vật lý hoặc tilt-wheel.",
+              "why": "Bảng tính rộng, timeline, dải ảnh.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Shift chuyển sang ngang",
+              "what": "Giữ Shift khi cuộn sẽ thành cuộn ngang.",
+              "why": "Hữu ích khi chuột không có tilt-wheel.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Đảo chiều cuộn ngang",
+              "what": "Đảo chiều khi làm mượt cuộn ngang hoặc khi chuyển Shift + Wheel sang ngang.",
+              "why": "Điều chỉnh hướng cuộn ngang theo thói quen.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Zoom mượt",
+              "what": "Dùng cơ chế làm mượt zoom riêng cho Ctrl + Wheel thay vì làm mượt cuộn thông thường.",
+              "why": "Bật khi muốn điều chỉnh độ mượt của zoom trong ứng dụng dùng Ctrl + Wheel.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Đảo chiều zoom",
+              "what": "Đảo hướng zoom Ctrl + Wheel khi bật zoom mượt.",
+              "why": "Phù hợp nếu chiều zoom trong ứng dụng thiết kế bị ngược.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Easing mượt",
               "what": "Áp dụng đường cong easing cho mỗi chuyển động. Tắt = ramp tuyến tính.",
               "why": "Easing là thứ làm cho cuộn cảm giác tự nhiên thay vì máy móc.",
               "range": "Bật / Tắt",
@@ -424,27 +457,6 @@
               "range": "Exponential / Cubic / Quintic / Linear",
               "defaultValue": "Quintic Out",
               "tip": "Thử Quintic nếu bạn muốn đuôi dài, mượt nhất."
-            },
-            {
-              "name": "Đảo ngược chiều",
-              "what": "Đảo chiều cuộn (kiểu natural như macOS).",
-              "why": "Khớp với Mac mà bạn cũng dùng, hoặc theo sở thích.",
-              "range": "Bật / Tắt",
-              "defaultValue": "Tắt"
-            },
-            {
-              "name": "Cuộn ngang mượt",
-              "what": "Áp dụng smoothing cho tilt-wheel và Shift+wheel.",
-              "why": "Bảng tính rộng, timeline, dải ảnh.",
-              "range": "Bật / Tắt",
-              "defaultValue": "Bật"
-            },
-            {
-              "name": "Shift chuyển sang ngang",
-              "what": "Giữ Shift khi cuộn sẽ thành cuộn ngang.",
-              "why": "Hữu ích khi chuột không có tilt-wheel.",
-              "range": "Bật / Tắt",
-              "defaultValue": "Bật"
             }
           ]
         },
@@ -479,58 +491,51 @@
         {
           "id": "advanced",
           "label": "Nâng cao",
-          "intro": "Khu vực tinh chỉnh sâu. Chạm vào khi mặc định không khớp với tay bạn.",
+          "intro": "Tinh chỉnh bước cuộn, thời gian, tăng tốc và khả năng tương thích của bánh xe chuột.",
           "settings": [
             {
-              "name": "Cửa sổ tăng tốc",
-              "what": "Khoảng thời gian các notch liên tiếp tích lũy đà.",
-              "why": "Cho phép flick nhanh cuộn xa hơn mà không cần tick nhanh hơn.",
-              "range": "0–300 ms",
-              "defaultValue": "70 ms",
-              "tip": "Cao hơn = tích đà nhiều hơn. Đặt 0 để tắt acceleration."
+              "name": "Bước cuộn",
+              "what": "Số pixel cuộn cho mỗi notch của chuột.",
+              "why": "Lớn hơn = cuộn được nhiều trang hơn mỗi click; nhỏ hơn = điều khiển tinh hơn.",
+              "range": "10–500 px",
+              "defaultValue": "144 px",
+              "tip": "Hạ xuống 100 khi review code, nâng lên 200 cho PDF dài."
             },
             {
-              "name": "Acceleration tối đa",
+              "name": "Thời gian hoạt ảnh",
+              "what": "Mỗi chuyển động cuộn mất bao lâu để dừng lại.",
+              "why": "Dài hơn = lướt mượt hơn; ngắn hơn = phản hồi nhanh hơn.",
+              "range": "50–1500 ms",
+              "defaultValue": "220 ms",
+              "tip": "Dưới 120 ms thì gần như không cảm thấy smoothing; trên 300 ms thì có cảm giác trackpad Mac."
+            },
+            {
+              "name": "Tăng tốc tối đa",
               "what": "Giới hạn cứng cho hệ số acceleration.",
               "why": "Ngăn tốc độ tăng vô tội vạ khi xoay nhanh.",
               "range": "1–20×",
               "defaultValue": "10×"
             },
             {
+              "name": "Vận tốc tối đa",
+              "what": "Giới hạn tốc độ cuộn tối đa.",
+              "why": "Tránh cuộn quá nhanh khi xoay bánh xe liên tục.",
+              "range": "5–50",
+              "defaultValue": "20"
+            },
+            {
               "name": "Tỉ lệ đuôi/đầu",
-              "what": "Đường cong giảm tốc sắc bao nhiêu.",
-              "why": "Cao hơn = bắt đầu nhanh hơn, đuôi dài hơn.",
+              "what": "Chỉnh độ dốc giảm tốc khi chọn đường cong Exponential Out.",
+              "why": "Giá trị cao làm phần đầu nhanh hơn và đuôi dài hơn với Exponential Out; các đường cong khác bỏ qua tùy chọn này.",
               "range": "1–20",
-              "defaultValue": "3"
+              "defaultValue": "5"
             },
             {
-              "name": "Pass-through Ctrl + wheel",
-              "what": "Khi giữ Ctrl, gửi tick wheel thô (không smoothing).",
-              "why": "Photoshop, Figma, browser, VS Code dùng Ctrl+wheel để zoom - smoothing sẽ làm lag zoom.",
-              "range": "Bật / Tắt",
-              "defaultValue": "Bật"
-            },
-            {
-              "name": "Pass-through Alt + wheel",
-              "what": "Khi giữ Alt, gửi tick wheel thô.",
-              "why": "Premiere, DAW, và timeline editor zoom hoặc scrub bằng Alt+wheel.",
-              "range": "Bật / Tắt",
-              "defaultValue": "Tắt"
-            },
-            {
-              "name": "Xóa quán tính khi nhấn modifier",
-              "what": "Dừng cuộn smooth đang chờ ngay lập tức khi nhấn Ctrl/Alt.",
-              "why": "Làm zoom cảm giác tức thì sau một cuộn smooth.",
-              "range": "Bật / Tắt",
-              "defaultValue": "Bật"
-            },
-            {
-              "name": "Cuộn tự động ở rìa",
-              "what": "Tự cuộn khi con trỏ vào vùng rìa màn hình.",
-              "why": "Cuộn rảnh tay khi đang kéo-thả.",
-              "range": "Bật / Tắt + cỡ vùng + tốc độ tối đa",
-              "defaultValue": "Tắt",
-              "tip": "Kết hợp với yêu cầu modifier để tránh kích hoạt vô tình."
+              "name": "Tương thích con lăn",
+              "what": "Chọn xung mượt, giữ nguyên bước bánh xe hoặc đầu vào nguyên bản; quy tắc tương thích riêng cho ứng dụng có thể ghi đè lựa chọn này.",
+              "why": "Đổi chế độ khi ứng dụng xử lý xung cuộn mượt không tốt.",
+              "range": "Xung mượt / Bước nguyên / Nguyên bản",
+              "defaultValue": "Xung mượt"
             }
           ]
         },
@@ -720,12 +725,12 @@
           "scope": "Cửa sổ cài đặt"
         },
         {
-          "action": "Pass-through zoom (không smoothing)",
+          "action": "Zoom bằng Ctrl + Wheel (chuyển thẳng khi bật Ctrl passthrough; nếu không sẽ giữ Ctrl khi làm mượt)",
           "keys": "Ctrl + wheel",
           "scope": "Mọi ứng dụng"
         },
         {
-          "action": "Cuộn ngang",
+          "action": "Cuộn ngang khi bật chuyển Shift + Wheel",
           "keys": "Shift + wheel",
           "scope": "Mọi ứng dụng"
         }
@@ -782,34 +787,31 @@
         {
           "name": "Code trong VS Code / JetBrains",
           "scenario": "Điều hướng code không bị quá đà và mất dòng.",
-          "suggestion": "Preset Default + modifier passthrough",
+          "suggestion": "Preset Default + animation ngắn hơn",
           "settings": [
             "Step size: 144 px",
-            "Animation time: 220 ms",
+            "Animation time: 180 ms",
             "Easing: Quintic Out",
             "Acceleration max: 10×",
-            "Nâng cao → Pass-through Ctrl+wheel: BẬT",
-            "Nâng cao → Pass-through Alt+wheel: BẬT",
-            "Nâng cao → Xóa quán tính khi modifier: BẬT"
+            "Cuộn → Zoom mượt: Tắt (làm mượt Ctrl + Wheel thông thường nếu Ctrl passthrough không bật)"
           ]
         },
         {
           "name": "Photoshop / Figma / Illustrator",
           "scenario": "Hay zoom Ctrl+wheel; cuộn mượt trong panel layer.",
-          "suggestion": "Mặc định + Ctrl pass-through BẬT",
+          "suggestion": "Mặc định + tắt Zoom mượt",
           "settings": [
-            "Mặc định là tuyệt",
-            "Nâng cao → Pass-through Ctrl+wheel: BẬT",
-            "Nâng cao → Xóa quán tính khi modifier: BẬT"
+            "Giữ preset mặc định",
+            "Cuộn → Zoom mượt: Tắt để dùng cách xử lý Ctrl + Wheel thông thường nếu Ctrl passthrough không bật; loại trừ ứng dụng nếu cần tín hiệu nguyên bản"
           ]
         },
         {
           "name": "Premiere / DAW",
           "scenario": "Scrub timeline bằng Alt+wheel.",
-          "suggestion": "Mặc định + Alt pass-through BẬT",
+          "suggestion": "Preset Snappy hoặc đầu vào nguyên bản",
           "settings": [
-            "Nâng cao → Pass-through Alt+wheel: BẬT",
-            "Ứng dụng → gán hồ sơ Snappy cho editor"
+            "Ứng dụng → gán preset Snappy cho editor",
+            "Ứng dụng → loại trừ editor nếu Alt + Wheel cần dữ liệu nguyên bản"
           ]
         },
         {

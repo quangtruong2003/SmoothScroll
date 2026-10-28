@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Gelişmiş",
       "title": "Gelişmiş",
-      "description": "Hızlanma penceresi, kuyruk oranı, hassasiyet değiştiricileri ve kenar otomatik kaydırma."
+      "description": "Kaydırma mesafesini, animasyon süresini, hızlanmayı ve tekerlek uyumluluğunu ayarlayın."
     },
     "apps": {
       "label": "Uygulamalar",

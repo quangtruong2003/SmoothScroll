@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Advanced",
       "title": "Advanced",
-      "description": "Acceleration window, tail ratio, precision modifiers, and edge auto-scroll."
+      "description": "Adjust scroll distance, animation time, acceleration, and wheel compatibility."
     },
     "apps": {
       "label": "Apps",
@@ -218,9 +218,9 @@
       "title": "Easing curve",
       "desc": "Shape of the deceleration curve",
       "preview": "Preview",
-      "ExponentialOut": "Exponential Out (default)",
+      "ExponentialOut": "Exponential Out",
       "CubicOut": "Cubic Out",
-      "QuinticOut": "Quintic Out",
+      "QuinticOut": "Quintic Out (default)",
       "Linear": "Linear"
     },
     "reverse_wheel": {

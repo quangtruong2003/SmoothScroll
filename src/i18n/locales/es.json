@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Avanzado",
       "title": "Avanzado",
-      "description": "Ventana de aceleración, ratio de cola, modificadores de precisión y auto-desplazamiento de borde."
+      "description": "Ajusta la distancia de desplazamiento, la duración de la animación, la aceleración y la compatibilidad de la rueda."
     },
     "apps": {
       "label": "Aplicaciones",

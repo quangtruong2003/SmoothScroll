@@ -152,7 +152,7 @@
     "advanced": {
       "label": "Avancé",
       "title": "Avancé",
-      "description": "Fenêtre d'accélération, ratio de queue, modificateurs de précision et défilement automatique des bords."
+      "description": "Réglez la distance de défilement, la durée d'animation, l'accélération et la compatibilité de la molette."
     },
     "apps": {
       "label": "Applis",
