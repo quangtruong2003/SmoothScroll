@@ -54,6 +54,7 @@ A special thank you to everyone supporting SmoothScroll.
 
 <!-- SMOOTHSCROLL_SUPPORTERS:START -->
 - 🥇 **Anonymous** — First supporter · ☕
+- **WaDaNaBe** · ☕☕☕
 - **Designer Friend** · ☕
 - **Jorn Bue** · ☕
 - **Someone** · ☕
