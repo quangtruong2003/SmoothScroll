@@ -15,6 +15,12 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch to validate for required PR checks
+        required: true
+        type: string
 
 # Cancel in-progress runs for same branch
 concurrency:
@@ -32,6 +38,8 @@ jobs:
     needs: build-wasm
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: pnpm/action-setup@v4
 
@@ -60,6 +68,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -100,12 +110,15 @@ jobs:
           retention-days: 1
 
   build-windows:
+    if: github.event_name != 'workflow_dispatch'
     needs: build-wasm
     runs-on: windows-latest
     env:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -148,6 +161,7 @@ jobs:
         run: cargo test --workspace --exclude smoothscroll-engine-macos --lib --bins --tests
 
   build-macos:
+    if: github.event_name != 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -159,6 +173,8 @@ jobs:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -191,12 +207,15 @@ jobs:
             build
 
   build-linux:
+    if: github.event_name != 'workflow_dispatch'
     needs: build-wasm
     runs-on: ubuntu-22.04
     env:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
