@@ -3,6 +3,12 @@ name: Lint Commit Messages
 on:
   pull_request:
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch to validate for required PR checks
+        required: true
+        type: string
 
 jobs:
   commitlint:
@@ -11,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.target_ref || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -24,8 +31,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Validate commits in PR
+        shell: bash
         run: |
-          pnpm exec commitlint \
-            --from ${{ github.event.pull_request.base.sha }} \
-            --to ${{ github.event.pull_request.head.sha }} \
-            --verbose
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            FROM="${{ github.event.pull_request.base.sha }}"
+            TO="${{ github.event.pull_request.head.sha }}"
+          else
+            git fetch --no-tags origin master:refs/remotes/origin/master
+            FROM="origin/master"
+            TO="HEAD"
+          fi
+
+          pnpm exec commitlint --from "$FROM" --to "$TO" --verbose
