@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target_ref || github.sha }}
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: pnpm/action-setup@v4
 
@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target_ref || github.sha }}
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -118,7 +118,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target_ref || github.sha }}
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -174,7 +174,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target_ref || github.sha }}
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -215,7 +215,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target_ref || github.sha }}
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
 
       - uses: dtolnay/rust-toolchain@stable
         with:

@@ -35,7 +35,7 @@ jobs:
 
       - name: Create or update supporter PR
         id: supporter-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
           add-paths: README.md
@@ -50,7 +50,7 @@ jobs:
             The update is generated automatically from Buy Me a Coffee.
             Please review the generated supporter changes before merging.
 
-      # PRs created with GITHUB_TOKEN do not trigger pull_request workflows.
+      # PR checks created with GITHUB_TOKEN may require manual approval before they run.
       # Dispatch the required checks explicitly against the PR head commit.
       - name: Dispatch required PR checks
         if: >-
