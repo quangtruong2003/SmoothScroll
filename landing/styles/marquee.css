@@ -1,0 +1,120 @@
+/* LogoWall marquee ticker
+ *
+ * Pulled out of globals.css because Tailwind's PostCSS pipeline was
+ * stripping the raw CSS when it appeared in the same file as
+ * `@tailwind base/components/utilities`. Splitting into its own file
+ * (matching the pattern used by styles/tray.css) keeps the rules
+ * intact through the build.
+ *
+ * - .marquee-track drives a single continuous horizontal scroll
+ * - .marquee-segment holds one copy of the brand set
+ * - .logo-cell sets a fixed min-width so the duplicated segments
+ *   line up for a seamless -50% loop
+ * - .mask-fade softens both edges so cells appear to enter/exit
+ * - 20s per loop keeps the motion clearly visible without being
+ *   distracting — slow enough to read labels, fast enough to feel
+ *   like a ticker.
+ * - Respects prefers-reduced-motion
+ */
+
+.mask-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 80px,
+    black calc(100% - 80px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 80px,
+    black calc(100% - 80px),
+    transparent 100%
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll 20s linear infinite;
+}
+
+.marquee-segment {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.logo-cell {
+  flex: 0 0 auto;
+  min-width: 112px;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+.logo-wall {
+  contain: paint;
+}
+
+.marquee-track {
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.logo-wall:hover .marquee-track {
+  animation-play-state: paused;
+  transform: translateY(-2px);
+}
+
+.features-bento {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.features-bento > [data-feature-card="0"] { grid-column: span 7; grid-row: span 2; }
+.features-bento > [data-feature-card="1"] { grid-column: span 5; }
+.features-bento > [data-feature-card="2"] { grid-column: span 5; }
+.features-continuation { grid-column: 1 / -1; display: grid; gap: 1rem; margin-top: 1rem; padding: 1rem 0; list-style: none; border-top: 1px solid hsl(var(--foreground) / 0.12); }
+.feature-continuation-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.75rem; align-items: start; padding: 0.75rem 0; }
+.feature-card { transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, background-color 220ms ease; }
+.feature-card:hover { transform: translateY(-4px) rotate(-0.25deg); border-color: hsl(var(--foreground) / 0.22); }
+.feature-card-primary { background: hsl(var(--card) / 0.72); }
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .features-bento { grid-template-columns: 1fr; grid-template-rows: none; gap: 1rem; }
+  .features-bento > [data-feature-card="0"], .features-bento > [data-feature-card="1"], .features-bento > [data-feature-card="2"] { grid-column: auto; grid-row: auto; }
+  .features-continuation { margin-top: 0; padding: 0; border-top: 0; }
+}
+
+/* Hero scroll cue — the wheel dot that drops and fades, hinting the page scrolls. */
+@keyframes hero-wheel {
+  0%   { transform: translateY(0);    opacity: 0; }
+  25%  {                              opacity: 1; }
+  75%  { transform: translateY(10px); opacity: 1; }
+  100% { transform: translateY(12px); opacity: 0; }
+}
+
+.animate-hero-wheel { animation: hero-wheel 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-wheel { animation: none; }
+}

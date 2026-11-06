@@ -1,0 +1,15 @@
+{
+  "name": "smoothscroll-public-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "supporters:update": "node scripts/update-supporters.mjs",
+    "supporters:test": "node --test scripts/update-supporters.test.mjs"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1"
+  },
+  "packageManager": "pnpm@10.28.2"
+}

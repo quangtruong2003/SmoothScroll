@@ -1,0 +1,25 @@
+# SmoothScroll
+> Windows smooth-scrolling app with configurable easing and per-app controls. The desktop app source is not published in this repository; installers are available on GitHub Releases.
+
+## Official pages
+- [English overview](https://smoothscroll.top/)
+- [Vietnamese overview](https://smoothscroll.top/vi/)
+- [Chinese overview](https://smoothscroll.top/zh/)
+- [How SmoothScroll works](https://smoothscroll.top/how-it-works/)
+- [Vietnamese guide](https://smoothscroll.top/vi/how-it-works/)
+- [Chinese guide](https://smoothscroll.top/zh/how-it-works/)
+- [FAQ](https://smoothscroll.top/faq/)
+- [Vietnamese FAQ](https://smoothscroll.top/vi/faq/)
+- [Chinese FAQ](https://smoothscroll.top/zh/faq/)
+- [Privacy](https://smoothscroll.top/privacy/)
+- [Vietnamese privacy](https://smoothscroll.top/vi/privacy/)
+- [Chinese privacy](https://smoothscroll.top/zh/privacy/)
+
+## Windows scrolling guides
+- [Mac-like scrolling on Windows](https://smoothscroll.top/mac-like-scrolling-windows/)
+- [Smooth mouse-wheel scrolling on Windows](https://smoothscroll.top/smooth-mouse-wheel-windows/)
+- [Fix choppy mouse-wheel scrolling on Windows 11](https://smoothscroll.top/fix-choppy-scrolling-windows-11/)
+- [Smooth scrolling in Chrome on Windows](https://smoothscroll.top/smooth-scrolling-chrome-windows/)
+- [Smooth scrolling in VS Code on Windows](https://smoothscroll.top/smooth-scrolling-vscode-windows/)
+
+- [Website, releases, issues, and license](https://github.com/quangtruong2003/SmoothScroll)

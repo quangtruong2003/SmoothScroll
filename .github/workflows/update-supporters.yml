@@ -1,0 +1,64 @@
+name: Update Supporters
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+concurrency:
+  group: update-supporters
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-supporters:
+    name: Refresh supporter list
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BUY_ME_A_COFFEE_TOKEN: ${{ secrets.BUY_ME_A_COFFEE_TOKEN }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update README supporter section
+        run: node scripts/update-supporters.mjs
+
+      - name: Create or update supporter PR
+        id: supporter-pr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ github.token }}
+          add-paths: README.md
+          branch: automation/update-supporters
+          delete-branch: false
+          base: master
+          commit-message: "docs: update supporters"
+          title: "docs: update supporters"
+          body: |
+            This PR refreshes the supporter list in README.md.
+
+            The update is generated automatically from Buy Me a Coffee.
+            Please review the generated supporter changes before merging.
+
+      # PR checks created with GITHUB_TOKEN may require manual approval before they run.
+      # Dispatch the required checks explicitly against the PR head commit.
+      - name: Dispatch required PR checks
+        if: >-
+          steps.supporter-pr.outputs.pull-request-number != '' &&
+          steps.supporter-pr.outputs.pull-request-operation != 'none'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_BRANCH: automation/update-supporters
+        run: |
+          gh workflow run ci.yml --ref "$PR_BRANCH" -f target_ref="$PR_BRANCH"
+          gh workflow run commitlint.yml --ref "$PR_BRANCH" -f target_ref="$PR_BRANCH"

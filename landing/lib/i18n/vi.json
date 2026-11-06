@@ -1,0 +1,868 @@
+{
+  "nav": {
+    "github": "GitHub",
+    "stars": "sao"
+  },
+  "seo": {
+    "title": "Phần mềm cuộn mượt cho Windows | SmoothScroll",
+    "description": "SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11. Cuộn 120 Hz, profile từng app, không telemetry."
+  },
+  "geo": {
+    "title": "SmoothScroll là gì?",
+    "answer": "SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11. Nó biến input con lăn chuột thành đầu ra cuộn easing 120 Hz và cho phép cấu hình profile cùng ngoại lệ cho từng ứng dụng. Bản Windows hiện tại có trên GitHub Releases và ứng dụng không có telemetry.",
+    "evidence": "Được duy trì bởi những người đóng góp SmoothScroll · Cập nhật 2026-10-09",
+    "faqQuestion": "SmoothScroll là gì?",
+    "faqAnswer": "SmoothScroll là phần mềm cuộn mượt miễn phí cho Windows 10 và 11 với easing 120 Hz có thể cấu hình và điều khiển theo từng ứng dụng. Mã nguồn ứng dụng không được công bố trong repository này; xem GitHub Releases để tải bộ cài và trang quyền riêng tư để biết cách xử lý dữ liệu.",
+    "guideLabel": "Đọc cách SmoothScroll hoạt động",
+    "sourceLabel": "Xem dự án và bản phát hành trên GitHub",
+    "releaseLabel": "Xem bản phát hành mới nhất"
+  },
+  "hero": {
+    "eyebrow": "Dành cho Windows",
+    "title": "Cuộn mượt cho Windows,",
+    "titleAccent": "cuối cùng đã đúng cách.",
+    "subtitle": "Một bộ easing 120 Hz cho mỗi tick lăn chuột, trong mọi ứng dụng. Dành cho người nhận ra sự khác biệt giữa cuộn mượt và cuộn giật.",
+    "cta": "Tải về cho Windows",
+    "trustLine": "Miễn phí. Không telemetry. Release notes trên GitHub.",
+    "seeHow": "Xem cách hoạt động",
+    "demoPrompt": "Cuộn thẻ. Rồi bật công tắc.",
+    "demoToast": "Muốn cảm nhận thực sự? - Tải về."
+  },
+  "painPoints": {
+    "title": "Cuộn chuột đang bị hỏng",
+    "points": [
+      {
+        "title": "Mỗi app tự làm một kiểu",
+        "description": "Chrome làm, Edge làm, Explorer thì không. Bạn bị kẹt với bất cứ gì dev của app đó viết."
+      },
+      {
+        "title": "Cuộn mượt bị ép trả phí",
+        "description": "Logi Options+ ổn - cho đến khi bạn đổi chuột. WizMouse chưa update từ 2014."
+      },
+      {
+        "title": "Anti-cheat ghét tool của bạn",
+        "description": "Hầu hết tiện ích input bị flag. SmoothScroll tự động bypass app admin nên bạn không cần cấu hình."
+      }
+    ]
+  },
+  "solutionBridge": {
+    "line": "Một engine. Mọi cửa sổ. Bạn chọn đường cong."
+  },
+  "features": {
+    "title": "Đủ thứ bạn cần, không thừa",
+    "items": [
+      {
+        "title": "Engine 120 Hz theo vận tốc",
+        "description": "Mỗi tick lăn được nội suy thành xung mượt, bắn ra theo tần số quét màn hình. Step-based là chuyện 2016."
+      },
+      {
+        "title": "Profile theo từng màn hình",
+        "description": "Màn 4K ở nhà và 1080p ở công ty cuộn khác nhau. Khớp đường cong theo màn hình."
+      },
+      {
+        "title": "Profile theo từng ứng dụng",
+        "description": "Chrome thì snappy, VS Code thì mượt, Photoshop thì raw. Tự gợi ý khi mở app lần đầu."
+      },
+      {
+        "title": "UWP force-enable",
+        "description": "Buộc bật mượt cho mọi ứng dụng ghi đè chế độ tự tắt trên app Windows tích hợp sẵn; một số app WinUI vẫn có thể bỏ qua sự kiện cuộn giả lập."
+      },
+      {
+        "title": "Game mode tự bypass",
+        "description": "Foreground chuyển sang game đã biết → trả về raw input. Không cần list, không cần config."
+      },
+      {
+        "title": "Không thu thập dữ liệu",
+        "description": "Không gọi mạng. Không analytics. Settings ở %APPDATA%\\SmoothScroll\\settings.json."
+      }
+    ]
+  },
+  "trayPreview": {
+    "title": "Nó sống ngay trong system tray.",
+    "subtitle": "Một panel tray làm đúng những thứ hiển nhiên - bật, tắt, mở settings, tắt cho app hiện tại. Chỉ vậy thôi."
+  },
+  "stats": {
+    "title": "Được tin dùng bởi",
+    "githubStars": "Sao GitHub",
+    "downloads": "Lượt tải",
+    "version": "Phiên bản",
+    "fallback": {
+      "stars": "-",
+      "downloads": "-",
+      "version": "v1.35.1"
+    }
+  },
+  "indie": {
+    "title": "Tạo bởi một lập trình viên indie",
+    "subtitle": "Độc lập, minh bạch, và dựa trên cộng đồng.",
+    "points": [
+      "Chính sách quyền riêng tư và thông tin bản phát hành công khai trên GitHub",
+      "Không telemetry hay thu thập dữ liệu",
+      "Không quảng cáo, không premium, không upsell",
+      "Bản phát hành và cập nhật dự án trên GitHub"
+    ],
+    "cta": "Xem trên GitHub"
+  },
+  "install": {
+    "title": "Bắt đầu trong 60 giây",
+    "subtitle": "Tải về, chạy, cảm nhận sự khác biệt.",
+    "tabs": {
+      "windows": {
+        "label": "Windows",
+        "steps": [
+          "Tải installer bên dưới",
+          "Chạy file .exe - không có wizard, không cần quyền admin",
+          "SmoothScroll khởi động tự động. Xong."
+        ]
+      }
+    },
+    "filename": "SmoothScrollSetup.exe",
+    "note": {
+      "windows": "Mặc định lưu vào %LOCALAPPDATA%"
+    },
+    "cta": "Tải cho Windows"
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "subtitle": "Mọi thứ về cài đặt, tinh chỉnh và độ tin cậy của SmoothScroll trên Windows.",
+    "seo": {
+      "title": "Hỏi đáp SmoothScroll: Giá, An toàn, Cài đặt & Sửa lỗi | Windows",
+      "description": "Hỏi đáp SmoothScroll cho Windows 10 và 11: miễn phí, an toàn, cài đặt, easing, profile từng app, gaming, sửa lỗi."
+    },
+    "viewAll": "Xem tất cả hỏi đáp",
+    "backToHome": "Về trang chủ",
+    "questions": [
+      {
+        "q": "Có hoạt động với mọi ứng dụng không?",
+        "a": "SmoothScroll chặn input wheel từ chuột trước khi đến ứng dụng, nên hoạt động với hầu hết mọi thứ - Chrome, VS Code, File Explorer, Adobe apps."
+      },
+      {
+        "q": "Có tốn pin không?",
+        "a": "Không. SmoothScroll gần như không dùng CPU khi rảnh rỗi và chỉ xử lý khi có sự kiện cuộn."
+      },
+      {
+        "q": "Có an toàn không? Cài gì vào máy?",
+        "a": "Bản cài Windows chạy per-user, không cần quyền admin. App nằm trong %LOCALAPPDATA% và tự khởi động. Không cài service, driver hay network listener."
+      },
+      {
+        "q": "Khác gì smooth scroll có sẵn của Windows?",
+        "a": "Smooth scroll của Windows phụ thuộc từng ứng dụng và không nhất quán. SmoothScroll cung cấp một đường cong thống nhất, có thể cấu hình, áp dụng toàn cục."
+      },
+      {
+        "q": "Có hoạt động với chuột gaming không?",
+        "a": "Có. SmoothScroll tôn trọng delta thực từ phần cứng và áp dụng làm mượt bên trên."
+      },
+      {
+        "q": "Có thể tắt cho ứng dụng cụ thể không?",
+        "a": "Có. Có hồ sơ loại trừ theo ứng dụng. Mở tray panel và thêm ứng dụng vào danh sách loại trừ."
+      },
+      {
+        "q": "Hỗ trợ Windows phiên bản nào?",
+        "a": "Windows 10 và Windows 11 được hỗ trợ đầy đủ."
+      },
+      {
+        "q": "Có bản Linux không?",
+        "a": "Chưa có. SmoothScroll hiện chỉ hỗ trợ Windows 10 và 11. Bản Linux đang được lên kế hoạch; theo dõi trang GitHub Releases để biết khi có bản mới."
+      },
+      {
+        "q": "Gỡ cài đặt như thế nào?",
+        "a": "Chỉ cần xóa file .exe. Không có uninstaller - không có gì khác trên hệ thống."
+      },
+      {
+        "q": "SmoothScroll có hoạt động với app UWP / WinUI không?",
+        "a": "Tùy ứng dụng. Cài đặt → Hành vi → Buộc bật mượt cho mọi ứng dụng ghi đè chế độ tự tắt với ứng dụng Windows tích hợp sẵn, nhưng một số app WinUI vẫn có thể bỏ qua sự kiện cuộn giả lập."
+      },
+      {
+        "q": "Anti-cheat có nhận diện SmoothScroll không?",
+        "a": "SmoothScroll tự nhận diện target nâng cao (admin / UAC prompt) và truyền raw input qua, nên anti-cheat chỉ thấy standard wheel tick. Không cần cấu hình exclusion."
+      },
+      {
+        "q": "SmoothScroll khác gì so với Logi Options+ hay Razer Synapse?",
+        "a": "SmoothScroll hoạt động với mọi chuột mà OS nhận diện được, không phải thiết bị của một hãng. Nó chạy ở tầng OS, không phải tầng device-driver, nên sống sót khi bạn đổi chuột."
+      },
+      {
+        "q": "Tôi có thể đồng bộ hướng cuộn với Mac không?",
+        "a": "Có. Toggle Reverse direction theo profile, nên bạn có thể khớp cảm giác với Mac mà bạn cũng dùng mà không ảnh hưởng app Windows-native."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Thôi vật lộn với con lăn chuột.",
+    "subtitle": "Một lượt tải. Một lượt bật. Bạn sẽ cảm nhận trong 5 giây đầu tiên.",
+    "cta": "Tải về cho Windows",
+    "ctaSub": "Hiện miễn phí cho Windows. Xem bản phát hành mới nhất."
+  },
+  "privacy": {
+    "title": "Chính sách quyền riêng tư",
+    "subtitle": "SmoothScroll không thu thập dữ liệu cá nhân. Trang này giải thích chi tiết ứng dụng và website xử lý gì, tại sao, và bạn có những lựa chọn nào.",
+    "updated": "Cập nhật lần cuối: 27 tháng 9, 2026",
+    "backToHome": "Về trang chủ",
+    "seo": {
+      "title": "Chính sách quyền riêng tư — SmoothScroll",
+      "description": "SmoothScroll không thu thập dữ liệu cá nhân: không tài khoản, không telemetry, không analytics, không quảng cáo. Cài đặt và log nằm trên thiết bị của bạn."
+    },
+    "intro": "Chính sách quyền riêng tư này giải thích ứng dụng SmoothScroll (\"chúng tôi\", \"ứng dụng\") và website smoothscroll.top (\"website\") xử lý thông tin gì, tại sao, và bạn có những lựa chọn nào. Tóm tắt: ứng dụng được thiết kế để chạy hoàn toàn ngoại tuyến trên thiết bị của bạn. Chúng tôi không vận hành máy chủ nào nhận dữ liệu cá nhân của bạn, và không thu thập, bán hay chia sẻ thông tin cá nhân.",
+    "sections": [
+      {
+        "heading": "Phạm vi áp dụng",
+        "paragraphs": [
+          "Chính sách này áp dụng cho ứng dụng SmoothScroll trên Windows, macOS và Linux, bất kể bạn tải từ website, GitHub hay Microsoft Store, và cho website smoothscroll.top. Chính sách không áp dụng cho dịch vụ bên thứ ba — các dịch vụ đó chịu sự điều chỉnh của chính sách riêng của họ (xem phần \"Dịch vụ bên thứ ba\" bên dưới)."
+        ]
+      },
+      {
+        "heading": "Thông tin chúng tôi không thu thập",
+        "paragraphs": [
+          "Ứng dụng được thiết kế để hoạt động của bạn không bao giờ tới được chúng tôi:"
+        ],
+        "bullets": [
+          "Không tài khoản hay đăng ký — ứng dụng hoạt động không cần đăng nhập.",
+          "Không analytics hay thống kê sử dụng — chúng tôi không hề biết bạn dùng ứng dụng nào, mở tệp nào hay truy cập website nào.",
+          "Không telemetry hay báo cáo crash — không có báo cáo lỗi nào được gửi đi tự động.",
+          "Không quảng cáo hay trình theo dõi quảng cáo.",
+          "Không cookie do chúng tôi đặt — website là trang tĩnh và không đặt cookie theo dõi."
+        ]
+      },
+      {
+        "heading": "Dữ liệu lưu trên thiết bị của bạn (dữ liệu local)",
+        "paragraphs": [
+          "Giống hầu hết các ứng dụng desktop, ứng dụng lưu mọi thứ cần thiết ngay trên máy của bạn:"
+        ],
+        "bullets": [
+          "Cài đặt: tùy chọn cuộn và cấu hình theo từng ứng dụng, lưu tại %APPDATA%\\SmoothScroll\\settings.json (Windows) hoặc thư mục cấu hình tương ứng trên macOS/Linux.",
+          "Log: log chẩn đoán được ghi vào thư mục local; bạn có thể mở từ phần Hỗ trợ của ứng dụng."
+        ],
+        "outro": "Dữ liệu này không bao giờ được truyền tới chúng tôi. Bạn có thể xem, sửa hoặc xóa bất cứ lúc nào; gỡ ứng dụng hoặc xóa các tệp này sẽ xóa sạch toàn bộ dữ liệu mà ứng dụng đã tạo."
+      },
+      {
+        "heading": "Kiểm tra cập nhật",
+        "paragraphs": [
+          "Ứng dụng định kỳ liên hệ GitHub (github.com) để kiểm tra phiên bản mới. Đây là yêu cầu HTTPS chuẩn tải một tệp phiên bản nhỏ; như bất kỳ yêu cầu web nào, GitHub nhận được địa chỉ IP và các header kỹ thuật tiêu chuẩn của bạn (như phiên bản hệ điều hành). Không có thông tin nào khác về bạn hoặc cách bạn sử dụng được gửi kèm.",
+          "Nếu bạn cài ứng dụng qua Microsoft Store, bản cập nhật do chính Store phân phối."
+        ]
+      },
+      {
+        "heading": "Dịch vụ bên thứ ba",
+        "paragraphs": [
+          "Ứng dụng và website liên kết hoặc nhúng một số ít dịch vụ bên thứ ba. Khi bạn tương tác với họ, chính sách riêng của họ sẽ áp dụng:"
+        ],
+        "bullets": [
+          "Tệp cập nhật trên GitHub — việc kiểm tra phiên bản và tải xuống do GitHub phục vụ (xem Privacy Policy của họ).",
+          "Buy Me a Coffee — link ủng hộ mở trong trình duyệt của bạn. Nếu bạn ủng hộ, thông tin thanh toán do Buy Me a Coffee xử lý theo chính sách của họ.",
+          "VietQR — phần Hỗ trợ của ứng dụng có thể hiển thị ảnh QR ngân hàng tải từ img.vietqr.io. Đây là yêu cầu tải ảnh chuẩn tới dịch vụ đó.",
+          "GitHub Issues — khi bạn báo lỗi hoặc liên hệ công khai trên GitHub, nội dung bạn đăng hiển thị trên GitHub và chịu điều khoản của GitHub."
+        ]
+      },
+      {
+        "heading": "Microsoft Store",
+        "paragraphs": [
+          "Khi bạn cài ứng dụng qua Microsoft Store, Microsoft là bên kiểm soát độc lập đối với các thông tin như tài khoản Microsoft, giao dịch mua và thông tin thiết bị, xử lý theo Microsoft Privacy Statement. Chúng tôi không nhận dữ liệu cá nhân của bạn từ Microsoft; chúng tôi chỉ thấy thông tin tổng hợp, không định danh như số lượt tải."
+        ]
+      },
+      {
+        "heading": "Website và log máy chủ",
+        "paragraphs": [
+          "Website là trang tĩnh. Nhà cung cấp lưu trữ của chúng tôi có thể tự động xử lý log kỹ thuật tiêu chuẩn (ví dụ địa chỉ IP, loại trình duyệt, trang được yêu cầu) cho mục đích bảo mật và vận hành. Chúng tôi không dùng các log này để dựng hồ sơ về bạn."
+        ]
+      },
+      {
+        "heading": "Cơ sở pháp lý (GDPR)",
+        "paragraphs": [
+          "Với khách truy cập ở EU/EEA: chúng tôi không xử lý dữ liệu cá nhân của bạn với tư cách chủ dữ liệu, nên không có xử lý nào cần cơ sở pháp lý. Các bên nêu trên (GitHub, Microsoft và nhà cung cấp lưu trữ) xử lý một lượng dữ liệu kỹ thuật hạn chế với tư cách bên kiểm soát độc lập theo chính sách của họ."
+        ]
+      },
+      {
+        "heading": "Quyền riêng tư của trẻ em",
+        "paragraphs": [
+          "Ứng dụng và website không nhắm tới trẻ em, và chúng tôi không cố ý thu thập dữ liệu cá nhân của bất kỳ ai — kể cả trẻ em dưới 13 tuổi (hoặc độ tuổi tối thiểu tương đương nơi bạn sống) — vì chúng tôi không thu thập dữ liệu cá nhân ngay từ đầu."
+        ]
+      },
+      {
+        "heading": "Bảo mật dữ liệu",
+        "paragraphs": [
+          "Vì dữ liệu của bạn nằm ngay trên thiết bị, chúng tôi không lưu thứ gì có thể bị rò rỉ từ phía mình. Tệp cài đặt local lưu dưới dạng không mã hóa trong thư mục người dùng, được bảo vệ bởi quyền người dùng của hệ điều hành. Hãy giữ thiết bị của bạn an toàn."
+        ]
+      },
+      {
+        "heading": "Chuyển dữ liệu quốc tế",
+        "paragraphs": [
+          "Các bên thứ ba nêu trên (ví dụ GitHub và Microsoft) hoạt động toàn cầu và có thể xử lý dữ liệu kỹ thuật tại quốc gia khác của bạn, kể cả Hoa Kỳ. Chính sách của họ mô tả các biện pháp bảo vệ mà họ áp dụng."
+        ]
+      },
+      {
+        "heading": "Quyền của bạn",
+        "paragraphs": [
+          "Tùy nơi bạn sống, bạn có thể có các quyền như truy cập, sửa, xóa, xuất dữ liệu, phản đối xử lý (ví dụ theo GDPR hoặc CCPA). Vì chúng tôi không lưu dữ liệu cá nhân nào của bạn, thông thường không có gì để chúng tôi xử lý — yêu cầu gửi tới chúng tôi sẽ được trả lời xác nhận rằng không có dữ liệu cá nhân nào được lưu giữ.",
+          "Bạn toàn quyền kiểm soát các tệp local nêu trên; xóa chúng là xóa sạch dữ liệu ứng dụng của bạn."
+        ]
+      },
+      {
+        "heading": "Thay đổi chính sách",
+        "paragraphs": [
+          "Chúng tôi có thể thay đổi chính sách này bất cứ lúc nào. Phiên bản hiện hành luôn được đăng tại trang này, và dòng \"Cập nhật lần cuối\" ở đầu trang thể hiện bản mới nhất. Thay đổi có hiệu lực kể từ khi được đăng.",
+          "Nếu thay đổi quan trọng, chúng tôi có thể công bố thêm trong release notes của ứng dụng. Việc bạn tiếp tục dùng ứng dụng hoặc website sau khi thay đổi có hiệu lực đồng nghĩa với việc bạn chấp nhận chính sách đã cập nhật."
+        ]
+      },
+      {
+        "heading": "Liên hệ",
+        "paragraphs": [
+          "Câu hỏi, yêu cầu hay khiếu nại? Gửi email tới nguyentruongk530042003@gmail.com hoặc mở issue tại github.com/quangtruong2003/SmoothScroll. Chúng tôi thường trả lời trong vài ngày."
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "taglineWindows": "Cuộn mượt cho Windows.",
+    "copyright": "© 2026 SmoothScroll.",
+    "madeBy": "Được phát triển bởi Nguyễn Quang Trường tại TP. Hồ Chí Minh.",
+    "links": {
+      "github": "GitHub",
+      "license": "Giấy phép",
+      "privacy": "Quyền riêng tư"
+    },
+    "headings": {
+      "product": "Sản phẩm",
+      "guides": "Hướng dẫn",
+      "project": "Dự án"
+    },
+    "product": {
+      "howItWorks": "Cách hoạt động",
+      "install": "Tải về",
+      "faq": "Hỏi đáp"
+    },
+    "project": {
+      "issues": "Báo lỗi"
+    }
+  },
+  "langSwitcher": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "howItWorks": {
+    "seo": {
+      "title": "SmoothScroll hoạt động thế nào: Hướng dẫn cài đặt cuộn Windows",
+      "description": "Tìm hiểu cách SmoothScroll biến input con lăn thành cuộn mượt trên Windows với đường cong easing, profile, phím tắt và loại trừ ứng dụng."
+    },
+    "hero": {
+      "eyebrow": "Hướng dẫn đầy đủ",
+      "title": "Xem cách SmoothScroll",
+      "titleAccent": "thực sự hoạt động",
+      "subtitle": "Một tour qua từng tab, từng cài đặt và từng phím tắt - để bạn có thể tinh chỉnh chính xác cảm giác cuộn mình muốn.",
+      "ctaPrimary": "Tải SmoothScroll",
+      "ctaSecondary": "Xem phím tắt",
+      "backToHome": "Về trang chủ"
+    },
+    "demo": {
+      "caption": "Mọi tab, mọi cài đặt - quay trực tiếp",
+      "alt": "Video demo cửa sổ cài đặt SmoothScroll: Cuộn, Thiết bị, Nâng cao, Ứng dụng, Game, Hành vi, Giới thiệu",
+      "hint": "Mẹo: mỗi tab đều có hướng dẫn riêng bên dưới.",
+      "placeholder": "Không thể tải bản demo. Hãy tải lại trang để thử lại."
+    },
+    "bigPicture": {
+      "title": "Bức tranh tổng thể",
+      "subtitle": "Ba bước chạy cho mỗi tick chuột - 120 lần mỗi giây.",
+      "steps": [
+        {
+          "title": "1. Chặn",
+          "description": "Một hook cấp thấp (Windows WH_MOUSE_LL / macOS CGEventTap) bắt mỗi sự kiện cuộn thô trước khi bất kỳ ứng dụng nào nhìn thấy."
+        },
+        {
+          "title": "2. Làm mượt",
+          "description": "Một đường cong easing - Exponential, Cubic, Quintic, hay Linear - nội suy delta qua khoảng thời gian animation. Acceleration tích lũy đà nếu bạn cuộn nhanh."
+        },
+        {
+          "title": "3. Phát lại",
+          "description": "Sự kiện cuộn tổng hợp được phát ở 120 Hz đến ứng dụng đang foreground. Ứng dụng bị loại trừ và game được bỏ qua engine, đi qua nguyên trạng."
+        }
+      ]
+    },
+    "tabs": {
+      "title": "Mọi tab trong ứng dụng",
+      "subtitle": "Mở Cài đặt (click trái vào icon trong khay hệ thống) để theo dõi. Thứ tự bên dưới giống hệt sidebar.",
+      "tocLabel": "Nhảy đến tab",
+      "sections": [
+        {
+          "id": "scroll",
+          "label": "Cuộn",
+          "intro": "Tab Cuộn có sáu preset và các tùy chọn hướng cuộn, zoom, easing. Các thanh chỉnh khoảng cách và tốc độ nằm ở tab Nâng cao.",
+          "settings": [
+            {
+              "name": "Bật",
+              "what": "Công tắc tổng. Tắt = cuộn mặc định của OS, Bật = engine SmoothScroll.",
+              "why": "So sánh A/B nhanh mà không cần gỡ cài. Cũng được gán vào phím tắt toàn cục.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật",
+              "tip": "Dùng phím tắt toàn cục (Ctrl+Alt+S) để bật/tắt mà không cần rời bàn phím."
+            },
+            {
+              "name": "Thời gian hoạt ảnh",
+              "what": "Bật hoặc tắt thời gian animation; chỉnh độ dài ở tab Nâng cao.",
+              "why": "Tắt nếu muốn cuộn phản hồi ngay.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
+            },
+            {
+              "name": "Đảo ngược chiều",
+              "what": "Đảo chiều cuộn (kiểu natural như macOS).",
+              "why": "Khớp với Mac mà bạn cũng dùng, hoặc theo sở thích.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Cuộn ngang mượt",
+              "what": "Làm mượt tín hiệu cuộn ngang vật lý hoặc tilt-wheel.",
+              "why": "Bảng tính rộng, timeline, dải ảnh.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Shift chuyển sang ngang",
+              "what": "Giữ Shift khi cuộn sẽ thành cuộn ngang.",
+              "why": "Hữu ích khi chuột không có tilt-wheel.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Đảo chiều cuộn ngang",
+              "what": "Đảo chiều khi làm mượt cuộn ngang hoặc khi chuyển Shift + Wheel sang ngang.",
+              "why": "Điều chỉnh hướng cuộn ngang theo thói quen.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Zoom mượt",
+              "what": "Dùng cơ chế làm mượt zoom riêng cho Ctrl + Wheel thay vì làm mượt cuộn thông thường.",
+              "why": "Bật khi muốn điều chỉnh độ mượt của zoom trong ứng dụng dùng Ctrl + Wheel.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Đảo chiều zoom",
+              "what": "Đảo hướng zoom Ctrl + Wheel khi bật zoom mượt.",
+              "why": "Phù hợp nếu chiều zoom trong ứng dụng thiết kế bị ngược.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Easing mượt",
+              "what": "Áp dụng đường cong easing cho mỗi chuyển động. Tắt = ramp tuyến tính.",
+              "why": "Easing là thứ làm cho cuộn cảm giác tự nhiên thay vì máy móc.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
+            },
+            {
+              "name": "Đường cong easing",
+              "what": "Bốn dạng - Exponential Out, Cubic Out, Quintic Out, Linear.",
+              "why": "Mỗi đường cong giảm tốc khác nhau. Quintic giống Mac; Linear cảm giác máy móc thuần túy.",
+              "range": "Exponential / Cubic / Quintic / Linear",
+              "defaultValue": "Quintic Out",
+              "tip": "Thử Quintic nếu bạn muốn đuôi dài, mượt nhất."
+            }
+          ]
+        },
+        {
+          "id": "devices",
+          "label": "Thiết bị",
+          "intro": "Tinh chỉnh cho precision touchpad - riêng biệt với xử lý chuột wheel.",
+          "settings": [
+            {
+              "name": "Cuộn touchpad mượt",
+              "what": "Áp dụng easing cho input precision touchpad độ phân giải cao.",
+              "why": "Touchpad phát delta cấp pixel; cái này làm mượt cả chúng.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
+            },
+            {
+              "name": "Hệ số pixel",
+              "what": "Nhân raw pixel delta từ touchpad trước khi smoothing.",
+              "why": "Khớp độ nhạy touchpad với chuột.",
+              "range": "0.5–3.0×",
+              "defaultValue": "1.0×"
+            },
+            {
+              "name": "Hệ số tăng tốc",
+              "what": "Tăng cường flick lớn bằng hai ngón. 0 tắt acceleration hoàn toàn.",
+              "why": "Cho phép flick nhanh đi xa hơn trong khi kéo nhỏ vẫn chính xác.",
+              "range": "0–3",
+              "defaultValue": "1"
+            }
+          ]
+        },
+        {
+          "id": "advanced",
+          "label": "Nâng cao",
+          "intro": "Tinh chỉnh bước cuộn, thời gian, tăng tốc và khả năng tương thích của bánh xe chuột.",
+          "settings": [
+            {
+              "name": "Bước cuộn",
+              "what": "Số pixel cuộn cho mỗi notch của chuột.",
+              "why": "Lớn hơn = cuộn được nhiều trang hơn mỗi click; nhỏ hơn = điều khiển tinh hơn.",
+              "range": "10–500 px",
+              "defaultValue": "144 px",
+              "tip": "Hạ xuống 100 khi review code, nâng lên 200 cho PDF dài."
+            },
+            {
+              "name": "Thời gian hoạt ảnh",
+              "what": "Mỗi chuyển động cuộn mất bao lâu để dừng lại.",
+              "why": "Dài hơn = lướt mượt hơn; ngắn hơn = phản hồi nhanh hơn.",
+              "range": "50–1500 ms",
+              "defaultValue": "220 ms",
+              "tip": "Dưới 120 ms thì gần như không cảm thấy smoothing; trên 300 ms thì có cảm giác trackpad Mac."
+            },
+            {
+              "name": "Tăng tốc tối đa",
+              "what": "Giới hạn cứng cho hệ số acceleration.",
+              "why": "Ngăn tốc độ tăng vô tội vạ khi xoay nhanh.",
+              "range": "1–20×",
+              "defaultValue": "10×"
+            },
+            {
+              "name": "Vận tốc tối đa",
+              "what": "Giới hạn tốc độ cuộn tối đa.",
+              "why": "Tránh cuộn quá nhanh khi xoay bánh xe liên tục.",
+              "range": "5–50",
+              "defaultValue": "20"
+            },
+            {
+              "name": "Tỉ lệ đuôi/đầu",
+              "what": "Chỉnh độ dốc giảm tốc khi chọn đường cong Exponential Out.",
+              "why": "Giá trị cao làm phần đầu nhanh hơn và đuôi dài hơn với Exponential Out; các đường cong khác bỏ qua tùy chọn này.",
+              "range": "1–20",
+              "defaultValue": "5"
+            },
+            {
+              "name": "Tương thích con lăn",
+              "what": "Chọn xung mượt, giữ nguyên bước bánh xe hoặc đầu vào nguyên bản; quy tắc tương thích riêng cho ứng dụng có thể ghi đè lựa chọn này.",
+              "why": "Đổi chế độ khi ứng dụng xử lý xung cuộn mượt không tốt.",
+              "range": "Xung mượt / Bước nguyên / Nguyên bản",
+              "defaultValue": "Xung mượt"
+            }
+          ]
+        },
+        {
+          "id": "apps",
+          "label": "Ứng dụng",
+          "intro": "Override theo từng ứng dụng. Mỗi ứng dụng đáng có cảm giác riêng.",
+          "settings": [
+            {
+              "name": "Hồ sơ cuộn",
+              "what": "Preset có tên - vd. Mac-like, Snappy, Đọc chậm - mỗi cái có step size, thời gian animation, easing riêng.",
+              "why": "Tránh phải tinh chỉnh slider toàn cục mỗi khi đổi việc.",
+              "range": "Không giới hạn",
+              "defaultValue": "Không có",
+              "tip": "Xây hồ sơ theo cách dùng ứng dụng, không phải bản thân ứng dụng. 'Đọc dài' áp dụng cho PDF, sách, bài viết như nhau."
+            },
+            {
+              "name": "Gán theo ứng dụng",
+              "what": "Map tên process (vd. chrome.exe) đến một hồ sơ cụ thể.",
+              "why": "Chrome có thể lướt trong khi VS Code vẫn snappy.",
+              "range": "Không giới hạn",
+              "defaultValue": "Không có"
+            },
+            {
+              "name": "Ứng dụng loại trừ",
+              "what": "Ứng dụng bỏ qua hoàn toàn SmoothScroll.",
+              "why": "Một số ứng dụng (anti-cheat, công cụ chuyên dụng) thích input wheel thô.",
+              "range": "Không giới hạn",
+              "defaultValue": "Không có"
+            }
+          ]
+        },
+        {
+          "id": "gamemode",
+          "label": "Game mode",
+          "intro": "Tự tắt smoothing mỗi khi một game đã biết được focus.",
+          "settings": [
+            {
+              "name": "Tự tắt trong game",
+              "what": "Tạm dừng engine khi bất kỳ process nào trong danh sách game được focus.",
+              "why": "Game cần input cuộn thô - để đổi súng, zoom scope, v.v.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
+            },
+            {
+              "name": "Danh sách game đã biết",
+              "what": "Danh sách process name kích hoạt Game mode (có thể chỉnh sửa).",
+              "why": "Thêm game của bạn; xóa false positive.",
+              "range": "Không giới hạn",
+              "defaultValue": "Danh sách mặc định được tuyển chọn"
+            }
+          ]
+        },
+        {
+          "id": "behavior",
+          "label": "Hành vi",
+          "intro": "Cách ứng dụng tự xử khi khởi động, trong tray, và khi nhấn phím tắt.",
+          "settings": [
+            {
+              "name": "Phím tắt toàn cục",
+              "what": "Phím tắt toàn hệ thống để bật/tắt smoothing.",
+              "why": "Bật/tắt mà không cần alt-tab vào Cài đặt.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
+            },
+            {
+              "name": "Tổ hợp phím tắt",
+              "what": "Click vào ô, rồi nhấn các phím bạn muốn.",
+              "why": "Tránh xung đột với ứng dụng khác.",
+              "range": "Bất kỳ tổ hợp modifier+phím",
+              "defaultValue": "Ctrl+Alt+S"
+            },
+            {
+              "name": "Khởi động cùng Windows / macOS",
+              "what": "Chạy SmoothScroll khi đăng nhập.",
+              "why": "Cài và quên - cuộn mượt từ giây đầu mỗi phiên.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Tắt"
+            },
+            {
+              "name": "Khởi động ẩn vào tray",
+              "what": "Bỏ qua cửa sổ cài đặt khi khởi động.",
+              "why": "Kết hợp với Khởi động cùng Windows cho trải nghiệm chạy nền hoàn toàn.",
+              "range": "Bật / Tắt",
+              "defaultValue": "Bật"
+            },
+            {
+              "name": "Tôn trọng Reduce Motion của OS",
+              "what": "Ba chế độ - Auto (theo OS), Luôn instant, Luôn smooth.",
+              "why": "Tự động tôn trọng tùy chọn accessibility.",
+              "range": "Auto / Luôn instant / Luôn smooth",
+              "defaultValue": "Auto"
+            }
+          ]
+        },
+        {
+          "id": "about",
+          "label": "Giới thiệu",
+          "intro": "Phiên bản, cập nhật, sao lưu, và thống kê cục bộ - tab dọn dẹp.",
+          "settings": [
+            {
+              "name": "Phiên bản & cập nhật",
+              "what": "Kiểm tra và cài đặt update đã ký.",
+              "why": "Luôn ở phiên bản mới nhất mà không cần đi tìm download.",
+              "range": "Thủ công / Auto",
+              "defaultValue": "Kiểm tra thủ công"
+            },
+            {
+              "name": "Sao lưu & khôi phục",
+              "what": "Xuất toàn bộ cài đặt thành JSON, nhập trên máy khác.",
+              "why": "Chuyển preset giữa các máy mà không phải làm lại từng slider.",
+              "range": "File JSON",
+              "defaultValue": "-"
+            },
+            {
+              "name": "Thống kê cục bộ",
+              "what": "Số phiên và tổng thời gian dùng, tính trên thiết bị.",
+              "why": "Xem bạn đã dùng SmoothScroll bao nhiêu. Không có gì được upload.",
+              "range": "-",
+              "defaultValue": "-"
+            },
+            {
+              "name": "Mở thư mục log",
+              "what": "Mở %APPDATA%\\SmoothScroll\\logs (hoặc ~/Library/Logs/SmoothScroll trên macOS).",
+              "why": "Hữu ích khi báo lỗi.",
+              "range": "-",
+              "defaultValue": "-"
+            },
+            {
+              "name": "Chạy lại wizard cài đặt",
+              "what": "Mở lại onboarding 3 bước.",
+              "why": "Reset về preset known-good nếu bạn đã chỉnh quá tay.",
+              "range": "-",
+              "defaultValue": "-"
+            }
+          ]
+        }
+      ]
+    },
+    "shortcuts": {
+      "title": "Phím tắt",
+      "subtitle": "Nhấn từ bất cứ đâu trên hệ thống, hoặc chỉ trong cửa sổ cài đặt - cột Phạm vi cho biết loại nào.",
+      "tableHeaders": {
+        "action": "Hành động",
+        "keys": "Phím",
+        "scope": "Phạm vi"
+      },
+      "rows": [
+        {
+          "action": "Bật / tắt cuộn mượt",
+          "keys": "Ctrl + Alt + S",
+          "scope": "Toàn hệ thống"
+        },
+        {
+          "action": "Mở cửa sổ cài đặt",
+          "keys": "Click trái icon tray",
+          "scope": "Khay hệ thống"
+        },
+        {
+          "action": "Mở quick menu (Bật, Cài đặt, Log, Thoát)",
+          "keys": "Click phải icon tray",
+          "scope": "Khay hệ thống"
+        },
+        {
+          "action": "Hiện cheatsheet phím tắt",
+          "keys": "?",
+          "scope": "Cửa sổ cài đặt"
+        },
+        {
+          "action": "Di chuyển focus giữa các điều khiển",
+          "keys": "Tab / Shift + Tab",
+          "scope": "Cửa sổ cài đặt"
+        },
+        {
+          "action": "Chỉnh slider đang focus",
+          "keys": "Phím mũi tên",
+          "scope": "Cửa sổ cài đặt"
+        },
+        {
+          "action": "Bật/tắt switch đang focus",
+          "keys": "Space",
+          "scope": "Cửa sổ cài đặt"
+        },
+        {
+          "action": "Đóng dialog / cheatsheet",
+          "keys": "Esc",
+          "scope": "Cửa sổ cài đặt"
+        },
+        {
+          "action": "Zoom bằng Ctrl + Wheel (chuyển thẳng khi bật Ctrl passthrough; nếu không sẽ giữ Ctrl khi làm mượt)",
+          "keys": "Ctrl + wheel",
+          "scope": "Mọi ứng dụng"
+        },
+        {
+          "action": "Cuộn ngang khi bật chuyển Shift + Wheel",
+          "keys": "Shift + wheel",
+          "scope": "Mọi ứng dụng"
+        }
+      ],
+      "hotkeyNote": "Phím tắt toàn cục có thể đổi trong Hành vi → Tổ hợp phím tắt. Chọn cái không xung đột với công cụ khác."
+    },
+    "tray": {
+      "title": "Khay hệ thống",
+      "subtitle": "SmoothScroll không có cửa sổ taskbar - tất cả nằm trong khay.",
+      "leftClick": {
+        "title": "Click trái icon tray",
+        "description": "Mở panel tray gọn gàng.",
+        "items": [
+          "Bật / tắt smoothing",
+          "Bật/tắt Khởi động cùng Windows",
+          "Bật/tắt Khởi động ẩn",
+          "Mở cài đặt đầy đủ",
+          "Nhảy đến danh sách loại trừ",
+          "Mở file log",
+          "Thoát SmoothScroll"
+        ]
+      },
+      "rightClick": {
+        "title": "Click phải icon tray",
+        "description": "Menu ngữ cảnh native của OS (nhanh hơn trên máy yếu).",
+        "items": [
+          "Bật / Tắt",
+          "Mở cài đặt",
+          "Ứng dụng loại trừ",
+          "Mở file log",
+          "Thoát"
+        ]
+      },
+      "perApp": {
+        "title": "Card ứng dụng hiện tại",
+        "description": "Panel tray hiện ứng dụng đang foreground và danh mục của nó. Bật/tắt smoothing cho ứng dụng đó, hoặc gán hồ sơ - không cần mở cài đặt đầy đủ."
+      }
+    },
+    "recipes": {
+      "title": "Mẹo & công thức",
+      "subtitle": "Preset đã được kiểm chứng cho các workflow phổ biến. Mở Ứng dụng → Hồ sơ để lưu chúng.",
+      "items": [
+        {
+          "name": "Đọc dài",
+          "scenario": "PDF, bài viết, sách - lướt qua hoặc đọc kỹ mà không mất vị trí.",
+          "suggestion": "Preset Slow",
+          "settings": [
+            "Step size: 80 px",
+            "Animation time: 600 ms",
+            "Easing: Quintic Out",
+            "Acceleration max: 4×"
+          ]
+        },
+        {
+          "name": "Code trong VS Code / JetBrains",
+          "scenario": "Điều hướng code không bị quá đà và mất dòng.",
+          "suggestion": "Preset Default + animation ngắn hơn",
+          "settings": [
+            "Step size: 144 px",
+            "Animation time: 180 ms",
+            "Easing: Quintic Out",
+            "Acceleration max: 10×",
+            "Cuộn → Zoom mượt: Tắt (làm mượt Ctrl + Wheel thông thường nếu Ctrl passthrough không bật)"
+          ]
+        },
+        {
+          "name": "Photoshop / Figma / Illustrator",
+          "scenario": "Hay zoom Ctrl+wheel; cuộn mượt trong panel layer.",
+          "suggestion": "Mặc định + tắt Zoom mượt",
+          "settings": [
+            "Giữ preset mặc định",
+            "Cuộn → Zoom mượt: Tắt để dùng cách xử lý Ctrl + Wheel thông thường nếu Ctrl passthrough không bật; loại trừ ứng dụng nếu cần tín hiệu nguyên bản"
+          ]
+        },
+        {
+          "name": "Premiere / DAW",
+          "scenario": "Scrub timeline bằng Alt+wheel.",
+          "suggestion": "Preset Snappy hoặc đầu vào nguyên bản",
+          "settings": [
+            "Ứng dụng → gán preset Snappy cho editor",
+            "Ứng dụng → loại trừ editor nếu Alt + Wheel cần dữ liệu nguyên bản"
+          ]
+        },
+        {
+          "name": "Chơi game",
+          "scenario": "Bánh xe vũ khí, scope zoom - bất kỳ thứ gì đọc notch thô.",
+          "suggestion": "Game mode tự tắt",
+          "settings": [
+            "Game mode → Tự tắt trong game: BẬT",
+            "Thêm process game vào danh sách (vd. csgo.exe)"
+          ]
+        },
+        {
+          "name": "Laptop chạy pin",
+          "scenario": "Tận dụng từng phút - giảm tải CPU.",
+          "suggestion": "Preset Snappy",
+          "settings": [
+            "Step size: 200 px",
+            "Animation time: 200 ms",
+            "Easing: Cubic Out",
+            "Acceleration max: 14×",
+            "Hành vi → Reduce motion: Auto"
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Nó làm gì (và không làm gì)",
+      "points": [
+        "Đọc sự kiện chuột ở lớp hook OS - cùng API với công cụ accessibility và screen reader.",
+        "Không inject vào process khác.",
+        "Không cài driver, service, hay daemon.",
+        "Không gọi mạng trừ kiểm tra GitHub có release mới (có thể tắt).",
+        "Cài đặt nằm trong %APPDATA%\\SmoothScroll (Windows) hoặc ~/Library/Application Support/SmoothScroll (macOS).",
+        "Log xoay vòng hàng ngày, giữ 7 ngày, ở lại trên thiết bị.",
+        "Bộ cài đặt và thông tin cập nhật được đăng trên GitHub Releases."
+      ]
+    },
+    "easingViz": {
+      "title": "Đường cong easing",
+      "subtitle": "Click vào đường cong để làm nổi bật.",
+      "curves": {
+        "exponentialOut": "Exponential Out",
+        "cubicOut": "Cubic Out",
+        "quinticOut": "Quintic Out",
+        "linear": "Linear"
+      }
+    },
+    "finalCta": {
+      "title": "Sẵn sàng cảm nhận sự khác biệt?",
+      "subtitle": "Cài 60 giây. Tinh chỉnh thêm 60 giây nữa. Rồi quên là nó tồn tại.",
+      "cta": "Tải SmoothScroll"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+target/
+.next/
+out/
+landing/.next/
+landing/out/
+landing/tsconfig.tsbuildinfo
+landing/test-results/
+playwright-report/
+coverage/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

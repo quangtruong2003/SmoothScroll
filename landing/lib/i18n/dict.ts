@@ -1,0 +1,228 @@
+import en from './en.json'
+import vi from './vi.json'
+import zh from './zh.json'
+
+export type Locale = 'en' | 'vi' | 'zh'
+
+export const locales: Locale[] = ['en', 'vi', 'zh']
+export const defaultLocale: Locale = 'en'
+
+export interface Dictionary {
+  nav?: {
+    github?: string
+    stars?: string
+    pricing?: string
+    features?: string
+    language?: string
+  }
+  langSwitcher?: {
+    select?: string
+    en?: string
+    vi?: string
+    zh?: string
+  }
+  seo?: { title?: string; description?: string }
+  geo?: {
+    title?: string
+    answer?: string
+    evidence?: string
+    faqQuestion?: string
+    faqAnswer?: string
+    sourceLabel?: string
+    releaseLabel?: string
+    guideLabel?: string
+  }
+  hero?: {
+    eyebrow?: string
+    title?: string
+    titleAccent?: string
+    subtitle?: string
+    cta?: string
+    trustLine?: string
+    seeHow?: string
+    demoPrompt?: string
+    demoToast?: string
+  }
+  painPoints?: {
+    title?: string
+    points?: { title?: string; description?: string }[]
+  }
+  solutionBridge?: {
+    line?: string
+  }
+  features?: {
+    title?: string
+    items?: { title?: string; description?: string }[]
+  }
+  useCases?: {
+    title?: string
+    tabs?: {
+      reading?: { label?: string; description?: string }
+      coding?: { label?: string; description?: string }
+      designing?: { label?: string; description?: string }
+    }
+  }
+  trayPreview?: {
+    title?: string
+    subtitle?: string
+  }
+  stats?: {
+    title?: string
+    githubStars?: string
+    downloads?: string
+    version?: string
+    fallback?: { stars?: string; downloads?: string; version?: string }
+  }
+  indie?: {
+    title?: string
+    subtitle?: string
+    points?: string[]
+    cta?: string
+  }
+  install?: {
+    title?: string
+    subtitle?: string
+    tabs?: {
+      windows?: { label?: string; steps?: string[] }
+    }
+    filename?: string
+    note?: { windows?: string }
+    cta?: string
+  }
+  faq?: {
+    title?: string
+    subtitle?: string
+    seo?: { title?: string; description?: string }
+    viewAll?: string
+    backToHome?: string
+    questions?: { q?: string; a?: string }[]
+  }
+  finalCta?: {
+    title?: string
+    subtitle?: string
+    cta?: string
+    ctaSub?: string
+  }
+  privacy?: {
+    title?: string
+    subtitle?: string
+    updated?: string
+    backToHome?: string
+    intro?: string
+    seo?: { title?: string; description?: string }
+    sections?: { heading?: string; paragraphs?: string[]; bullets?: string[]; outro?: string }[]
+  }
+  footer?: {
+    tagline?: string
+    taglineWindows?: string
+    copyright?: string
+    madeBy?: string
+    links?: {
+      github?: string
+      license?: string
+      privacy?: string
+    }
+    headings?: {
+      product?: string
+      guides?: string
+      project?: string
+    }
+    product?: {
+      howItWorks?: string
+      install?: string
+      faq?: string
+    }
+    project?: {
+      issues?: string
+    }
+  }
+  howItWorks?: {
+    seo?: { title?: string; description?: string }
+    hero?: {
+      eyebrow?: string
+      title?: string
+      titleAccent?: string
+      subtitle?: string
+      ctaPrimary?: string
+      ctaSecondary?: string
+      backToHome?: string
+    }
+    demo?: {
+      caption?: string
+      alt?: string
+      hint?: string
+      placeholder?: string
+    }
+    bigPicture?: {
+      title?: string
+      subtitle?: string
+      steps?: { title?: string; description?: string }[]
+    }
+    tabs?: {
+      title?: string
+      subtitle?: string
+      tocLabel?: string
+      sections?: {
+        id?: string
+        label?: string
+        intro?: string
+        settings?: {
+          name?: string
+          what?: string
+          why?: string
+          range?: string
+          defaultValue?: string
+          tip?: string
+        }[]
+      }[]
+    }
+    shortcuts?: {
+      title?: string
+      subtitle?: string
+      tableHeaders?: { action?: string; keys?: string; scope?: string }
+      rows?: { action?: string; keys?: string; scope?: string }[]
+      hotkeyNote?: string
+    }
+    tray?: {
+      title?: string
+      subtitle?: string
+      leftClick?: { title?: string; description?: string; items?: string[] }
+      rightClick?: { title?: string; description?: string; items?: string[] }
+      perApp?: { title?: string; description?: string }
+    }
+    recipes?: {
+      title?: string
+      subtitle?: string
+      items?: { name?: string; scenario?: string; suggestion?: string; settings?: string[] }[]
+    }
+    privacy?: {
+      title?: string
+      points?: string[]
+    }
+    easingViz?: {
+      title?: string
+      subtitle?: string
+      curves?: {
+        exponentialOut?: string
+        cubicOut?: string
+        quinticOut?: string
+        linear?: string
+      }
+    }
+    finalCta?: {
+      title?: string
+      subtitle?: string
+      cta?: string
+    }
+  }
+}
+
+const dictionaries: Record<Locale, Dictionary> = { en, vi, zh }
+
+export function getDictionarySync(locale: Locale): Dictionary {
+  return dictionaries[locale] ?? dictionaries[defaultLocale]
+}
+
+export async function getDictionary(locale: Locale): Promise<Dictionary> {
+  return getDictionarySync(locale)
+}

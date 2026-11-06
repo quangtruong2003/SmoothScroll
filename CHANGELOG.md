@@ -1,0 +1,1184 @@
+# Changelog
+
+All notable changes to SmoothScroll documented here.
+
+Format: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/)
+Versioning: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
+
+## [Unreleased]
+
+## [1.36.0] - 2026-10-11
+
+### Added
+- add monitor priority explanation and monitor badges
+- scope per-app profile assignments to a monitor
+
+### Fixed
+- dismiss toasts by clicking them instead of an x button
+- resolve app-monitor binding against cursor window monitor
+- full SEO audit pass, windows-only truth
+- block download CTA on Linux like macOS
+## [1.35.1] - 2026-10-08
+
+### Fixed
+- skip windows-only examples in cargo test
+- re-check macOS permission per retry, gate hook tests in CI
+- route non-Windows wheel events through route_wheel_event
+- stop forwarding --no-bundle to cargo instead of tauri CLI
+- log and retry mouse hook install failures instead of swallowing them
+## [1.35.0] - 2026-10-08
+
+### Added
+- unify back-to-home navigation across landing pages
+- add localized privacy policy pages
+
+### Fixed
+- surface hotkey_error on import and debounced saves
+- route non-Windows wheel events through route_wheel_event
+- stop forwarding --no-bundle to cargo instead of tauri CLI
+- stop reporting persisted settings as unsaved when hotkey registration fails
+## [1.34.0] - 2026-09-27
+
+### Added
+- turn horizontal-wheel and zoom smoothing off by default on update
+- route discrete-wheel apps like REAPER to whole-notch output
+- classify touchpads by OS marker and delta-magnitude evidence
+- default window timing scheduler with legacy kill-switch
+- add exactly-conservative window payout model
+- add engine timing switch and discrete-wheel app settings
+- picker dropdown rows show app icons
+- game icons and game picker in Game Mode
+- expand FAQ to 31 questions with dedicated faq pages
+
+### Fixed
+- reset scroll axes when the timing scheduler changes
+- game picker no longer crashes on malformed shortcuts
+
+### Performance
+- instant picker icons via disk cache and chunked loading
+## [1.33.1] - 2026-09-14
+
+### Fixed
+- restore browser scroll behavior
+## [1.33.0] - 2026-09-14
+
+### Added
+- export settings via native save dialog
+- add Buy Me a Coffee donation button
+- show total download count
+- expand SEO search intent signals
+
+### Fixed
+- harden settings and toggle state
+- translate remaining hardcoded English strings across all locales
+## [1.32.0] - 2026-09-03
+
+### Added
+- preserve whole wheel notches
+- expose wheel semantic policies
+- migrate semantic wheel policies
+- emit semantic wheel pulses
+- define semantic wheel policies
+- define semantic wheel events
+- add Buy Me a Coffee donation option
+- add explicit Shift + Wheel conversion and wheel compatibility modes
+
+### Changed
+- preserve Ctrl, Shift, Alt, and physical horizontal wheel semantics while smoothing
+- use native touchpad behavior when touchpad smoothing is disabled
+
+### Fixed
+- localize remaining user-facing text
+- optimize semantic wheel dispatch and discrete controls
+- finalize semantic wheel review corrections
+- revalidate horizontal owner before dispatch
+- limit game mode to known games
+- dispatch captured semantic frames directly
+- isolate stale semantic frame failures
+- reject stale semantic frame emissions
+- validate semantic frames before emission
+- share one axis generation store
+- keep cross-platform emitters compiling
+- gate tauri zoom on isolated platform modifier
+- keep zoom pulses on legacy emitters
+- apply reverse direction to shift conversion
+- capture wheel modifiers at event boundary
+
+## [1.31.0] - 2026-08-31
+
+### Added
+- track animation window owner
+- expose root window under cursor
+- add full scroll sequence reset
+
+### Fixed
+- enable animation time by default
+- scope unbounded instant output to Windows
+- cancel stale animation before emission
+- reset animation owner on new window input
+- batch oversized instant wheel output
+- preserve instant accelerated distance
+## [1.30.0] - 2026-08-29
+
+### Added
+- add Windows search-intent landing pages
+
+### Fixed
+- make scroll animation opt-in
+## [1.29.0] - 2026-08-28
+
+### Added
+- restore donate section
+
+### Fixed
+- pass raw wheel events through over discrete controls
+## [1.28.4] - 2026-08-27
+
+### Fixed
+- persist scroll preset immediately
+- revalidate game mode on wheel input
+## [1.28.3] - 2026-08-23
+
+### Fixed
+- canonicalize app_profiles keys to match backend
+- measure tray panel content before first reveal
+- resolve tray profile pill via canonical lookup
+## [1.28.2] - 2026-08-20
+
+### Fixed
+- preserve browser shift wheel smoothing
+## [1.28.1] - 2026-08-20
+
+### Fixed
+- scroll horizontally while holding shift
+- inject native shifted wheel for horizontal scroll
+## [1.28.0] - 2026-08-19
+
+### Added
+- strengthen SEO discovery signals
+
+### Fixed
+- use explicit Node test entrypoint
+- make Node test glob portable
+- target horizontal wheel at child window
+- remove stale hero scroll scene
+- keep smooth scrolling for elevated targets when self is elevated
+## [1.27.1] - 2026-08-06
+
+### Fixed
+- show all profiles in picker with scrollable popover
+## [1.27.0] - 2026-07-29
+
+### Added
+- reduce background WebView2 memory
+
+### Fixed
+- complete macOS engine and menu bar integration
+## [1.26.1] - 2026-07-28
+
+### Added
+- replace hero scrub videos with a WebGL ribbon background
+- improve GEO and visual polish
+- add accessible profile preset affordance
+- ProfileEditor gains preset picker row + max_velocity slider
+- add profiles.preset + profiles.preset_desc; feat(ui): ScrollProfile type gains max_velocity
+- EffectiveSettings.with_profile sources max_velocity from profile
+- migrate app_profile keys to canonical form on load
+- assign_profile canonicalizes key and wipes alias siblings
+- app_profiles_lookup O(1) helper, patch is_excluded + get_profile_for_process
+- canonicalize_process_name pure helper
+- ScrollProfile.max_velocity field + default + clamp
+- integrate profile picker into tray panel
+- add tray profile pill and popover
+- add tray profile picker i18n and styles
+- adjust ForcedUpdateModal layout for 350x280 window
+- resize window for update, restore on skip
+- add resize_for_update and restore_window_size commands
+- implement standalone engine-macos and auto-launch from Swift app
+- add --platform, --dry-run, getLatestTag with platform-aware tag filtering
+- add --platform flag with parseArgs/readPlatformVersion/writePlatformVersion
+- add --linux-deb and --linux-appimage flags
+- add OG/Twitter cards, JSON-LD, canonical URLs, security headers
+- footer tagline detects OS (Windows/macOS/Linux)
+- swap static tray screenshot for interactive TrayPreview
+- add Quit state machine (running→quitting→closed→running)
+- add Open Settings bounce feedback
+- wire Smooth Scrolling toggle + status dot
+- add TrayPreview static shell
+- add tray-labels mini dictionary (en/vi/zh)
+- add tray.css preview styles
+
+### Fixed
+- improve WebGL fallback with theme-aware poster and context-loss guards
+- restore SEO metadata and structured data
+- inject Ctrl+Wheel zoom via SendInput instead of PostMessageW
+- restore sticky hero media
+- contain hero on narrow screens
+- scope docs ignore to repository root
+- dismiss operation notifications on click
+- compact operation notifications
+- preserve profile zoom animation easing
+- apply profile zoom settings
+- sync selected tray profile immediately
+- sync profile assignments from tray
+- drain registered profile horizontal scroll
+- contain preset popover in editor dialog
+- avoid nested modal preset focus trap
+- restore preset popover autofocus
+- use dialog for preset confirmation
+- preserve easing per pending scroll batch
+- broadcast profile changes + hide Start-with-OS toggle
+- remove deprecated baseUrl from tsconfig, use paths with bundler resolution
+- add max_velocity to test mock, ignoreDeprecations for baseUrl
+- resolve_active uses app_profiles_lookup, unassign routes through assign_profile
+- align profile dropdown style with tray menu items, add heavy shadow
+- popover position absolute with dropdown offset
+- revert to dropdown popover, add hover-open with delayed close
+- open flyout on hover, close when mouse leaves both pill and flyout
+- use theme vars for picker CSS, convert to side-flyout portal
+- pass ctx/refresh props correctly after hook refactor
+- popover positioning, lift shared foreground state, add option hover/focus styles
+- use spec-required tray.profile_* i18n keys in picker components
+- handle existing tags in release workflows
+- profile editor dialog scroll and input clipping
+- handle @ prefix in conventional commit parser
+- exclude macOS crate from Linux test runs, remove duplicate tests.yml
+- disable macOS/Linux releases, ensure Windows is latest
+- link to _dispatch_main_q directly to resolve GCD linker error
+- link libSystem for GCD functions in event_tap
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+- force framework linking via RUSTFLAGS env var during standalone engine build
+- link macOS frameworks via rustc #[link] attributes
+- link CoreGraphics unconditionally
+- add build.rs to link CoreGraphics and AppKit frameworks
+- replace HookDecision::Block with Swallow
+- update engine-macos files
+- ensure engine-macos compiles correctly with updated dependencies
+- fix engine-macos compilation errors
+- fix macos workflow file
+- bundle Rust engine binary into .app, fix compilation errors (missing import, borrow, active_profile)
+- add continue-on-error to macOS upload step (race condition between matrix builds)
+- lower DMG size check to 100KB, disable updater for macOS
+- disable updater for Linux builds, remove latest-linux.json
+- test only core+platform crates on macOS (skip src-tauri pre-existing errors)
+- add macros feature to tokio for select! macro
+- reset mac/linux to 0.0.1, fix macOS build (test job, debug steps, DMG verify, remove continue-on-error)
+- use --profile release-fast CLI flag instead of env var for Linux build
+- sync all 14 locales and remove hardcoded English strings
+- sync autostart toggle between TrayPanel and Settings page
+- full-window takeover + safer restart + indeterminate progress
+- revert Windows to default release profile for signing
+- add missing direction_sync_enabled to settingsStore test fixture
+- use TAURI_BUILD_PROFILE env var instead of --profile flag
+- persist settings across restart and remove preset label
+- respect HookDecision to swallow original scroll and document macOS stubs
+- correct macOS F12 keycode and use kCGKeyboardEventKeycode constant
+- emit IPC events as PascalCase to match Swift client
+- emit SettingsChanged IPC event to match Swift client
+- remove duplicate AppState import in ipc_socket_server
+- add client-side cache busting and remove dead vercel config
+- remove dot grid spotlight, increase dot size 30%, lazy-load GIFs, add cache headers
+- upgrade objc2-app-kit to 0.3 and objc2-foundation to 0.3 for MainThreadMarker support
+- upgrade objc2 to 0.6 for correct MainThreadMarker path
+
+### Performance
+- speed up release workflow with parallel jobs and release-fast profile
+## [1.25.0] - 2026-07-25
+
+### Added
+- improve GEO and visual polish
+
+### Fixed
+- inject Ctrl+Wheel zoom via SendInput instead of PostMessageW
+- restore sticky hero media
+- contain hero on narrow screens
+- scope docs ignore to repository root
+## [1.24.0] - 2026-07-16
+
+### Added
+- add accessible profile preset affordance
+- ProfileEditor gains preset picker row + max_velocity slider
+- add profiles.preset + profiles.preset_desc; feat(ui): ScrollProfile type gains max_velocity
+- EffectiveSettings.with_profile sources max_velocity from profile
+- migrate app_profile keys to canonical form on load
+- assign_profile canonicalizes key and wipes alias siblings
+- app_profiles_lookup O(1) helper, patch is_excluded + get_profile_for_process
+- canonicalize_process_name pure helper
+- ScrollProfile.max_velocity field + default + clamp
+- ProfileEditor: Apply preset… popover with overwrite confirmation
+
+### Fixed
+- dismiss operation notifications on click
+- compact operation notifications
+- preserve profile zoom animation easing
+- apply profile zoom settings
+- sync selected tray profile immediately
+- sync profile assignments from tray
+- drain registered profile horizontal scroll
+- contain preset popover in editor dialog
+- avoid nested modal preset focus trap
+- restore preset popover autofocus
+- use dialog for preset confirmation
+- preserve easing per pending scroll batch
+- broadcast profile changes + hide Start-with-OS toggle
+- remove deprecated baseUrl from tsconfig, use paths with bundler resolution
+- add max_velocity to test mock, ignoreDeprecations for baseUrl
+- resolve_active uses app_profiles_lookup, unassign routes through assign_profile
+- Per-app profile easing and tail-to-head ratio now persist through scroll drain
+
+## [1.23.0] - 2026-07-13
+
+### Added
+- integrate profile picker into tray panel
+- add tray profile pill and popover
+- add tray profile picker i18n and styles
+
+### Fixed
+- align profile dropdown style with tray menu items, add heavy shadow
+- popover position absolute with dropdown offset
+- revert to dropdown popover, add hover-open with delayed close
+- open flyout on hover, close when mouse leaves both pill and flyout
+- use theme vars for picker CSS, convert to side-flyout portal
+- pass ctx/refresh props correctly after hook refactor
+- popover positioning, lift shared foreground state, add option hover/focus styles
+- use spec-required tray.profile_* i18n keys in picker components
+## [1.22.0] - 2026-07-13
+
+### Added
+- adjust ForcedUpdateModal layout for 350x280 window
+- resize window for update, restore on skip
+- add resize_for_update and restore_window_size commands
+- implement standalone engine-macos and auto-launch from Swift app
+- add --platform, --dry-run, getLatestTag with platform-aware tag filtering
+- add --platform flag with parseArgs/readPlatformVersion/writePlatformVersion
+- add --linux-deb and --linux-appimage flags
+- add OG/Twitter cards, JSON-LD, canonical URLs, security headers
+- footer tagline detects OS (Windows/macOS/Linux)
+- swap static tray screenshot for interactive TrayPreview
+- add Quit state machine (running→quitting→closed→running)
+- add Open Settings bounce feedback
+- wire Smooth Scrolling toggle + status dot
+- add TrayPreview static shell
+- add tray-labels mini dictionary (en/vi/zh)
+- add tray.css preview styles
+
+### Fixed
+- handle existing tags in release workflows
+- profile editor dialog scroll and input clipping
+- handle @ prefix in conventional commit parser
+- exclude macOS crate from Linux test runs, remove duplicate tests.yml
+- disable macOS/Linux releases, ensure Windows is latest
+- link to _dispatch_main_q directly to resolve GCD linker error
+- link libSystem for GCD functions in event_tap
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+- force framework linking via RUSTFLAGS env var during standalone engine build
+- link macOS frameworks via rustc #[link] attributes
+- link CoreGraphics unconditionally
+- add build.rs to link CoreGraphics and AppKit frameworks
+- replace HookDecision::Block with Swallow
+- update engine-macos files
+- ensure engine-macos compiles correctly with updated dependencies
+- fix engine-macos compilation errors
+- fix macos workflow file
+- bundle Rust engine binary into .app, fix compilation errors (missing import, borrow, active_profile)
+- add continue-on-error to macOS upload step (race condition between matrix builds)
+- lower DMG size check to 100KB, disable updater for macOS
+- disable updater for Linux builds, remove latest-linux.json
+- test only core+platform crates on macOS (skip src-tauri pre-existing errors)
+- add macros feature to tokio for select! macro
+- reset mac/linux to 0.0.1, fix macOS build (test job, debug steps, DMG verify, remove continue-on-error)
+- use --profile release-fast CLI flag instead of env var for Linux build
+- sync all 14 locales and remove hardcoded English strings
+- sync autostart toggle between TrayPanel and Settings page
+- full-window takeover + safer restart + indeterminate progress
+- revert Windows to default release profile for signing
+- add missing direction_sync_enabled to settingsStore test fixture
+- use TAURI_BUILD_PROFILE env var instead of --profile flag
+- persist settings across restart and remove preset label
+- respect HookDecision to swallow original scroll and document macOS stubs
+- correct macOS F12 keycode and use kCGKeyboardEventKeycode constant
+- emit IPC events as PascalCase to match Swift client
+- emit SettingsChanged IPC event to match Swift client
+- remove duplicate AppState import in ipc_socket_server
+- add client-side cache busting and remove dead vercel config
+- remove dot grid spotlight, increase dot size 30%, lazy-load GIFs, add cache headers
+- upgrade objc2-app-kit to 0.3 and objc2-foundation to 0.3 for MainThreadMarker support
+- upgrade objc2 to 0.6 for correct MainThreadMarker path
+
+### Performance
+- speed up release workflow with parallel jobs and release-fast profile
+## [1.21.0] - 2026-07-13
+
+### Added
+- adjust ForcedUpdateModal layout for 350x280 window
+- resize window for update, restore on skip
+- add resize_for_update and restore_window_size commands
+- implement standalone engine-macos and auto-launch from Swift app
+
+### Fixed
+- exclude macOS crate from Linux test runs, remove duplicate tests.yml
+- disable macOS/Linux releases, ensure Windows is latest
+- link to _dispatch_main_q directly to resolve GCD linker error
+- link libSystem for GCD functions in event_tap
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+- force framework linking via RUSTFLAGS env var during standalone engine build
+- link macOS frameworks via rustc #[link] attributes
+- link CoreGraphics unconditionally
+- add build.rs to link CoreGraphics and AppKit frameworks
+- replace HookDecision::Block with Swallow
+- update engine-macos files
+- ensure engine-macos compiles correctly with updated dependencies
+- fix engine-macos compilation errors
+- fix macos workflow file
+## [1.1.12] - 2026-07-12
+
+### Fixed
+- link to _dispatch_main_q directly to resolve GCD linker error
+## [1.1.11] - 2026-07-12
+
+### Fixed
+- link libSystem for GCD functions in event_tap
+## [1.1.10] - 2026-07-12
+
+### Fixed
+- replace Quartz modifier flag static externs with const u32 to fix linker errors
+## [1.1.9] - 2026-07-12
+
+### Fixed
+- replace Quartz FFI extern static variables with constants to fix standalone link errors
+## [1.1.8] - 2026-07-12
+
+### Fixed
+- force framework linking via RUSTFLAGS env var during standalone engine build
+## [1.1.7] - 2026-07-12
+
+### Fixed
+- link macOS frameworks via rustc #[link] attributes
+## [1.1.6] - 2026-07-12
+
+### Fixed
+- link CoreGraphics unconditionally
+## [1.1.5] - 2026-07-12
+
+### Fixed
+- add build.rs to link CoreGraphics and AppKit frameworks
+## [1.1.4] - 2026-07-12
+
+### Fixed
+- replace HookDecision::Block with Swallow
+## [1.1.3] - 2026-07-12
+
+### Fixed
+- update engine-macos files
+## [1.1.2] - 2026-07-12
+
+### Fixed
+- ensure engine-macos compiles correctly with updated dependencies
+## [1.1.1] - 2026-07-12
+
+### Fixed
+- fix engine-macos compilation errors
+## [1.20.2] - 2026-07-12
+
+### Fixed
+- bundle Rust engine binary into .app, fix compilation errors (missing import, borrow, active_profile)
+- add continue-on-error to macOS upload step (race condition between matrix builds)
+- lower DMG size check to 100KB, disable updater for macOS
+- disable updater for Linux builds, remove latest-linux.json
+## [1.20.1] - 2026-07-12
+
+### Fixed
+- add macros feature to tokio for select! macro
+- reset mac/linux to 0.0.1, fix macOS build (test job, debug steps, DMG verify, remove continue-on-error)
+- use --profile release-fast CLI flag instead of env var for Linux build
+## [1.20.0] - 2026-07-12
+
+### Added
+- add --platform, --dry-run, getLatestTag with platform-aware tag filtering
+- add --platform flag with parseArgs/readPlatformVersion/writePlatformVersion
+- add --linux-deb and --linux-appimage flags
+- add OG/Twitter cards, JSON-LD, canonical URLs, security headers
+
+### Fixed
+- sync all 14 locales and remove hardcoded English strings
+- sync autostart toggle between TrayPanel and Settings page
+- full-window takeover + safer restart + indeterminate progress
+## [1.19.5] - 2026-07-11
+
+### Fixed
+- revert Windows to default release profile for signing
+## [1.19.4] - 2026-07-11
+
+### Fixed
+- add missing direction_sync_enabled to settingsStore test fixture
+## [1.19.3] - 2026-07-11
+
+### Fixed
+- use TAURI_BUILD_PROFILE env var instead of --profile flag
+## [1.19.2] - 2026-07-11
+
+### Performance
+- speed up release workflow with parallel jobs and release-fast profile
+## [1.19.1] - 2026-07-11
+
+### Fixed
+- persist settings across restart and remove preset label
+## [1.19.0] - 2026-07-11
+
+### Added
+- footer tagline detects OS (Windows/macOS/Linux)
+- swap static tray screenshot for interactive TrayPreview
+- add Quit state machine (running→quitting→closed→running)
+- add Open Settings bounce feedback
+- wire Smooth Scrolling toggle + status dot
+- add TrayPreview static shell
+- add tray-labels mini dictionary (en/vi/zh)
+- add tray.css preview styles
+
+### Fixed
+- respect HookDecision to swallow original scroll and document macOS stubs
+- correct macOS F12 keycode and use kCGKeyboardEventKeycode constant
+- emit IPC events as PascalCase to match Swift client
+- emit SettingsChanged IPC event to match Swift client
+- remove duplicate AppState import in ipc_socket_server
+- add client-side cache busting and remove dead vercel config
+- remove dot grid spotlight, increase dot size 30%, lazy-load GIFs, add cache headers
+## [1.18.9] - 2026-07-10
+
+### Fixed
+- upgrade objc2-app-kit to 0.3 and objc2-foundation to 0.3 for MainThreadMarker support
+## [1.18.8] - 2026-07-10
+
+### Fixed
+- upgrade objc2 to 0.6 for correct MainThreadMarker path
+## [1.18.7] - 2026-07-10
+
+### Fixed
+- use main_thread_marker module for MainThreadMarker in objc2
+## [1.18.6] - 2026-07-10
+
+### Fixed
+- use full module path for MainThreadMarker in objc2 runtime
+## [1.18.5] - 2026-07-10
+
+### Fixed
+- restore correct MainThreadMarker path under objc2::runtime
+## [1.18.4] - 2026-07-10
+
+### Fixed
+- use root path for MainThreadMarker in macOS display query
+## [1.18.3] - 2026-07-10
+
+### Fixed
+- correct MainThreadMarker path and HotkeyRegistry callbacks visibility
+## [1.18.2] - 2026-07-10
+
+### Fixed
+- fix macOS compilation errors and hotkey privacy issues
+## [1.18.1] - 2026-07-10
+
+### Fixed
+- correct xlib imports and XRRGetScreenInfo arguments
+- fix compilation errors in linux refresh rate and wayland process query
+- run build-wasm using bash in test-typescript job
+- run build-wasm.sh using bash instead of sh
+- fix tests.yml compilation steps and requirements
+- install linux system dependencies and fail fast on test error
+## [1.18.0] - 2026-07-10
+
+### Added
+- add automated tests on every push with optimized build
+- implement GNOME and KDE reduce motion detection
+- implement Wayland process query for KDE
+- improve Wayland hotkey warning
+- implement XRR refresh rate detection
+- add X11 session warning
+
+### Fixed
+- loading states, error fallbacks, i18n fixes, and SEO metadata
+## [1.17.0] - 2026-07-10
+
+### Added
+- remove [lang] route segments, use client-side i18n
+- remove [lang] route segments, use client-side i18n
+- update Navigation, LangSwitcher, Footer for client-side i18n
+- use useLanguage hook in homepage
+- wrap app with LanguageProvider in layout
+- add LanguageContext and Provider for client-side i18n
+- pass comingSoonLabel to DownloadButtonWin in Hero
+- add comingSoonLabel badge to DownloadButtonWin
+- add LogoWall static grid component
+- show GitHub icon on mobile with text label on larger screens
+- add background dot pattern toggle
+- add scroll-to-top button
+- allow multi-expand and add Expand/Collapse all
+- honor reduced-motion and hover-pause for marquee
+- distinct aria-labels for header and footer GitHub links
+- add visible focus outline for keyboard nav
+- use aria-describedby for disabled tab tooltips
+- announce copy state via aria-live region
+- convert LangSwitcher to click-toggle for touch + ARIA menu
+- add skip-to-content link
+- add global prefers-reduced-motion guard
+- set html lang attribute per locale
+
+### Changed
+- restore output export for CI compatibility
+
+### Fixed
+- make Hero, FinalCTA, and Install CTAs OS-aware
+- add OS detection to Install component
+- remove skip-to-content link from Navigation
+- button badge styling and add Navigation to how-it-works
+- strip basePath from pathname before locale routing
+- add root page for English at / (no /en/ redirect)
+- render disabled button as single line
+- add trailing slash to how-it-works link
+- disable download button on macOS/Linux with Beta label
+- show OS-specific download button with Beta badge
+- remove basePath from localePath to avoid double prefix
+- add basePath prefix to assets and routes
+- locale routing, theme toggle, hero centering
+- add missing og-image.png to prevent 404 on rendered HTML
+- use BASE_PATH env var instead of hardcoded '/SmoothScroll'
+- replace em-dashes with hyphens in default metadata titles
+- replace em-dash with hyphen in SAMPLE_LINES title
+- replace em-dashes with hyphens in fallback values (5 instances)
+- replace em-dashes with hyphens in all 3 locale files (111 instances)
+- use 100dvh for mobile viewport stability, dedupe text-7xl
+- allow file-path code to wrap on small viewports
+- remove opacity-60 from LogoWall cells, add page-load waits
+- collapse sections cleanly at 320/390/768 viewports
+- darken light --destructive to 5.79:1 for AA body text
+- cap H1 at text-7xl for less aggressive scaling
+- use GripHorizontal icon for dot pattern toggle (DotsHorizontal missing in lucide-react)
+- honor prefers-reduced-motion in BackgroundDotGrid
+- bump dark mode muted-foreground to AA contrast
+- add color transition for dark mode toggle
+
+### Performance
+- preload critical hero image
+- skip WebM conversion (ffmpeg unavailable)
+- bundle brand SVGs locally, remove Iconify CDN dependency
+## [1.16.0] - 2026-07-08
+
+### Added
+- Windows-first conversion pitch and tray polish
+
+### Fixed
+- remove UTF-8 BOM from zh.json
+## [1.15.0] - 2026-07-08
+
+### Added
+- auto-fit panel width to content
+
+### Fixed
+- allow Windows tray panel to grow to 480px wide
+- auto-fit Windows tray panel width to label content
+- wrap CurrentAppCard in tray-section for consistent layout
+- align CurrentAppCard with MenuItem layout
+- per-app toggle cannot re-enable after disabling
+## [1.14.1] - 2026-07-07
+
+### Fixed
+- gate stats module behind cfg(not(wasm32)) to fix WASM build
+## [1.14.0] - 2026-07-07
+
+### Added
+- per-monitor scroll profiles and UWP force-enable toggle
+- per-monitor scroll profiles and UWP force-enable toggle
+- scroll analytics dashboard — daily stats with top apps and peak velocity
+- add winget package auto-update workflow
+- display refresh rate sync — engine frame rate matches primary monitor
+- velocity-based scroll acceleration replaces step-based
+
+### Fixed
+- add missing translation keys for monitor profiles, force enable, max velocity, and presets
+- add preset selection label, hide stats tab, add presets.currently i18n key
+- address code review findings — parking_lot Mutex, clone-before-IO, wire record_velocity, fix ScrollProfile schema
+- add max_velocity to mock profile in settingsStore test
+
+### Performance
+- add edge-case benchmarks — direction change, multi-axis, idle recovery, burst, easing
+- game mode — skip EnumWindows when foreground PID unchanged
+## [1.13.0] - 2026-07-07
+
+### Added
+- remove Start minimized, Excluded Apps, and Open Log menu items from tray panel
+- implement per-version highlights in WhatsNewModal using CHANGELOG.md
+- add 'Show release notes' button
+- auto-pull highlights from bundled CHANGELOG.md
+- add pure markdown changelog parser with tests
+- native UI theming + platform bugfixes
+- show beta warning for Linux and macOS users
+- add Linux support to download page
+- implement Wayland support design and detailed implementation plan
+- add Wayland support via evdev+uinput
+- wire direction sync in SettingsStore
+- add direction sync IPC protocol types
+- wire direction_sync_enabled handlers to AppState
+- implement MacosMouseHook using CGEventTap
+- add AppDelegate with graceful shutdown
+- add MenuBarController with NSStatusItem and NSPopover
+- add SmoothScrollPopover with connection status UI
+- add SettingsStore with rollback and mutation guard
+- add ScrollPreset enum
+- add ReconnectionManager with AsyncStream reconnect
+- implement IPCClient actor with DispatchQueue I/O
+- add SocketIO wrapper for POSIX I/O on DispatchQueue
+- add JSON-RPC protocol types and AppSettingsResponse
+- add SocketPath constant with defensive path resolution
+- add quit handler with watch channel to exit Tauri app
+- wire IpcServer into Tauri app, skip tray icon
+- add ipc_socket_path() using directories crate
+- limit Linux UI to essential features
+- adapt frontend for Linux platform
+- add Linux platform types in app crate
+- add complete Linux X11 platform implementation
+- convert hardcoded px values to rem for responsive scaling
+- responsive root font-size with clamp for large displays
+- add Sentry crash reporting for frontend and backend
+- implement is_target_elevated() with UAC detection
+- add is_target_elevated() to ProcessQuery trait
+- add IntegrityLevel enum
+
+### Fixed
+- resolve evdev Option unwrapping and unused import warnings
+- handle CRLF line endings in CHANGELOG.md parser
+- route cleanupNativeDisabledApps through store action for in-memory sync
+- ensure post-cleanup saveNow overrides stale debounced persist
+- cleanup stale native-app __disabled__ entries on toggle OFF
+- give sidebar items proper spacing and active state
+- show correct download label for Linux users
+- make wayland module pub for cross-crate access
+- add platform status command and permission error UI
+- improve touchpad detection and remove duplicate settings
+- change BUS_USB from u32 to u16 to match uinput_user_dev struct
+- fix type mismatches in evdev ioctl and event handling
+- fix ioctl macro invocation for nix 0.29
+- fix 73 build errors in smoothscroll_platform for Wayland support
+- fix Linux upload paths to match Cargo workspace target dir
+- add TAURI_SIGNING_PRIVATE_KEY to Linux build env
+- fix XI_RawButtonPress mask bit position overflow
+- fix mouse_hook.rs XEvent cookie access for x11 crate
+- fix 21 pre-existing Linux x11/xlib compilation errors
+- fix Linux x11 module paths + macOS DMG race condition
+- pass scrollEnabled as param to avoid @MainActor property access
+- move notification observer to AppDelegate to avoid Sendable capture issue
+- add @MainActor to MenuBarController for SettingsStore access
+- resolve 8 Swift compilation errors
+- break loop on write_all error in handle_client
+- return error on save_settings deserialization failure
+- persist preset and signal engine in set_preset handler
+- reset engine to default when scroll disabled
+- change IpcEvent serialization to camelCase without tag wrapper
+- add missing closing brace in handle_client event arm
+- remove unused IS_LINUX import in Settings.tsx
+- Drop impl compile error + Cargo.toml description
+- move suppression flag inside Mutex guard + fix CSS comment
+- address Linux X11 code review findings
+- remove font-size transition, vw scaling is naturally smooth
+- hardcode base path for before/after GIF assets
+- SEO accessibility fixes and hydration bug
+- migrate legacy SoftScroll config path on first load
+- move elevated check before should_lookup_processes gate
+- auto-bypass smooth scroll for elevated (admin) targets
+- set CONFIGURATION_BUILD_DIR for xcodebuild, add DMG error diagnostics
+## [1.12.0] - 2026-07-07
+
+### Added
+- implement per-version highlights in WhatsNewModal using CHANGELOG.md
+- add 'Show release notes' button
+- auto-pull highlights from bundled CHANGELOG.md
+- add pure markdown changelog parser with tests
+
+### Fixed
+- handle CRLF line endings in CHANGELOG.md parser
+- route cleanupNativeDisabledApps through store action for in-memory sync
+- ensure post-cleanup saveNow overrides stale debounced persist
+- cleanup stale native-app __disabled__ entries on toggle OFF
+- give sidebar items proper spacing and active state
+## [1.11.0] - 2026-07-03
+
+### Added
+- native UI theming + platform bugfixes
+- show beta warning for Linux and macOS users
+- add Linux support to download page
+
+### Fixed
+- show correct download label for Linux users
+## [1.10.7] - 2026-06-22
+
+### Fixed
+- make wayland module pub for cross-crate access
+## [1.10.6] - 2026-06-22
+
+### Fixed
+- add platform status command and permission error UI
+## [1.10.5] - 2026-06-21
+
+### Fixed
+- improve touchpad detection and remove duplicate settings
+## [1.10.4] - 2026-06-21
+
+### Fixed
+- change BUS_USB from u32 to u16 to match uinput_user_dev struct
+## [1.10.3] - 2026-06-21
+
+### Fixed
+- fix type mismatches in evdev ioctl and event handling
+## [1.10.2] - 2026-06-21
+
+### Fixed
+- fix ioctl macro invocation for nix 0.29
+## [1.10.1] - 2026-06-21
+
+### Fixed
+- fix 73 build errors in smoothscroll_platform for Wayland support
+## [1.10.0] - 2026-06-21
+
+### Added
+- implement Wayland support design and detailed implementation plan
+## [1.9.0] - 2026-06-21
+
+### Added
+- add Wayland support via evdev+uinput
+- wire direction sync in SettingsStore
+- add direction sync IPC protocol types
+- wire direction_sync_enabled handlers to AppState
+- implement MacosMouseHook using CGEventTap
+## [1.8.10] - 2026-06-21
+
+### Fixed
+- fix Linux upload paths to match Cargo workspace target dir
+## [1.8.9] - 2026-06-21
+
+### Fixed
+- add TAURI_SIGNING_PRIVATE_KEY to Linux build env
+## [1.8.8] - 2026-06-21
+
+### Fixed
+- fix XI_RawButtonPress mask bit position overflow
+## [1.8.7] - 2026-06-21
+
+### Fixed
+- fix mouse_hook.rs XEvent cookie access for x11 crate
+## [1.8.6] - 2026-06-21
+
+### Fixed
+- fix 21 pre-existing Linux x11/xlib compilation errors
+## [1.8.5] - 2026-06-21
+
+### Fixed
+- fix Linux x11 module paths + macOS DMG race condition
+## [1.8.4] - 2026-06-21
+
+### Fixed
+- pass scrollEnabled as param to avoid @MainActor property access
+## [1.8.3] - 2026-06-21
+
+### Fixed
+- move notification observer to AppDelegate to avoid Sendable capture issue
+## [1.8.2] - 2026-06-21
+
+### Fixed
+- add @MainActor to MenuBarController for SettingsStore access
+## [1.8.1] - 2026-06-21
+
+### Fixed
+- resolve 8 Swift compilation errors
+## [1.8.0] - 2026-06-21
+
+### Added
+- add AppDelegate with graceful shutdown
+- add MenuBarController with NSStatusItem and NSPopover
+- add SmoothScrollPopover with connection status UI
+- add SettingsStore with rollback and mutation guard
+- add ScrollPreset enum
+- add ReconnectionManager with AsyncStream reconnect
+- implement IPCClient actor with DispatchQueue I/O
+- add SocketIO wrapper for POSIX I/O on DispatchQueue
+- add JSON-RPC protocol types and AppSettingsResponse
+- add SocketPath constant with defensive path resolution
+- add quit handler with watch channel to exit Tauri app
+- wire IpcServer into Tauri app, skip tray icon
+- add ipc_socket_path() using directories crate
+
+### Fixed
+- break loop on write_all error in handle_client
+- return error on save_settings deserialization failure
+- persist preset and signal engine in set_preset handler
+- reset engine to default when scroll disabled
+- change IpcEvent serialization to camelCase without tag wrapper
+- add missing closing brace in handle_client event arm
+## [1.7.0] - 2026-06-21
+
+### Added
+- limit Linux UI to essential features
+- adapt frontend for Linux platform
+- add Linux platform types in app crate
+- add complete Linux X11 platform implementation
+- convert hardcoded px values to rem for responsive scaling
+- responsive root font-size with clamp for large displays
+
+### Fixed
+- remove unused IS_LINUX import in Settings.tsx
+- Drop impl compile error + Cargo.toml description
+- move suppression flag inside Mutex guard + fix CSS comment
+- address Linux X11 code review findings
+- remove font-size transition, vw scaling is naturally smooth
+## [1.6.0] - 2026-06-19
+
+### Added
+- add Sentry crash reporting for frontend and backend
+
+### Fixed
+- hardcode base path for before/after GIF assets
+- SEO accessibility fixes and hydration bug
+## [1.5.1] - 2026-06-12
+
+### Fixed
+- migrate legacy SoftScroll config path on first load
+## [1.5.0] - 2026-06-12
+
+### Added
+- implement is_target_elevated() with UAC detection
+- add is_target_elevated() to ProcessQuery trait
+- add IntegrityLevel enum
+
+### Fixed
+- move elevated check before should_lookup_processes gate
+- auto-bypass smooth scroll for elevated (admin) targets
+## [1.4.16] - 2026-06-01
+
+### Fixed
+- set CONFIGURATION_BUILD_DIR for xcodebuild, add DMG error diagnostics
+## [1.4.15] - 2026-06-01
+
+### Fixed
+- update IPCClient buffer type for improved data handling
+## [1.4.14] - 2026-06-01
+
+### Fixed
+- make menubar buildable on Xcode 15.4 (macOS 14.5 SDK)
+## [1.4.13] - 2026-06-01
+
+### Fixed
+- rewrite IPCClient with BSD socket APIs for macOS 14.5 compatibility
+## [1.4.12] - 2026-06-01
+
+### Fixed
+- add macos/** to auto-release trigger paths
+- bump deployment target to macOS 15.0 and fix SettingsStore usage
+## [1.4.11] - 2026-06-01
+
+### Fixed
+- map x64 to x86_64 for xcodebuild -arch flag
+## [1.4.10] - 2026-06-01
+
+### Fixed
+- chain swift build commands with && (each run: line is separate shell)
+## [1.4.9] - 2026-06-01
+
+### Fixed
+- correct xcodegen path after unzip (xcodegen/bin/ not XcodeGen-2.45.0/bin/)
+## [1.4.8] - 2026-06-01
+
+### Fixed
+- pin xcodegen project format to xcode15_3
+## [1.4.7] - 2026-06-01
+
+### Fixed
+- pin xcodegen to v2.42.0 to match Xcode 15.4
+## [1.4.6] - 2026-06-01
+
+### Fixed
+- define CFTypeRef as *mut c_void to match CFMachPortRef
+## [1.4.5] - 2026-06-01
+
+### Fixed
+- resolve core-foundation-sys version conflict
+## [1.4.4] - 2026-06-01
+
+### Fixed
+- add guard job to prevent recursive workflow re-trigger
+## [1.4.3] - 2026-06-01
+
+### Fixed
+- fix all 12 compile errors from CI - name conflicts, type mismatches, OnceLock Sync, CFDictionary API
+## [1.4.2] - 2026-06-01
+
+### Fixed
+- smoothscroll-platform -> smoothscroll_platform in build-macos job
+## [1.4.1] - 2026-06-01
+
+### Fixed
+- smoothscroll-core -> smoothscroll_core in build-macos job
+## [1.4.0] - 2026-05-31
+
+### Added
+- complete Swift menu bar app (AppDelegate, views, MenuBarController, IPC, Settings)
+- IPC client and settings store
+- SwiftUI popover views
+- MenuBarController with NSStatusItem and NSPopover
+- Swift app entry point and AppDelegate
+- add XcodeGen project scaffold
+- add Swift menu bar app scaffold (XcodeGen, views, IPC)
+- add IPC socket server for Swift communication
+- implement is_trusted + wire platform bundle with ZoomEmitter
+- implement wheel emitter with CGEvent posting
+- add CGEventTap scroll interception
+- wire platform bundle with ZoomEmitter
+- is_trusted accessibility check
+- wheel emitter CGEvent emission
+- CGEventTap scroll interception
+
+### Fixed
+- resolve tokio version conflict by removing macros feature (provided by tauri)
+- dispatch crate version 2 -> 0.2
+- address review findings - CFRunLoop pump, FFI types, allocator types, unwrap fixes, memory safety
+## [1.3.1] - 2026-05-31
+
+### Fixed
+- update behavioral guidelines and enhance settings synchronization
+## [1.3.0] - 2026-05-31
+
+### Added
+- introduce auto-disable feature for Windows apps with native smooth scrolling
+## [1.2.1] - 2026-05-31
+
+### Fixed
+- prevent multiple tray icons via single-instance
+- align pnpm versions across all workflows and package.json files
+## [1.2.0] - 2026-05-29
+
+### Added
+- add smooth zoom settings UI with 14-locale i18n
+- emit zoom events from engine thread
+- wire ZoomEmitter into AppState
+- implement ZoomEmitter for Windows via PostMessageW+MK_CONTROL
+- add ZoomEmitter trait
+- add ZoomAxis to SmoothScrollEngine with routing logic
+- add smooth_zoom settings fields
+- block macOS downloads, show Coming Soon for macOS users
+
+### Fixed
+- handle zoom field in EngineOutput destructure
+- add zoom_emitter to Platform struct, implement ZoomEmitter for macos stub
+## [1.1.0] - 2026-05-23
+
+### Added
+- open main settings on double-left-click
+
+### Fixed
+- drop FrameworkId fallback that suppressed keyboard smooth scroll
+## [1.0.3] - 2026-05-23
+
+### Fixed
+- broaden Chromium framework check and add Custom control handling
+## [1.0.2] - 2026-05-23
+
+### Fixed
+- treat non-Chromium Document controls as editable text input
+## [1.0.1] - 2026-05-23
+
+### Fixed
+- drop -- separator so tauri CLI receives --target on macOS
+## [1.0.0] - 2026-05-23
+
+### Added
+- First production release. Adopts SemVer 2.0.0 + Conventional Commits 1.0.0 + Keep a Changelog 1.1.0.
+- Cross-platform smooth scrolling for Windows (stable channel) and macOS (beta channel).
+- Settings UI with themes, i18n (en, vi, zh, plus more).
+- Auto-updater integration (Windows).
+- UIA-based text input detection on Windows.
+- Tray panel + main window UX.
+
+### Changed
+- Version jumps from 0.1.38 → 1.0.0 to signal stability.
+- Automated release workflow now derives bump level from Conventional Commits.
+
+### Known Issues
+- macOS builds unsigned (no Apple Developer ID yet). Users must allow via Gatekeeper.
+- macOS auto-update disabled in beta channel until code-signing is set up.
+
+## [0.1.0] - 2026-05-16
+
+### Added (M8 — Hardening + Installer)
+
+- Rolling daily logs with 7-day retention via `tracing-appender` — Windows at `%APPDATA%/SoftScrollNext/logs/`, macOS at `~/Library/Logs/SoftScrollNext/`
+- `app_version` and `open_log_dir` Tauri commands + AboutSection UI
+- Deterministic drop order for OS handles via Tauri-managed `OwnedHandles` state (no orphan processes on Exit)
+- Pre-build kill-running-instance (`taskkill` / `pkill`) to avoid file locks
+- NSIS installer (per-user, 3 languages: en/vi/zh) + WiX MSI bundle config
+- DMG + .app bundle config (unsigned, minimum macOS 12.0)
+- AboutSection with version, homepage link, and "Open log folder" button
+
+### Added (M7 — macOS Port)
+
+- macOS `MouseHook` via `CGEventTap` on a dedicated `CFRunLoop` thread
+- macOS `WheelEmitter` via `CGEventCreateScrollWheelEvent2` + `CGEventPost`
+- macOS `ProcessQuery` via `CGWindowList` + `NSWorkspace`
+- macOS `Autostart` via `~/Library/LaunchAgents/com.softscroll.next.plist` + `launchctl`
+- macOS `Hotkey` via Carbon `RegisterEventHotKey`
+- First-run Accessibility permission gate with auto-detection polling
+- Bundle config: minimum macOS 12, `NSAccessibilityUsageDescription` in `Info.plist`
+
+### Known issues for 0.1.0
+
+- Toggling "Global hotkey" requires a restart to take effect
+- Tray menu localization picks up at launch, not at runtime
+
+### Added (M6 — Hotkey + Autostart + i18n)
+
+- Windows global hotkey Ctrl+Alt+S via `RegisterHotKey` on a dedicated message-pump thread
+- HKCU\Run autostart with quoted exe path
+- React i18next with three locales (en, vi, zh)
+- Settings UI sections: Behavior (hotkey/autostart/start-minimized) + Language (picker)
+- Window close button hides instead of exiting; tray Exit fully quits
+- Tray menu labels localized at app launch; "Open Settings" menu item
+
+### Added (M5 — App Exclusion List)
+
+- Windows `ProcessQuery` impl (100ms TTL + HWND-change cache)
+- `EnumWindows` walker for the picker dialog
+- Tauri commands: `list_running_processes`, `add_excluded_app`, `remove_excluded_app`
+- React UI: ExcludedAppsSection + AddAppDialog with picker + manual entry
+
+### Added (M4 — Horizontal + Shift + Reverse)
+
+- Native `WM_MOUSEHWHEEL` smoothing path
+- Shift+wheel→horizontal conversion gated by `shift_key_horizontal`
+- Reverse-wheel-direction toggle (applies to both axes)
+
+### Added (M3 — Settings UI)
+
+- Real `AppSettings::clamp` with full unit tests (12 tests)
+- Tauri commands: `get_settings`, `save_settings`
+- React + shadcn settings UI: enable header, scrolling section, appearance section, direction section
+- Settings persistence at `%APPDATA%/SoftScrollNext/settings.json` (Windows)
+
+### Added (M2 — Vertical Scroll Smooth, Windows)
+
+- Real easing math (Linear, CubicOut, QuinticOut, ExponentialOut) with 9 unit tests
+- Real `SmoothScrollEngine` with per-axis state, acceleration ramp, fractional accumulator
+- Windows `WH_MOUSE_LL` hook on a dedicated message-pump thread
+- Windows `SendInput`-based wheel emitter
+- 60fps modifier sampler + 120fps engine thread
+- `timeBeginPeriod(1)` RAII guard
+- Tray icon with Enable toggle and Exit
+
+## [0.1.0] - 2026-05-14
+
+### Added
+
+- **Milestone 1: Workspace Skeleton** — Initial project scaffold:
+  - `tauri/Cargo.toml` workspace with three members: `crates/core`, `crates/platform`, `src-tauri`
+  - `crates/core/` — pure scroll engine logic, settings model, easing math. OS-agnostic.
+  - `crates/platform/` — OS-specific traits with `#[cfg(windows)]` and `#[cfg(target_os = "macos")]` gated stubs for M1
+  - `src-tauri/` — Tauri 2 app binary (Windows + macOS)
+  - `src/` — React 18 + TypeScript + Vite 6 + Tailwind CSS + shadcn/ui frontend skeleton
+  - MSI and NSIS installers built successfully

@@ -1,0 +1,869 @@
+{
+  "nav": {
+    "github": "GitHub",
+    "stars": "星"
+  },
+  "seo": {
+    "title": "Windows 平滑滚动软件 | SmoothScroll",
+    "description": "SmoothScroll 是适用于 Windows 10 和 11 的免费平滑滚动软件，可将鼠标滚轮输入变成流畅的 120 Hz 滚动，并支持按应用配置和无遥测。"
+  },
+  "geo": {
+    "title": "SmoothScroll 是什么？",
+    "answer": "SmoothScroll 是适用于 Windows 10 和 11 的免费平滑滚动软件。它将鼠标滚轮输入转换为 120 Hz 缓动滚动输出，并允许为单个应用配置配置文件和排除项。当前 Windows 版本可在 GitHub Releases 下载，应用不含遥测。",
+    "evidence": "由 SmoothScroll 贡献者维护 · 更新于 2026-10-09",
+    "faqQuestion": "SmoothScroll 是什么？",
+    "faqAnswer": "SmoothScroll 是适用于 Windows 10 和 11 的免费平滑滚动软件，提供可配置的 120 Hz 缓动和按应用控制。此仓库不公开桌面应用源代码；请到 GitHub Releases 下载，并查看隐私页面了解数据处理方式。",
+    "guideLabel": "阅读 SmoothScroll 工作原理",
+    "sourceLabel": "在 GitHub 查看项目和发行版",
+    "releaseLabel": "查看最新版本"
+  },
+  "hero": {
+    "eyebrow": "适用于 Windows",
+    "title": "Windows 平滑滚动，",
+    "titleAccent": "终于做到位了。",
+    "subtitle": "一个 120 Hz 的缓动引擎,为每一次滚轮事件服务,覆盖所有应用。为能分辨顺滑与卡顿的人而生。",
+    "cta": "下载 Windows 版",
+    "trustLine": "免费。无遥测。发行说明在 GitHub。",
+    "seeHow": "查看工作原理",
+    "demoPrompt": "滚动下方卡片，然后拨动开关。",
+    "demoToast": "想真实体验？--下载试试。"
+  },
+  "painPoints": {
+    "title": "滚轮滚动体验很糟糕",
+    "points": [
+      {
+        "title": "每个应用各做各的",
+        "description": "Chrome 做了,Edge 做了,资源管理器没有。你被困在每个开发者写的东西里。"
+      },
+      {
+        "title": "顺滑滚动成了付费功能",
+        "description": "Logi Options+ 还行--直到你换了鼠标。WizMouse 自 2014 年就没更新过。"
+      },
+      {
+        "title": "反作弊讨厌你的工具",
+        "description": "大多数输入工具会被标记。SmoothScroll 自动绕过管理员应用,你无需配置。"
+      }
+    ]
+  },
+  "solutionBridge": {
+    "line": "SmoothScroll 修复它。"
+  },
+  "features": {
+    "title": "你需要的一切，不需要的一概不要",
+    "items": [
+      {
+        "title": "六个一键预设",
+        "description": "Slow、Default、Fast、Snappy、Mac-like、Linear - 一键选中最适合你手感的预设。"
+      },
+      {
+        "title": "精细调节",
+        "description": "步长、动画时间、缓动曲线、加速 - 每个滑块都为真实使用场景调校。"
+      },
+      {
+        "title": "按应用配置",
+        "description": "Chrome、VS Code、Adobe 各有最佳参数。App 自动推荐合适预设。"
+      },
+      {
+        "title": "触控板 + 鼠标分别处理",
+        "description": "精密触控板有独立的像素倍增和加速参数。鼠标滚轮独立运行。"
+      },
+      {
+        "title": "游戏模式自动禁用",
+        "description": "已知游戏全屏时 SmoothScroll 自动暂停。原始输入得到保留。"
+      },
+      {
+        "title": "隐私优先",
+        "description": "无遥测、无网络请求、无数据收集。设置和日志留在你的设备上。"
+      }
+    ]
+  },
+  "useCases": {
+    "title": "为你的真实工作方式而造",
+    "tabs": {
+      "reading": {
+        "label": "阅读",
+        "description": "长文、文档、PDF。流畅滚动让你沉浸其中。"
+      },
+      "coding": {
+        "label": "编程",
+        "description": "浏览代码库、滚动日志、审阅 diff--不再迷路。"
+      },
+      "designing": {
+        "label": "设计",
+        "description": "画板、时间轴、图层面板。滚动应和手写笔一样精准。"
+      }
+    }
+  },
+  "trayPreview": {
+    "title": "它就住在系统托盘里",
+    "subtitle": "一个托盘面板，做该做的事--开关、打开设置、为当前应用关闭。仅此而已。"
+  },
+  "stats": {
+    "title": "被信任使用",
+    "githubStars": "GitHub 星星",
+    "downloads": "下载次数",
+    "version": "版本",
+    "fallback": {
+      "stars": "-",
+      "downloads": "-",
+      "version": "v1.35.1"
+    }
+  },
+  "indie": {
+    "title": "独立开发者出品",
+    "subtitle": "独立，透明、社区驱动。",
+    "points": [
+      "隐私政策和发行信息可在 GitHub 查看",
+      "零遥测或数据收集",
+      "无广告、无高级版、无推销",
+      "在 GitHub 发布更新和项目资讯"
+    ],
+    "cta": "在 GitHub 查看"
+  },
+  "install": {
+    "title": "60 秒开始体验",
+    "subtitle": "下载、运行、感受不同。",
+    "tabs": {
+      "windows": {
+        "label": "Windows",
+        "steps": [
+          "点击下方下载安装包",
+          "运行 .exe--无需安装向导，无需管理员权限",
+          "SmoothScroll 自动启动。搞定。"
+        ]
+      }
+    },
+    "filename": "SmoothScrollSetup.exe",
+    "note": {
+      "windows": "默认保存到 %LOCALAPPDATA%"
+    },
+    "cta": "下载 Windows 版"
+  },
+  "faq": {
+    "title": "常见问题",
+    "subtitle": "关于在 Windows 上安装、调校和信任 SmoothScroll 的一切。",
+    "seo": {
+      "title": "SmoothScroll 问答：价格、安全、设置与故障排除 | Windows",
+      "description": "解答关于 Windows 10 和 11 版 SmoothScroll 的问题：是否免费安全、如何安装、步长、动画时长、缓动曲线、按应用配置、游戏场景，以及应用不平滑时的修复方法。"
+    },
+    "viewAll": "查看全部问答",
+    "backToHome": "返回首页",
+    "questions": [
+      {
+        "q": "所有应用都支持吗？",
+        "a": "SmoothScroll 在滚轮输入到达任何应用之前就拦截了，所以几乎支持所有应用--Chrome、VS Code、文件资源管理器、Adobe 全家桶等。"
+      },
+      {
+        "q": "会耗电吗？",
+        "a": "不会。SmoothScroll 空闲时 CPU 几乎为零，只在滚动事件时处理。大多数用户感受不到电池影响。"
+      },
+      {
+        "q": "安全吗？会安装什么？",
+        "a": "Windows 安装包按用户安装，无需管理员权限。应用位于 %LOCALAPPDATA% 并自动启动。不安装服务、驱动或网络监听器。"
+      },
+      {
+        "q": "和 Windows 自带的平滑滚动有何不同？",
+        "a": "Windows 自带的平滑滚动按应用而异且不统一。SmoothScroll 提供统一的、可配置的曲线，全局生效，并支持按应用配置、即开即关。"
+      },
+      {
+        "q": "游戏鼠标或高 DPI 设备能用吗？",
+        "a": "能。SmoothScroll 尊重硬件原始滚动增量并在其上应用平滑处理。已测试各种鼠标，包括高刷新率和游戏鼠标。"
+      },
+      {
+        "q": "可以针对特定应用关闭吗？",
+        "a": "可以。内置了按应用排除配置文件。打开托盘面板，将应用添加到排除列表即可。"
+      },
+      {
+        "q": "支持哪些 Windows 版本？",
+        "a": "Windows 10 和 Windows 11 完全支持。"
+      },
+      {
+        "q": "有 Linux 版本吗？",
+        "a": "暂无。SmoothScroll 目前仅支持 Windows 10 和 11。Linux 版本计划中，请关注 GitHub Releases 页面获取更新。"
+      },
+      {
+        "q": "如何卸载？",
+        "a": "直接删除可执行文件即可。无需卸载程序--系统里没有别的东西。"
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "准备好感受不同了吗？",
+    "subtitle": "加入成千上万的开发者与设计师，体验更顺滑的滚动。",
+    "cta": "下载 SmoothScroll",
+    "ctaSub": "Windows 版目前免费。查看最新发行版。"
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "subtitle": "SmoothScroll 不收集任何个人数据。本页详细说明应用和本网站处理哪些信息、原因，以及您拥有的选择。",
+    "updated": "最后更新：2026年9月27日",
+    "backToHome": "返回首页",
+    "seo": {
+      "title": "隐私政策 — SmoothScroll",
+      "description": "SmoothScroll 不收集个人数据：无账号、无遥测、无分析、无广告。设置和日志仅保存在您的设备上。"
+    },
+    "intro": "本隐私政策说明 SmoothScroll（\"我们\"、\"应用\"）及网站 smoothscroll.top（\"本网站\"）处理哪些信息、原因，以及您拥有的选择。简而言之：应用设计为完全在您的设备上离线运行。我们不运营任何接收您个人数据的服务器，也不收集、出售或共享个人信息。",
+    "sections": [
+      {
+        "heading": "适用范围",
+        "paragraphs": [
+          "本政策适用于通过我们的网站、GitHub 或 Microsoft Store 获取的 SmoothScroll 应用（Windows、macOS 与 Linux），以及 smoothscroll.top 网站。本政策不涵盖第三方服务——这些服务受其自身政策约束（见下方\"第三方服务\"）。"
+        ]
+      },
+      {
+        "heading": "我们不收集的信息",
+        "paragraphs": [
+          "应用的设计确保您的活动永远不会到达我们这里："
+        ],
+        "bullets": [
+          "无账号或注册——应用无需登录即可使用。",
+          "无分析或使用统计——我们永远不会知道您使用哪些应用、打开哪些文件或访问哪些网站。",
+          "无遥测或崩溃报告——不会自动发送任何错误报告。",
+          "无广告或广告跟踪器。",
+          "我们不设置任何 cookie——本网站为静态站点，不设置跟踪 cookie。"
+        ]
+      },
+      {
+        "heading": "保存在您设备上的数据（本地数据）",
+        "paragraphs": [
+          "与几乎所有桌面应用一样，应用将所需的一切都保存在您的电脑上："
+        ],
+        "bullets": [
+          "设置：您的滚动偏好和按应用配置，保存于 %APPDATA%\\SmoothScroll\\settings.json（Windows）或 macOS/Linux 上对应的配置文件夹。",
+          "日志：诊断日志写入本地文件夹；可从应用的\"支持\"部分打开。"
+        ],
+        "outro": "这些数据绝不会传输给我们。您可以随时查看、修改或删除；卸载应用或删除这些文件即可清除应用创建的全部数据。"
+      },
+      {
+        "heading": "更新检查",
+        "paragraphs": [
+          "应用会定期联系 GitHub（github.com）检查是否有新版本。这是下载一个小型版本文件的普通 HTTPS 请求；与任何网络请求一样，GitHub 会收到您的 IP 地址和标准技术标头（如操作系统版本）。除此之外不会发送任何关于您或您使用情况的信息。",
+          "如果您通过 Microsoft Store 安装应用，更新由 Store 自行提供。"
+        ]
+      },
+      {
+        "heading": "第三方服务",
+        "paragraphs": [
+          "应用和网站链接或嵌入了少量第三方服务。当您与它们交互时，适用其各自的隐私政策："
+        ],
+        "bullets": [
+          "GitHub 上的更新文件——版本检查与下载由 GitHub 提供（见其隐私政策）。",
+          "Buy Me a Coffee——捐赠链接会在您的浏览器中打开。如果您选择捐赠，付款信息由 Buy Me a Coffee 依其政策处理。",
+          "VietQR——应用的\"支持\"部分可能会显示从 img.vietqr.io 加载的银行二维码图片。这是向该服务发出的普通图片请求。",
+          "GitHub Issues——当您在 GitHub 上报告问题或公开联系我们时，您发布的内容会显示在 GitHub 上并受其条款约束。"
+        ]
+      },
+      {
+        "heading": "Microsoft Store",
+        "paragraphs": [
+          "当您通过 Microsoft Store 获取应用时，微软是您的微软账号、购买记录和设备信息等数据的独立控制者，依《Microsoft 隐私声明》处理。我们不会从微软收到您的个人数据；我们只能看到下载量等汇总的、非身份识别信息。"
+        ]
+      },
+      {
+        "heading": "网站与服务器日志",
+        "paragraphs": [
+          "本网站为静态站点。我们的托管服务商可能会自动处理标准技术日志（例如您的 IP 地址、浏览器类型和所请求的页面），用于安全与运营目的。我们不会使用这些日志构建关于您的用户画像。"
+        ]
+      },
+      {
+        "heading": "法律依据（GDPR）",
+        "paragraphs": [
+          "对于欧盟/欧洲经济区的访客：我们不基于自身目的处理您的个人数据，因此不存在需要法律依据的处理行为。上述各方（GitHub、微软及托管服务商）作为独立控制者，依其自身政策处理有限的技术数据。"
+        ]
+      },
+      {
+        "heading": "儿童隐私",
+        "paragraphs": [
+          "应用和网站并非面向儿童，我们也不会故意收集任何人的个人数据——包括 13 岁以下儿童（或您所在司法辖区的同等最低年龄）——因为我们根本不收集个人数据。"
+        ]
+      },
+      {
+        "heading": "数据安全",
+        "paragraphs": [
+          "由于您的数据保留在您的设备上，我们不存储任何可能从我方泄露的内容。本地设置文件以未加密形式存储在您的用户目录中，受操作系统用户权限保护。请妥善保管您的设备。"
+        ]
+      },
+      {
+        "heading": "国际数据传输",
+        "paragraphs": [
+          "上述第三方（例如 GitHub 和微软）在全球运营，可能在与您不同的国家/地区（包括美国）处理技术数据。其政策说明了所适用的保障措施。"
+        ]
+      },
+      {
+        "heading": "您的权利",
+        "paragraphs": [
+          "视您所在地区而定，您可能享有访问、更正、删除、可携带性和反对等权利（例如依据 GDPR 或 CCPA）。由于我们不持有您的任何个人数据，通常没有可供我们处理的内容——发送给我们的请求将获得\"未持有任何个人数据\"的确认。",
+          "您仍可完全控制上述本地文件；删除它们即彻底清除您的应用数据。"
+        ]
+      },
+      {
+        "heading": "政策变更",
+        "paragraphs": [
+          "我们可能随时更改本政策。当前版本始终发布在本页面，页面顶部的\"最后更新\"日期反映最新修订。更改发布后即生效。",
+          "如有重大变更，我们也可能在应用的发布说明中公告。更改生效后您继续使用应用或网站，即表示您接受更新后的政策。"
+        ]
+      },
+      {
+        "heading": "联系我们",
+        "paragraphs": [
+          "有问题、请求或投诉？请发送电子邮件至 nguyentruongk530042003@gmail.com，或在 github.com/quangtruong2003/SmoothScroll 提交 issue。我们通常会在几天内回复。"
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "links": {
+      "github": "GitHub",
+      "license": "许可证",
+      "privacy": "隐私"
+    },
+    "taglineWindows": "Windows 流畅滚动。",
+    "copyright": "© 2026 SmoothScroll.",
+    "madeBy": "由 Nguyễn Quang Trường 在胡志明市制作。",
+    "headings": {
+      "product": "产品",
+      "guides": "指南",
+      "project": "项目"
+    },
+    "product": {
+      "howItWorks": "工作原理",
+      "install": "下载",
+      "faq": "问答"
+    },
+    "project": {
+      "issues": "报告问题"
+    }
+  },
+  "langSwitcher": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "howItWorks": {
+    "seo": {
+      "title": "SmoothScroll 工作原理：Windows 滚动设置指南",
+      "description": "了解 SmoothScroll 如何在 Windows 上将鼠标滚轮输入变成平滑滚动，并使用缓动曲线、配置文件、快捷键和应用排除。"
+    },
+    "hero": {
+      "eyebrow": "完整指南",
+      "title": "看 SmoothScroll",
+      "titleAccent": "如何工作",
+      "subtitle": "逐页讲解每个标签、每项设置和每个键盘快捷键 - 让你能精准调出想要的滚动手感。",
+      "ctaPrimary": "下载 SmoothScroll",
+      "ctaSecondary": "查看键盘快捷键",
+      "backToHome": "返回首页"
+    },
+    "demo": {
+      "caption": "每个标签，每项设置 - 实时录制",
+      "alt": "SmoothScroll 设置窗口动画演示：滚动、设备、高级、应用、游戏模式、行为、关于",
+      "hint": "提示：每个标签下方都有专属介绍。",
+      "placeholder": "演示无法加载。请刷新页面后重试。"
+    },
+    "bigPicture": {
+      "title": "整体流程",
+      "subtitle": "每个滚轮 tick 都会跑这三步 - 每秒 120 次。",
+      "steps": [
+        {
+          "title": "1. 拦截",
+          "description": "底层钩子（Windows WH_MOUSE_LL / macOS CGEventTap）在任何应用看到之前就捕获每个原始滚轮事件。"
+        },
+        {
+          "title": "2. 平滑",
+          "description": "缓动曲线 - Exponential、Cubic、Quintic 或 Linear - 在动画窗口内插值 delta。快速滚动时加速会累积动量。"
+        },
+        {
+          "title": "3. 发送",
+          "description": "合成滚轮事件以 120 Hz 发送给前台应用。被排除的应用和游戏会跳过引擎，原样通过。"
+        }
+      ]
+    },
+    "tabs": {
+      "title": "应用中的每个标签",
+      "subtitle": "打开设置（左键点击托盘图标）跟随浏览。下方顺序与侧边栏一致。",
+      "tocLabel": "跳转到标签",
+      "sections": [
+        {
+          "id": "scroll",
+          "label": "滚动",
+          "intro": "滚动页提供六种一键预设，以及方向、缩放和缓动选项。距离和速度滑块位于高级页。",
+          "settings": [
+            {
+              "name": "启用",
+              "what": "总开关。关 = 系统原生滚动，开 = SmoothScroll 引擎。",
+              "why": "无需卸载即可快速 A/B。也绑定到全局快捷键。",
+              "range": "开 / 关",
+              "defaultValue": "开",
+              "tip": "用全局快捷键 (Ctrl+Alt+S) 切换，无需离开键盘。"
+            },
+            {
+              "name": "动画时长",
+              "what": "开关滚动动画时间；时长在高级页调整。",
+              "why": "关闭可获得即时响应。",
+              "range": "开 / 关",
+              "defaultValue": "开"
+            },
+            {
+              "name": "反向",
+              "what": "反转滚轮方向（自然式，类似 macOS）。",
+              "why": "与你也用的 Mac 保持一致，或个人偏好。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "平滑横向滚动",
+              "what": "对物理横向滚轮或倾斜滚轮输入应用平滑。",
+              "why": "宽表格、时间轴、图片条。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "Shift 转横向",
+              "what": "按住 Shift 滚动变为横向滚动。",
+              "why": "鼠标没有倾斜滚轮时有用。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "反转横向滚动方向",
+              "what": "反转经过平滑处理的横向滚轮输入或 Shift 转横向滚动的方向。",
+              "why": "按个人习惯调整横向方向。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "平滑缩放",
+              "what": "对 Ctrl + 滚轮缩放使用专用平滑处理，而非普通滚轮平滑。",
+              "why": "需要调整应用中 Ctrl + 滚轮缩放的平滑效果时开启。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "反转缩放方向",
+              "what": "开启平滑缩放时反转 Ctrl + 滚轮的缩放方向。",
+              "why": "适合缩放方向与习惯相反的设计软件。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "平滑缓动",
+              "what": "对每次移动应用缓动曲线。关 = 线性。",
+              "why": "缓动让滚动自然而非机械。",
+              "range": "开 / 关",
+              "defaultValue": "开"
+            },
+            {
+              "name": "缓动曲线",
+              "what": "四种 - Exponential Out、Cubic Out、Quintic Out、Linear。",
+              "why": "每种曲线减速不同。Quintic 像 Mac；Linear 纯机械感。",
+              "range": "Exponential / Cubic / Quintic / Linear",
+              "defaultValue": "Quintic Out",
+              "tip": "想要最长最平滑的尾巴试 Quintic。"
+            }
+          ]
+        },
+        {
+          "id": "devices",
+          "label": "设备",
+          "intro": "精密触控板的微调 - 与鼠标滚轮分开处理。",
+          "settings": [
+            {
+              "name": "平滑触控板滚动",
+              "what": "对高分辨率精密触控板输入应用缓动。",
+              "why": "触控板发送像素级 delta；这也会平滑它们。",
+              "range": "开 / 关",
+              "defaultValue": "开"
+            },
+            {
+              "name": "像素倍增",
+              "what": "在平滑前缩放原始触控板像素 delta。",
+              "why": "让触控板灵敏度匹配滚轮。",
+              "range": "0.5–3.0×",
+              "defaultValue": "1.0×"
+            },
+            {
+              "name": "加速因子",
+              "what": "增强大幅双指甩动。0 完全禁用加速。",
+              "why": "让快速甩动走得更远，同时小拖动保持精准。",
+              "range": "0–3",
+              "defaultValue": "1"
+            }
+          ]
+        },
+        {
+          "id": "advanced",
+          "label": "高级",
+          "intro": "微调滚动距离、时间、加速和滚轮兼容模式。",
+          "settings": [
+            {
+              "name": "步长",
+              "what": "每个滚轮 notch 滚动的像素数。",
+              "why": "越大每次点击覆盖越多页面；越小越精细。",
+              "range": "10–500 px",
+              "defaultValue": "144 px",
+              "tip": "代码审阅降到 100，长 PDF 升到 200。"
+            },
+            {
+              "name": "动画时长",
+              "what": "每次滚动稳定下来需要多久。",
+              "why": "越长越丝滑；越短反应越快。",
+              "range": "50–1500 ms",
+              "defaultValue": "220 ms",
+              "tip": "120 ms 以下几乎像原生；300 ms 以上有 Mac 触控板感。"
+            },
+            {
+              "name": "最大加速倍数",
+              "what": "加速倍数的硬上限。",
+              "why": "防止快速旋转时速度失控。",
+              "range": "1–20×",
+              "defaultValue": "10×"
+            },
+            {
+              "name": "最大速度",
+              "what": "限制最大滚动速度。",
+              "why": "避免连续滚轮输入产生过快的移动。",
+              "range": "5–50",
+              "defaultValue": "20"
+            },
+            {
+              "name": "尾首比",
+              "what": "仅在缓动曲线为 Exponential Out 时调整减速曲线的陡峭程度。",
+              "why": "Exponential Out 下数值越高，初始速度越快、慢尾越长；其他缓动曲线不使用此设置。",
+              "range": "1–20",
+              "defaultValue": "5"
+            },
+            {
+              "name": "滚轮兼容性",
+              "what": "选择平滑脉冲、保留完整滚轮步进或原生输入；应用专用的兼容性规则可能覆盖此选择。",
+              "why": "遇到不兼容平滑脉冲的应用时切换模式。",
+              "range": "平滑脉冲 / 完整步进 / 原生输入",
+              "defaultValue": "平滑脉冲"
+            }
+          ]
+        },
+        {
+          "id": "apps",
+          "label": "应用",
+          "intro": "按应用覆盖。不同应用值得不同手感。",
+          "settings": [
+            {
+              "name": "滚动配置文件",
+              "what": "命名预设 - 如 Mac-like、Snappy、Slow Reading - 每个有自己的步长、动画时间、缓动。",
+              "why": "切换任务时不必每次重调全局滑块。",
+              "range": "无限",
+              "defaultValue": "无",
+              "tip": "按使用方式而非应用本身建立配置。『长文阅读』同样适用 PDF、书籍和文章。"
+            },
+            {
+              "name": "按应用分配",
+              "what": "把进程名（如 chrome.exe）映射到某个配置。",
+              "why": "Chrome 可以滑顺，VS Code 可以保持灵敏。",
+              "range": "无限",
+              "defaultValue": "无"
+            },
+            {
+              "name": "排除应用",
+              "what": "完全绕过 SmoothScroll 的应用。",
+              "why": "某些应用（反作弊、专用工具）需要原始滚轮输入。",
+              "range": "无限",
+              "defaultValue": "无"
+            }
+          ]
+        },
+        {
+          "id": "gamemode",
+          "label": "游戏模式",
+          "intro": "已知游戏处于前台时自动禁用平滑。",
+          "settings": [
+            {
+              "name": "游戏中自动禁用",
+              "what": "游戏列表中任何进程获得焦点时暂停引擎。",
+              "why": "游戏需要原始滚动输入 - 切武器、缩放镜等。",
+              "range": "开 / 关",
+              "defaultValue": "开"
+            },
+            {
+              "name": "已知游戏列表",
+              "what": "可编辑的进程名列表，触发游戏模式。",
+              "why": "添加你自己的游戏；删除误判。",
+              "range": "无限",
+              "defaultValue": "精选默认列表"
+            }
+          ]
+        },
+        {
+          "id": "behavior",
+          "label": "行为",
+          "intro": "应用本身的启动、托盘和快捷键行为。",
+          "settings": [
+            {
+              "name": "全局快捷键",
+              "what": "切换平滑开关的系统级快捷键。",
+              "why": "不必 alt-tab 进设置。",
+              "range": "开 / 关",
+              "defaultValue": "开"
+            },
+            {
+              "name": "快捷键组合",
+              "what": "点击输入框，按你想要的键。",
+              "why": "避免与其他应用冲突。",
+              "range": "任何 modifier+键组合",
+              "defaultValue": "Ctrl+Alt+S"
+            },
+            {
+              "name": "随 Windows / macOS 启动",
+              "what": "登录时启动 SmoothScroll。",
+              "why": "设置后忘记 - 每个会话第一秒就有平滑滚动。",
+              "range": "开 / 关",
+              "defaultValue": "关"
+            },
+            {
+              "name": "启动时最小化到托盘",
+              "what": "启动时跳过设置窗口。",
+              "why": "搭配随系统启动得到完全后台体验。",
+              "range": "开 / 关",
+              "defaultValue": "开"
+            },
+            {
+              "name": "尊重系统减少动效",
+              "what": "三种模式 - 自动（跟随系统）、始终即时、始终平滑。",
+              "why": "自动尊重无障碍偏好。",
+              "range": "自动 / 始终即时 / 始终平滑",
+              "defaultValue": "自动"
+            }
+          ]
+        },
+        {
+          "id": "about",
+          "label": "关于",
+          "intro": "版本、更新、备份和本地统计 - 维护标签。",
+          "settings": [
+            {
+              "name": "版本与更新",
+              "what": "检查并安装已签名的更新。",
+              "why": "无需到处找下载就能保持最新。",
+              "range": "手动 / 自动",
+              "defaultValue": "手动检查"
+            },
+            {
+              "name": "备份与恢复",
+              "what": "把全部设置导出为 JSON，在另一台机器导入。",
+              "why": "在 PC 间迁移预设，无需重做每个滑块。",
+              "range": "JSON 文件",
+              "defaultValue": "-"
+            },
+            {
+              "name": "本地统计",
+              "what": "会话和总使用时间，仅在本机计算。",
+              "why": "看你用了多少 SmoothScroll。不会上传任何东西。",
+              "range": "-",
+              "defaultValue": "-"
+            },
+            {
+              "name": "打开日志文件夹",
+              "what": "打开 %APPDATA%\\SmoothScroll\\logs（或 macOS 的 ~/Library/Logs/SmoothScroll）。",
+              "why": "提交 bug 报告时有用。",
+              "range": "-",
+              "defaultValue": "-"
+            },
+            {
+              "name": "重新运行设置向导",
+              "what": "重新打开 3 步引导。",
+              "why": "调过头了时回到已知好的预设。",
+              "range": "-",
+              "defaultValue": "-"
+            }
+          ]
+        }
+      ]
+    },
+    "shortcuts": {
+      "title": "键盘快捷键",
+      "subtitle": "从系统任何位置按下，或仅在设置窗口内按下 - 范围列说明哪个。",
+      "tableHeaders": {
+        "action": "动作",
+        "keys": "按键",
+        "scope": "范围"
+      },
+      "rows": [
+        {
+          "action": "切换平滑滚动开关",
+          "keys": "Ctrl + Alt + S",
+          "scope": "系统级"
+        },
+        {
+          "action": "打开设置窗口",
+          "keys": "左键点击托盘图标",
+          "scope": "系统托盘"
+        },
+        {
+          "action": "打开快捷菜单（启用、设置、日志、退出）",
+          "keys": "右键点击托盘图标",
+          "scope": "系统托盘"
+        },
+        {
+          "action": "显示键盘速查表",
+          "keys": "?",
+          "scope": "设置窗口"
+        },
+        {
+          "action": "在控件间移动焦点",
+          "keys": "Tab / Shift + Tab",
+          "scope": "设置窗口"
+        },
+        {
+          "action": "调整聚焦的滑块",
+          "keys": "方向键",
+          "scope": "设置窗口"
+        },
+        {
+          "action": "切换聚焦的开关",
+          "keys": "Space",
+          "scope": "设置窗口"
+        },
+        {
+          "action": "关闭对话框 / 速查表",
+          "keys": "Esc",
+          "scope": "设置窗口"
+        },
+        {
+          "action": "Ctrl + 滚轮缩放（启用 Ctrl 直通时原样传递，否则平滑时保留 Ctrl）",
+          "keys": "Ctrl + 滚轮",
+          "scope": "任何应用"
+        },
+        {
+          "action": "启用 Shift 转横向后进行横向滚动",
+          "keys": "Shift + 滚轮",
+          "scope": "任何应用"
+        }
+      ],
+      "hotkeyNote": "全局快捷键可在『行为 → 快捷键组合』中重新绑定。选择不与其他工具冲突的组合。"
+    },
+    "tray": {
+      "title": "系统托盘",
+      "subtitle": "SmoothScroll 没有任务栏窗口 - 一切都在托盘里。",
+      "leftClick": {
+        "title": "左键点击托盘图标",
+        "description": "打开紧凑托盘面板。",
+        "items": [
+          "切换平滑开关",
+          "切换随 Windows 启动",
+          "切换启动时最小化",
+          "打开完整设置",
+          "跳转到排除应用",
+          "打开日志文件",
+          "退出 SmoothScroll"
+        ]
+      },
+      "rightClick": {
+        "title": "右键点击托盘图标",
+        "description": "原生 OS 上下文菜单（在低配机上更快）。",
+        "items": [
+          "启用 / 禁用",
+          "打开设置",
+          "排除应用",
+          "打开日志文件",
+          "退出"
+        ]
+      },
+      "perApp": {
+        "title": "当前应用卡片",
+        "description": "托盘面板显示前台应用及其类别。可为该应用切换平滑或分配配置 - 无需打开完整设置。"
+      }
+    },
+    "recipes": {
+      "title": "技巧与配方",
+      "subtitle": "为常见工作流量身定制的预设。打开『应用 → 配置文件』保存它们。",
+      "items": [
+        {
+          "name": "长文阅读",
+          "scenario": "PDF、文章、书 - 不丢失位置地浏览或细品。",
+          "suggestion": "Slow 预设",
+          "settings": [
+            "步长：80 px",
+            "动画时间：600 ms",
+            "缓动：Quintic Out",
+            "最大加速：4×"
+          ]
+        },
+        {
+          "name": "VS Code / JetBrains 编程",
+          "scenario": "导航代码不会过冲丢行。",
+          "suggestion": "Default 预设 + 缩短动画时间",
+          "settings": [
+            "步长：144 px",
+            "动画时间：180 ms",
+            "缓动：Quintic Out",
+            "最大加速：10×",
+            "滚动 → 平滑缩放：关（未启用 Ctrl 直通时使用普通 Ctrl + 滚轮平滑）"
+          ]
+        },
+        {
+          "name": "Photoshop / Figma / Illustrator",
+          "scenario": "频繁 Ctrl+滚轮缩放；图层面板内平滑滚动。",
+          "suggestion": "默认 + 关闭平滑缩放",
+          "settings": [
+            "使用默认预设",
+            "滚动 → 平滑缩放：关，未启用 Ctrl 直通时使用普通 Ctrl + 滚轮处理；若需要原样输入，请排除该应用"
+          ]
+        },
+        {
+          "name": "Premiere / DAW",
+          "scenario": "Alt+滚轮拖动时间轴。",
+          "suggestion": "Snappy 预设或原生输入",
+          "settings": [
+            "应用 → 给编辑器分配 Snappy 配置",
+            "如果 Alt + 滚轮需要原生输入，在应用中排除编辑器"
+          ]
+        },
+        {
+          "name": "游戏",
+          "scenario": "武器轮、缩放镜 - 任何读取原始 notch 的东西。",
+          "suggestion": "游戏模式自动禁用",
+          "settings": [
+            "游戏模式 → 游戏中自动禁用：开",
+            "把游戏进程加入列表（如 csgo.exe）"
+          ]
+        },
+        {
+          "name": "笔记本电池模式",
+          "scenario": "争取每一分钟 - 减少 CPU 工作。",
+          "suggestion": "Snappy 预设",
+          "settings": [
+            "步长：200 px",
+            "动画时间：200 ms",
+            "缓动：Cubic Out",
+            "最大加速：14×",
+            "行为 → 减少动效：自动"
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "它做什么（和不做什么）",
+      "points": [
+        "在 OS 钩子层读取鼠标滚轮事件 - 与无障碍工具和屏幕阅读器相同的 API。",
+        "不注入其他进程。",
+        "不安装驱动、服务或守护进程。",
+        "不调用网络，除了检查 GitHub 新版本（可关闭）。",
+        "设置位于 %APPDATA%\\SmoothScroll（Windows）或 ~/Library/Application Support/SmoothScroll（macOS）。",
+        "日志每日轮换，保留 7 天，留在你的设备上。",
+        "安装包和更新信息通过 GitHub Releases 发布。"
+      ]
+    },
+    "easingViz": {
+      "title": "缓动曲线",
+      "subtitle": "点击曲线以高亮显示。",
+      "curves": {
+        "exponentialOut": "Exponential Out",
+        "cubicOut": "Cubic Out",
+        "quinticOut": "Quintic Out",
+        "linear": "Linear"
+      }
+    },
+    "finalCta": {
+      "title": "准备好感受不同了吗？",
+      "subtitle": "60 秒安装，再 60 秒调校，然后忘记它的存在。",
+      "cta": "下载 SmoothScroll"
+    }
+  }
+}

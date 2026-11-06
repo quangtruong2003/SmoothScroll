@@ -1,0 +1,282 @@
+/* -----------------------------------------------------------------------
+ * Tray panel — preview-only styles for landing/components/TrayPreview.tsx
+ *
+ * Mirrored from src/index.css:300-740 (the real Tauri tray) so the
+ * landing preview is pixel-faithful without dragging in Tauri-specific
+ * selectors (main-root, titlebar, etc.). Selectors scoped to
+ * `body[data-platform]` are inert on landing (no data-platform attr set)
+ * but kept for parity and easy future audit against the source.
+ *
+ * Tailwind CSS variables (--background, --accent, --border, ...) come
+ * from app/globals.css @layer base. Layout primitives (rounded-xl,
+ * shadow-2xl, ring-1, etc.) are applied via Tailwind on the wrapper in
+ * TrayPreviewSection — not duplicated here.
+ * --------------------------------------------------------------------- */
+
+.tray-panel-root {
+  border-radius: 10px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--border)),
+    0 10px 30px -8px hsl(0 0% 0% / 0.18);
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+body[data-platform="mac"] .tray-panel-root {
+  background: hsl(0 0% 100% / 0.72);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow:
+    inset 0 0 0 1px hsl(0 0% 0% / 0.12),
+    0 10px 30px -8px hsl(0 0% 0% / 0.18);
+}
+
+body[data-platform="mac"].dark .tray-panel-root {
+  background: hsl(240 5% 14% / 0.62);
+  box-shadow:
+    inset 0 0 0 1px hsl(0 0% 100% / 0.08),
+    0 10px 30px -8px hsl(0 0% 0% / 0.18);
+}
+
+body[data-platform="linux"] .tray-panel-root {
+  background: hsl(var(--popover));
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--border)),
+    0 0 0 1px hsl(0 0% 0% / 0.04),
+    0 8px 24px -4px hsl(0 0% 0% / 0.18);
+}
+
+.tray-panel-flex {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* --- Header ----------------------------------------------------------- */
+
+.tray-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.tray-header-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tray-header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+/* --- Status dot ------------------------------------------------------- */
+
+.tray-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: background-color 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.tray-status-dot-on {
+  background-color: hsl(142 71% 45%);
+  box-shadow: 0 0 0 2px hsl(142 71% 45% / 0.18);
+}
+
+.tray-status-dot-off {
+  background-color: hsl(0 0% 60%);
+}
+
+.tray-status-text {
+  font-weight: 500;
+  transition: color 200ms ease-out;
+}
+
+.tray-status-text-on {
+  color: hsl(142 71% 30%);
+}
+
+.tray-status-text-off {
+  color: hsl(0 0% 50%);
+}
+
+.dark .tray-status-text-on {
+  color: hsl(142 71% 65%);
+}
+
+.dark .tray-status-text-off {
+  color: hsl(0 0% 70%);
+}
+
+/* --- Content / sections / divider ------------------------------------ */
+
+.tray-content {
+  padding: 4px 0;
+}
+
+.tray-section {
+  padding: 4px 0;
+}
+
+.tray-section-last {
+  padding-bottom: 6px;
+}
+
+.tray-divider {
+  height: 1px;
+  margin: 2px 8px;
+  background-color: hsl(var(--border));
+  opacity: 0.6;
+}
+
+/* --- Row -------------------------------------------------------------- */
+
+.tray-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  font-size: 13px;
+  user-select: none;
+}
+
+.tray-row:hover {
+  background-color: hsl(var(--accent) / 0.06);
+}
+
+.tray-row-icon {
+  display: inline-flex;
+  align-items: center;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+
+.tray-row-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tray-row-app-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+
+.tray-row-action {
+  cursor: pointer;
+}
+
+.tray-row-destructive {
+  color: hsl(0 75% 50%);
+}
+
+.tray-row-destructive .tray-row-icon {
+  color: hsl(0 75% 50%);
+}
+
+.tray-row-destructive:hover {
+  background-color: hsl(0 75% 50% / 0.06);
+}
+
+/* --- Quit state machine ---------------------------------------------- */
+
+@keyframes tray-dot-quit-pulse {
+  0%,
+  100% {
+    background-color: hsl(0 75% 50%);
+    box-shadow: 0 0 0 2px hsl(0 75% 50% / 0);
+  }
+  50% {
+    background-color: hsl(0 75% 55%);
+    box-shadow: 0 0 0 6px hsl(0 75% 50% / 0.22);
+  }
+}
+
+.tray-status-dot-quitting {
+  animation: tray-dot-quit-pulse 400ms ease-out 1;
+}
+
+.tray-quitting .tray-content {
+  transition: opacity 300ms ease-out 100ms;
+  opacity: 0.4;
+}
+
+.tray-quitting .tray-row {
+  pointer-events: none;
+}
+
+/* --- Open Settings bounce ------------------------------------------- */
+
+@keyframes tray-row-flash {
+  0% {
+    background-color: hsl(var(--accent) / 0);
+  }
+  50% {
+    background-color: hsl(var(--accent) / 0.12);
+  }
+  100% {
+    background-color: hsl(var(--accent) / 0);
+  }
+}
+
+.tray-row-pulse {
+  animation: tray-row-flash 300ms ease-out;
+}
+
+/* --- Reopen button (closed state) ----------------------------------- */
+
+.tray-reopen-button {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: color 200ms ease-out, transform 200ms ease-out;
+}
+
+.tray-reopen-button:hover {
+  color: hsl(var(--foreground));
+  transform: scale(1.02);
+}
+
+/* --- Reduced motion override ---------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .tray-status-dot,
+  .tray-status-text,
+  .tray-reopen-button {
+    transition: none;
+  }
+  .tray-status-dot-quitting,
+  .tray-row-pulse {
+    animation: none;
+  }
+  .tray-quitting .tray-content {
+    transition: none;
+  }
+}

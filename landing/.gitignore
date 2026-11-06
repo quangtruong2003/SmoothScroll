@@ -1,0 +1,5 @@
+lighthouse-report.json
+lh.json
+playwright-report/
+test-results/
+dev-server*.log

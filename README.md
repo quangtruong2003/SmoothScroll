@@ -1,0 +1,69 @@
+# SmoothScroll
+
+[![License: FSL-1.1-Apache-2.0](https://img.shields.io/badge/license-FSL--1.1--Apache--2.0-blue.svg)](#license)
+[![Release](https://img.shields.io/github/v/release/quangtruong2003/SmoothScroll?label=release)](https://github.com/quangtruong2003/SmoothScroll/releases)
+[![Downloads](https://img.shields.io/github/downloads/quangtruong2003/SmoothScroll/total?label=downloads)](https://github.com/quangtruong2003/SmoothScroll/releases)
+[![Stars](https://img.shields.io/github/stars/quangtruong2003/SmoothScroll?style=social&logo=github)](https://github.com/quangtruong2003/SmoothScroll/stargazers)
+[![TiniX Trending](.github/assets/tinix-trending-badge.svg)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
+[![TiniX Trending — #1 weekly · mouse-wheel · 19/09/2026](https://img.shields.io/badge/%F0%9F%8F%86%20%231-mouse--wheel%20%C2%B7%2019%2F09-d4af37)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
+[![TiniX Trending — #1 weekly · inertia-scroll · 19/09/2026](https://img.shields.io/badge/%F0%9F%8F%86%20%231-inertia--scroll%20%C2%B7%2019%2F09-d4af37)](https://repo.tinix.ai/project/7781700e-49ab-41a7-b1ba-9372cc455b46)
+
+**Smooth mouse-wheel scrolling for the desktop.**
+
+[Website & download → smoothscroll.top](https://smoothscroll.top/)
+
+SmoothScroll turns discrete mouse-wheel input into configurable, eased motion. It works at the platform input layer, so the same scrolling feel can follow you across browsers, editors, file managers, and other wheel-driven applications.
+
+<p align="center">
+  <video src="landing/public/assets/before.webm" width="420" autoplay loop muted playsinline></video>
+  <video src="landing/public/assets/after.webm" width="420" autoplay loop muted playsinline></video>
+</p>
+
+## Why SmoothScroll
+
+Mouse wheels naturally arrive as separate notches, while applications do not all animate those notches in the same way. SmoothScroll adds one consistent smoothing layer without replacing your mouse, changing application code, or requiring a vendor-specific utility.
+
+## Highlights
+
+- **System-wide smoothing** — give ordinary wheel scrolling a more continuous, responsive feel across desktop applications.
+- **A feel you can tune** — adjust step size, animation time, easing, acceleration, and scroll direction instead of settling for one preset.
+- **Per-app control** — assign different profiles to different applications or exclude an application when raw input is the better choice.
+- **Input that stays useful** — modifier-wheel pass-through, horizontal scrolling, and game-mode bypass help preserve zoom, command, and raw-input workflows.
+- **Instant control** — use the system tray and global hotkey to toggle smoothing without interrupting your work.
+- **Native and lightweight** — built with Rust and Tauri for a small desktop utility with platform-specific input handling.
+
+## Availability
+
+Windows 10 and Windows 11 are the primary supported desktop platforms. Linux builds and macOS platform work are maintained in the project; published packages are listed on the [Releases page](https://github.com/quangtruong2003/SmoothScroll/releases).
+
+## Downloads
+
+Download the latest published package from [smoothscroll.top](https://smoothscroll.top/) or the [GitHub Releases page](https://github.com/quangtruong2003/SmoothScroll/releases).
+
+The downloads badge counts GitHub release-asset downloads across releases that remain published. It is a download count, not a count of unique users or installations.
+
+## ❤️ Support SmoothScroll
+
+SmoothScroll is free and actively maintained.
+
+If it makes your browsing experience a little better, you can support its development by [buying me a coffee](https://buymeacoffee.com/smoothscroll). ❤️
+
+### ☕ Supporters
+
+A special thank you to everyone supporting SmoothScroll.
+
+<!-- SMOOTHSCROLL_SUPPORTERS:START -->
+- 🥇 **Anonymous** — First supporter · ☕
+- **WaDaNaBe** · ☕☕☕
+- **Designer Friend** · ☕
+- **Jorn Bue** · ☕
+- **Someone** · ☕
+<!-- SMOOTHSCROLL_SUPPORTERS:END -->
+
+## Source and license
+
+This public repository contains the landing page and project information. The desktop application source is maintained privately and is not included here.
+
+Download installers from the [GitHub Releases page](https://github.com/quangtruong2003/SmoothScroll/releases). The [LICENSE](LICENSE) applies to source files published in this repository.
+
+Copyright © 2026 Quang Truong ([@quangtruong2003](https://github.com/quangtruong2003))
