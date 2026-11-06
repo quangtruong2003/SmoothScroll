@@ -35,9 +35,13 @@ describe('Footer', () => {
       'href',
       '/mac-like-scrolling-windows',
     )
-    expect(screen.getByRole('link', { name: 'Report an issue on GitHub (opens new tab)' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Report a bug' })).toHaveAttribute(
       'href',
-      'https://github.com/quangtruong2003/SmoothScroll/issues',
+      'https://github.com/quangtruong2003/SmoothScroll/issues/new?template=bug_report.yml',
+    )
+    expect(screen.getByRole('link', { name: 'Suggest a feature' })).toHaveAttribute(
+      'href',
+      'https://github.com/quangtruong2003/SmoothScroll/issues/new?template=feature_request.yml',
     )
 
     expect(screen.getByText(/© 2026 SmoothScroll/)).toBeInTheDocument()
