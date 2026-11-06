@@ -134,6 +134,7 @@ export interface Dictionary {
     }
     project?: {
       issues?: string
+      featureRequest?: string
     }
   }
   howItWorks?: {

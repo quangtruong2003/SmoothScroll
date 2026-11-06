@@ -42,6 +42,14 @@ Download the latest published package from [smoothscroll.top](https://smoothscro
 
 The downloads badge counts GitHub release-asset downloads across releases that remain published. It is a download count, not a count of unique users or installations.
 
+## Help and feedback
+
+- **Need help using SmoothScroll?** Start with the [how-it-works guide](https://smoothscroll.top/how-it-works/) or the [FAQ](https://smoothscroll.top/faq/).
+- **Found a bug?** [Report a bug](https://github.com/quangtruong2003/SmoothScroll/issues/new?template=bug_report.yml). Include your app version, Windows version, and steps to reproduce it.
+- **Have a feature idea?** [Suggest a feature](https://github.com/quangtruong2003/SmoothScroll/issues/new?template=feature_request.yml).
+
+GitHub will ask you to sign in and submit the completed form. Issues are public; remove passwords, tokens, personal information, and unredacted logs before submitting.
+
 ## ❤️ Support SmoothScroll
 
 SmoothScroll is free and actively maintained.

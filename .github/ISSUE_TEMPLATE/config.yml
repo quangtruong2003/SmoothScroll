@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage guide
+    url: https://smoothscroll.top/how-it-works/
+    about: Read the walkthrough for setup and common controls.
+  - name: Frequently asked questions
+    url: https://smoothscroll.top/faq/
+    about: Check answers to common questions before opening an issue.

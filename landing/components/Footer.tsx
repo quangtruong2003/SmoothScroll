@@ -79,8 +79,13 @@ export function Footer({ pageKind = 'home' }: FooterProps) {
                 </a>
               </li>
               <li>
-                <a href={`${GITHUB_REPO}/issues`} target="_blank" rel="noopener noreferrer" className={linkClass} aria-label="Report an issue on GitHub (opens new tab)">
-                  {f?.project?.issues ?? 'Report an issue'}
+                <a href={`${GITHUB_REPO}/issues/new?template=bug_report.yml`} target="_blank" rel="noopener noreferrer" className={linkClass} aria-label={f?.project?.issues ?? 'Report a bug'}>
+                  {f?.project?.issues ?? 'Report a bug'}
+                </a>
+              </li>
+              <li>
+                <a href={`${GITHUB_REPO}/issues/new?template=feature_request.yml`} target="_blank" rel="noopener noreferrer" className={linkClass} aria-label={f?.project?.featureRequest ?? 'Suggest a feature'}>
+                  {f?.project?.featureRequest ?? 'Suggest a feature'}
                 </a>
               </li>
               <li>

@@ -330,7 +330,8 @@
       "faq": "Hỏi đáp"
     },
     "project": {
-      "issues": "Báo lỗi"
+      "issues": "Báo lỗi",
+      "featureRequest": "Đề xuất tính năng"
     }
   },
   "langSwitcher": {
