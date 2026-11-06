@@ -1,0 +1,64 @@
+name: Bug report
+description: Report a reproducible problem with SmoothScroll for Windows.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Issues are public. Do not include passwords, tokens, personal information, or unredacted logs/screenshots.
+  - type: input
+    id: app-version
+    attributes:
+      label: SmoothScroll version
+      description: Find this in the app's About section.
+      placeholder: e.g. 1.36.0
+    validations:
+      required: true
+  - type: dropdown
+    id: windows-version
+    attributes:
+      label: Windows version
+      options:
+        - Windows 11
+        - Windows 10
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the steps that reliably trigger the problem.
+      placeholder: |
+        1. Open...
+        2. Change...
+        3. Scroll...
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened?
+      description: Describe the result you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add redacted logs or screenshots only if they help reproduce the issue.
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed passwords, tokens, and personal information from this report and its attachments.
+          required: true

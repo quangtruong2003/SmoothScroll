@@ -402,7 +402,8 @@
       "faq": "FAQ"
     },
     "project": {
-      "issues": "Report an issue"
+      "issues": "Report a bug",
+      "featureRequest": "Suggest a feature"
     }
   },
   "langSwitcher": {

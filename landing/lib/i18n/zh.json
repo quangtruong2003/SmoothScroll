@@ -331,7 +331,8 @@
       "faq": "问答"
     },
     "project": {
-      "issues": "报告问题"
+      "issues": "报告错误",
+      "featureRequest": "建议新功能"
     }
   },
   "langSwitcher": {
