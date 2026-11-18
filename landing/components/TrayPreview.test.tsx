@@ -13,24 +13,25 @@ describe('TrayPreview — static shell', () => {
   it('renders the SmoothScroll header in default ON state', () => {
     render(<TrayPreview locale="en" />)
     expect(screen.getByText('SmoothScroll')).toBeInTheDocument()
-    expect(screen.getByText('On')).toBeInTheDocument()
+    expect(screen.getByText('ON')).toBeInTheDocument()
   })
 
-  it('renders CurrentAppCard with hardcoded Chrome name', () => {
+  it('renders CurrentAppCard and ProfilePill matching the Windows app', () => {
     render(<TrayPreview locale="en" />)
     expect(screen.getByText('Chrome')).toBeInTheDocument()
+    expect(screen.getByText('Profile: Default (global)')).toBeInTheDocument()
   })
 
   it('uses Vietnamese labels when locale="vi"', () => {
     render(<TrayPreview locale="vi" />)
     expect(screen.getByText('Cuộn mượt')).toBeInTheDocument()
-    expect(screen.getByText('Bật')).toBeInTheDocument()
+    expect(screen.getByText('BẬT')).toBeInTheDocument()
   })
 
   it('uses Chinese labels when locale="zh"', () => {
     render(<TrayPreview locale="zh" />)
     expect(screen.getByText('平滑滚动')).toBeInTheDocument()
-    expect(screen.getByText('已启用')).toBeInTheDocument()
+    expect(screen.getByText('开')).toBeInTheDocument()
   })
 })
 
@@ -46,7 +47,7 @@ describe('TrayPreviewSection — primary tray only', () => {
     expect(document.querySelectorAll('[data-stack-card]')).toHaveLength(0)
     expect(screen.getAllByTestId('tray-preview')).toHaveLength(1)
     expect(screen.getByText('Open Settings').closest('button')).toBeInTheDocument()
-    expect(screen.getByText('Quit').closest('button')).toBeInTheDocument()
+    expect(screen.getByText('Quit SmoothScroll').closest('button')).toBeInTheDocument()
   })
 })
 
@@ -55,7 +56,7 @@ describe('TrayPreview — Smooth Scrolling toggle', () => {
     render(<TrayPreview locale="en" />)
     const switchEl = screen.getByLabelText('Smooth Scrolling')
     fireEvent.click(switchEl)
-    expect(screen.getByText('Off')).toBeInTheDocument()
+    expect(screen.getByText('OFF')).toBeInTheDocument()
   })
 
   it('flips status dot back ON when toggled on again', () => {
@@ -63,17 +64,18 @@ describe('TrayPreview — Smooth Scrolling toggle', () => {
     const switchEl = screen.getByLabelText('Smooth Scrolling')
     fireEvent.click(switchEl)
     fireEvent.click(switchEl)
-    expect(screen.getByText('On')).toBeInTheDocument()
+    expect(screen.getByText('ON')).toBeInTheDocument()
   })
 })
 
-describe('TrayPreview — Start with Windows independence', () => {
-  it('toggling Start with Windows does NOT affect status dot', () => {
+describe('TrayPreview — per-app toggle independence', () => {
+  it('toggling Chrome switch updates profile pill without flipping global status dot', () => {
     render(<TrayPreview locale="en" />)
-    const switchEl = screen.getByLabelText('Start with Windows')
+    const switchEl = screen.getByLabelText('Toggle smoothing for Chrome')
     fireEvent.click(switchEl)
-    expect(screen.getByText('On')).toBeInTheDocument()
+    expect(screen.getByText('ON')).toBeInTheDocument()
     expect(switchEl).not.toBeChecked()
+    expect(screen.getByText('Profile: Disabled')).toBeInTheDocument()
   })
 })
 
@@ -100,23 +102,23 @@ describe('TrayPreview — Open Settings bounce', () => {
 })
 
 describe('TrayPreview — Quit state machine', () => {
-  it('clicking Quit transitions to quitting state', () => {
+  it('clicking Quit SmoothScroll transitions to quitting state', () => {
     render(<TrayPreview locale="en" />)
-    fireEvent.click(screen.getByText('Quit'))
+    fireEvent.click(screen.getByText('Quit SmoothScroll'))
     expect(screen.getByTestId('tray-preview').className).toMatch(/tray-quitting/)
   })
 
   it('both Switches animate OFF in quitting state', () => {
     render(<TrayPreview locale="en" />)
-    fireEvent.click(screen.getByText('Quit'))
+    fireEvent.click(screen.getByText('Quit SmoothScroll'))
     expect(screen.getByLabelText('Smooth Scrolling')).not.toBeChecked()
-    expect(screen.getByLabelText('Start with Windows')).not.toBeChecked()
+    expect(screen.getByLabelText('Toggle smoothing for Chrome')).not.toBeChecked()
   })
 
   it('after 5s, transitions to closed state and shows reopen button', () => {
     vi.useFakeTimers()
     render(<TrayPreview locale="en" />)
-    fireEvent.click(screen.getByText('Quit'))
+    fireEvent.click(screen.getByText('Quit SmoothScroll'))
     act(() => {
       vi.advanceTimersByTime(5000)
     })
@@ -127,14 +129,14 @@ describe('TrayPreview — Quit state machine', () => {
   it('clicking reopen resets state to running with both toggles ON', () => {
     vi.useFakeTimers()
     render(<TrayPreview locale="en" />)
-    fireEvent.click(screen.getByText('Quit'))
+    fireEvent.click(screen.getByText('Quit SmoothScroll'))
     act(() => {
       vi.advanceTimersByTime(5000)
     })
     fireEvent.click(screen.getByText('Click to reopen'))
-    expect(screen.getByText('On')).toBeInTheDocument()
+    expect(screen.getByText('ON')).toBeInTheDocument()
     expect(screen.getByLabelText('Smooth Scrolling')).toBeChecked()
-    expect(screen.getByLabelText('Start with Windows')).toBeChecked()
+    expect(screen.getByLabelText('Toggle smoothing for Chrome')).toBeChecked()
     vi.useRealTimers()
   })
 })

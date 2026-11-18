@@ -52,7 +52,7 @@ export function LangSwitcher({ pageKind, openUp = false }: LangSwitcherProps) {
   return (
     <details ref={detailsRef} className="relative">
       <summary
-        className="flex cursor-pointer list-none items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-md px-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={`Current language: ${localeLabels[locale]}. Open language selection.`}
       >
         <Globe className="h-4 w-4 sm:hidden" aria-hidden="true" />

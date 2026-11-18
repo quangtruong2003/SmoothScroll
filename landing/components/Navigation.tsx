@@ -32,14 +32,14 @@ export function Navigation({ locale, pageKind = 'home' }: NavigationProps) {
   return (
     <>
       <header
-        className={`fixed top-0 inset-x-0 z-40 transition-all duration-200 ${
+        className={`fixed top-0 inset-x-0 z-40 transition-[background-color,border-color,padding,box-shadow] duration-200 ${
           scrolled
-            ? 'bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border/60 shadow-sm py-2'
-            : 'bg-transparent py-4'
+            ? 'bg-background/70 backdrop-blur-xl backdrop-saturate-150 border-b border-border/60 shadow-sm pt-[max(0.5rem,env(safe-area-inset-top))] pb-2'
+            : 'bg-transparent pt-[max(1rem,env(safe-area-inset-top))] pb-4'
         }`}
       >
-        <nav className="container flex items-center justify-between gap-4">
-          <Link href={localePath(locale, 'home')} className="flex items-center gap-2 font-bold text-lg shrink-0">
+        <nav className="container flex items-center justify-between gap-3">
+          <Link href={localePath(locale, 'home')} className="flex items-center gap-2 rounded-md py-1 font-bold text-lg shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <Image src={`${BASE_PATH}/assets/icon-128.png`} alt="SmoothScroll logo" width={28} height={28} className="rounded-md" />
             <span className="hidden sm:inline">SmoothScroll</span>
           </Link>

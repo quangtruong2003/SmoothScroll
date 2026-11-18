@@ -5,14 +5,14 @@
   },
   "seo": {
     "title": "Smooth Scrolling Software for Windows | SmoothScroll",
-    "description": "SmoothScroll is free smooth scrolling software for Windows 10 and 11. 120 Hz eased scrolling, per-app profiles, no telemetry."
+    "description": "SmoothScroll is free smooth scrolling software for Windows 10 and 11. 120 Hz eased scrolling, per-monitor and per-app profiles, no telemetry."
   },
   "geo": {
     "title": "What is SmoothScroll?",
-    "answer": "SmoothScroll is free smooth-scrolling software for Windows 10 and 11. It turns mouse-wheel input into eased 120 Hz scroll output and lets you configure profiles and exclusions for individual apps. The current Windows release is available on GitHub, and the app is built without telemetry.",
-    "evidence": "Maintained by SmoothScroll contributors · Updated 2026-10-09",
+    "answer": "SmoothScroll is free smooth-scrolling software for Windows 10 and 11. It turns mouse-wheel input into eased 120 Hz scroll output and lets you configure profiles and pass-through rules per app and per monitor. The current Windows release is available on GitHub Releases, and the app runs with zero telemetry.",
+    "evidence": "Maintained by SmoothScroll contributors · Updated 2026-11-18",
     "faqQuestion": "What is SmoothScroll?",
-    "faqAnswer": "SmoothScroll is free smooth-scrolling software for Windows 10 and 11 with configurable 120 Hz easing and per-app controls. The application source is not published in this repository; see GitHub Releases for installers and the privacy page for data-handling details.",
+    "faqAnswer": "SmoothScroll is free smooth-scrolling software for Windows 10 and 11 with configurable 120 Hz easing, per-monitor profiles, and per-app controls. Installers are published on GitHub Releases, and data-handling details are documented on the privacy page.",
     "guideLabel": "Read how SmoothScroll works",
     "sourceLabel": "View project and releases on GitHub",
     "releaseLabel": "View latest release"
@@ -25,23 +25,23 @@
     "cta": "Download SmoothScroll for Windows",
     "trustLine": "Free. No telemetry. Release notes on GitHub.",
     "seeHow": "See how it works",
-    "demoPrompt": "Scroll the card. Then flip the switch.",
-    "demoToast": "Want to feel it for real? - Download."
+    "demoPrompt": "Scroll the card, then flip the switch.",
+    "demoToast": "Want to feel it across every app? Download SmoothScroll."
   },
   "painPoints": {
     "title": "The scroll is broken",
     "points": [
       {
         "title": "Every app rolls its own",
-        "description": "Chrome does it, Edge does it, Explorer doesn't. You're stuck with whatever each dev shipped."
+        "description": "Chrome animates one way, Edge another, File Explorer not at all. You are stuck with whatever each app shipped."
       },
       {
         "title": "Premium scroll costs premium",
-        "description": "Logi Options+ is fine until you switch mice. WizMouse hasn't been updated since 2014."
+        "description": "Logi Options+ works until you switch mice. Older third-party wheel utilities have been unmaintained for years."
       },
       {
         "title": "Anti-cheat hates your tools",
-        "description": "Most input utilities get flagged. SmoothScroll auto-bypasses admin apps so you don't have to."
+        "description": "Heavy input utilities get flagged. SmoothScroll stays out of process memory and auto-bypasses games and elevated apps."
       }
     ]
   },
@@ -53,33 +53,33 @@
     "items": [
       {
         "title": "Velocity-based 120 Hz engine",
-        "description": "Each wheel tick is eased into a smooth pulse, fired at your monitor's refresh rate. Step-based was 2016."
+        "description": "Each wheel notch is eased into smooth 120 Hz pulses tuned to your display. Step-by-step jumps disappear."
       },
       {
         "title": "Per-monitor profiles",
-        "description": "Your 4K at home and your 1080p at the office scroll differently. Match the curve to the screen."
+        "description": "Your 4K monitor and your 1080p laptop scroll differently. Assign a profile per display—or even per app on one display."
       },
       {
         "title": "Per-app profiles",
-        "description": "Chrome gets snappy, VS Code gets silky, Photoshop gets raw. Auto-suggested on first launch."
+        "description": "Chrome gets glide, VS Code stays snappy, design tools get raw input. Category presets are suggested automatically."
       },
       {
         "title": "UWP force-enable",
-        "description": "Force Smooth on All Apps can override automatic smoothing disablement for built-in Windows apps. Some WinUI apps may still ignore synthetic wheel events."
+        "description": "Auto-disable pauses smoothing in built-in Windows apps with native smooth scroll, and Force Smooth on All Apps lets you override it."
       },
       {
         "title": "Game mode auto-bypass",
-        "description": "Foreground flips to a known game → raw input restored. No config, no lists to maintain."
+        "description": "Focus a known game and raw wheel input returns immediately—plus a searchable game picker to add any .exe."
       },
       {
         "title": "Zero telemetry",
-        "description": "No network calls. No analytics. Settings live in %APPDATA%\\SmoothScroll\\settings.json."
+        "description": "No accounts or analytics. Settings stay on your PC in %APPDATA%\\SmoothScroll\\SmoothScroll\\config\\settings.json."
       }
     ]
   },
   "trayPreview": {
     "title": "It lives in your system tray.",
-    "subtitle": "A tray panel that does the obvious things - toggle on, toggle off, open settings, switch off for the current app. That's it."
+    "subtitle": "Right-click the tray icon for the compact panel—toggle smoothing globally, pause it for the active app, switch profiles, or open Settings."
   },
   "stats": {
     "title": "Trusted by",
@@ -89,7 +89,7 @@
     "fallback": {
       "stars": "-",
       "downloads": "-",
-      "version": "v1.35.1"
+      "version": "v1.36.0"
     }
   },
   "indie": {
@@ -105,20 +105,20 @@
   },
   "install": {
     "title": "Get started in 60 seconds",
-    "subtitle": "Download, run, feel the difference.",
+    "subtitle": "Download, install, feel the difference.",
     "tabs": {
       "windows": {
         "label": "Windows",
         "steps": [
-          "Download the installer below",
-          "Run the .exe - no install wizard, no admin required",
-          "SmoothScroll starts automatically. You're done."
+          "Download the Windows installer below",
+          "Run the .exe — per-user setup, no administrator rights required",
+          "Pick \"Just smooth it\" (or tune in 3 quick steps) and you're done"
         ]
       }
     },
-    "filename": "SmoothScrollSetup.exe",
+    "filename": "smoothscroll-app.exe",
     "note": {
-      "windows": "Saved to %LOCALAPPDATA% by default"
+      "windows": "Installed to %LOCALAPPDATA%\\SmoothScroll by default"
     },
     "cta": "Download SmoothScroll for Windows"
   },
@@ -127,134 +127,137 @@
     "subtitle": "Everything about installing, tuning, and trusting SmoothScroll on Windows.",
     "seo": {
       "title": "SmoothScroll FAQ: Pricing, Safety, Settings & Troubleshooting | Windows",
-      "description": "SmoothScroll FAQ for Windows 10 and 11: free, safe, install, step size, easing, per-app profiles, gaming, troubleshooting."
+      "description": "SmoothScroll FAQ for Windows 10 and 11: free, safe, install, step size, easing, per-app and per-monitor profiles, gaming, troubleshooting."
     },
     "viewAll": "View all FAQs",
     "backToHome": "Back to home",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "allQuestionsLabel": "All questions",
     "questions": [
       {
         "q": "Does this work with all apps?",
-        "a": "SmoothScroll intercepts the Windows mouse wheel input before it reaches any application, so it works with virtually everything - Chrome, VS Code, File Explorer, Adobe apps, and more."
+        "a": "SmoothScroll intercepts Windows mouse-wheel input before it reaches applications, so it works across virtually everything—Chrome, VS Code, File Explorer, Office, Adobe apps, and more."
       },
       {
         "q": "Will it drain my battery?",
-        "a": "No. SmoothScroll runs at near-zero CPU when idle and only processes input during scroll events. Most users see no measurable battery impact."
+        "a": "No. SmoothScroll uses near-zero CPU when idle and only runs its 120 Hz loop while a scroll movement is active. On low battery, the Settings window also surfaces a gentle hint if you want to pause smoothing temporarily."
       },
       {
         "q": "Is it safe? What does it install?",
-        "a": "The Windows installer is per-user with no admin rights required. It places the app under %LOCALAPPDATA% and starts it automatically. No service, driver, or network listener is installed."
+        "a": "The Windows installer runs per-user with no administrator rights required. It places smoothscroll-app.exe and uninstall.exe in %LOCALAPPDATA%\\SmoothScroll. No kernel driver, Windows service, or network listener is installed."
       },
       {
         "q": "Is SmoothScroll safe?",
-        "a": "Yes. SmoothScroll is a standalone executable with no service, daemon, system driver, network listeners, or telemetry. See the privacy page for data-handling details."
+        "a": "Yes. SmoothScroll is a user-space desktop app with no service, daemon, system driver, network listeners, or telemetry. See the privacy page for full data-handling details."
       },
       {
         "q": "How is this different from Windows' built-in smooth scrolling?",
-        "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll provides a unified, configurable curve applied globally - with per-app profiles, adjustable strength, and instant toggle."
+        "a": "Windows' built-in smooth scroll is app-specific and inconsistent. SmoothScroll applies one configurable easing engine across apps—with six presets, per-app and per-monitor profiles, and an instant hotkey toggle."
       },
       {
         "q": "Does it work with gaming mice or high-DPI devices?",
-        "a": "Yes. SmoothScroll respects the actual scroll delta from your hardware and applies smoothing on top. Works with all mice tested so far, including high-refresh and gaming mice."
+        "a": "Yes. SmoothScroll reads actual hardware wheel deltas—including standard notched wheels and high-resolution wheels—and applies smoothing on top."
       },
       {
         "q": "Can I disable it for specific apps?",
-        "a": "Yes. Per-app exclusion profiles are built in. Just open the tray panel and add apps to the exclude list."
+        "a": "Yes. Right-click the tray icon and flip the switch next to the active app, or open Settings → Apps → Per-app assignments and set that app to Disabled (pass-through)."
       },
       {
         "q": "What Windows versions are supported?",
-        "a": "Windows 10 and Windows 11 are fully supported."
+        "a": "Windows 10 and Windows 11 (64-bit) are fully supported."
       },
       {
         "q": "Is there a Linux version?",
-        "a": "Not yet. SmoothScroll currently supports Windows 10 and 11 only. Linux support is planned; releases are announced on the GitHub Releases page."
+        "a": "Not published yet. SmoothScroll currently ships public installers for Windows 10 and 11; future releases are announced on the GitHub Releases page."
       },
       {
         "q": "How do I uninstall?",
-        "a": "Just delete the executable. No uninstaller needed - there is nothing else on your system."
+        "a": "Uninstall SmoothScroll from Windows Settings → Apps → Installed apps, or run %LOCALAPPDATA%\\SmoothScroll\\uninstall.exe. To remove saved preferences and logs as well, delete %APPDATA%\\SmoothScroll."
       },
       {
         "q": "Does this work with UWP / WinUI apps?",
-        "a": "Support varies by app. Settings → Behavior → Force Smooth on All Apps overrides automatic smoothing disablement for built-in Windows apps, but some WinUI apps may still ignore synthetic wheel events."
+        "a": "By default, Auto-disable in Windows apps pauses smoothing in built-in Windows apps (such as Notepad, Settings, Photos, Calculator, and Microsoft Store) that already animate scrolling natively. Turn on Settings → Behavior → Force Smooth on All Apps to override this, though some WinUI surfaces may still ignore synthetic wheel events."
       },
       {
         "q": "Will anti-cheat flag this?",
-        "a": "SmoothScroll auto-detects elevated targets (admin / UAC prompts) and passes raw input through, so anti-cheat sees standard wheel ticks. No exclusions to configure."
+        "a": "SmoothScroll never injects into game processes, passes raw input to elevated (administrator / UAC) windows, and automatically pauses smoothing when a known game is in the foreground."
       },
       {
         "q": "How is this different from Logi Options+ or Razer Synapse?",
-        "a": "SmoothScroll works with any mouse the OS recognises, not a vendor's hardware. It runs at the OS level, not the device-driver level, so it survives you switching peripherals."
+        "a": "SmoothScroll works with any mouse Windows recognizes rather than one vendor's hardware. Because it runs at the OS input layer, your scroll feel stays identical when you switch mice."
       },
       {
         "q": "Can I sync scroll direction with my Mac?",
-        "a": "Yes. The Reverse direction toggle is per-profile, so you can match the feel of a Mac you also use without affecting your Windows-native apps."
+        "a": "Yes. Reverse direction can be toggled globally in Scroll → Direction or inside individual scroll profiles."
       },
       {
         "q": "Is SmoothScroll really free? What's the catch?",
-        "a": "Yes. The current Windows release is free, with no ads or feature paywall. See GitHub Releases for the available packages."
+        "a": "Yes. The Windows release is free, with no ads, no account requirement, and no feature paywall. Installers are available on smoothscroll.top and GitHub Releases."
       },
       {
         "q": "Does SmoothScroll need an account or collect telemetry?",
-        "a": "No account, no telemetry, no analytics. Settings live locally in %APPDATA%\\SmoothScroll\\settings.json and logs stay on your device."
+        "a": "No account, no telemetry, no analytics. Settings live locally in %APPDATA%\\SmoothScroll\\SmoothScroll\\config\\settings.json and logs stay on your device."
       },
       {
         "q": "How do I install SmoothScroll on Windows?",
-        "a": "Download the installer from smoothscroll.top or the GitHub Releases page and run it. Installation is per-user with no administrator privileges required, and SmoothScroll starts automatically."
+        "a": "Download SmoothScroll_1.36.0_x64-setup.exe from smoothscroll.top or GitHub Releases and run it. Installation is per-user with no admin prompt, and a quick welcome screen lets you start with recommended defaults in one click."
       },
       {
         "q": "What do step size, animation time, and easing actually change?",
-        "a": "Step size sets how far each wheel notch travels, animation time sets how long the motion takes to settle, and easing sets the shape of the deceleration. Tune distance first, then duration, then curve."
+        "a": "Step size sets how many pixels each wheel notch travels, animation time sets how long the motion takes to settle, and easing sets the deceleration curve. Tune distance first, then duration, then curve."
       },
       {
         "q": "Which settings should I try first?",
-        "a": "Start with the defaults (144 px step, 220 ms animation, Quintic Out easing). If pages travel too far, lower step size; if motion stops too abruptly, raise animation time gradually."
+        "a": "Start with Default (144 px step, 220 ms animation, Quintic Out easing) or click the six presets at the top of the Scroll tab. Lower step size in Advanced if pages move too far, or raise animation time for a longer glide."
       },
       {
         "q": "What do acceleration and tail-to-head ratio do?",
-        "a": "Acceleration lets fast consecutive wheel ticks build momentum so flicks travel farther, capped by the max-acceleration setting. With Exponential Out easing, tail-to-head ratio controls how sharp the deceleration is - higher means a quicker start with a longer slow tail. Other easing curves do not use this ratio."
+        "a": "Max acceleration caps how much consecutive wheel ticks multiply speed during fast spins, while max velocity sets when acceleration peaks. With Exponential Out easing, tail-to-head ratio sharpens deceleration—higher values start faster with a longer slow tail."
       },
       {
         "q": "Does SmoothScroll work with precision touchpads?",
-        "a": "Yes. There is a separate touchpad section in Settings with its own smoothing toggle, pixel multiplier, and acceleration factor, independent from mouse-wheel handling."
+        "a": "Yes. Settings → Devices includes a dedicated Precision touchpad section with live input-source detection, a smoothing toggle, pixel multiplier, and acceleration factor."
       },
       {
         "q": "Does it support high-refresh-rate (120/144 Hz+) monitors?",
-        "a": "Yes. The engine emits smoothed output at 120 Hz, so motion stays fluid on high-refresh displays. Per-monitor profiles let different screens use different curves."
+        "a": "Yes. The engine schedules smooth output aligned to high-refresh displays, and Monitor profiles let each screen use its own scroll profile."
       },
       {
-        "q": "What are scroll profiles and per-app assignments?",
-        "a": "Profiles are named presets (for example Snappy or Slow Reading) with their own step size, animation time, and easing. You can assign a profile to a process name such as chrome.exe, so each app keeps its own feel without touching the global settings."
+        "q": "What are scroll profiles, monitor profiles, and per-app assignments?",
+        "a": "Scroll profiles store custom step size, animation time, acceleration, easing, direction, and zoom settings. Under Apps, you can assign a profile to a monitor, to an application across all monitors, or to an application on one specific monitor (priority: App on Monitor > App > Monitor > Global default)."
       },
       {
         "q": "What is the global hotkey and can I change it?",
-        "a": "The default global hotkey Ctrl + Alt + S toggles smoothing system-wide without leaving your keyboard. You can rebind it in Behavior → Hotkey combination."
+        "a": "Ctrl + Alt + S toggles smooth scrolling system-wide from anywhere. You can turn it off or record a new shortcut in Settings → Behavior → Hotkey combination."
       },
       {
         "q": "Will Ctrl + wheel zoom still work in browsers and design tools?",
-        "a": "Yes. When Ctrl passthrough is enabled, Ctrl + Wheel is forwarded unchanged. Otherwise SmoothScroll preserves Ctrl during smoothing, and Smooth zoom can enable dedicated zoom handling. For app-specific raw input, choose Native/raw in its Apps profile or exclude the app; discrete-wheel compatibility may override Native/raw."
+        "a": "Yes. SmoothScroll preserves Ctrl, Shift, and Alt modifiers during wheel events, and Scroll → Smooth zoom offers dedicated Ctrl + Wheel zoom smoothing (off by default). For untouched ticks in a specific tool, set its profile's Wheel compatibility to Native/raw or set the app to Disabled (pass-through)."
       },
       {
         "q": "Does SmoothScroll affect gaming performance or FPS?",
-        "a": "No. Game mode auto-pauses the engine when a known game is in the foreground, restoring raw input for weapon switching and scope zoom. SmoothScroll never injects into game processes."
+        "a": "No. Game mode automatically pauses smoothing whenever a game in your Known games list is focused, restoring raw notches for weapon wheels and scopes."
       },
       {
         "q": "Is there a macOS version?",
-        "a": "Not yet. macOS support is in progress and not published. SmoothScroll currently supports Windows 10 and 11; releases are announced on the GitHub Releases page."
+        "a": "Not published yet. SmoothScroll currently ships public builds for Windows 10 and 11; check GitHub Releases for announcements."
       },
       {
         "q": "How is SmoothScroll different from other free scrolling utilities?",
-        "a": "It works with any mouse Windows recognises, runs as a single lightweight executable with no drivers or services, keeps per-app profiles and exclusions, and is designed without telemetry."
+        "a": "It works with any mouse Windows recognizes, installs per-user without drivers or background services, supports per-app and per-monitor profiles, includes Game mode auto-bypass, and ships with zero telemetry."
       },
       {
-        "q": "SmoothScroll isn't smoothing one app - how do I fix it?",
-        "a": "Check whether the app is excluded or running elevated as administrator (raw input passes through there by design). For built-in Windows apps, Settings → Behavior → Force Smooth on All Apps can override automatic smoothing disablement, although WinUI apps may still ignore synthetic wheel events. Toggle smoothing with the global hotkey to compare."
+        "q": "SmoothScroll isn't smoothing one app — how do I fix it?",
+        "a": "Check three things: (1) whether the app is set to Disabled (pass-through) in the tray panel or Settings → Apps; (2) whether it runs as Administrator (elevated windows receive raw input unless SmoothScroll also runs elevated); and (3) for built-in Windows apps, enable Settings → Behavior → Force Smooth on All Apps."
       },
       {
         "q": "How do I back up or move my settings to another PC?",
-        "a": "Use Backup & restore in the About tab to export your full settings as JSON, then import the file on the other machine. No account or sync service is involved."
+        "a": "Open Settings → About → Backup & restore, click Export settings to save a JSON file, and use Import settings on your other PC."
       },
       {
         "q": "Do I need to change the Windows 'lines to scroll' setting?",
-        "a": "No. SmoothScroll has its own step-size control, so you can leave the Windows wheel setting alone and tune the smoothing layer directly."
+        "a": "No. SmoothScroll controls scroll distance directly via Step size, so you can keep the default Windows mouse wheel setting."
       }
     ]
   },
@@ -267,18 +270,18 @@
   "privacy": {
     "title": "Privacy Policy",
     "subtitle": "SmoothScroll collects no personal data. This page explains in detail what the app and this website handle, why, and what your choices are.",
-    "updated": "Last updated: September 27, 2026",
+    "updated": "Last updated: November 18, 2026",
     "backToHome": "Back to home",
     "seo": {
       "title": "Privacy Policy — SmoothScroll",
-      "description": "SmoothScroll collects no personal data: no account, no telemetry, no analytics, no ads. Settings and logs stay on your device. We may update this policy at any time."
+      "description": "SmoothScroll collects no personal data: no account, no telemetry, no analytics, no ads. Settings and logs stay on your device."
     },
-    "intro": "This Privacy Policy explains what information SmoothScroll (\"we\", \"the app\") and the website smoothscroll.top (\"the website\") handle, why, and what choices you have. In short: the app is designed to work entirely offline on your device. We run no server that receives your personal data, and we do not collect, sell, or share personal information.",
+    "intro": "This Privacy Policy explains what information SmoothScroll (\"we\", \"the app\") and the website smoothscroll.top (\"the website\") handle, why, and what choices you have. In short: the app is designed to work offline on your device. We run no server that receives your personal data, and we do not collect, sell, or share personal information.",
     "sections": [
       {
         "heading": "Scope",
         "paragraphs": [
-          "This policy applies to the SmoothScroll application for Windows, macOS and Linux, whether you obtained it from our website, GitHub, or the Microsoft Store, and to the smoothscroll.top website. It does not cover third-party services, which are governed by their own policies (see \"Third-party services\" below)."
+          "This policy applies to the SmoothScroll desktop application, whether obtained from smoothscroll.top, GitHub Releases, or the Microsoft Store, and to the smoothscroll.top website. It does not cover third-party services, which are governed by their own policies (see \"Third-party services\" below)."
         ]
       },
       {
@@ -289,95 +292,93 @@
         "bullets": [
           "No account or registration — the app works without sign-up.",
           "No analytics or usage statistics — we never learn which apps you use, which files you open, or which websites you visit.",
-          "No telemetry or crash reporting — error reports are never sent automatically.",
+          "No telemetry or automatic crash uploads in release builds.",
           "No advertising or ad trackers.",
-          "No cookies set by us — the website is static and sets no tracking cookies."
+          "No tracking cookies set by us — the website is static."
         ]
       },
       {
         "heading": "Data stored on your device (local data)",
         "paragraphs": [
-          "Like almost every desktop application, the app keeps everything it needs on your machine:"
+          "Everything the app needs stays locally on your machine:"
         ],
         "bullets": [
-          "Settings: your scroll preferences and per-app profiles, saved to %APPDATA%\\SmoothScroll\\settings.json (Windows) or the equivalent configuration folder on macOS/Linux.",
-          "Logs: diagnostic logs written to a local folder; you can open it from the app's Support section."
+          "Settings: your scroll preferences, per-monitor profiles, and per-app assignments, saved to %APPDATA%\\SmoothScroll\\SmoothScroll\\config\\settings.json on Windows.",
+          "Logs & icon cache: diagnostic logs (rotated daily and pruned after 7 days) and cached local app icons in %APPDATA%\\SmoothScroll\\SmoothScroll\\config\\logs; open the folder anytime from Settings → About → Open log folder."
         ],
-        "outro": "This data is never transmitted to us. You can view, edit, or delete it at any time; uninstalling the app or deleting these files removes all data the app has created."
+        "outro": "This data is never transmitted to us. You can view, export, edit, or delete it at any time; uninstalling the app and deleting %APPDATA%\\SmoothScroll removes all local data."
       },
       {
         "heading": "Update checks",
         "paragraphs": [
-          "The app periodically contacts GitHub (github.com) to check whether a new version is available. This is a standard HTTPS request that downloads a small version file; as with any web request, GitHub receives your IP address and standard technical headers (such as your operating system version). No other information about you or your usage is included.",
+          "The app contacts GitHub Releases (github.com) on launch and when you click Check now in Settings → About to check whether a signed update is available. As with any standard HTTPS request, GitHub receives your IP address and standard request headers. No personal or usage data is sent.",
           "If you installed the app through the Microsoft Store, updates are delivered by the Store itself."
         ]
       },
       {
         "heading": "Third-party services",
         "paragraphs": [
-          "The app and website link to or embed a small number of third-party services. When you interact with them, their own privacy policies apply:"
+          "The app and website link to or load resources from a small number of third-party services under their own privacy policies:"
         ],
         "bullets": [
-          "Update files on GitHub — version checks and downloads are served by GitHub (see their Privacy Policy).",
-          "Buy Me a Coffee — the donation link opens in your web browser. If you choose to donate, your payment details are handled by Buy Me a Coffee under their privacy policy.",
-          "VietQR — the app's Support section may display a bank QR image loaded from img.vietqr.io. Loading this image is a standard image request to that service.",
-          "GitHub Issues — when you report a problem or contact us publicly on GitHub, the content you post is visible on GitHub and handled under GitHub's terms."
+          "GitHub Releases — installer downloads and version checks are served by GitHub.",
+          "Buy Me a Coffee — clicking the support button opens buymeacoffee.com in your browser.",
+          "VietQR — opening the Support card in Settings → About may load a bank transfer QR image from img.vietqr.io.",
+          "GitHub Issues — bug reports and feature requests you submit on GitHub are public under GitHub's terms."
         ]
       },
       {
         "heading": "Microsoft Store",
         "paragraphs": [
-          "When you obtain the app through the Microsoft Store, Microsoft is an independent controller of data such as your Microsoft account, purchases, and device information, processed under the Microsoft Privacy Statement. We do not receive your personal data from Microsoft; we only see aggregate, non-identifying information such as download counts."
+          "When you obtain the app through the Microsoft Store, Microsoft independently processes account and store telemetry under the Microsoft Privacy Statement. We only see aggregate, non-identifying install counts."
         ]
       },
       {
         "heading": "Website and server logs",
         "paragraphs": [
-          "The website is a static site. Our hosting provider may automatically process standard technical logs (for example your IP address, browser type, and pages requested) for security and operational purposes. We do not use these logs to build profiles about you."
+          "The website is a static export hosted via GitHub Pages. The hosting provider may process standard technical access logs (such as IP address, user agent, and requested path) for security and delivery. We do not use these logs to profile visitors."
         ]
       },
       {
         "heading": "Legal bases (GDPR)",
         "paragraphs": [
-          "For visitors in the EU/EEA: we do not process your personal data on our own behalf, so there is no processing that requires a legal basis. The parties described above (GitHub, Microsoft, and our hosting provider) process limited technical data as independent controllers under their own policies."
+          "For visitors in the EU/EEA: we do not process personal data on our own behalf. The third parties listed above process limited technical request data as independent controllers under their own policies."
         ]
       },
       {
         "heading": "Children's privacy",
         "paragraphs": [
-          "The app and website are not directed at children, and we do not knowingly collect personal data from anyone — including children under 13 (or the equivalent minimum age in your jurisdiction) — because we do not collect personal data at all."
+          "The app and website are not directed at children, and we do not collect personal data from anyone, including children under 13."
         ]
       },
       {
         "heading": "Data security",
         "paragraphs": [
-          "Because your data stays on your device, we store nothing that could leak from us. Your local settings file is stored unencrypted in your user profile, protected by your operating system's user permissions. Please keep your device secure."
+          "Because your settings and logs stay on your device, we hold no user database. Local configuration files are stored in your Windows user profile and protected by your OS account permissions."
         ]
       },
       {
         "heading": "International data transfers",
         "paragraphs": [
-          "The third parties described above (for example GitHub and Microsoft) operate globally and may process technical data in countries other than your own, including the United States. Their policies describe the safeguards they apply."
+          "Third-party services such as GitHub and Microsoft operate globally and may process technical request metadata outside your country, including in the United States, under their respective safeguards."
         ]
       },
       {
         "heading": "Your rights",
         "paragraphs": [
-          "Depending on where you live, you may have rights such as access, correction, deletion, portability, and objection (for example under the GDPR or CCPA). Because we hold no personal data about you, there is generally nothing for us to act on — requests sent to us will be answered with confirmation that no personal data is held.",
-          "You remain in full control of the local files described above; deleting them achieves complete erasure of your app data."
+          "Depending on your jurisdiction (such as GDPR or CCPA), you may hold rights to access, correct, or erase personal data. Because we store no personal data about you, deleting your local files erases all app data immediately."
         ]
       },
       {
         "heading": "Changes to this policy",
         "paragraphs": [
-          "We may change this policy at any time. The current version is always published on this page, and the \"Last updated\" date at the top reflects the latest revision. Changes take effect when they are posted.",
-          "If a change is material, we may also announce it in the app's release notes. Your continued use of the app or website after a change takes effect means you accept the updated policy."
+          "We may update this policy when app behavior changes. The latest revision date appears at the top of this page."
         ]
       },
       {
         "heading": "Contact",
         "paragraphs": [
-          "Questions, requests, or complaints? Email nguyentruongk530042003@gmail.com or open an issue at github.com/quangtruong2003/SmoothScroll. We usually reply within a few days."
+          "Questions or requests? Email nguyentruongk530042003@gmail.com or open an issue at github.com/quangtruong2003/SmoothScroll."
         ]
       }
     ]
@@ -414,200 +415,209 @@
   "howItWorks": {
     "seo": {
       "title": "How SmoothScroll Works: Windows Scroll Settings Guide | Mouse Wheel Smoothing",
-      "description": "How SmoothScroll turns wheel input into 120 Hz eased scrolling on Windows: easing curves, profiles, shortcuts, exclusions."
+      "description": "How SmoothScroll turns wheel input into 120 Hz eased scrolling on Windows: presets, easing curves, per-monitor and per-app profiles, tray controls, and shortcuts."
     },
     "hero": {
       "eyebrow": "Complete walkthrough",
       "title": "See how SmoothScroll",
       "titleAccent": "actually works",
-      "subtitle": "A page-by-page tour of every tab, every setting, and every keyboard shortcut - so you can dial in the exact scroll feel you want. Learn what smooth scrolling does from raw wheel ticks to eased motion.",
+      "subtitle": "A tab-by-tab guide to every setting, preset, tray control, and shortcut in SmoothScroll v1.36—so you can dial in the exact scroll feel you want.",
       "ctaPrimary": "Download SmoothScroll",
       "ctaSecondary": "Jump to keyboard shortcuts",
       "backToHome": "Back to home"
     },
     "demo": {
-      "caption": "Every tab, every setting - recorded in real time",
-      "alt": "Animated walkthrough of the SmoothScroll settings window: Scroll, Devices, Advanced, Apps, Game mode, Behavior, About",
-      "hint": "Tip: each tab gets its own tour below.",
+      "caption": "Walkthrough of the SmoothScroll Settings window",
+      "alt": "Walkthrough of the SmoothScroll settings tabs: Scroll, Devices, Advanced, Apps, Game mode, Behavior, and About",
+      "hint": "Every current v1.36 setting is documented below in exact sidebar order.",
       "placeholder": "Demo unavailable. Reload the page to try again."
     },
     "bigPicture": {
       "title": "The big picture",
-      "subtitle": "Three steps run for every wheel tick - 120 times a second. What smooth scrolling does at each step is shown below.",
+      "subtitle": "Three steps run for every wheel notch at 120 Hz. What smooth scrolling does at each stage is shown below.",
       "steps": [
         {
           "title": "1. Intercept",
-          "description": "A low-level hook (Windows WH_MOUSE_LL / macOS CGEventTap) catches each raw wheel event before any app sees it."
+          "description": "A low-level Windows mouse hook (WH_MOUSE_LL) captures each raw wheel notch and its Ctrl/Shift/Alt modifiers before apps see it."
         },
         {
           "title": "2. Smooth",
-          "description": "An eased curve - Exponential, Cubic, Quintic, or Linear - interpolates the delta over your animation window. Acceleration stacks momentum if you scroll quickly."
+          "description": "Your active profile—matched by app and monitor—interpolates the distance along Exponential, Cubic, Quintic, or Linear easing while stacking momentum on fast spins."
         },
         {
           "title": "3. Emit",
-          "description": "Synthetic wheel events fire at 120 Hz to the foreground app. Excluded apps and games skip the engine and pass through untouched."
+          "description": "Smooth pulses fire at 120 Hz to the window under your cursor. Games, elevated admin windows, discrete controls, and pass-through apps receive untouched native ticks."
         }
       ]
     },
     "tabs": {
       "title": "Every tab in the app",
-      "subtitle": "Open Settings (left-click the tray icon) to follow along. The order below matches the sidebar.",
+      "subtitle": "Double-click the tray icon (or right-click → Open Settings) to follow along. The sidebar also lets you switch Light / System / Dark theme and 14 display languages.",
       "tocLabel": "Jump to a tab",
+      "rangeLabel": "Range",
+      "defaultLabel": "Default",
       "sections": [
         {
           "id": "scroll",
           "label": "Scroll",
-          "intro": "The Scroll tab has six one-click presets plus direction, zoom, and easing switches. For distance and speed sliders, open Advanced.",
+          "intro": "Enable smoothing, pick from six one-click presets, and set scroll direction, zoom, and easing curve. Distance and speed sliders live in Advanced.",
           "settings": [
             {
-              "name": "Enable",
-              "what": "Master toggle. Off = native OS scroll, on = SmoothScroll engine.",
-              "why": "Quick A/B without uninstalling. Also bound to your global hotkey.",
+              "name": "SmoothScroll (Master switch)",
+              "what": "Turns the smoothing engine on or restores native Windows scrolling immediately.",
+              "why": "Lets you A/B test in one click without quitting the app.",
               "range": "On / Off",
               "defaultValue": "On",
-              "tip": "Use the global hotkey (Ctrl+Alt+S) to flip this without leaving your keyboard."
+              "tip": "Press Ctrl + Alt + S anywhere—or left-click the tray icon—to toggle instantly."
+            },
+            {
+              "name": "Presets",
+              "what": "Six one-click feel presets: Slow, Default, Fast, Snappy, Mac-like, and Linear.",
+              "why": "Updates step size, animation time, max velocity, and max acceleration together.",
+              "range": "6 presets",
+              "defaultValue": "Default"
+            },
+            {
+              "name": "Reverse direction",
+              "what": "Inverts vertical mouse-wheel scrolling (natural-style, like a trackpad or macOS).",
+              "why": "Keep muscle memory consistent if you switch between a Mac and Windows.",
+              "range": "On / Off",
+              "defaultValue": "Off"
             },
             {
               "name": "Animation time",
-              "what": "Enable animation timing for smooth scrolling; adjust its duration in Advanced.",
-              "why": "Switch off if you prefer immediate movement.",
+              "what": "Enables timed eased motion; turn off for instant accelerated jumps. Duration is tuned in Advanced.",
+              "why": "Quickly compare animated glide against immediate distance scaling.",
               "range": "On / Off",
               "defaultValue": "On"
             },
             {
-              "name": "Reverse direction",
-              "what": "Inverts wheel direction (natural-style, like macOS).",
-              "why": "Match a Mac you also use, or just preference.",
+              "name": "Smooth horizontal wheel",
+              "what": "Applies smoothing to physical horizontal wheels and tilt-wheel input.",
+              "why": "Smooths wide spreadsheets, timelines, and canvas pans.",
               "range": "On / Off",
               "defaultValue": "Off"
             },
             {
-              "name": "Smooth horizontal scrolling",
-              "what": "Apply smoothing to physical horizontal or tilt-wheel input.",
-              "why": "Wide spreadsheets, timelines, image strips.",
-              "range": "On / Off",
-              "defaultValue": "Off"
-            },
-            {
-              "name": "Shift converts to horizontal",
-              "what": "Holding Shift while scrolling becomes horizontal scroll.",
-              "why": "Useful when your mouse has no tilt-wheel.",
+              "name": "Convert Shift + Wheel to horizontal",
+              "what": "Explicitly remaps vertical Shift + Wheel notches into horizontal scroll events.",
+              "why": "Handy in apps that don't natively treat Shift + Wheel as horizontal scroll.",
               "range": "On / Off",
               "defaultValue": "Off"
             },
             {
               "name": "Invert horizontal direction",
-              "what": "Reverse smoothed horizontal wheel input or Shift-to-horizontal conversion.",
-              "why": "Match horizontal movement to your preference.",
+              "what": "Flips the direction of smoothed horizontal wheel and Shift + Wheel scrolling.",
+              "why": "Match horizontal pan direction to your preference.",
               "range": "On / Off",
               "defaultValue": "Off"
             },
             {
               "name": "Smooth zoom",
-              "what": "Use dedicated smoothing for Ctrl + Wheel zoom rather than regular wheel smoothing.",
-              "why": "Turn on to tune zoom movement in apps that use Ctrl + Wheel.",
+              "what": "Applies dedicated smoothing to Ctrl + Wheel zoom in browsers and design tools.",
+              "why": "Off by default so standard stepped zoom stays crisp unless you opt in.",
               "range": "On / Off",
               "defaultValue": "Off"
             },
             {
               "name": "Invert zoom direction",
-              "what": "Reverse the direction of Ctrl + Wheel zoom when smooth zoom is enabled.",
-              "why": "Useful when a design tool's zoom direction feels backwards.",
+              "what": "Flips Ctrl + Wheel so scrolling up zooms out instead of in.",
+              "why": "Fixes tools whose zoom direction feels backwards to you.",
               "range": "On / Off",
               "defaultValue": "Off"
             },
             {
               "name": "Smooth easing",
-              "what": "Apply an easing curve to each movement. Off = linear ramp.",
-              "why": "Easing is what makes scroll feel natural instead of robotic.",
+              "what": "Applies the selected deceleration curve to each scroll movement; off uses a linear ramp.",
+              "why": "Deceleration is what makes scrolling settle naturally instead of stopping cold.",
               "range": "On / Off",
               "defaultValue": "On"
             },
             {
               "name": "Easing curve",
-              "what": "Four shapes - Exponential Out, Cubic Out, Quintic Out, Linear.",
-              "why": "Each curve decelerates differently. Quintic feels mac-like; Linear feels purely mechanical.",
+              "what": "Four deceleration shapes—Exponential Out, Cubic Out, Quintic Out (default), and Linear—with a live curve preview.",
+              "why": "Quintic Out gives a soft Mac-like landing; Cubic Out feels tighter.",
               "range": "Exponential / Cubic / Quintic / Linear",
               "defaultValue": "Quintic Out",
-              "tip": "Try Quintic if you want the longest, smoothest tail."
+              "tip": "Quintic Out has the smoothest tail for everyday browsing and reading."
             }
           ]
         },
         {
           "id": "devices",
           "label": "Devices",
-          "intro": "Fine-tuning for precision touchpads - separate from mouse-wheel handling.",
+          "intro": "Shows your live Detected input source (Mouse wheel, High-resolution wheel, or Precision touchpad) and tunes touchpad smoothing separately from mouse wheels.",
           "settings": [
             {
               "name": "Smooth touchpad scrolling",
-              "what": "Apply easing to high-resolution precision touchpad input.",
-              "why": "Touchpads emit pixel-level deltas; this smooths them too.",
+              "what": "Applies SmoothScroll easing to precision touchpad gestures. Turn off to use native app touchpad handling.",
+              "why": "Keeps mouse-wheel smoothing active even if you prefer Windows' native touchpad feel.",
               "range": "On / Off",
               "defaultValue": "On"
             },
             {
               "name": "Pixel multiplier",
-              "what": "Scale raw touchpad pixel deltas before smoothing.",
-              "why": "Match touchpad sensitivity to your mouse wheel.",
-              "range": "0.5–3.0×",
-              "defaultValue": "1.0×"
+              "what": "Scales raw pixel deltas coming from the precision touchpad.",
+              "why": "Balance touchpad travel speed against your mouse wheel.",
+              "range": "0.50–3.00×",
+              "defaultValue": "1.00×"
             },
             {
               "name": "Acceleration factor",
-              "what": "Boost large two-finger flicks. 0 disables acceleration entirely.",
-              "why": "Lets quick flicks travel farther while small drags stay precise.",
-              "range": "0–3",
-              "defaultValue": "1"
+              "what": "Boosts fast two-finger flicks on the touchpad. Set to 0 to disable touchpad acceleration.",
+              "why": "Cover long documents quickly while keeping slow drags pixel-accurate.",
+              "range": "0.00–3.00×",
+              "defaultValue": "1.00×"
             }
           ]
         },
         {
           "id": "advanced",
           "label": "Advanced",
-          "intro": "Fine-tune scroll distance, timing, acceleration, and wheel compatibility.",
+          "intro": "Dial in exact scroll distance, animation duration, momentum caps, and wheel compatibility mode. Every slider has a one-click reset button.",
           "settings": [
             {
               "name": "Step size",
-              "what": "Pixels scrolled per wheel notch.",
-              "why": "Bigger = covers more page per click; smaller = finer control.",
+              "what": "Pixels scrolled for each physical wheel notch.",
+              "why": "Higher values cover more page per notch; lower values give finer line-by-line control.",
               "range": "10–500 px",
               "defaultValue": "144 px",
-              "tip": "Drop to 100 for code review, raise to 200 for long PDFs."
+              "tip": "Try 90–110 px for dense code editors, or 180–220 px for long articles and PDFs."
             },
             {
               "name": "Animation time",
               "what": "How long each scroll movement takes to settle.",
-              "why": "Longer = silkier glide; shorter = snappier response.",
+              "why": "Longer durations glide further; shorter durations feel immediate and crisp.",
               "range": "50–1500 ms",
               "defaultValue": "220 ms",
-              "tip": "Anything under 120 ms feels almost native; over 300 ms feels mac-trackpad-y."
+              "tip": "160–200 ms feels snappy for coding; 350–500 ms feels closer to a Mac trackpad."
             },
             {
               "name": "Max acceleration",
-              "what": "Hard cap on the acceleration multiplier.",
-              "why": "Prevents runaway speed during fast spinning.",
+              "what": "Upper cap on the momentum multiplier when you spin the wheel rapidly.",
+              "why": "Lets fast spins fly down long files without losing control.",
               "range": "1–20×",
               "defaultValue": "10×"
             },
             {
               "name": "Max velocity",
-              "what": "Limit the maximum scroll speed.",
-              "why": "Keep rapidly repeated wheel input from moving too fast.",
+              "what": "Maximum scroll speed threshold before acceleration reaches its peak.",
+              "why": "Keeps rapid consecutive flicks predictable and bounded.",
               "range": "5–50",
               "defaultValue": "20"
             },
             {
               "name": "Tail to head ratio",
-              "what": "Adjusts the deceleration curve when Easing curve is set to Exponential Out.",
-              "why": "Higher = quicker initial speed, longer slow tail with Exponential Out; other curves ignore this setting.",
+              "what": "Shapes how steep the deceleration tail is when Easing curve is set to Exponential Out.",
+              "why": "Higher values launch faster and glide out longer (ignored by Cubic, Quintic, and Linear).",
               "range": "1–20",
               "defaultValue": "5"
             },
             {
               "name": "Wheel compatibility",
-              "what": "Choose Smooth pulses, Preserve whole wheel steps, or Native/raw input; application-specific compatibility may override this choice.",
-              "why": "Use a more compatible output mode for apps that respond poorly to smooth pulses.",
-              "range": "Smooth pulses / Whole wheel steps / Native/raw",
+              "what": "Selects Smooth pulses, Preserve whole wheel steps, or Native/raw output.",
+              "why": "Fixes DAWs (such as REAPER) or CAD tools that expect whole 120-unit wheel steps instead of sub-notch pulses.",
+              "range": "Smooth pulses / Preserve whole wheel steps / Native/raw",
               "defaultValue": "Smooth pulses"
             }
           ]
@@ -615,28 +625,28 @@
         {
           "id": "apps",
           "label": "Apps",
-          "intro": "Per-application overrides. Different apps deserve different feel.",
+          "intro": "Tailor scrolling per application and per display. Priority order: App on Monitor > App > Monitor > Global default.",
           "settings": [
             {
               "name": "Scroll profiles",
-              "what": "Named presets - e.g. Mac-like, Snappy, Slow Reading - each with its own step size, animation time, and easing.",
-              "why": "Avoid retuning the global slider every time you switch tasks.",
-              "range": "Unlimited",
+              "what": "Create named profiles with independent step size, animation time, velocity, acceleration, easing, direction, wheel compatibility, and zoom sensitivity (0.25–4.00×).",
+              "why": "Switch apps without ever touching global sliders.",
+              "range": "Unlimited profiles",
               "defaultValue": "None",
-              "tip": "Build profiles around how an app is used, not what it is. 'Long-form reading' applies to PDFs, books, and articles alike."
+              "tip": "Inside the profile editor, click Apply preset… to start from Slow, Mac-like, or Snappy in one click."
+            },
+            {
+              "name": "Monitor profiles",
+              "what": "Assign a default scroll profile to each connected display on multi-monitor setups.",
+              "why": "SmoothScroll switches profiles automatically as your cursor moves between a 4K external monitor and a laptop screen.",
+              "range": "Global default or any profile",
+              "defaultValue": "Global default"
             },
             {
               "name": "Per-app assignments",
-              "what": "Map a process name (e.g. chrome.exe) to a specific profile.",
-              "why": "Chrome can glide while VS Code stays snappy.",
-              "range": "Unlimited",
-              "defaultValue": "None"
-            },
-            {
-              "name": "Excluded apps",
-              "what": "Apps that bypass SmoothScroll entirely.",
-              "why": "Some apps (anti-cheat, specialty tools) prefer raw wheel input.",
-              "range": "Unlimited",
+              "what": "Click Assign app to bind a running app (or typed process name) to a custom profile or Disabled (pass-through)—across All monitors or on one specific monitor.",
+              "why": "Unifies custom per-app profiles and app exclusions in one place, with automatic preset suggestions by app category.",
+              "range": "Profile or Disabled (pass-through)",
               "defaultValue": "None"
             }
           ]
@@ -644,61 +654,75 @@
         {
           "id": "gamemode",
           "label": "Game mode",
-          "intro": "Auto-disable smoothing whenever a known game is in the foreground.",
+          "intro": "Automatically pauses smooth scrolling whenever a known game is in the foreground so raw notches go straight to the game.",
           "settings": [
             {
               "name": "Auto-disable in games",
-              "what": "Pauses the engine while any process from the games list is focused.",
-              "why": "Games need raw scroll input - for weapon switching, zoom scopes, etc.",
+              "what": "Pauses the engine when any listed game is focused and shows a live Active / Inactive status badge.",
+              "why": "Preserves exact notch-by-notch weapon switching, hotbars, and scope zoom.",
               "range": "On / Off",
               "defaultValue": "On"
             },
             {
-              "name": "Known games list",
-              "what": "Editable list of process names that trigger Game mode.",
-              "why": "Add your own games; remove false positives.",
-              "range": "Unlimited",
-              "defaultValue": "Curated default list"
+              "name": "Known games",
+              "what": "Ships with 28 popular titles preconfigured, plus a searchable installed-game picker (with icons) and manual .exe entry.",
+              "why": "Add any game from your PC in two clicks or remove entries you want smoothed.",
+              "range": "Editable .exe list",
+              "defaultValue": "28 built-in games"
             }
           ]
         },
         {
           "id": "behavior",
           "label": "Behavior",
-          "intro": "How the app itself behaves on launch, in the tray, and when you press the hotkey.",
+          "intro": "Control built-in Windows app handling, global hotkeys, login startup, and accessibility motion rules.",
           "settings": [
             {
+              "name": "Force Smooth on All Apps",
+              "what": "Overrides Auto-disable in Windows apps so built-in Windows apps also receive smoothed wheel output.",
+              "why": "Useful if you prefer SmoothScroll's curve over Windows' native UWP/WinUI scroll feel.",
+              "range": "On / Off",
+              "defaultValue": "Off"
+            },
+            {
+              "name": "Auto-disable in Windows apps",
+              "what": "Automatically pauses smoothing in built-in Windows apps (Notepad, Settings, Photos, Calculator, Microsoft Store) that already smooth scrolling natively.",
+              "why": "Prevents double-smoothing animations and resumes automatically when you switch away.",
+              "range": "On / Off",
+              "defaultValue": "On"
+            },
+            {
               "name": "Global hotkey",
-              "what": "System-wide shortcut to toggle smoothing on/off.",
-              "why": "Flip without alt-tabbing into Settings.",
+              "what": "Enables the system-wide keyboard shortcut to toggle SmoothScroll on or off.",
+              "why": "Flip smoothing instantly from any app without opening the tray.",
               "range": "On / Off",
               "defaultValue": "On"
             },
             {
               "name": "Hotkey combination",
-              "what": "Click the field, then press the keys you want.",
-              "why": "Avoid clashing with other apps you use.",
-              "range": "Any modifier+key combo",
+              "what": "Click the recorder box and press any modifier + key (A–Z, 0–9, or F1–F24).",
+              "why": "Avoid shortcut conflicts with your IDE, browser, or screen-capture tools.",
+              "range": "Modifier + key",
               "defaultValue": "Ctrl+Alt+S"
             },
             {
-              "name": "Start with Windows / macOS",
-              "what": "Launches SmoothScroll on login.",
-              "why": "Set-and-forget - smooth scroll from the first second of every session.",
+              "name": "Start with Windows",
+              "what": "Launches SmoothScroll automatically when you sign in to Windows.",
+              "why": "Set once and enjoy smooth scrolling from the start of every session.",
               "range": "On / Off",
               "defaultValue": "Off"
             },
             {
               "name": "Start minimized to tray",
-              "what": "Skip the settings window on launch.",
-              "why": "Pair with Start with Windows for a fully background experience.",
+              "what": "Keeps the Settings window hidden in the system tray on launch.",
+              "why": "Pair with Start with Windows for a silent background startup.",
               "range": "On / Off",
               "defaultValue": "On"
             },
             {
               "name": "Respect system Reduce Motion",
-              "what": "Three modes - Auto (follow OS), Always instant, Always smooth.",
-              "why": "Honor accessibility preferences automatically.",
+              "what": "Choose Auto (follow system), Always instant, or Always smooth, with a live OS Reduce Motion status readout.",
+              "why": "Automatically switches to instant scrolling when Windows animation effects are turned off.",
               "range": "Auto / Always instant / Always smooth",
               "defaultValue": "Auto"
             }
@@ -707,41 +731,48 @@
         {
           "id": "about",
           "label": "About",
-          "intro": "Version, updates, backup, and local stats - the housekeeping tab.",
+          "intro": "Check for updates, review release notes, open diagnostic logs, re-run onboarding, or back up your configuration.",
           "settings": [
             {
               "name": "Version & updates",
-              "what": "Check for and install signed updates.",
-              "why": "Stay on the latest fixes without hunting for downloads.",
-              "range": "Manual / Auto",
-              "defaultValue": "Manual check"
+              "what": "Displays your installed version and lets you check for, download, and install signed updates via Check now.",
+              "why": "Update in place and restart in one click.",
+              "range": "Check now",
+              "defaultValue": "v1.36.0"
             },
             {
-              "name": "Backup & restore",
-              "what": "Export your full settings as JSON, import on another machine.",
-              "why": "Move presets between PCs without redoing every slider.",
-              "range": "JSON file",
-              "defaultValue": "-"
-            },
-            {
-              "name": "Local stats",
-              "what": "Sessions and total usage time, computed on-device only.",
-              "why": "See how much you've used SmoothScroll. Nothing is uploaded.",
-              "range": "-",
+              "name": "Show release notes",
+              "what": "Reopens the What's new dialog summarizing Added, Fixed, Changed, and Performance highlights.",
+              "why": "See what changed after an update without leaving the app.",
+              "range": "Dialog",
               "defaultValue": "-"
             },
             {
               "name": "Open log folder",
-              "what": "Opens %APPDATA%\\SmoothScroll\\logs (or ~/Library/Logs/SmoothScroll on macOS).",
-              "why": "Useful when filing a bug report.",
-              "range": "-",
+              "what": "Opens %APPDATA%\\SmoothScroll\\SmoothScroll\\config\\logs in File Explorer.",
+              "why": "Grab recent diagnostic logs quickly when reporting a bug.",
+              "range": "7-day rolling logs",
               "defaultValue": "-"
             },
             {
               "name": "Re-run setup wizard",
-              "what": "Reopens the 3-step onboarding.",
-              "why": "Reset to a known-good preset if you've over-tweaked.",
-              "range": "-",
+              "what": "Reopens the Welcome screen—pick Just smooth it or the 3-step guided tuner (workflow, feel, live preview).",
+              "why": "Start fresh with a balanced preset anytime.",
+              "range": "1-click or 3 steps",
+              "defaultValue": "-"
+            },
+            {
+              "name": "Support this project",
+              "what": "Optional Buy me a coffee link and direct VietQR bank transfer card.",
+              "why": "Support independent development if SmoothScroll makes your daily work nicer.",
+              "range": "Optional",
+              "defaultValue": "-"
+            },
+            {
+              "name": "Backup & restore",
+              "what": "Export settings saves your entire configuration and profiles to a JSON file; Import settings restores it.",
+              "why": "Move your exact scroll setup to a new PC in seconds.",
+              "range": ".json file",
               "defaultValue": "-"
             }
           ]
@@ -749,11 +780,11 @@
       ]
     },
     "shortcuts": {
-      "title": "Keyboard shortcuts",
-      "subtitle": "Press these from anywhere on your system, or only inside the settings window - the Scope column tells you which.",
+      "title": "Keyboard & tray shortcuts",
+      "subtitle": "Control SmoothScroll from anywhere in Windows, from the system tray, or inside the Settings window.",
       "tableHeaders": {
         "action": "Action",
-        "keys": "Keys",
+        "keys": "Shortcut / Gesture",
         "scope": "Scope"
       },
       "rows": [
@@ -763,18 +794,23 @@
           "scope": "System-wide"
         },
         {
-          "action": "Open settings window",
+          "action": "Toggle smooth scrolling from tray",
           "keys": "Left-click tray icon",
           "scope": "System tray"
         },
         {
-          "action": "Open quick menu (Enable, Settings, Logs, Quit)",
+          "action": "Open Settings window",
+          "keys": "Double-click tray icon",
+          "scope": "System tray"
+        },
+        {
+          "action": "Open compact tray panel (active app, profile, toggle, Settings, Quit)",
           "keys": "Right-click tray icon",
           "scope": "System tray"
         },
         {
-          "action": "Show keyboard cheatsheet",
-          "keys": "?",
+          "action": "Show / hide keyboard shortcuts sheet",
+          "keys": "?  or  Ctrl + /",
           "scope": "Settings window"
         },
         {
@@ -783,129 +819,125 @@
           "scope": "Settings window"
         },
         {
-          "action": "Adjust focused slider",
+          "action": "Adjust focused slider step-by-step",
           "keys": "Arrow keys",
           "scope": "Settings window"
         },
         {
-          "action": "Toggle focused switch",
+          "action": "Toggle focused switch or slider",
           "keys": "Space",
           "scope": "Settings window"
         },
         {
-          "action": "Close dialog / cheatsheet",
+          "action": "Close dialog or shortcuts sheet",
           "keys": "Esc",
           "scope": "Settings window"
         },
         {
-          "action": "Zoom with Ctrl + Wheel (raw with Ctrl passthrough; otherwise Ctrl is preserved during smoothing)",
-          "keys": "Ctrl + wheel",
+          "action": "Zoom while preserving Ctrl modifier (dedicated curve when Smooth zoom is on)",
+          "keys": "Ctrl + Wheel",
           "scope": "Any app"
         },
         {
-          "action": "Horizontal scroll when Shift conversion is enabled",
-          "keys": "Shift + wheel",
+          "action": "Horizontal scroll when Convert Shift + Wheel to horizontal is enabled",
+          "keys": "Shift + Wheel",
           "scope": "Any app"
         }
       ],
-      "hotkeyNote": "The global hotkey is rebindable in Behavior → Hotkey combination. Pick something that doesn't clash with your other tools."
+      "hotkeyNote": "You can customize Ctrl + Alt + S anytime under Settings → Behavior → Hotkey combination."
     },
     "tray": {
       "title": "The system tray",
-      "subtitle": "SmoothScroll has no taskbar window - everything lives in the tray.",
+      "subtitle": "SmoothScroll stays out of your taskbar—everything lives in one clean tray icon.",
       "leftClick": {
-        "title": "Left-click the tray icon",
-        "description": "Opens the compact tray panel.",
+        "title": "Left-click & double-click",
+        "description": "Fast everyday actions directly on the tray icon—no menu needed.",
         "items": [
-          "Toggle smoothing on / off",
-          "Toggle Start with Windows",
-          "Toggle Start minimized",
-          "Open full settings",
-          "Jump to excluded apps",
-          "Open log file",
-          "Quit SmoothScroll"
+          "Single left-click: instantly toggle SmoothScroll ON / OFF",
+          "Tray icon updates live to show active or paused state",
+          "Double-click: open the full Settings window"
         ]
       },
       "rightClick": {
         "title": "Right-click the tray icon",
-        "description": "Native OS context menu (faster on slower machines).",
+        "description": "Opens the compact floating tray panel anchored above your taskbar.",
         "items": [
-          "Enable / Disable",
-          "Open Settings",
-          "Excluded Apps",
-          "Open Log File",
-          "Quit"
+          "Live ON / OFF status badge",
+          "Active app toggle switch (pause/resume for the foreground app)",
+          "Profile selector (Default, Disable for this app, or custom profiles)",
+          "Smooth Scrolling master switch",
+          "Open Settings & Quit SmoothScroll"
         ]
       },
       "perApp": {
-        "title": "Current app card",
-        "description": "The tray panel shows the foreground app and its category. Toggle smoothing for that app, or assign a profile - all without opening full settings."
+        "title": "Current app & profile row",
+        "description": "Before the tray panel opens, SmoothScroll snapshots the app you were just using—so you can mute smoothing or switch its profile in two clicks without opening Settings."
       }
     },
     "recipes": {
       "title": "Pro tips & recipes",
-      "subtitle": "Battle-tested presets for common workflows. Open Apps → Profiles to save them.",
+      "subtitle": "Tried-and-tested configurations for common workflows. Save them under Apps → Scroll profiles.",
       "items": [
         {
           "name": "Long-form reading",
-          "scenario": "PDFs, articles, books - skim or savor without losing your place.",
+          "scenario": "PDFs, documentation, and long articles—glide smoothly without losing your line.",
           "suggestion": "Slow preset",
           "settings": [
             "Step size: 80 px",
             "Animation time: 600 ms",
             "Easing: Quintic Out",
-            "Acceleration max: 4×"
+            "Max acceleration: 4×"
           ]
         },
         {
           "name": "Coding in VS Code / JetBrains",
-          "scenario": "Navigate code without overshooting and losing your line.",
-          "suggestion": "Default preset + shorter animation",
+          "scenario": "Tight vertical control across large files and diffs without floaty overshoot.",
+          "suggestion": "Default + shorter animation",
           "settings": [
             "Step size: 144 px",
             "Animation time: 180 ms",
             "Easing: Quintic Out",
-            "Acceleration max: 10×",
-            "Scroll → Smooth zoom: Off (regular Ctrl + Wheel smoothing unless Ctrl passthrough is active)"
+            "Max acceleration: 10×",
+            "Scroll → Smooth zoom: Off"
           ]
         },
         {
           "name": "Photoshop / Figma / Illustrator",
-          "scenario": "Frequent Ctrl+wheel zoom; smooth scroll within layer panels.",
+          "scenario": "Crisp Ctrl + Wheel canvas zoom alongside smooth layer-list scrolling.",
           "suggestion": "Default + Smooth zoom Off",
           "settings": [
-            "Keep the default profile",
-            "Scroll → Smooth zoom: Off for regular Ctrl + Wheel smoothing unless Ctrl passthrough is active; exclude the app for guaranteed untouched input"
+            "Scroll → Smooth zoom: Off",
+            "Or set Apps → Per-app assignments to Disabled (pass-through) for raw canvas input"
           ]
         },
         {
-          "name": "Premiere / DAWs",
-          "scenario": "Timeline scrubbing with Alt+wheel.",
-          "suggestion": "Snappy profile or native input",
+          "name": "Premiere / REAPER / DAWs",
+          "scenario": "Timeline scrubbing and whole-notch mixer controls.",
+          "suggestion": "Preserve whole wheel steps",
           "settings": [
-            "Apps → assign a Snappy profile to your editor",
-            "Apps → exclude the editor if Alt + Wheel needs untouched input"
+            "Profile → Wheel compatibility: Preserve whole wheel steps (automatic for REAPER)",
+            "Or set Disabled (pass-through) in Apps → Per-app assignments"
           ]
         },
         {
           "name": "Gaming",
-          "scenario": "Weapon wheel, zoom scope - anything that reads raw notches.",
+          "scenario": "Weapon wheels, hotbars, and scope zoom that expect instant raw notches.",
           "suggestion": "Game mode auto-disable",
           "settings": [
-            "Game mode → Auto-disable in games: ON",
-            "Add your game's process to the list (e.g. csgo.exe)"
+            "Game mode → Auto-disable in games: On",
+            "Pick your game from the searchable catalog (e.g. cs2.exe)"
           ]
         },
         {
           "name": "Laptop on battery",
-          "scenario": "Squeeze every minute - reduce CPU work.",
+          "scenario": "Shorter animations so each scroll finishes faster with minimal CPU wakeups.",
           "suggestion": "Snappy preset",
           "settings": [
             "Step size: 200 px",
             "Animation time: 200 ms",
             "Easing: Cubic Out",
-            "Acceleration max: 14×",
-            "Behavior → Reduce motion: Auto"
+            "Max acceleration: 14×",
+            "Behavior → Respect system Reduce Motion: Auto"
           ]
         }
       ]
@@ -913,18 +945,18 @@
     "privacy": {
       "title": "What it does (and doesn't) do",
       "points": [
-        "Reads mouse-wheel events at the OS hook layer - same API as accessibility tools and screen readers.",
-        "Does not inject into other processes.",
-        "Does not install drivers, services, or daemons.",
-        "Does not make network calls except checking GitHub for new releases (toggleable).",
-        "Settings live in %APPDATA%\\SmoothScroll (Windows) or ~/Library/Application Support/SmoothScroll (macOS).",
-        "Logs rotate daily, retained 7 days, stay on your device.",
-        "Installers and update information are published through GitHub Releases."
+        "Reads mouse-wheel events at the Windows WH_MOUSE_LL hook layer—the same standard API accessibility tools use.",
+        "Never injects DLLs or code into other processes.",
+        "Installs per-user in %LOCALAPPDATA%\\SmoothScroll with no kernel drivers, services, or background daemons.",
+        "Makes no network requests except checking GitHub Releases for signed app updates.",
+        "Stores settings locally in %APPDATA%\\SmoothScroll\\SmoothScroll\\config\\settings.json.",
+        "Rotates diagnostic logs daily and deletes logs older than 7 days automatically.",
+        "Publishes installers, checksums, and release notes openly on GitHub Releases."
       ]
     },
     "easingViz": {
       "title": "Easing curves",
-      "subtitle": "Click a curve to highlight it.",
+      "subtitle": "Select a curve to compare its deceleration profile.",
       "curves": {
         "exponentialOut": "Exponential Out",
         "cubicOut": "Cubic Out",

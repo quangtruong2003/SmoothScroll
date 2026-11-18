@@ -6,13 +6,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 let appVersion = 'latest'
-try {
-  const tauriConfPath = path.resolve(__dirname, '../src-tauri/tauri.conf.json')
-  const conf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf-8'))
-  if (typeof conf.version === 'string' && conf.version.length > 0) {
-    appVersion = conf.version
-  }
-} catch {}
+for (const [relPath, pickVersion] of [
+  ['../src-tauri/tauri.conf.json', (c) => c.version],
+  ['./lib/i18n/en.json', (c) => c?.stats?.fallback?.version?.replace(/^v/, '')],
+]) {
+  try {
+    const conf = JSON.parse(fs.readFileSync(path.resolve(__dirname, relPath), 'utf-8'))
+    const candidate = pickVersion(conf)
+    if (typeof candidate === 'string' && candidate.length > 0) {
+      appVersion = candidate
+      break
+    }
+  } catch {}
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

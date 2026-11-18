@@ -38,12 +38,12 @@ export function EasingCurveViz({ viz }: EasingCurveVizProps) {
 
   return (
     <FadeUp>
-      <div className="mb-8 rounded-xl border bg-card p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 rounded-xl border bg-card p-5 sm:p-6">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
           <h4 className="font-semibold text-foreground">
             {viz?.title ?? 'Easing curves'}
           </h4>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             {viz?.subtitle ?? 'Click a curve to highlight it.'}
           </span>
         </div>
@@ -104,8 +104,10 @@ export function EasingCurveViz({ viz }: EasingCurveVizProps) {
             return (
               <button
                 key={curve.id}
+                type="button"
+                aria-pressed={isSelected}
                 onClick={() => setActive(active === curve.id ? null : curve.id)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${
+                className={`inline-flex min-h-8 items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium motion-safe:transition-[color,background-color,border-color,transform] duration-150 border active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isSelected
                     ? 'border-foreground/30 bg-primary/10 text-primary'
                     : 'border-border bg-card text-muted-foreground hover:border-foreground/20'

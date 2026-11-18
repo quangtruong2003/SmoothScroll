@@ -19,7 +19,8 @@ export interface DownloadInfo {
 
 const REPO_BASE = 'https://github.com/quangtruong2003/SmoothScroll/releases'
 const FALLBACK_URL = `${REPO_BASE}/latest`
-const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? ''
+const RAW_APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? ''
+const APP_VERSION = RAW_APP_VERSION === 'latest' ? '' : RAW_APP_VERSION
 
 const NON_INSTALLER_EXT = /\.(sig|json|blockmap|sha256|sha512|asc|txt|md)$/i
 
@@ -27,10 +28,11 @@ function isInstallable(asset: ReleaseAsset): boolean {
   return !NON_INSTALLER_EXT.test(asset.name)
 }
 
-function buildDefaultUrl(version: string): { url: string; filename: string } {
-  if (!version) return { url: FALLBACK_URL, filename: '' }
-  const tag = version.startsWith('v') ? version : `v${version}`
-  const ver = version.replace(/^v/, '')
+export function buildDefaultUrl(version: string): { url: string; filename: string } {
+  const normalized = version.trim()
+  if (!normalized || normalized === 'latest') return { url: FALLBACK_URL, filename: '' }
+  const ver = normalized.replace(/^v/, '')
+  const tag = `v${ver}`
   const filename = `SmoothScroll_${ver}_x64-setup.exe`
   return { url: `${REPO_BASE}/download/${tag}/${filename}`, filename }
 }

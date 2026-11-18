@@ -95,6 +95,9 @@ export interface Dictionary {
     seo?: { title?: string; description?: string }
     viewAll?: string
     backToHome?: string
+    expandAll?: string
+    collapseAll?: string
+    allQuestionsLabel?: string
     questions?: { q?: string; a?: string }[]
   }
   finalCta?: {
@@ -163,6 +166,8 @@ export interface Dictionary {
       title?: string
       subtitle?: string
       tocLabel?: string
+      rangeLabel?: string
+      defaultLabel?: string
       sections?: {
         id?: string
         label?: string

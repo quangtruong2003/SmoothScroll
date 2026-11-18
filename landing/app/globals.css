@@ -62,12 +62,31 @@
   html {
     @apply bg-background;
     overflow-x: clip;
+    scroll-padding-top: 5rem;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     @apply text-foreground antialiased;
     overflow-x: clip;
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.6;
+  }
+  ::selection {
+    background-color: hsl(var(--brand-from) / 0.24);
+    color: hsl(var(--foreground));
+  }
+  button,
+  a,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+  button,
+  summary,
+  [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
   }
   .font-display {
     font-family: ui-sans-serif, system-ui, sans-serif;

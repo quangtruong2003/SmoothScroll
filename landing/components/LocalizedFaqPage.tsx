@@ -40,7 +40,7 @@ export function LocalizedFaqPage({ locale, dictionary: d }: LocalizedFaqPageProp
           </div>
         </section>
         {questions.length > 8 && (
-          <nav aria-label="All questions" className="px-4 pb-4">
+          <nav aria-label={d.faq?.allQuestionsLabel ?? 'All questions'} className="px-4 pb-4">
             <div className="container">
               <ul className="mx-auto flex max-w-3xl flex-wrap justify-center gap-2">
                 {questions.map((item, idx) => (

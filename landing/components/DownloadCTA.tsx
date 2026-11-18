@@ -38,10 +38,10 @@ export function DownloadCTA({
         download={filename || undefined}
         onClick={() => recordDownloadIntent(url)}
       >
-        <Download className="h-5 w-5 mr-2" />
-        {label}
+        <Download className="h-5 w-5 mr-2 shrink-0" />
+        <span>{label}</span>
         {downloadCount && (
-          <span data-testid="download-cta-count" className="ml-2 inline-flex items-center rounded-md bg-primary-foreground/15 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider">
+          <span data-testid="download-cta-count" className="ml-2 inline-flex shrink-0 items-center rounded-md bg-primary-foreground/15 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider tabular-nums">
             {downloadCount}
           </span>
         )}

@@ -36,18 +36,19 @@ export function HowItWorksHero({ locale, hero }: HowItWorksHeroProps) {
             </p>
           </FadeUp>
 
-          <FadeUp delay={0.2}>
-            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+          <FadeUp delay={0.2} className="w-full sm:w-auto">
+            <div className="flex w-full sm:w-auto flex-col sm:flex-row items-center justify-center gap-3 mt-2">
               <DownloadCTA
                 label={hero.ctaPrimary ?? 'Download'}
                 variant="brand"
                 size="xl"
+                className="w-full sm:w-auto"
               />
               <a
                 href="#shortcuts"
-                className="inline-flex items-center justify-center h-12 px-7 text-base font-medium rounded-md border border-border hover:bg-accent transition-colors"
+                className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center px-6 sm:px-7 text-sm sm:text-base font-medium rounded-md border border-border hover:bg-accent active:scale-[0.98] motion-safe:transition-[color,background-color,border-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <Keyboard className="h-4 w-4 mr-2" />
+                <Keyboard className="h-4 w-4 mr-2 shrink-0" />
                 {hero.ctaSecondary}
               </a>
             </div>

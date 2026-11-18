@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { formatDownloadCount, formatSize, sumReleaseDownloads } from './github'
+import { buildDefaultUrl } from './useDownloadUrl'
 
 describe('github.ts', () => {
   describe('formatDownloadCount', () => {
@@ -34,5 +35,20 @@ describe('github.ts', () => {
         { name: 'setup.exe.sig', browser_download_url: '', download_count: 4 },
       ] },
     ])).toBe(46)
+  })
+
+  it('builds valid installer or fallback URLs for release versions and latest', () => {
+    expect(buildDefaultUrl('')).toEqual({
+      url: 'https://github.com/quangtruong2003/SmoothScroll/releases/latest',
+      filename: '',
+    })
+    expect(buildDefaultUrl('latest')).toEqual({
+      url: 'https://github.com/quangtruong2003/SmoothScroll/releases/latest',
+      filename: '',
+    })
+    expect(buildDefaultUrl('1.36.0')).toEqual({
+      url: 'https://github.com/quangtruong2003/SmoothScroll/releases/download/v1.36.0/SmoothScroll_1.36.0_x64-setup.exe',
+      filename: 'SmoothScroll_1.36.0_x64-setup.exe',
+    })
   })
 })

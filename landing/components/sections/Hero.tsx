@@ -16,8 +16,8 @@ export function Hero({ locale, dict }: HeroProps) {
   const h = dict?.hero ?? { eyebrow: '', title: '', titleAccent: '', subtitle: '', cta: 'Download for Windows', trustLine: '', seeHow: '' }
 
   return (
-    <section data-hero-layout="editorial-split" className="relative min-h-[100dvh] px-4">
-      <div className="flex min-h-[100dvh] items-center overflow-hidden pt-28 pb-24">
+    <section data-hero-layout="editorial-split" className="relative min-h-[100svh] px-4">
+      <div className="flex min-h-[100svh] items-center overflow-hidden pt-24 pb-16 sm:pt-28 sm:pb-24">
         <HeroBackground3D />
         {/* keeps the copy legible over the ribbons and lands the section on the page background */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_42%,hsl(var(--background)/0.72)_0%,hsl(var(--background)/0.35)_55%,hsl(var(--background)/0)_100%)]" />
@@ -29,17 +29,17 @@ export function Hero({ locale, dict }: HeroProps) {
               {h.eyebrow}
             </p>
 
-            <h1 className="max-w-5xl text-balance text-[clamp(3.25rem,6.5vw,6.25rem)] font-bold leading-[0.98] tracking-tight text-foreground transition-colors duration-150 [color:hsl(var(--foreground))]">
+            <h1 className="max-w-5xl text-balance text-[clamp(2.35rem,6.5vw,6.25rem)] font-bold leading-[1.02] sm:leading-[0.98] tracking-tight text-foreground transition-colors duration-150 [color:hsl(var(--foreground))]">
               {h.title}{' '}
               <span className="italic text-foreground [color:hsl(var(--foreground))]">{h.titleAccent}</span>
             </h1>
 
-            <p className="max-w-[40rem] text-pretty text-lg leading-relaxed text-muted-foreground transition-colors duration-150 sm:text-xl">
+            <p className="max-w-[40rem] text-pretty text-base leading-relaxed text-muted-foreground transition-colors duration-150 sm:text-xl">
               {h.subtitle}
             </p>
 
             <div className="mt-1 flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
-              <div data-hero-cta>
+              <div data-hero-cta className="w-full sm:w-auto">
                 <DownloadCTA
                   label={h.cta ?? 'Download for Windows'}
                   variant="brand"
@@ -51,7 +51,7 @@ export function Hero({ locale, dict }: HeroProps) {
                 data-hero-cta
                 data-hero-secondary-cta
                 href={localePath(locale, 'how-it-works')}
-                className="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background/40 px-7 text-base font-medium backdrop-blur-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center rounded-md border border-border bg-background/40 px-6 sm:px-7 text-sm sm:text-base font-medium backdrop-blur-sm motion-safe:transition-[color,background-color,border-color,transform] duration-150 hover:bg-accent active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {h.seeHow}
               </Link>
@@ -67,7 +67,7 @@ export function Hero({ locale, dict }: HeroProps) {
         <div
           aria-hidden="true"
           data-hero-scroll-cue
-          className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground motion-reduce:hidden"
+          className="absolute bottom-7 left-1/2 z-10 hidden sm:flex -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground motion-reduce:hidden"
         >
           <span className="flex h-[34px] w-[22px] justify-center rounded-xl border-[1.5px] border-muted-foreground/55 pt-1.5">
             <span className="h-[7px] w-[3px] animate-hero-wheel rounded-sm bg-foreground" />

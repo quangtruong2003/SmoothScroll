@@ -53,27 +53,29 @@ export function Install({ dict }: InstallProps) {
           <p className="text-muted-foreground text-lg">{i.subtitle}</p>
         </div>
 
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-muted/20 p-8">
+        <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-muted/20 p-5 sm:p-8">
           <div className="space-y-6">
             <ol className="space-y-4">
               {(i.tabs?.windows?.steps ?? []).map((step, idx) => (
-                <li key={idx} className="flex gap-4">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+                <li key={idx} className="flex items-start gap-3.5 sm:gap-4">
+                  <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold tabular-nums text-primary-foreground">
                     {idx + 1}
                   </span>
-                  <span className="pt-1 text-foreground">{step}</span>
+                  <span className="pt-0.5 leading-relaxed text-foreground">{step}</span>
                 </li>
               ))}
             </ol>
             {(i.note?.windows) && (
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                <span className="text-yellow-500">&#9888;</span>
-                {i.note.windows}
+              <p className="text-sm text-muted-foreground flex items-start gap-2">
+                <span className="text-yellow-500 shrink-0" aria-hidden="true">&#9888;</span>
+                <span>{i.note.windows}</span>
               </p>
             )}
-            <div className="rounded-md bg-muted p-4 flex items-center justify-between gap-2 min-w-0">
-              <code className="text-sm font-mono text-muted-foreground break-all min-w-0">{`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`}</code>
-              <CopyButton text={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`} />
+            <div className="rounded-md bg-muted px-3.5 py-3 sm:p-4 flex items-center justify-between gap-2 min-w-0">
+              <code className="text-xs sm:text-sm font-mono text-muted-foreground break-all min-w-0">{`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`}</code>
+              <div className="shrink-0">
+                <CopyButton text={`%LOCALAPPDATA%\\SmoothScroll\\${i.filename ?? ''}`} />
+              </div>
             </div>
           </div>
           <div className="mt-6">

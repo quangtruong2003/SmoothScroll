@@ -44,9 +44,9 @@ export function FAQ({ dict, limit, viewAllHref }: FAQProps) {
                 variant="ghost"
                 size="sm"
                 onClick={toggleAll}
-                aria-label={allOpen ? 'Collapse all questions' : 'Expand all questions'}
+                aria-label={allOpen ? (f.collapseAll ?? 'Collapse all') : (f.expandAll ?? 'Expand all')}
               >
-                {allOpen ? 'Collapse all' : 'Expand all'}
+                {allOpen ? (f.collapseAll ?? 'Collapse all') : (f.expandAll ?? 'Expand all')}
               </Button>
             )}
           </div>
@@ -58,7 +58,7 @@ export function FAQ({ dict, limit, viewAllHref }: FAQProps) {
             {questions.map((item, idx) => (
               <AccordionItem key={faqAnchorId(item.q, idx)} value={`item-${idx}`} id={faqAnchorId(item.q, idx)} className="scroll-mt-24">
                 <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed">
+                <AccordionContent className="text-muted-foreground leading-relaxed [overflow-wrap:anywhere]">
                   {item.a}
                 </AccordionContent>
               </AccordionItem>

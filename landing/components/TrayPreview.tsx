@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Globe, MousePointer2, Monitor, Settings, Power } from 'lucide-react'
+import { ChevronDown, Globe, MousePointer2, Settings, Power } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { getTrayLabels, type Locale } from '@/lib/i18n/tray-labels'
 
@@ -14,7 +14,7 @@ interface TrayPreviewProps {
 export function TrayPreview({ locale }: TrayPreviewProps) {
   const labels = getTrayLabels(locale)
   const [enabled, setEnabled] = useState(true)
-  const [autostart, setAutostart] = useState(true)
+  const [appEnabled, setAppEnabled] = useState(true)
   const [pulseSettings, setPulseSettings] = useState(false)
   const [state, setState] = useState<TrayState>('running')
   const quitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -34,7 +34,7 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
   const handleQuit = () => {
     if (state !== 'running') return
     setEnabled(false)
-    setAutostart(false)
+    setAppEnabled(false)
     setState('quitting')
     if (quitTimerRef.current) clearTimeout(quitTimerRef.current)
     quitTimerRef.current = setTimeout(() => {
@@ -46,7 +46,7 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
   const handleReopen = () => {
     setState('running')
     setEnabled(true)
-    setAutostart(true)
+    setAppEnabled(true)
   }
 
   const statusOn = enabled && state !== 'closed'
@@ -60,6 +60,7 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
 
   const isQuitting = state === 'quitting'
   const isClosed = state === 'closed'
+  const profileValue = appEnabled ? labels.profile_default : labels.profile_disabled
 
   return (
     <div
@@ -90,6 +91,20 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
                 <Globe className="h-3 w-3" />
               </span>
               <span className="tray-row-label">{labels.current_app}</span>
+              <Switch
+                checked={appEnabled}
+                onCheckedChange={setAppEnabled}
+                aria-label={labels.toggle_current_app}
+                disabled={isQuitting}
+              />
+            </div>
+            <div className="tray-row">
+              <span className="tray-row-label text-xs text-muted-foreground">
+                {labels.profile_label}: {profileValue}
+              </span>
+              <span className="tray-row-icon" aria-hidden="true">
+                <ChevronDown className="h-4 w-4" />
+              </span>
             </div>
           </div>
 
@@ -108,18 +123,6 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
                 disabled={isQuitting}
               />
             </div>
-            <div className="tray-row">
-              <span className="tray-row-icon">
-                <Monitor className="h-4 w-4" />
-              </span>
-              <span className="tray-row-label">{labels.start_with_windows}</span>
-              <Switch
-                checked={autostart}
-                onCheckedChange={setAutostart}
-                aria-label={labels.start_with_windows}
-                disabled={isQuitting}
-              />
-            </div>
           </div>
 
           <div className="tray-divider" />
@@ -129,12 +132,14 @@ export function TrayPreview({ locale }: TrayPreviewProps) {
               <span className="tray-row-icon">
                 <Settings className="h-4 w-4" />
               </span>
-              <span className="tray-row-label">{labels.open_settings}</span></button>
+              <span className="tray-row-label">{labels.open_settings}</span>
+            </button>
             <button type="button" className="tray-row tray-row-action tray-row-destructive tray-row-button border-0 bg-transparent p-0 text-left font-[inherit]" onClick={handleQuit}>
               <span className="tray-row-icon">
                 <Power className="h-4 w-4" />
               </span>
-              <span className="tray-row-label">{labels.quit}</span></button>
+              <span className="tray-row-label">{labels.quit}</span>
+            </button>
           </div>
         </div>
       )}

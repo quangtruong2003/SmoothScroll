@@ -152,8 +152,14 @@ body[data-platform="linux"] .tray-panel-root {
   user-select: none;
 }
 
-.tray-row:hover {
-  background-color: hsl(var(--accent) / 0.06);
+@media (hover: hover) and (pointer: fine) {
+  .tray-row:hover {
+    background-color: hsl(var(--accent) / 0.06);
+  }
+}
+
+.tray-row-action:active {
+  background-color: hsl(var(--accent) / 0.12);
 }
 
 .tray-row-icon {
@@ -195,8 +201,14 @@ body[data-platform="linux"] .tray-panel-root {
   color: hsl(0 75% 50%);
 }
 
-.tray-row-destructive:hover {
-  background-color: hsl(0 75% 50% / 0.06);
+@media (hover: hover) and (pointer: fine) {
+  .tray-row-destructive:hover {
+    background-color: hsl(0 75% 50% / 0.06);
+  }
+}
+
+.tray-row-destructive.tray-row-action:active {
+  background-color: hsl(0 75% 50% / 0.12);
 }
 
 /* --- Quit state machine ---------------------------------------------- */
@@ -259,9 +271,15 @@ body[data-platform="linux"] .tray-panel-root {
   transition: color 200ms ease-out, transform 200ms ease-out;
 }
 
-.tray-reopen-button:hover {
-  color: hsl(var(--foreground));
-  transform: scale(1.02);
+@media (hover: hover) and (pointer: fine) {
+  .tray-reopen-button:hover {
+    color: hsl(var(--foreground));
+    transform: scale(1.02);
+  }
+}
+
+.tray-reopen-button:active {
+  transform: scale(0.98);
 }
 
 /* --- Reduced motion override ---------------------------------------- */

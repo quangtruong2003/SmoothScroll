@@ -29,7 +29,7 @@ function StatCard({
       {loading ? (
         <div className="h-9 w-24 rounded bg-muted animate-pulse" />
       ) : (
-        <span className="text-3xl font-bold tracking-tight">{value}</span>
+        <span className="text-3xl font-bold tracking-tight tabular-nums">{value}</span>
       )}
       <span className="block text-sm text-muted-foreground">{label}</span>
     </div>

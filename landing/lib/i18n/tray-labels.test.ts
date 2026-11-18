@@ -2,23 +2,26 @@ import { describe, it, expect } from 'vitest'
 import { getTrayLabels } from './tray-labels'
 
 describe('tray-labels', () => {
-  it('returns English labels when locale="en"', () => {
+  it('returns English labels matching the Windows app when locale="en"', () => {
     const labels = getTrayLabels('en')
     expect(labels.smooth_scrolling).toBe('Smooth Scrolling')
-    expect(labels.status_on).toBe('On')
-    expect(labels.status_off).toBe('Off')
+    expect(labels.status_on).toBe('ON')
+    expect(labels.status_off).toBe('OFF')
+    expect(labels.quit).toBe('Quit SmoothScroll')
   })
 
-  it('returns Vietnamese labels when locale="vi"', () => {
+  it('returns Vietnamese labels matching the Windows app when locale="vi"', () => {
     const labels = getTrayLabels('vi')
     expect(labels.smooth_scrolling).toBe('Cuộn mượt')
-    expect(labels.status_on).toBe('Bật')
+    expect(labels.status_on).toBe('BẬT')
+    expect(labels.quit).toBe('Thoát SmoothScroll')
   })
 
-  it('returns Chinese labels when locale="zh"', () => {
+  it('returns Chinese labels matching the Windows app when locale="zh"', () => {
     const labels = getTrayLabels('zh')
     expect(labels.smooth_scrolling).toBe('平滑滚动')
-    expect(labels.status_on).toBe('已启用')
+    expect(labels.status_on).toBe('开')
+    expect(labels.quit).toBe('退出 SmoothScroll')
   })
 
   it('all locales share the same key set', () => {

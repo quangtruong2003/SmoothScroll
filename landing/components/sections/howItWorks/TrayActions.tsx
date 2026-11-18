@@ -23,8 +23,8 @@ export function TrayActions({ tray }: TrayActionsProps) {
           </p>
         </FadeUp>
 
-        <div className="mt-10 grid lg:grid-cols-2 gap-5">
-          <FadeUp delay={0.1}>
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <FadeUp delay={0.1} className="min-w-0">
             <TrayCard
               icon={<MousePointer className="h-5 w-5" />}
               title={tray.leftClick?.title ?? ''}
@@ -33,7 +33,7 @@ export function TrayActions({ tray }: TrayActionsProps) {
               accent="primary"
             />
           </FadeUp>
-          <FadeUp delay={0.15}>
+          <FadeUp delay={0.15} className="min-w-0">
             <TrayCard
               icon={<MousePointerClick className="h-5 w-5" />}
               title={tray.rightClick?.title ?? ''}
@@ -95,13 +95,13 @@ function TrayCard({ icon, title, description, items, accent }: TrayCardProps) {
         {items.map((item, idx) => (
           <li
             key={idx}
-            className="flex items-center gap-2.5 text-sm text-foreground/85"
+            className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/85"
           >
             <span
               aria-hidden
-              className="h-1 w-1 rounded-full bg-foreground/40 shrink-0"
+              className="mt-2 h-1 w-1 rounded-full bg-foreground/40 shrink-0"
             />
-            {item}
+            <span className="min-w-0 break-words">{item}</span>
           </li>
         ))}
       </ul>

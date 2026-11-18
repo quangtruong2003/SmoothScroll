@@ -40,12 +40,12 @@ export function LocalizedPrivacyPage({ locale, dictionary: d }: LocalizedPrivacy
                   <section key={idx}>
                     <h2 className="text-xl font-semibold tracking-tight">{section.heading}</h2>
                     {(section.paragraphs ?? []).map((paragraph, pIdx) => (
-                      <p key={pIdx} className="mt-3 leading-relaxed text-muted-foreground">
+                      <p key={pIdx} className="mt-3 leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
                         {paragraph}
                       </p>
                     ))}
                     {section.bullets && section.bullets.length > 0 && (
-                      <ul className="mt-3 list-disc space-y-2 pl-6 leading-relaxed text-muted-foreground">
+                      <ul className="mt-3 list-disc space-y-2 pl-6 leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
                         {section.bullets.map((bullet, bIdx) => (
                           <li key={bIdx}>{bullet}</li>
                         ))}
